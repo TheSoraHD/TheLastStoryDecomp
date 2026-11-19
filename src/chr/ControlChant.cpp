@@ -1,5 +1,6 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
+#include "game/GameConfig_unk.h"
 #include "chr/ControlChant.h"
 #include "game/AiTarget.h"
 #include "game/TacView.h"
@@ -19,18 +20,7 @@
 #include "atn/EffectSystem_unk.h"
 #include "game/DamageResult_unk.h"
 
-// inferred: game settings (lbl_8087F0A8, as in chr/ControlCharge.cpp); names invented
-struct Settings_unk {
-    unsigned char m000[0x40];
-    int m40;   // inferred: the casters rise while chanting
-    unsigned char m044[0x2BC - 0x44];
-    float m2BC; // inferred: first frame of the chant motions
-    unsigned char m2C0[0x2C4 - 0x2C0];
-    int m2C4;  // inferred: the magic follows the target
-    unsigned char m2C8[0x48C - 0x2C8];
-    Input_unk mInput; // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: arena mode object (lbl_8087F610, as in chr/ControlCharge.cpp)
 extern "C" void* lbl_8087F610;
 // inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
@@ -369,7 +359,7 @@ int ControlChant::vf0C() {
     if (hit && (hit->mAC & 0x20)) {
         limit *= 1.5f;
     }
-    if (lbl_8087F0A8->m40 && mChara->mPos.y - m14.y < limit && fn_801C3D1C()) {
+    if (lbl_8087F0A8->m040 && mChara->mPos.y - m14.y < limit && fn_801C3D1C()) {
         atn::Vector3 pos(mChara->mPos);
         pos.y += 0.08f * rate;
         mChara->mPos = pos;
@@ -469,7 +459,7 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
     }
     model->mTracks[0].m0C = 1.0f;
     if ((mChara->mType == 0 || mChara->mType == 3) && !m1F) {
-        model->mTracks[0].m08 = lbl_8087F0A8->m2BC;
+        model->mTracks[0].m08 = lbl_8087F0A8->mMagicCutFrame;
     }
     lbl_8087F490->fn_803E2110(2, mChara);
     if (m1F) {
@@ -513,7 +503,7 @@ int ControlMagic::vf0C() {
         m18 += dt;
     }
     int follow = 0;
-    if (lbl_8087F0A8->m2C4 && !m1D && (int)hit->m02 == 2 && m14 && m14 != mChara && m14->CanAct_unk()) {
+    if (lbl_8087F0A8->mFlickMagic && !m1D && (int)hit->m02 == 2 && m14 && m14 != mChara && m14->CanAct_unk()) {
         atn::Vector3 p = m14->vf64(2);
         m08 = p;
         atn::Vector3 d(p.x - mChara->mPos.x, 0.0f, p.z - mChara->mPos.z);

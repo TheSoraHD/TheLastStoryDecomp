@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/PlayEffect.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -29,12 +30,7 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int
 extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x74];
-    int mDrawGimmickState; // 0x74
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: copies a string unless it is the destination itself (name invented)
 inline void CopyString_unk(char* dst, const char* src) {
@@ -89,7 +85,7 @@ void PlayEffect::vf10() {
 }
 
 void PlayEffect::vf14() {
-    if (lbl_8087F0A8->mDrawGimmickState != 0) {
+    if (lbl_8087F0A8->mDrawGimmickName != 0) {
         fn_803EDCF4();
     }
 }

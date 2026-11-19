@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/CharaPathMove.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -22,12 +23,7 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 // inferred: debug drawing
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x74];
-    int m74; // inferred: debug display
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: clear of a vector of trivially destructible elements (MSL erases the range; name
 // invented)
@@ -136,7 +132,7 @@ void CharaPathMove::vf10() {
 
 void CharaPathMove::vf14() {
     if (m9C != 0) {
-        if (lbl_8087F0A8->m74 != 0) {
+        if (lbl_8087F0A8->mDrawGimmickName != 0) {
             fn_803EDCF4();
         }
         if (mShowPath != 0) {

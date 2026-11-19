@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/SetConfig.h"
 #include "game/GameTask.h"
 #include "atn/SoundManager.h"
@@ -33,12 +34,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x194];
-    int m194; // inferred: the gimmick is disabled
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameTask* lbl_8087F430;
 // inferred: request of the battle object (class unknown)

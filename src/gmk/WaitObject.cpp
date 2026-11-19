@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/WaitObject.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
@@ -16,12 +17,7 @@
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* dst, const char* fmt, ...);
 extern "C" double cos(double x);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -236,7 +232,7 @@ void WaitObject::vf14() {
     if ((mDesc != 0 && mDesc->m7C == 0) || m54 == 0) {
         return;
     }
-    if (lbl_8087F0A8->m18 != 0 && (mStates[m54].mFlags & 2) != 2 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && (mStates[m54].mFlags & 2) != 2 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }

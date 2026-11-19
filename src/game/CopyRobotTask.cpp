@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/CopyRobotTask.h"
 #include "game/Inventory.h"
 #include "std/string.h"
@@ -12,11 +13,7 @@ extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model);    // in
 
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
-struct Settings_unk {
-    unsigned char m00[0x34];
-    int mDrawDebug; // 0x34
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -237,7 +234,7 @@ void CopyRobotTask::vf10() {
 
 void CopyRobotTask::vf14() {
     fn_80149A30();
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }

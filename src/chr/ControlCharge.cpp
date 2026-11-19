@@ -1,6 +1,7 @@
 // Charge of an attack (ControlCharge) and the attacks that follow it (ControlChargeAttackBase and
 // its subclasses ControlChargeAttack, ControlHighJumpAttack, ControlQuarkSeirenAttack;
 // ControlZanTackle).
+#include "game/GameConfig_unk.h"
 #include "chr/ControlCharge.h"
 #include "game/AiTarget.h"
 #include "game/GameTask.h"
@@ -19,14 +20,7 @@
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
 
-// inferred: game settings (as in chr/ControlCdnStone.cpp)
-struct Settings_unk {
-    unsigned char m000[0x314];
-    int m314; // inferred: nonzero when the target is chosen with the cursor
-    unsigned char m318[0x48C - 0x318];
-    Input_unk mInput; // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: arena mode object (lbl_8087F610, as in game/CharaTask.cpp)
 struct Arena_unk {
     unsigned char m000[0x540];
@@ -117,7 +111,7 @@ inline float LengthXZSq_unk(const atn::Vector3& v) {
 // inferred: the target is chosen with the cursor (name invented)
 inline bool IsCursorMode_unk() {
     bool result = false;
-    if (lbl_8087F610 == 0 && lbl_8087F0A8->m314 != 0) {
+    if (lbl_8087F610 == 0 && lbl_8087F0A8->mTacViewWind != 0) {
         result = true;
     }
     return result;

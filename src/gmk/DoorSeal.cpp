@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/DoorSeal.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -22,12 +23,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 namespace gmk {
 
@@ -106,7 +102,7 @@ void DoorSeal::vf10() {
 }
 
 void DoorSeal::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }

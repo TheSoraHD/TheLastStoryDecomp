@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/OpenBoard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -15,12 +16,7 @@ extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 // inferred: float variables in .sdata used only here (values 0)
 extern "C" float lbl_8087DFB8;
 extern "C" float lbl_8087DFBC;
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -182,7 +178,7 @@ void OpenBoard::vf10() {
 }
 
 void OpenBoard::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }

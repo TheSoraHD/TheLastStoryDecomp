@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/SetConfig.h"
 #include "atn/Memory.h"
 #include "atn/SoundManager.h"
@@ -15,11 +16,7 @@ struct Unk_8087EFA8 {
     int m34;
 };
 extern "C" Unk_8087EFA8* lbl_8087EFA8;
-struct Settings_unk {
-    unsigned char m000[0x244];
-    int m244;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 SetConfig* SetConfig::sInstance;
 

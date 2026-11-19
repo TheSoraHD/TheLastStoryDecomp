@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/FloatingBox.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -22,12 +23,7 @@ extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, 
                             float max, float step);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: bounding box of the model resource (atn::Model::m16C); names invented
 struct ModelBounds_unk {
@@ -159,7 +155,7 @@ void FloatingBox::vf10() {
 }
 
 void FloatingBox::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }

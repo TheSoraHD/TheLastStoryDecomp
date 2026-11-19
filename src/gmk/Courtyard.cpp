@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Courtyard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -9,12 +10,7 @@ extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 namespace gmk {
 
@@ -93,7 +89,7 @@ void Courtyard::vf10() {
 }
 
 void Courtyard::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }

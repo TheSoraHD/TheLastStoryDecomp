@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/ChickenManager.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -14,12 +15,7 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double sin(double x);
@@ -572,7 +568,7 @@ void ChickenManager::vf14() {
     if (mDesc->m7C != 0 && mState == 0) {
         for (int i = 0; i < mCount; i++) {
             Chicken_unk& c = mChickens[(unsigned int)i];
-            if (lbl_8087F0A8->m18 != 0) {
+            if (lbl_8087F0A8->mDrawMap != 0) {
                 c.mModel.fn_8008CD60();
             }
         }

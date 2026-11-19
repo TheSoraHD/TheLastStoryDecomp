@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/SparkCube.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -34,12 +35,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: frame parameters (as gmk::ArenaFloor)
 struct Params_unk {
     unsigned char m000[0x3A4];
@@ -219,7 +215,7 @@ void SparkCube::vf10() {
 }
 
 void SparkCube::vf14() {
-    if (lbl_8087F0A8->m18 != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0) {
         if (mHasSpark != 0 && m54 == 3) {
             float frame = mSpark.mTracks[0].m08;
             if (frame >= mSpark.fn_80097D7C(0)) {

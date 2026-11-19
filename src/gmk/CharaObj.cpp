@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/CharaObj.h"
 // inferred: GmkChara is declared after CharaObj (its vtable comes first in .data)
 #include "gmk/GmkChara.h"
@@ -27,12 +28,7 @@ inline GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path) {
     return 0;
 }
 }
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x74];
-    int m74; // inferred: debug display
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 namespace gmk {
 
@@ -88,7 +84,7 @@ void CharaObj::vf10() {
 }
 
 void CharaObj::vf14() {
-    if (m9C != 0 && lbl_8087F0A8->m74 != 0) {
+    if (m9C != 0 && lbl_8087F0A8->mDrawGimmickName != 0) {
         fn_803EDCF4();
     }
 }

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/LemonBucket.h"
 #include "gmk/Lemon.h"
 #include "atn/Csv.h"
@@ -27,12 +28,7 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: event state (class unknown): m48 nonzero while an event runs
 struct LemonEvent_unk {
     unsigned char m00[0x48];
@@ -227,7 +223,7 @@ void LemonBucket::fn_8042FDBC() {
 }
 
 void LemonBucket::vf14() {
-    if (mDesc->m7C != 0 && lbl_8087F0A8->m18 != 0 && m54 != 5) {
+    if (mDesc->m7C != 0 && lbl_8087F0A8->mDrawMap != 0 && m54 != 5) {
         if (CameraDistSq_unk(m6C) > 62500.0f) {
             return;
         }

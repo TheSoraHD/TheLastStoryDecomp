@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/MotionObject.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -33,12 +34,7 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_802378C4(atn::EfpFile* efp); // inferred: number of loops of the effect
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Matrix3x4 lbl_807C7060; extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -290,7 +286,7 @@ void MotionObject::fn_804139D8() {
 }
 
 void MotionObject::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }

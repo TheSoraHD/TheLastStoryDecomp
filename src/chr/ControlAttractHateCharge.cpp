@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "macros.h"
 #include "chr/ControlAttractHateCharge.h"
 #include "atn/EffectSystem_unk.h"
@@ -23,16 +24,7 @@ struct VoiceEntry_unk {
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
 
-// inferred: game settings (lbl_8087F0A8, as in game/CharaTask.cpp); names invented
-struct Settings_unk {
-    unsigned char m000[0x254];
-    int m254;
-    unsigned char m258[0x304 - 0x258];
-    int m304;
-    unsigned char m308[0x3CC - 0x308];
-    int m3CC; // inferred: id passed to fn_80210220
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
 struct GameState_unk {
     unsigned char m000[0x3A4];
@@ -77,8 +69,8 @@ int ControlAttractHateCharge::vf0C() {
     mTime -= step;
     if (mTime <= 0.0f) {
         if (mChara->fn_8016DCD4()) {
-            Settings_unk* settings = lbl_8087F0A8;
-            Record80210220_unk* rec = fn_80210220(settings->m3CC);
+            GameConfig_unk* settings = lbl_8087F0A8;
+            Record80210220_unk* rec = fn_80210220(settings->mParamIndex);
             const atn::Vector3* pos = &mChara->mPos;
             fn_800C344C(sSe[1], pos, 0, -1, 1.0f);
             mChara->mFlag27 = 0;
@@ -86,7 +78,7 @@ int ControlAttractHateCharge::vf0C() {
                 CharaShade_unk shade;
                 shade.m04 = rec->m48;
                 shade.m08 = rec->m4C;
-                shade.m0C = settings->m254;
+                shade.m0C = settings->mHateAttackedDelayFrame;
                 mChara->fn_80164B00(shade);
             }
             lbl_8087F048->fn_80102A40(0, mChara, rec->m28, rec->m2C);
@@ -179,7 +171,7 @@ int ControlOverdrive::vf0C() {
         if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
             lbl_8087EE68->fn_80018608(mChara, hit);
         }
-        if (lbl_8087F0A8->m304 != 0) {
+        if (lbl_8087F0A8->mOverdriveExplosion != 0) {
             BattleTask* mgr2 = lbl_8087F048;
             mgr2->fn_800FAB80(mChara, fn_80219E6C(0x1F6), mgr2->fn_800F8548(), &mChara->mPos, &mChara->mRot, 0, 30, -1, -1,
                         0.0f, 1.0f);

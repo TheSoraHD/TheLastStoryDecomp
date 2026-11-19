@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/PigeonManager.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -13,12 +14,7 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
@@ -507,7 +503,7 @@ void PigeonManager::vf10() {
 void PigeonManager::vf14() {
     if (mDesc->m7C != 0 && mState == 0) {
         for (int i = 0; i < mCount; i++) {
-            if (mPigeons[(unsigned int)i].mState != 0 && lbl_8087F0A8->m18 != 0) {
+            if (mPigeons[(unsigned int)i].mState != 0 && lbl_8087F0A8->mDrawMap != 0) {
                 mPigeons[(unsigned int)i].mModel.fn_8008CD60();
             }
         }

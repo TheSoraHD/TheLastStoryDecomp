@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/Em403WarLion.h"
 #include "Event/PathSpline.h"
@@ -34,13 +35,7 @@ extern "C" const WarLionPlace_unk lbl_80749B00[10] = {
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/CopyRobotTask.cpp
-struct Settings_unk {
-    unsigned char m00[0x30];
-    int m30; // inferred: frames per second (as in game/CharaTask.cpp)
-    int mDrawDebug; // 0x34
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: weak getter 0x8013C504 of game/CharaTask.cpp, inlined here where the budget allows
 inline GameScene* GameTask::fn_8013C504() {
     return m10D8;
@@ -372,7 +367,7 @@ void Em403WarLion::vf10() {
 
 void Em403WarLion::vf14() {
     fn_80149A30();
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
@@ -600,7 +595,7 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
         move.z *= 2.0f;
     }
     if ((mStatus.mParamB.m9C & 1) != 1) {
-        int fps = lbl_8087F0A8->m30;
+        int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
     move += m6B8;
