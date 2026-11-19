@@ -192,6 +192,9 @@ struct CharaLink_unk {
     unsigned char m00[0x218];
     CharaLinkTarget_unk* m218;
     CharaTask* GetChara_unk() { return m218 != 0 ? m218->m8C : 0; }
+    unsigned char m21C[0x24C - 0x21C];
+    unsigned char mCount;   // 0x24C: inferred: known characters (AI/AiCommon_unk, set by fn_800142CC)
+    CharaTask* mCharas[16]; // 0x250
 };
 
 struct CharaC58_unk {

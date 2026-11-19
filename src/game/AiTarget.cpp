@@ -45,7 +45,7 @@ extern "C" AiScriptInput_unk* fn_8001C260();  // inferred: input block of the AI
 extern "C" AiScriptOutput_unk* fn_8001C26C(); // inferred: output block
 extern "C" void fn_8001C1C0(void* script);    // inferred: runs an AI script
 extern "C" void fn_800142C4(CharaTask* chara); // inferred: sets the character of the script
-extern "C" void fn_800142CC(void* link);       // inferred: sets the link of the script
+extern "C" void fn_800142CC(CharaLink_unk* link); // inferred: sets the link of the script
 
 // inferred: link of the friend list (CharaTask + 0x14AC, as in game/Em301LShade.cpp)
 struct CharaListNode_unk {

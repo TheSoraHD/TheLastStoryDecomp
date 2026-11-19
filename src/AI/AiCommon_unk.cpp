@@ -19,14 +19,9 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" int fn_802180A8(const char* name);        // inferred: motion id from its name
 extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
 
-// inferred: current character and its list of 16 known characters (set by AI/AiUtil_unk)
-struct AiList_unk {
-    unsigned char m000[0x24C];
-    unsigned char mCount; // 0x24C
-    CharaTask* mCharas[16]; // 0x250
-};
+// inferred: current character and its link with 16 known characters (set by AI/AiUtil_unk)
 extern "C" CharaTask* lbl_8087EE60;
-extern "C" AiList_unk* lbl_8087EE64;
+extern "C" CharaLink_unk* lbl_8087EE64;
 extern "C" int fn_800197A4(void* ai, atn::Vector3* out, int* count, CharaTask* chara, const atn::Vector3* dir,
                            int arg, float angle);
 extern "C" int fn_80018C80(void* ai, int arg, float angle);
@@ -61,7 +56,7 @@ extern "C" int fn_8001A444(int index) {
 }
 
 // inferred: accessor of the list (it is reloaded for every element)
-static inline AiList_unk* GetList_unk() {
+static inline CharaLink_unk* GetList_unk() {
     return lbl_8087EE64;
 }
 
@@ -70,7 +65,7 @@ static inline AiList_unk* GetList_unk() {
 extern "C" void fn_8001A464(CharaTask** list) {
     int i;
     for (i = 0; i < GetList_unk()->mCount && i < 16; i++) {
-        list[i] = (*(AiList_unk* volatile*)&lbl_8087EE64)->mCharas[i];
+        list[i] = (*(CharaLink_unk* volatile*)&lbl_8087EE64)->mCharas[i];
     }
     for (; i < 16; i++) {
         list[i] = 0;

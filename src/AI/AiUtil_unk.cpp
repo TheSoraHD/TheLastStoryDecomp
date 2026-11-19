@@ -4,20 +4,20 @@
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// inferred: values set by game/AiTarget and read by AI/AiCommon_unk (types unknown)
+// inferred: current character and its link, set by game/AiTarget and read by AI/AiCommon_unk
 extern "C" {
-void* lbl_8087EE60;
-void* lbl_8087EE64;
+CharaTask* lbl_8087EE60;
+CharaLink_unk* lbl_8087EE64;
 }
 
 #define AI_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define AI_MIN(a, b) ((a) < (b) ? (a) : (b))
 
-extern "C" void fn_800142C4(void* p) {
+extern "C" void fn_800142C4(CharaTask* p) {
     lbl_8087EE60 = p;
 }
 
-extern "C" void fn_800142CC(void* p) {
+extern "C" void fn_800142CC(CharaLink_unk* p) {
     lbl_8087EE64 = p;
 }
 
