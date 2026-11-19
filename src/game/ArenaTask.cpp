@@ -168,9 +168,22 @@ void ArenaTask::vf14() {
     }
 }
 
-// NONMATCHING: 98.8% - the enemy pointer and the slot address (first loop) and the table pointer and
-// the place offset (second loop) are allocated to swapped registers. Tried: locals for the chara and
-// the place, index or pointer loops, if/else for mTable, PushBack_unk with an implicit conversion.
+// inferred: adds the character of a battle slot (name invented)
+static inline void AddEntry_unk(ArenaTask* self, BattleChara_unk* slot) {
+    self->mEntries.PushBack_unk(ArenaTask::Entry_unk(slot->mChara));
+}
+
+// inferred: collects the spawn points of the arena (ids from 50000; name invented). The counter is the one
+// of the caller's first loop (same register in both loops in the original)
+static inline void AddSpawns_unk(ArenaTask* self, GameScene* table, int& i) {
+    for (i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint& place = table->m78.mData[i];
+        if (place.mId >= 50000) {
+            self->mSpawns.PushBack_unk(&place);
+        }
+    }
+}
+
 void ArenaTask::fn_80043A24() {
     mTable = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (mTable == 0) {
@@ -182,17 +195,13 @@ void ArenaTask::fn_80043A24() {
     }
     BattleChara_unk* slot = mgr->mCharas;
     int n = mgr->mCharaCount;
-    for (int i = 0; i < n && !mEntries.full(); i++) {
-        mEntries.PushBack_unk(Entry_unk(slot->mChara));
+    int i;
+    for (i = 0; i < n && !mEntries.full(); i++) {
+        AddEntry_unk(this, slot);
         slot++;
     }
     mSpawns.mCount = 0;
-    GameScene* table = mTable;
-    for (unsigned int i = 0; i < table->m78.size(); i++) {
-        if (table->m78.mData[i].mId >= 50000) {
-            mSpawns.PushBack_unk(&table->m78.mData[i]);
-        }
-    }
+    AddSpawns_unk(this, mTable, i);
 }
 
 void ArenaTask::fn_80043B34() {
