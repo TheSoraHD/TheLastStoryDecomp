@@ -367,7 +367,9 @@ int ControlAttack::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 98.3% - as ControlAttack::ControlAttack.
+// inferred: the two bools of the auto attack test are named locals (materialized like the original), the
+// two character ids are tested with a negated && (no range compare) and the yaw of the direction is read
+// into a local (FPR order of the original)
 ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 5;
     Motion_unk* motion = &mChara->mMotion;
@@ -386,10 +388,14 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
         float back70 = cos(atn::DegToRad_unk(70.0f));
         Chara_unk* player = mChara;
         bool on = false;
-        if (player->IsPlayer() && !IsManualAttack_unk()) {
-            on = true;
+        bool isPlayer = player->IsPlayer();
+        if (isPlayer) {
+            bool manual = IsManualAttack_unk();
+            if (!manual) {
+                on = true;
+            }
         }
-        if (player->m50 == 0xAAE76 || player->m50 == 0xAAE77) {
+        if (!(player->m50 != 0xAAE76 && player->m50 != 0xAAE77)) {
             on = false;
         }
         if (motion->fn_80097D40(0x158) != 0) {
@@ -407,7 +413,8 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
                 }
             } else if (dot < -back70) {
                 atn::Vector3 r = dir.ToRotation_unk();
-                float angle = atn::WrapAngle_unk(r.y - rot.y);
+                float y = r.y;
+                float angle = atn::WrapAngle_unk(y - rot.y);
                 if (angle > 0.0f) {
                     id = 0x15A;
                 } else {
@@ -415,7 +422,8 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
                 }
             } else {
                 atn::Vector3 r = dir.ToRotation_unk();
-                float angle = atn::WrapAngle_unk(r.y - rot.y);
+                float y = r.y;
+                float angle = atn::WrapAngle_unk(y - rot.y);
                 if (angle > 0.0f) {
                     id = 0x158;
                 } else {
