@@ -11254,7 +11254,6 @@ template class Chara<EnemyTask>;
 } // namespace MP
 
 // inferred: warp points of the field where a player of team `team` can appear (by game mode)
-// NONMATCHING: 98.90% - registers of the loop (scene, offset and warp point)
 extern "C" int fn_804FC7E0(PPManager2_unk* mgr, atn::FixedArray_unk<gs::WarpPoint*, 32>* list, int team) {
     if (mgr->mGame == 0 || mgr->mGame->m10D8 == 0 || (mgr->mGame->m10D8->mFlags & 2) != 2) {
         return 0;
@@ -11263,7 +11262,7 @@ extern "C" int fn_804FC7E0(PPManager2_unk* mgr, atn::FixedArray_unk<gs::WarpPoin
     GameScene* scene = mgr->mGame->m10D8;
     for (unsigned int i = 0; i < scene->m78.mSize; i++) {
         int mode = mgr->mMode;
-        point = &scene->m78.mData[i];
+        point = &scene->m78[i];
         if (mode == 0) {
             if (point->mId < 100 || point->mId > 120) {
                 continue;
