@@ -9,13 +9,9 @@
 
 #include "game/HomeButtonMenu.h"
 
-// inferred: save manager (lbl_8087EF68)
-struct HbmSaveLoad_unk {
-    unsigned char m000[0x174];
-    int m174;
-};
-extern "C" HbmSaveLoad_unk* lbl_8087EF68;
-extern "C" int fn_800A4228(HbmSaveLoad_unk* mgr, int* out); // inferred: busy
+#include "atn/NandManager.h"
+extern "C" atn::NandManager* lbl_8087EF68;
+extern "C" int fn_800A4228(atn::NandManager* nand, int* err); // inferred: busy
 extern "C" void* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* lbl_8087EE90;
@@ -52,10 +48,10 @@ void HomeButtonMenu::fn_8044073C() {
         if (fn_800A555C(lbl_8087EF70, 0, 0x11) || fn_800A555C(lbl_8087EF70, 1, 0x11) ||
             fn_800A555C(lbl_8087EF70, 2, 0x11) || fn_800A555C(lbl_8087EF70, 3, 0x11)) {
             if (m88 != 0) {
-                HbmSaveLoad_unk* mgr = lbl_8087EF68;
+                atn::NandManager* mgr = lbl_8087EF68;
                 int out;
                 int busy = 1;
-                if (fn_800A4228(mgr, &out) == 0 && mgr->m174 <= 0) {
+                if (fn_800A4228(mgr, &out) == 0 && mgr->mIdle <= 0) {
                     busy = 0;
                 }
                 if (busy == 0) {
