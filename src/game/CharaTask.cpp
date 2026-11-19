@@ -1275,7 +1275,7 @@ extern "C" int fn_8003F440(CharaTask* chara, SkillRef_unk* data);
 
 // inferred: moves the character for its current mode (mC58.mMode); called by fn_80139560 with the
 // speed, direction and rate passed to vf34.
-// NONMATCHING: 99.6% - the Matrix3x4 of mode 10 calls its empty constructor (and gets f30 instead of f31);
+// NONMATCHING: 99.75% - f30 instead of f31 in mode 10 (its matrix comes by value from Matrix3x4::fn_8013A13C);
 // the 0.0f argument of fn_80097C08 is loaded later. Not inline: the original is a global function with
 // its literals in the file pool, and fn_80139560 still matches.
 int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
