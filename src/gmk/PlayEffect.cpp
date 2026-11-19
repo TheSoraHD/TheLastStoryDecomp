@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/PlayEffect.h"
 #include "atn/Csv.h"
@@ -10,25 +11,20 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
-extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A02C(atn::EffectManager* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
@@ -161,7 +157,7 @@ void PlayEffect::fn_803F7198(int index) {
     fn_800CB5C8(&mSound, 10, 0);
     Effect_unk* effect = &mEffects[index];
     if (index == 0) {
-        lbl_8087F3C0->mB8 = 1;
+        lbl_8087F3C0->mSystem.mLayer = 1;
     }
     fn_80232B7C(this, 0);
     if (effect->mRes.mResource != 0) {
@@ -195,7 +191,7 @@ void PlayEffect::fn_803F7198(int index) {
         fn_8023A02C(lbl_8087F3C0, this, 0, 8);
     }
     if (index == 0) {
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
     atn::SoundRef sound = fn_800C344C(effect->mSe, &m6C, 0, -1, 1.0f);
     if (index == 0) {

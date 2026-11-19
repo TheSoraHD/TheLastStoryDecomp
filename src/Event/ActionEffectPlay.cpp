@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "Event/Section.h"
 #include "Event/Behavior.h"
 #include "Event/ActionProcessors_unk.h"
@@ -49,19 +50,13 @@ struct Camera;
 } // namespace atn
 typedef atn::Camera Camera_unk;
 #include "Event/MessageLayoutPos_unk.h"
-// inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)
-// inferred: effect manager lbl_8087F3C0 (only the member used here)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8; // inferred: owner kind of the next effects (4: events)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(Event::EventManager_unk* manager, Event::Action* arg); // inferred: owner of the next effects
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* efp, int a, int b, MtxPtr mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* efp, int a, int b, MtxPtr mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, int c, int d, int e, int f, float scale); // inferred: plays an efp
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* data, atn::Model* model, int a, const atn::Vector3* pos,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, void* data, atn::Model* model, int a, const atn::Vector3* pos,
                             const atn::Vector3* rot, const atn::Color4f_unk* color, int b, int c, int d, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
 extern "C" unsigned int fn_800DC6B4(const char* str);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70; // inferred: pad
@@ -252,7 +247,7 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
         atn::Model* model = actor->fn_8001296C();
         MtxPtr mtx = actor->fn_80012AC4(node);
         fn_800DC6B4("[weapon]");
-        lbl_8087F3C0->mB8 = 4;
+        lbl_8087F3C0->mSystem.mLayer = 4;
         if (entry->m1C == 2) {
             void* efp = entry->m18;
             fn_80232B7C(manager, arg);
@@ -267,7 +262,7 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
             atn::Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
             fn_8023A8B4(lbl_8087F3C0, data, model, 0, &pos, &angle, &color, -1, -1, 1, scale);
         }
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         break;
     }
     case 3:
@@ -288,9 +283,9 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
         }
         if ((arg->m14 - arg->m10 > 0 && keyed == 0) || (keyed != 0 && key == 1)) {
             int keep = arg->GetParam_unk(11)->m04.i;
-            lbl_8087F3C0->mB8 = 4;
+            lbl_8087F3C0->mSystem.mLayer = 4;
             fn_80239DAC(lbl_8087F3C0, manager, owner, keep == 0);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         break;
     }

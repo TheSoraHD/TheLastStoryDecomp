@@ -8,6 +8,7 @@
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/LoadManager.h"
 #include "atn/RenderManager.h"
 #include "atn/Layer3D.h"

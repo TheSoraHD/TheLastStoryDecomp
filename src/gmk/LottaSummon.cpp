@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "gmk/LottaSummon.h"
 #include "game/GameScene.h"
 #include "atn/Csv.h"
@@ -23,20 +24,15 @@ struct CharaListNode_unk {
     CharaTask* mNext;
 };
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
@@ -73,17 +69,17 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 // inferred: plays an effect at the gimmick (name invented)
 inline void PlayEfp_unk(GimmickCommon* owner, atn::EfpFile* efp, int arg) {
     fn_80232B7C(owner, arg);
-    lbl_8087F3C0->mB8 = 1;
+    lbl_8087F3C0->mSystem.mLayer = 1;
     fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, owner->m6C, owner->m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
                 1.0f);
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 inline void PlayEfp2_unk(GimmickCommon* owner, atn::EfpFile* efp, int arg) {
     fn_80232B7C(owner, arg);
-    lbl_8087F3C0->mB8 = 1;
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    lbl_8087F3C0->mSystem.mLayer = 1;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A8B4(mgr, efp, 0, 0, owner->m6C, owner->m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
 // inferred: names invented
@@ -280,7 +276,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
         atn::EfpFile* efp = &mEfp[msg->mType];
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         if (mgr != 0) {
             PlayEfp2_unk(this, efp, 1);
         }
@@ -307,7 +303,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         }
         atn::EfpFile* efp = &mEfp[msg->mType];
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         if (mgr != 0) {
             PlayEfp2_unk(this, efp, 1);
         }

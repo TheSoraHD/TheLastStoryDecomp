@@ -5,6 +5,7 @@
 #include "game/DamageResult_unk.h"
 #include "atn/Memory.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/EffectSystem_unk.h"
 #include "math/Vec.h"
 #include "atn/SoundRef.h"

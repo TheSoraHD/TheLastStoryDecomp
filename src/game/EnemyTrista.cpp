@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/EnemyTrista.h"
 #include "atn/Csv.h"
 #include "chr/ControlBase.h"
@@ -25,21 +26,15 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0; m0B8 is a mode used while
-// the guard effect is created
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -746,9 +741,9 @@ void EnemyTrista::fn_8035DC58(int on, float time) {
     if (on != 0) {
         if (prev == 0) {
             fn_80232B7C(this, 5);
-            lbl_8087F3C0->mB8 = 2;
+            lbl_8087F3C0->mSystem.mLayer = 2;
             PlayEffect_unk(&m1504, &mMotion);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
             fn_800C344C("SE_PC006_001", &mPos, 0, -1, 1.0f);
         }
     } else if (prev != 0) {

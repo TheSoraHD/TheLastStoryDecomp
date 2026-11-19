@@ -15,6 +15,7 @@
 #include "game/ShopUpGrade.h"
 #include "atn/FadeCommon.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "game/AiTarget.h"
 #include "game/EnemyManager.h"
 #include "game/GameEventScript.h"

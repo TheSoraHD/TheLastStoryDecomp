@@ -17,6 +17,7 @@
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/DebugMessages_unk.h"
 #include "atn/EfpHandle_unk.h"
 

@@ -58,6 +58,7 @@
 #include "game/ChaserNpc.h"
 #include "gmk/TreasureBox.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/DamageCalc_unk.h"
 #include "db/ChapterList_unk.h"

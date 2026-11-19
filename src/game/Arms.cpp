@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "atn/Csv.h"
 #include "game/Arms.h"
 #include "game/GameTask.h"
@@ -23,20 +24,15 @@ extern "C" ArmsEffect_unk* fn_802072AC(int arg, int item);   // inferred: effect
 extern "C" std::string fn_8006B2D8(const std::string& path);  // inferred: name without extension
 extern "C" HitInfo_unk* fn_80219E6C(int id);                   // inferred: bullet/skill data by id
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 
 extern "C" GameTask* lbl_8087F430;
@@ -280,10 +276,10 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 
 void Arms::fn_80044CCC() {
     if (m29C && m2A0 == 0 && lbl_8087F3C0 != 0) {
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         fn_80232B7C(&mModel, 0);
         PlayEffect_unk(m29C.get(), GetModel_unk());
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         m2A0 = 1;
     }
 }
@@ -293,9 +289,9 @@ void Arms::fn_80044CCC() {
 extern "C" void fn_80044E0C(void* object, int arg) {
     Arms* self = (Arms*)object;
     if (self->m2A0 != 0 && lbl_8087F3C0 != 0) {
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         fn_80239DAC(lbl_8087F3C0, &self->mModel, 0, arg);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         self->m2A0 = 0;
         if (lbl_8087F430 != 0 && lbl_8087F430->m5590 != 0) {
             lbl_8087F430->m5590->fn_80570A74(self->m29C.get());

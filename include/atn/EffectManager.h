@@ -25,7 +25,6 @@ extern "C" const char* fn_80473F18(void* name); // inferred: resource name
 // inferred: current owner/group of the effects being created (statics of the effect system)
 extern "C" unsigned int fn_80232B88();
 extern "C" int fn_80232B90();
-extern "C" void fn_80232B7C(unsigned int owner, int group);
 extern "C" int fn_802346B4();
 extern "C" void fn_802346AC(int handle);
 struct EffectRes_unk;
@@ -154,9 +153,5 @@ public:
 } // namespace atn
 
 extern "C" atn::EffectManager* lbl_8087F3C0; // inferred: instance
-extern "C" void* fn_8023A680(atn::EffectManager* mgr, EffectRes_unk* res, int a, int b, int c, const atn::Vector3* pos,
-                             const atn::Vector3* rot, const EffectColor_unk* color, int d, int e, int f, float scale);
-extern "C" void fn_8023A02C(atn::EffectManager* mgr, unsigned int owner, int group, unsigned int flags);
-extern "C" void fn_80239DAC(atn::EffectManager* mgr, unsigned int owner, int group, int flag);
 
 #endif

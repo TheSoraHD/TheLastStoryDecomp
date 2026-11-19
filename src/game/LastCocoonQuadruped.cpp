@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/LastCocoonQuadruped.h"
 #include "atn/RenderManager.h"
 #include "chr/ControlBase.h"
@@ -111,17 +112,12 @@ static const QuadPlace_unk sQuadPlaces[10] = {
     {608, 0, 1}, {604, 1, 0}, {609, 0, 1}, {605, 1, 0}, {610, 0, 1},
 };
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -140,7 +136,7 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 

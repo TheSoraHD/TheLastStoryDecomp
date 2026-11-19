@@ -496,6 +496,7 @@ struct PPNetObject_unk {
 };
 extern "C" MP::PacketPackMP* lbl_8087F61C; // inferred: instance of MP::PacketPackMP
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/Array_unk.h"
 #include "game/PlayerManager.h"
 #include "game/GameCamera.h"

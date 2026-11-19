@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "Event/Manager.h"
 #include "game/GameTask.h"
 #include "atn/RenderManager.h"
@@ -178,13 +179,8 @@ inline void SetLayoutText_unk(atn::D2A_Layout_unk* layout, const char* name, con
 inline void SetLayoutValue_unk(atn::D2A_Layout_unk* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
-// inferred: effect manager (atn/EffectManager.cpp); only the field used here
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int group, int flag); // inferred: stops the effects of owner
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int group, int flag); // inferred: stops the effects of owner
 
 // inferred: bit `i` of `mask` is set (name invented)
 inline bool __IsBit_unk(unsigned int mask, int i) {
@@ -2898,7 +2894,7 @@ inline float GetLineRadius_unk(CharaTask* c) {
 }
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 
@@ -2966,9 +2962,9 @@ void GameUI::fn_803D7850(CharaTask* from, CharaTask* to, int index, int slide) {
 // inferred: stops the effects of m1554 (called by game/TacView)
 void GameUI::fn_803D8344() {
     if (m15B8 != 0) {
-        lbl_8087F3C0->mB8 = 5;
+        lbl_8087F3C0->mSystem.mLayer = 5;
         fn_80239DAC(lbl_8087F3C0, m1554, 0, 0);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         m15B8 = 0;
     }
 }
@@ -3166,7 +3162,7 @@ void GameUI::fn_803D83A8() {
                 }
             }
             if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-                lbl_8087F3C0->mB8 = 5;
+                lbl_8087F3C0->mSystem.mLayer = 5;
                 fn_80232B7C(m1554, 0);
                 int index = 0;
                 if (lbl_8087F9F8->m1590 == 1) {
@@ -3197,7 +3193,7 @@ void GameUI::fn_803D83A8() {
                         }
                     }
                 }
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 m15B4 = cursor;
                 m15B8 = 1;
             } else {
@@ -3209,7 +3205,7 @@ void GameUI::fn_803D83A8() {
             GameUIAimTarget_unk* target = GetAimTarget_unk(aim);
             if (target != 0) {
                 if (m1170 != target) {
-                    lbl_8087F3C0->mB8 = 5;
+                    lbl_8087F3C0->mSystem.mLayer = 5;
                     fn_80232B7C(&m1158, 0);
                     int k = 0;
                     for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
@@ -3247,12 +3243,12 @@ void GameUI::fn_803D83A8() {
                             }
                         }
                     }
-                    lbl_8087F3C0->mB8 = 0;
+                    lbl_8087F3C0->mSystem.mLayer = 0;
                 }
             } else if (m1170 != 0) {
-                lbl_8087F3C0->mB8 = 5;
+                lbl_8087F3C0->mSystem.mLayer = 5;
                 fn_80239DAC(lbl_8087F3C0, &m1158, 0, 0);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
             }
             m1170 = target;
         }

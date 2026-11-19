@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "game/EnemyTasha.h"
 #include "math/VecAssign_unk.h"
@@ -29,21 +30,15 @@ extern "C" char lbl_807C6B90[0x18];
 // inferred: damage of `hit` from `attacker` to `target` (game/DamageCalc_unk.cpp)
 extern "C" int fn_8003F538(HitInfo_unk* hit, CharaStatus* attacker, CharaStatus* target, int flags, void* work);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0; mB8 is a mode used while an
-// effect is created (as in game/Arms.cpp)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194();
@@ -1011,9 +1006,9 @@ void EnemyTasha::vf108() {
             }
             case 14:
                 fn_80232B7C(this, 5);
-                lbl_8087F3C0->mB8 = 2;
+                lbl_8087F3C0->mSystem.mLayer = 2;
                 TashaPlayEffect_unk(&m1640, &mMotion);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 break;
             case 17:
                 fn_80232B7C(this, 0);
@@ -1280,9 +1275,9 @@ void EnemyTasha::fn_8035ACF0(int state) {
     }
     case 14:
         fn_80232B7C(this, 5);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         TashaPlayEffect_unk(&m1640, &mMotion);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         break;
     case 17:
         fn_80232B7C(this, 0);

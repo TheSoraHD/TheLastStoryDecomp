@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/SwingObject.h"
 #include "game/GameTask.h"
@@ -36,17 +37,12 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
     NodeCallback_unk;
 extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, void* owner,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* owner,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -128,7 +124,7 @@ static void LoadSwing_unk(const char* data, int size, gmk::SwingParam_unk* param
 
 // inferred: not inline: MWCC inlines it into vf0C and the linker removes its own copy; compiled here, its
 // 0.0f and 1.0f are the first constants of the .sdata2 of the unit, as in the original (name invented)
-void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -319,9 +315,9 @@ int SwingObject::vf0C() {
         }
         if ((m58 & 2) != 2) {
             fn_80232B7C(this, 1);
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             PlayEfp_unk(lbl_8087F3C0, &mEfp, mModel.GetModel_unk());
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         m54 = 1;
         mCore.mCur = &mCore.mParams[0];
@@ -487,7 +483,7 @@ SwingPart_unk::SwingPart_unk(int id, void* arg, SwingPartPos_unk* pos, unsigned 
 
 // inferred: plays the effect of a swinging map part (the manager is evaluated first, as in the
 // original; name invented)
-inline void PlayPartEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, void* owner) {
+inline void PlayPartEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, void* owner) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -546,9 +542,9 @@ int SwingPart_unk::fn_803FFF40() {
         }
         if ((m134 & 2) != 2) {
             fn_80232B7C(this, 1);
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             PlayPartEfp_unk(lbl_8087F3C0, &mEfp, this);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         mCore.mCur = &mCore.mParams[0];
         UpdateSwing_unk(&mCore);

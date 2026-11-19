@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/WaitObject.h"
 #include "math/VecAssign_unk.h"
@@ -30,20 +31,15 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 // inferred: field (lbl_8087F430); class unknown
 extern "C" GameTask* lbl_8087F430;
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -89,7 +85,7 @@ namespace gmk {
 // invented)
 inline void WaitObject::PlayEfp_unk() {
     fn_80232B7C(this, m54);
-    lbl_8087F3C0->mB8 = 1;
+    lbl_8087F3C0->mSystem.mLayer = 1;
     atn::EfpFile* efp = &mEfp[m54];
     atn::Model* model = &mModel;
     atn::Vector3 pos;
@@ -98,7 +94,7 @@ inline void WaitObject::PlayEfp_unk() {
     pos.Set_unk(0.0f, 0.0f, 0.0f);
     Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
 GimmickCommon* WaitObject::fn_80418EAC(atn::Task* parent, int id, int arg) {

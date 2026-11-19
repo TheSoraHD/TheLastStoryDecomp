@@ -9,6 +9,7 @@
 #include "db/EquipParam_unk.h"
 #include "db/OptionParts_unk.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/ModelCamera_unk.h"
 #include "atn/Csv.h"
 #include "std/string.h"

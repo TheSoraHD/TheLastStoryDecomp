@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "macros.h"
 // inferred: file boundaries from the vtable/RTTI of gmk::DropItem, its own 0.0f in .sdata2 (0x808862C0) and
 // its creator 0x804093B4 (see docs/splits-auto-C.md, group 5)
@@ -30,17 +31,12 @@ extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 
 // inferred: the field task (lbl_8087F430)
 extern "C" GameTask* lbl_8087F430;
-// inferred: effects
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const float* color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager (bullet pool)
 // inferred: segment and capsule of the touch test (names invented)
@@ -365,10 +361,10 @@ void DropItem::vf10() {
         }
         if (show) {
             if (fn_80239D58(lbl_8087F3C0, this, 0) == 0) {
-                lbl_8087F3C0->mB8 = 1;
+                lbl_8087F3C0->mSystem.mLayer = 1;
                 fn_80232B7C(this, 0);
                 fn_8023A8B4(lbl_8087F3C0, &mEfp[m168], 0, 0, m6C, lbl_807C7030, mColor, -1, -1, 1, 1.0f);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
             }
         } else if (fn_80239D58(lbl_8087F3C0, this, 0) != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 0);
@@ -662,12 +658,12 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             // inferred: address of a temporary (accepted by MWCC); a named local changes the stack slots
             mSlot.fn_8044E418(&(m6C + m184), 25, 25, mData, mCount, m17C, m154);
             if (fn_80239D58(lbl_8087F3C0, this, 0) == 0) {
-                lbl_8087F3C0->mB8 = 1;
+                lbl_8087F3C0->mSystem.mLayer = 1;
                 fn_80232B7C(this, 0);
                 atn::EfpFile* efp = &mEfp[m168];
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 fn_8023A8B4(mgr, efp, 0, 0, m6C, lbl_807C7030, mColor, -1, -1, 1, 1.0f);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
             }
         } else {
             GimmickMsg_unk drop(6);
@@ -684,7 +680,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         if (msg->m0C == 1) {
             mSlot.mFlag26 = 0;
             fn_80232B7C(this, 1);
-            EffectMgr_unk* mgr = lbl_8087F3C0;
+            atn::EffectManager* mgr = lbl_8087F3C0;
             fn_8023A8B4(mgr, &mEfpGet, 0, 0, m6C, lbl_807C7030, mColor, -1, -1, 1, 1.0f);
         }
         break;

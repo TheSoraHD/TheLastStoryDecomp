@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "gmk/HealPoint.h"
 #include "atn/Csv.h"
@@ -21,20 +22,15 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 
 namespace gmk {
@@ -160,7 +156,7 @@ int HealPoint::vf40(GimmickMsg_unk* msg) {
         StopEffect_unk();
         break;
     case 2: {
-        lbl_8087F3C0->mB8 = 1;
+        lbl_8087F3C0->mSystem.mLayer = 1;
         fn_80239DAC(lbl_8087F3C0, this, 0, 1);
         fn_80232B7C(this, 0);
         Color4f_unk color;
@@ -177,7 +173,7 @@ int HealPoint::vf40(GimmickMsg_unk* msg) {
         color.b = 1.0f;
         color.a = 1.0f;
         fn_8023A8B4(lbl_8087F3C0, &mEfp, &mModel, 0, pos, rot, color, -1, -1, 1, 1.0f);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         if (vf60() != 0 && mEffect == 0) {
             StartEffect_unk();
         }

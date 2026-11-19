@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "game/GameTask.h"
 #include "game/Em201ZanGurgFinal.h"
@@ -45,21 +46,16 @@ extern "C" chr::CharaPart_unk* fn_800457A4(int kind, int id, int arg, CharaTask*
 extern "C" GameTask* lbl_8087F430;
 extern "C" GameTask* fn_80121F00();
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8; // inferred: effect layer (as in game/Arms.cpp)
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* efp, atn::Model* model, int arg3, const atn::Vector3& pos,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, void* efp, atn::Model* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -112,7 +108,7 @@ extern "C" inline void fn_80265804(CharaStatus* status, float value) {
     status->m2FC = value;
 }
 // inferred: plays an effect on the model (name invented)
-extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, void* efp, atn::Model* model, int arg) {
+extern "C" inline void fn_8026607C(atn::EffectManager* mgr, void* efp, atn::Model* model, int arg) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -478,9 +474,9 @@ extern "C" inline void fn_80266174(PlayerInput_unk* input, int value) {
 }
 extern "C" PlayerInput_unk* fn_80122550(GameTask* field);
 extern "C" PlayerManager* fn_8000D9E8();
-extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
-extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg);
-extern "C" void fn_800F84D0(EffectMgr_unk* mgr, int layer); // inferred: mB8 = layer
+extern "C" atn::EffectManager* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
+extern "C" void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg);
+extern "C" void fn_800F84D0(atn::EffectManager* mgr, int layer); // inferred: mB8 = layer
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 // inferred: weak copies kept in this file (accessors of CharaTask and of the shield)
 extern "C" inline FixedArray_unk<chr::CharaPart_unk*, 8>* fn_80266FA4(CharaTask* chara) {
@@ -1345,13 +1341,13 @@ void Em201ZanGurgFinal::vf98() {
     }
     if (show) {
         fn_80232B7C(m121C.get(), 0);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         PlayEffect_unk((atn::EfpFile*)m121C.get(), &mMotion);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         fn_80232B7C(&m15A0, 0);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         PlayEffect_unk(&m15A0, &mMotion);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         mFlag18 = 1;
     }
 }

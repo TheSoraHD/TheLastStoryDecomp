@@ -17,6 +17,7 @@
 #include "Event/Behavior.h"
 #include "db/EventIdTable_unk.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/GameVoice.h"
 #include "atn/SoundCore.h"

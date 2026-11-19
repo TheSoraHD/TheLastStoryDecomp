@@ -4,6 +4,7 @@
 #include "atn/Model_unk.h"
 #include "atn/SoundRef.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "game/NewCampPartsTop.h"
 #include "game/NewCampPartsStatus.h"
 #include "game/NewCampPartsMapSelect.h"

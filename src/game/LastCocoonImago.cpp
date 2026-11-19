@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/LastCocoonImago.h"
 #include "chr/ControlBase.h"
 #include "game/GameMessageList.h"
@@ -102,17 +103,12 @@ int LastCocoonImago::vf0C() {
     return 0;
 }
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/LastCocoonEgg.cpp)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);

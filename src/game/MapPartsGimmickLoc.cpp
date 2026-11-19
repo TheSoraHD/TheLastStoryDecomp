@@ -5,6 +5,7 @@
 #include "game/MapArea.h"
 #include "atn/RenderManager.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "game/MapManager.h"
 #include "game/AreaEffConfig.h"
 #include "game/GimmickManager.h"

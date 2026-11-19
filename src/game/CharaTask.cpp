@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/SetConfig.h"
 #include "db/StrategyAiTable_unk.h"
 #include "game/AiTarget.h"
@@ -5658,12 +5659,7 @@ void CharaTask::fn_8014C228() {
 }
 
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-// inferred: effect manager (see gmk/PlayEffect.cpp); mB8 is set to 2 while CharaTask::vf98 starts its effect
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: stops the effects of `owner`
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpFile)
@@ -10644,12 +10640,12 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
 // inferred: effect `efp` on the model at its origin
-inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void EffOrigin_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -10680,9 +10676,9 @@ void CharaTask::vf98() {
     }
     if (show) {
         fn_80232B7C(m121C.get(), 0);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         EffOrigin_unk(lbl_8087F3C0, m121C.get(), &mMotion);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         mFlag18 = 1;
     }
 }

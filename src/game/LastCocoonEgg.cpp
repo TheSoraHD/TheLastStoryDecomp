@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/LastCocoonEgg.h"
 #include "game/PopupTask.h"
 #include "game/CharaManager.h"
@@ -14,21 +15,16 @@
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -532,7 +528,7 @@ static inline void PlayEfp3_unk(atn::EfpFile* efp, void* model) {
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
-static inline void PlayEfp4_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model) {
+static inline void PlayEfp4_unk(atn::EffectManager* mgr, atn::EfpFile* efp, void* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     rot.Set_unk(0.0f, 0.0f, 0.0f);
@@ -721,7 +717,7 @@ void LastCocoonEgg::fn_8045531C() {
 }
 
 // inferred: plays an effect bound to a matrix (kind 5; as in game/EnemyQuarkSecond.cpp)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 // inferred: party member that can be targeted (as IsBurstTarget_unk of game/EnemyQuarkSecond.cpp)

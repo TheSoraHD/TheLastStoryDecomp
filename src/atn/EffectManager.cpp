@@ -12,6 +12,7 @@
 // thunks of EffectManager for its IRender base (0x8024372C/0x80243734, emitted by MWCC at the end).
 
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/RenderManager.h"
 
 #include "atn/EffectParams_unk.h"

@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/MapPartsEfp.h"
 #include "atn/Memory.h"
 #include "atn/LensFlare.h"
@@ -6,21 +7,16 @@ extern "C" int atoi(const char* str);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg3, const atn::Vector3& pos,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, int id, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int arg);
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg);
 
 MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, int type, atn::CsvTab* csv) {
@@ -55,7 +51,7 @@ void MapPartsEfp::vf10() {
     case 0:
         if (mDone == 0) {
             fn_80232B7C(this, 0);
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             Color4f_unk color;
             atn::Vector3 rot;
             atn::Vector3 pos;
@@ -71,7 +67,7 @@ void MapPartsEfp::vf10() {
             color.b = 1.0f;
             color.a = 1.0f;
             fn_8023A8B4(lbl_8087F3C0, &mEfp, id, 0, pos, rot, color, -1, -1, 1, 1.0f);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
             mDone = 1;
         }
         break;

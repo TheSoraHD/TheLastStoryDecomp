@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "game/Em101ElderZesyaSecond.h"
 #include "math/VecAssign_unk.h"
@@ -23,20 +24,15 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8; // inferred: effect layer (set to 2 around some effects, as in game/Arms.cpp)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
@@ -175,7 +171,7 @@ int Em101ElderZesyaSecond::vf0C() {
 }
 
 // inferred: same as PlayEffect_unk with the manager as a parameter (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -193,7 +189,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 }
 
 // inferred: plays a colored effect on the model (name invented)
-inline void PlayColorEffect_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const Color4f_unk& color) {
+inline void PlayColorEffect_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, const Color4f_unk& color) {
     fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
 }
 
@@ -298,12 +294,12 @@ void Em101ElderZesyaSecond::vf10() {
             if ((float)__fabs(frame - 24.0f) < 1.1920929e-7f) {
                 m1554 = 1;
                 m1558 = 0;
-                lbl_8087F3C0->mB8 = 2;
+                lbl_8087F3C0->mSystem.mLayer = 2;
                 fn_80232B7C(this, 1001);
                 Color4f_unk color = m15D4 == 0 ? Color4f_unk(0.0f, 1.0f, 0.35f, 1.0f)
                                                : Color4f_unk(1.0f, 0.3f, 0.0f, 1.0f);
                 PlayColorEffect_unk(lbl_8087F3C0, &m155C, &mMotion, color);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 fn_800C344C(sSounds_unk[0], &mPos, 0, -1, 1.0f);
                 int flag = m15D4 == 0 ? 0xE9 : 0xEA;
                 if (lbl_8087F430->fn_80370A78(flag) == 0) {
