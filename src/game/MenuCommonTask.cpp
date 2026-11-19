@@ -807,7 +807,7 @@ extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float 
 
 // NONMATCHING: 98.8% - scheduling of the size argument of fn_8006EF48
 // inferred: places the next 2D cursor on the text pane `name` of a d2anime (the anime is the id of the entry)
-extern "C" void fn_804A5824(MenuCommonTask* self, atn::D2A_Task* anime, const char* name, int end) {
+void MenuCommonTask::fn_804A5824(atn::D2A_Task* anime, const char* name, int end) {
     if (anime == 0 || name == 0) {
         return;
     }

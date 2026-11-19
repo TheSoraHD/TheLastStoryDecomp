@@ -85,7 +85,6 @@ extern "C" void fn_8044D6AC(Inventory* party, int money);
 // inferred: wide literals of this file kept in .sdata (L"", L"1", L"WEAPON")
 extern "C" const wchar_t lbl_8087E690[2];
 extern "C" GameConfig_unk* lbl_8087F0A8;
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
                             int end);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
@@ -201,7 +200,7 @@ void ShopIdentify::vf14() {
         mTop->mFlags &= ~4;
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mTopCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mTop, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mTop, name, 0);
         break;
     }
     case 7: {

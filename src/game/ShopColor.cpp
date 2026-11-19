@@ -54,7 +54,6 @@ extern "C" int fn_804444E8(void* party, int id); // inferred: number of items
 extern "C" void fn_8044441C(void* party, int id, int num); // inferred: removes items
 extern "C" int fn_80444BE8(void* party, ShopItem_unk* item);
 extern "C" ShopUV_unk fn_80444C50(void* party, int icon);
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
                             int end);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
@@ -175,7 +174,7 @@ void ShopColor::vf14() {
         mTop->mFlags &= ~4;
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mTopCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mTop, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mTop, name, 0);
         break;
     }
     case 7:

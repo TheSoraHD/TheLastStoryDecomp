@@ -73,7 +73,6 @@ public:
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
 #include "game/MenuCommonTask.h"
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::D2A_Task* anime, const char* name, int end);
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 extern "C" void* lbl_8087EF70;
@@ -252,7 +251,7 @@ void NewCampPartsTop::vf14() {
     if (m7C == 1) {
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mInfoAnime, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mInfoAnime, name, 0);
     }
 }
 

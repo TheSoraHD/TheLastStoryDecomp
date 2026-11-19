@@ -20,7 +20,6 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" wchar_t* wcsstr(const wchar_t* s, const wchar_t* sub);
 extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 extern "C" GameTask* lbl_8087F430; // inferred: field
@@ -361,7 +360,7 @@ void ShopUpGrade::vf14() {
         mTop->mFlags &= ~4;
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mTopCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mTop, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mTop, name, 0);
         break;
     }
     case 7:
