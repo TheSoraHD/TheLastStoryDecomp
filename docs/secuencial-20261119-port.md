@@ -124,3 +124,42 @@ Sesion secuencial del 2026-11-19 (rama `secuencial-20261119`, notas `docs/secuen
   Em315Coffin, GameCamera_unk, GameUI, PlayerInput_unk, TutorialTask, ReinforcePoint (metodos o structs propios en la vista:
   `fn_80116BAC`, `StatusRate_unk`, `ChaseParam_unk`, campos dentro de `m53C`...), ControlCdnStone y Trap (su `Input_unk`
   local choca con el de GameConfig_unk.h) y GimmickCommon (con GameConfig_unk.h fn_803EDB18 cambia de registros).
+- Commit c424b8f: ControlChaseCaught (`m520` -> `m4DC.m44`), ChaserNpc (`m53C..m578` -> `m53C.m00..m3C`,
+  struct GameConfig53C_unk), ControlCdnStone y Trap (su `Input_unk` local fuera: es el de GameConfig_unk.h).
+
+## 2.5 `EffectMgr_unk::mB8` -> `atn::EffectManager::mSystem.mLayer` (commits c424b8f y 4d47070)
+
+- `lbl_8087F3C0` es `atn::EffectManager`; `mB8` = `mSystem.mLayer` (EffectSystem_unk 0x6C, capa de dibujo de los efectos
+  nuevos). Fuera la vista local `EffectMgr_unk` en 34 unidades: ActionEffectPlay, Arms, AttractHatePoint, AutomaticDoor, CharaTask, CopyRobotTask, DoorSeal, DropItem, Em101ElderZesyaSecond, Em201ZanGurgFinal, EnemyTasha, EnemyTrista, FallingTower, Fireworks, FragileObject, GameUI, GimmickStateCommand, HealPoint, LandMine, LastCocoonEgg, LastCocoonImago, LastCocoonQuadruped, LottaSummon, MapPartsEfp, MotionObject, PlayEffect, RainDrops, SavePoint, SkeltonsMirror, SparkCube, SwingObject, TreasureBox, WaitObject, WaterLevel.
+- `atn/EffectManager.h` ya no declara `fn_80232B7C`, `fn_8023A680`, `fn_8023A02C` ni `fn_80239DAC`: pasan a
+  `include/atn/EffectApi_unk.h` (incluida por las 11 unidades que las usaban con la firma de la cabecera). Las demas
+  unidades las declaran con `void* owner` (y otras listas de argumentos en fn_8023A680). Para el port: el "owner" es un
+  puntero; en la cabecera es `unsigned int` (trunca en 64 bits): mejor `void*`/`uintptr_t` en EffectApi_unk.h.
+- Quedan con vista propia: EnemyQuarkStand (declara su propia `atn::EffectManager` parcial) y Em204Mulue(+Mp),
+  MotionCommand_unk, NewCampPartsMapSelect, SkillEffect, Em209SmallGolem, NewCampPartsGmk, em005_doppel_ganger (su
+  `EffectMgr_unk` tiene otra forma).
+
+## 2.6 Bugs de 64 bits
+
+- Commit e0b50cc: `EffectSlot_unk::m0C` (include/atn/EffectSystem_unk.h) es `atn::Texture*` (la segunda
+  textura del par, `&EffectTexturePair_unk::m30`, o 0); antes `int` con `(int)&...` (truncaba en 64 bits). El port puede quitar
+  su arreglo local.
+- Fuera (como dice el prompt): el color por valor de GXSetFog y `HitInfo_unk::m48`.
+
+## 2.5 `ActionOwner_unk` = `Event::Section` (commit 60ffa1a)
+
+- `Event::Action::fn_805381A0()` devuelve `Section*` (include/Event/Action.h); fuera el struct `ActionOwner_unk` de
+  Event/Behavior.h (`m10` = `Section::m10`, id del actor). Unidades: Node, BehaviorFollow, BehaviorGesture, BehaviorMoveTo,
+  ActionEffectPlay, ActionActorPosition (`fn_80224618(Section*)`), ActionCameraMode (`GetCamera_unk(Section*)`).
+
+## 2.5 Structs de fichero en cabeceras (commit 9cac0ae)
+
+- `SceneCameraData_unk` y `SceneHeader_unk` (antes locales de atn/LH_Scene.cpp) en `include/atn/SceneData_unk.h`;
+  `MotionNode_unk` y `MotionData_unk` (antes locales de atn/Motion_unk.cpp) en `include/atn/MotionData_unk.h`. Mismas
+  definiciones: el port solo tiene que cambiar ahi los punteros de 32 bits (`PTR32()`) y quitar sus `#if TARGET_PC`.
+- No llevados: `GimmickLocTable_unk` (MapPartsGimmickLoc) y `BuildingFile_unk` (MapPartsLocatorSet) son el mismo fichero
+  pero la primera vista empieza 0x10 bytes despues (cabecera) y tiene un getter debil con su nombre (0x80498E7C);
+  vistas de oclusion (`atn/ModelOcclusion_unk.h`): no buscadas.
+- No llevados: `PathData_unk` de game/PathData_unk.cpp (= `Event::Path`: la unidad repite `PathSpline_unk`, `PathPoint_unk` y un
+  `PathVec_unk` propio en vez de los de Event/Path.h/PathSpline.h) y `MenuD2A_unk` = `atn::D2A_Task` (incluir atn/D2A_Task.h
+  choca con las declaraciones locales de las unidades que incluyen MenuCommonTask.h).
