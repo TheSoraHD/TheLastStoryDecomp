@@ -3632,14 +3632,14 @@ void GameEventScript::fn_803A1B20(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, wait);
 }
 
-// NONMATCHING: 99.8% - r0/r5 swap in SetNext_unk (docs/mwcc-blockers.md, GameEventScript family)
 // inferred: waits for the event started by fn_803A1B20: the first frame starts it, then waits until
 // it ends and restores the camera and the leader
 void GameEventScript::fn_803A1DB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     EventIdEntry_unk* entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(args->m08);
     CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
-    result.SetNext_unk(cmd, 1);
+    result.mWait = 1;
+    result.mNext = NextCmd_unk(cmd);
     if (mB4 == -1) {
         fn_803A11D8(args->m08, args->m18, args->m0C, entry);
         if (entry->m44 == 1) {
@@ -4762,14 +4762,14 @@ void GameEventScript::fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk*
     result.mWait = window->mState != 0;
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: writes a message of the scene to the battle log
 void GameEventScript::fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(static_cast<const ScriptArgs_unk*>(cmd)->m0C);
     if (msg != 0) {
         lbl_8087F048->fn_80109828(msg->mText);
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: value of the chase or of the config `kind` (name invented)
@@ -4857,7 +4857,6 @@ void GameEventScript::fn_803A5A8C(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 99.8% - the jump table label and registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: settings of the chase and of the game config, with the value (m10, m0C, as fn_803A6CDC)
 void GameEventScript::fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -4915,10 +4914,10 @@ void GameEventScript::fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         break;
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
 void GameEventScript::fn_803A5F14(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     atn::IRenderLayer* layer = 0;
@@ -4934,10 +4933,10 @@ void GameEventScript::fn_803A5F14(ScriptResult_unk& result, const ScriptCmd_unk*
     if (layer != 0) {
         layer->m04 = args->m0C;
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
 void GameEventScript::fn_803A5F88(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
     if (leader != 0) {
@@ -4947,7 +4946,8 @@ void GameEventScript::fn_803A5F88(ScriptResult_unk& result, const ScriptCmd_unk*
             leader->m54C &= ~0x10;
         }
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // NONMATCHING: 99.5% - the counter and the count of the end loop of SkipBlock_unk swap r4/r5
@@ -4963,22 +4963,21 @@ void GameEventScript::fn_803A5FF8(ScriptResult_unk& result, const ScriptCmd_unk*
     }
 }
 
-// NONMATCHING: 98% - registers r0/r6 swapped (type/zero)
 void GameEventScript::fn_803A61CC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
 void GameEventScript::fn_803A61F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->m5664 = static_cast<const ScriptArgs_unk*>(cmd)->m08;
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: stores in (m10, m14) whether the event m08 (<= 0: the current one) is done (m0C 0) or
 // playing (m0C 1)
-// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A6230(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int id = args->m08;
@@ -4997,12 +4996,12 @@ void GameEventScript::fn_803A6230(ScriptResult_unk& result, const ScriptCmd_unk*
         }
     }
     fn_8039BF04(args->m10, args->m14, 0, 0, value);
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: stores a value of the arena (m08: 0 running, 1 mode, 2 m5C, 3 and 4 scores, 5 result) in
 // (m0C, m10)
-// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A6324(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int value = 0;
@@ -5030,10 +5029,10 @@ void GameEventScript::fn_803A6324(ScriptResult_unk& result, const ScriptCmd_unk*
         }
     }
     fn_8039BF04(args->m0C, args->m10, 0, 0, value);
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 99.8% - r0/r4 swap in SetNext_unk (docs/mwcc-blockers.md, GameEventScript family)
 // inferred: arena settings (m08) from the values m0C/m10 and m14/m18
 void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -5113,11 +5112,11 @@ void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         }
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: enables or disables the crowd of NPCs
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     int enable = static_cast<const ScriptArgs_unk*>(cmd)->m10;
     if (CrowdManager::sInstance != 0) {
@@ -5128,10 +5127,10 @@ void GameEventScript::fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         CrowdManager::sInstance->fn_801EB8C0(enable);
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: marks (m08 0) or unmarks (1) a character on the minimap of the town
 void GameEventScript::fn_803A6744(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -5149,7 +5148,8 @@ void GameEventScript::fn_803A6744(ScriptResult_unk& result, const ScriptCmd_unk*
             break;
         }
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // NONMATCHING: 93.9% - register allocation (free/entry/this and the loop variables), r0/r4 in SetNext_unk
@@ -5235,7 +5235,6 @@ void GameEventScript::fn_803A6B9C(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: controls the game timer (m08 0/1: starts it counting down/up to the value, 2: pauses,
 // 3: stops, 4: adds, 5: subtracts); the value is m10, or the flag m10 (m0C 1, 2) or a random number
 // in [1, m10] (m0C 3)
@@ -5263,7 +5262,8 @@ void GameEventScript::fn_803A6CDC(ScriptResult_unk& result, const ScriptCmd_unk*
             break;
         }
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: passes a character to the gimmick (m10, m14) (vf4C)
@@ -5423,7 +5423,6 @@ void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: m08 != 0: fn_8017A504 on the leader, 0: clears its flag 0x200000
-// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A7C28(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
     if (leader != 0) {
@@ -5433,12 +5432,12 @@ void GameEventScript::fn_803A7C28(ScriptResult_unk& result, const ScriptCmd_unk*
             leader->m54C &= ~0x200000;
         }
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: opens a menu of the town (m10 bit 1: shop animations of town m14, bit 2: fn_803E65F8,
 // else m08 3: library, 5: nothing, others through fn_8036E6D4)
-// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A7CC0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int flags = args->m10;
@@ -5457,7 +5456,8 @@ void GameEventScript::fn_803A7CC0(ScriptResult_unk& result, const ScriptCmd_unk*
             fn_8036E6D4(lbl_8087F430, args->m08, args->m0C, args->m14);
         }
     }
-    result.SetNext_unk(cmd, 1);
+    result.mWait = 1;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: closes a gauge of the UI (m10 bit 1) or opens it (bit 2), the minimap of the town follows;
@@ -5489,7 +5489,6 @@ void GameEventScript::fn_803A7D94(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, wait);
 }
 
-// NONMATCHING: 99.5% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: stores a value of the song (m08: 0 state, 1 index, 3 distance, 4 and 5 volumes in percent)
 // in (m0C, m10)
 void GameEventScript::fn_803A7EB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -5520,10 +5519,10 @@ void GameEventScript::fn_803A7EB8(ScriptResult_unk& result, const ScriptCmd_unk*
         }
     }
     fn_8039BF04(args->m0C, args->m10, 0, 0, value);
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 99.6% - r0/r4 swap in SetNext_unk (docs/mwcc-blockers.md, GameEventScript family)
 // inferred: song control (m08: 0 state, 1 song, 2 position of a warp point, 3 distance, 4/5 volumes
 // in percent, 6 environment sounds)
 void GameEventScript::fn_803A7FBC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -5559,11 +5558,11 @@ void GameEventScript::fn_803A7FBC(ScriptResult_unk& result, const ScriptCmd_unk*
             break;
         }
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: stores the money of the inventory (m08 0) in (m0C, m10)
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A81F8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int value = 0;
@@ -5571,10 +5570,10 @@ void GameEventScript::fn_803A81F8(ScriptResult_unk& result, const ScriptCmd_unk*
         value = Inventory::instance_->mMoney;
     }
     fn_8039BF04(args->m0C, args->m10, 0, 0, value);
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: sets the money (m08 0) to the value (m0C, m10, as fn_803A6CDC), with the notice of the
 // change in the battle log and the UI
 void GameEventScript::fn_803A8284(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -5593,15 +5592,16 @@ void GameEventScript::fn_803A8284(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         Inventory::instance_->fn_8044D6E0(value);
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 98% - registers r0/r4 swapped (type/zero), as fn_803A61CC
 void GameEventScript::fn_803A83FC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->fn_80373F78();
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 void GameEventScript::fn_803A8464(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -6468,7 +6468,6 @@ void GameEventScript::fn_803AADCC(ScriptResult_unk& result, const ScriptCmd_unk*
     result.mNext = SkipBlock_unk(m94, cmd);
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: m08 1: shows the notice 0 of the UI when the value (m0C, m10, as fn_803A6CDC) is 0
 void GameEventScript::fn_803AAF74(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -6476,10 +6475,10 @@ void GameEventScript::fn_803AAF74(ScriptResult_unk& result, const ScriptCmd_unk*
     if (args->m08 == 1 && lbl_8087F490 != 0 && value == 0) {
         lbl_8087F490->fn_803E598C(0, 30, 0);
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: notices and gauges of the UI (m08: 0 notice 1, 1 fn_803E58CC, 2 notice 0, 3 fn_803E58E4,
 // 4 fn_803DF5B4)
 void GameEventScript::fn_803AB06C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -6500,14 +6499,15 @@ void GameEventScript::fn_803AB06C(ScriptResult_unk& result, const ScriptCmd_unk*
         lbl_8087F490->fn_803DF5B4();
         break;
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803AB144(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     lbl_8087F430->fn_8036E994(args->m08, args->m0C, args->m10);
-    result.SetNext_unk(cmd, 1);
+    result.mWait = 1;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -6519,11 +6519,11 @@ void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: opens the save menu
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803AB1F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087F430->fn_80370320(0x391, static_cast<const ScriptArgs_unk*>(cmd)->m14, 0);
     lbl_8087F430->fn_8036E92C(1);
-    result.SetNext_unk(cmd, 1);
+    result.mWait = 1;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: runs the save event (unless the save menu is open)
