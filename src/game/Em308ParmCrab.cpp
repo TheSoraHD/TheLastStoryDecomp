@@ -92,7 +92,7 @@ struct CrabDamage_unk {
 extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStatus* status, CharaStatus* owner,
                             unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
 extern "C" double sqrt(double x);
-extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 

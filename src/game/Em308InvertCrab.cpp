@@ -97,7 +97,7 @@ extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 extern "C" double sqrt(double x);
-extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" void* lbl_8087EE98;

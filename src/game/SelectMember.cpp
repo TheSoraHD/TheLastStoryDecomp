@@ -41,7 +41,7 @@ struct SelectMemberPoint_unk {
     float m10;
 };
 extern "C" SelectMemberPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
-extern "C" void fn_804A53D4(void* cursor, int a, int b, const SelectMemberPoint_unk* pos, int c);
+extern "C" void fn_804A53D4(void* cursor, int a, void* b, const SelectMemberPoint_unk* pos, int c);
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 extern "C" GameTask* lbl_8087F430;

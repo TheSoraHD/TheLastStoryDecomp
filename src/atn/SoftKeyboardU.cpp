@@ -16,7 +16,7 @@ extern "C" int fn_800A58D0(void* pad, int port);
 extern "C" int fn_804F7F18();
 
 class MenuCommonTask;
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;

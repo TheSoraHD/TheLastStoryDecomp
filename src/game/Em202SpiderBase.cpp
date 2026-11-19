@@ -38,8 +38,8 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
 extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
-                           int arg5, int arg6, float radius); // inferred: sphere test
+extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+                           void* arg5, int arg6, float radius); // inferred: sphere test
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length

@@ -38,8 +38,8 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 // inferred: collision world (lbl_8087EE98)
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
-                           int arg5, int arg6, float radius); // inferred: sphere test
+extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+                           void* arg5, int arg6, float radius); // inferred: sphere test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float); // inferred: sweep test (last: radius)
 extern "C" GameConfig_unk* lbl_8087F0A8;

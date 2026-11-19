@@ -39,7 +39,7 @@ extern "C" void fn_804EA810(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
 extern "C" int fn_804EAA50(MpMsgSession_unk* s); // inferred: nonzero for the host of the room
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: state of a friend
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int fn_804E4DD4(MpMsgSession_unk* s, int mode, int arg); // inferred: starts the ranking request

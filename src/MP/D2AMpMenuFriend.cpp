@@ -22,7 +22,7 @@ extern "C" int fn_804DCA4C(MpSession_unk* s, int id, int arg);
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound);
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void itow(int value, wchar_t* buf, int radix);

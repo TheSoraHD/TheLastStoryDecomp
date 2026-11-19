@@ -46,7 +46,7 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
 // inferred: splits a text in lines (see game/MenuCommonTask.cpp)
 // inferred: moves a list cursor (game/MenuCommonTask.cpp)
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound);
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 
 namespace MP {
 

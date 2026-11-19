@@ -148,8 +148,7 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" ArenaTask* lbl_8087EE78;
-extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
-                           int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
+extern "C" int fn_80444020(Inventory* party, int item, int a, int b, void* c, int d, int* outA, int* outB, int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int rand();
 extern "C" int atoi(const char* s);
 extern "C" int sprintf(char* buf, const char* format, ...);
@@ -252,7 +251,7 @@ struct ScriptMotionArgs_unk : public ScriptCmd_unk {
     int m34;          // inferred: flags (bit 0: wait)
 };
 extern "C" const char* const lbl_8074EF78[];
-extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
+extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, void* b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
 extern "C" int lbl_8087D990; // inferred: last save slot (-1: none)
 extern "C" int fn_804444E8(Inventory* inv, int id); // inferred: number of items
