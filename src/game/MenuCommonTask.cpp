@@ -438,8 +438,6 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
 };
 } // namespace std
 
-extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
-                            const wchar_t* desc2);
 extern "C" wchar_t lbl_8087E0E0[2]; // inferred: empty text
 
 // inferred: shows a description (up to three lines) in the info bar
@@ -452,18 +450,18 @@ extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id) {
     while (lines.size() < 3) {
         lines.push_back(std::basic_string<wchar_t>(lbl_8087E0E0));
     }
-    fn_804A5D34(menu, 0, lines[0].data(), lines[1].data(), lines[2].data());
+    menu->fn_804A5D34(0, lines[0].data(), lines[1].data(), lines[2].data());
     menu->m1C4 = id;
 }
 
 // inferred: info bar helpers (names keep the address)
-extern "C" float fn_804A4264(MenuCommonTask* menu) {
-    float frame = menu->m1C8->mFrame;
+float MenuCommonTask::fn_804A4264() {
+    float frame = m1C8->mFrame;
     return -10.4f * (10.0f - frame);
 }
 
-extern "C" float fn_804A4280(MenuCommonTask* menu) {
-    return menu->m1C8->mFrame / 10.0f;
+float MenuCommonTask::fn_804A4280() {
+    return m1C8->mFrame / 10.0f;
 }
 
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
@@ -863,8 +861,8 @@ extern "C" void fn_804A5824(MenuCommonTask* self, atn::D2A_Task* anime, const ch
 }
 
 // inferred: adds an entry (id + name) to the array at 0xA0
-extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name) {
-    if (!(id != 0 && (unsigned int)menu->m9C < 4)) {
+void MenuCommonTask::fn_804A5B9C(int id, const char* name) {
+    if (!(id != 0 && (unsigned int)m9C < 4)) {
         return;
     }
     MenuCommonEntry_unk entry;
@@ -872,25 +870,24 @@ extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name) {
     if (name != 0) {
         strcpy(entry.m08.mText, name);
     }
-    new (&menu->mA0[menu->m9C]) MenuCommonEntry_unk(entry);
-    menu->m9C++;
+    new (&mA0[m9C]) MenuCommonEntry_unk(entry);
+    m9C++;
 }
 
 // inferred: position of the info bar
-extern "C" void fn_804A5CD8(MenuCommonTask* menu, float value) {
-    SetPaneValue_unk(&menu->m1C8->mData.m10, "pos0015", 4, value);
+void MenuCommonTask::fn_804A5CD8(float value) {
+    SetPaneValue_unk(&m1C8->mData.m10, "pos0015", 4, value);
 }
 
 // NONMATCHING: 92.9% - register allocation of the layout pointers (r30/r31 swapped)
 // inferred: sets the descriptions of the info bar
-extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
-                            const wchar_t* desc2) {
-    menu->m1C0 = id;
-    SetPaneText_unk(&menu->m1C8->mData.m10, "desc0", desc0 != 0 ? desc0 : lbl_8087E0E0);
-    SetPaneText_unk(&menu->m1C8->mData.m10, "desc1", desc1 != 0 ? desc1 : lbl_8087E0E0);
-    SetPaneText_unk(&menu->m1C8->mData.m10, "desc2", desc2 != 0 ? desc2 : lbl_8087E0E0);
+void MenuCommonTask::fn_804A5D34(int id, const wchar_t* desc0, const wchar_t* desc1, const wchar_t* desc2) {
+    m1C0 = id;
+    SetPaneText_unk(&m1C8->mData.m10, "desc0", desc0 != 0 ? desc0 : lbl_8087E0E0);
+    SetPaneText_unk(&m1C8->mData.m10, "desc1", desc1 != 0 ? desc1 : lbl_8087E0E0);
+    SetPaneText_unk(&m1C8->mData.m10, "desc2", desc2 != 0 ? desc2 : lbl_8087E0E0);
     const wchar_t* desc3 = 0;
-    SetPaneText_unk(&menu->m1C8->mData.m10, "desc3", desc3 != 0 ? desc3 : lbl_8087E0E0);
+    SetPaneText_unk(&m1C8->mData.m10, "desc3", desc3 != 0 ? desc3 : lbl_8087E0E0);
 }
 
 // inferred: placement and contents of the A button prompts (17 types)
@@ -1010,9 +1007,9 @@ extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel) {
 }
 
 // inferred: shows a warning in the info window (third camp_info.d2a)
-extern "C" void fn_804A65A0(MenuCommonTask* menu, const wchar_t* text) {
-    SetPaneText_unk(&menu->m60->mData.m10, "warning_msg", text);
-    menu->m5C = 1;
+void MenuCommonTask::fn_804A65A0(const wchar_t* text) {
+    SetPaneText_unk(&m60->mData.m10, "warning_msg", text);
+    m5C = 1;
 }
 
 // inferred: event of an anime element (only the members used here)

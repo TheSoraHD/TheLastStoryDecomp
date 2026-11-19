@@ -31,7 +31,6 @@ extern "C" int fn_804FB620(MpSession_unk* s, int mode); // inferred: highest val
 
 
 
-extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg);
 
@@ -143,7 +142,7 @@ void D2AMpMenuSetRule::fn_804CDE1C(int state) {
             m68 = 0;
             SetPaneValue_unk(&m58->mData.m10, "pos0007", 4, -200.0f);
             SetPaneValue_unk(&m58->mData.m10, "pos0017", 4, -200.0f);
-            fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
+            MenuCommonTask::sInstance->fn_804A5CD8(-100.0f);
             break;
         case 2:
             m68 = row;

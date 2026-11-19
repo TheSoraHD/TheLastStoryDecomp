@@ -46,7 +46,6 @@ extern "C" GameOverPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 
 extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
-extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name); // inferred: adds an entry
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
@@ -499,7 +498,7 @@ void GameOverTask::vf10() {
     SetRate_unk(&mCursor->mData.m10, "hRate", point.m0C);
     if (MenuCommonTask::sInstance != 0) {
         sprintf(name, "select_text%02d", pos);
-        fn_804A5B9C(MenuCommonTask::sInstance, (int)mMenu, name);
+        MenuCommonTask::sInstance->fn_804A5B9C((int)mMenu, name);
     }
     if (fade) {
         mFade = atn::FadeColor::Create((atn::Task*)lbl_8087F430->m20, 30, 0, 0xFF000000);

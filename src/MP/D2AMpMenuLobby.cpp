@@ -107,8 +107,6 @@ struct MpLobbyAids_unk {
     unsigned char* mAids;
 };
 extern "C" int fn_804EB1AC(MpLobbySession_unk* s); // inferred: nonzero for the host
-extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
-                            const wchar_t* desc2); // inferred: help text (three lines)
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face); // inferred: sets the face (host)
 extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg); // inferred: requests the face
@@ -123,7 +121,6 @@ extern "C" int fn_804EA5DC(MpLobbySession_unk* s, int mode); // inferred: number
 extern "C" void fn_804EA534(MpLobbySession_unk* s, int map, int host); // inferred: sets the map
 extern "C" int rand();
 extern "C" void* memset(void* dst, int c, unsigned long n);
-extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
 extern "C" void fn_804DDD50(MpLobbySession_unk* s);              // inferred: sends the rules (server)
 extern "C" void fn_804DE2F8(MpLobbySession_unk* s, int mode);   // inferred: sends the map lottery
 extern "C" void fn_804DC450(MpLobbySession_unk* s, int state);
@@ -355,7 +352,7 @@ void D2AMpMenuLobby::fn_804BC628(int state) {
         vf1C();
         fn_804BF550();
         ShowRules_unk(this);
-        fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
+        MenuCommonTask::sInstance->fn_804A5CD8(-100.0f);
         if (mode == 2) {
             Play_unk(m54, 0, 1.0f);
         } else {
@@ -1367,23 +1364,23 @@ void D2AMpMenuLobby::fn_804C0F88() {
             if (ready == true) {
                 if (host) {
                     if (mDB0 > 0) {
-                        fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
+                        MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
                     } else {
-                        fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xCB), L"", L"");
+                        MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xCB), L"", L"");
                         m64->mFlags &= ~4;
                     }
                 } else if (fn_804FC010(lbl_8087F610) != 0) {
-                    fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
+                    MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
                 } else {
                     wchar_t text[256] = {0};
                     atn::net::NetPlayerInfo_unk* info = lbl_8087F628->vf14(lbl_8087F628->GetServerAid_unk());
                     if (info != 0) {
                         fn_800DD3FC(text, lbl_8087F86C->Get_unk(0xCC), info->mName);
-                        fn_804A5D34(MenuCommonTask::sInstance, 0, text, L"", L"");
+                        MenuCommonTask::sInstance->fn_804A5D34(0, text, L"", L"");
                     }
                 }
             } else {
-                fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xCA), L"", L"");
+                MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xCA), L"", L"");
             }
         } else {
             fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xE1), 0);

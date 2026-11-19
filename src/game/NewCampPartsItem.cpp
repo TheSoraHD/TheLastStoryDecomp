@@ -44,7 +44,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801F4728(atn::Task* task, const char* name, const NewCampPartsPoint_unk* rect); // inferred: sets a rect
-extern "C" float fn_804A4264(MenuCommonTask* menu); // inferred: position of the help window
 // inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int a, int b, float c, float d);
@@ -230,7 +229,7 @@ void NewCampPartsItem::vf14() {
     }
     if (mSort != 0) {
         mSort->FreezeTask();
-        if (m7C == 1 && fn_804A4264(MenuCommonTask::sInstance) >= -5.0f) {
+        if (m7C == 1 && MenuCommonTask::sInstance->fn_804A4264() >= -5.0f) {
             mSort->MeltTask();
             pos.x = 515.0f;
             pos.y = 360.0f;

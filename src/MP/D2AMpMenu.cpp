@@ -37,7 +37,6 @@ extern "C" void fn_804EAA68(MpMsgSession_unk* s, int value);
 extern "C" void fn_804EA6B0(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA810(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
-extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
 extern "C" int fn_804EAA50(MpMsgSession_unk* s); // inferred: nonzero for the host of the room
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
@@ -188,7 +187,7 @@ int D2AMpMenu::vf0C() {
         if (pane != 0) {
             fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
         }
-        fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
+        MenuCommonTask::sInstance->fn_804A5CD8(-100.0f);
         D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
         return 1;
     }

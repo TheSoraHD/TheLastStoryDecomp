@@ -61,6 +61,13 @@ public:
     void fn_804A2F98(); // inferred: hides everything
     void fn_804A2FBC(); // inferred: resets everything
     void fn_804A313C(); // inferred: resets the info windows
+    // inferred: info bar helpers (were extern "C" with the menu as first argument)
+    float fn_804A4264();
+    float fn_804A4280();
+    void fn_804A5B9C(int, const char*);
+    void fn_804A5CD8(float);
+    void fn_804A5D34(int, const wchar_t*, const wchar_t*, const wchar_t*);
+    void fn_804A65A0(const wchar_t*);
     void ResetInfo_unk(); // inferred: inline body of fn_804A313C (name invented)
     void fn_804A660C(void* anime, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a d2anime
     void fn_804A71F0(void* layout, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a layout anime

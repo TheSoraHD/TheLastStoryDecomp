@@ -625,9 +625,6 @@ struct CosEditItemName_unk {
 extern "C" CosEditItemName_unk* fn_802091E8(int id);
 extern "C" void fn_80511ADC(atn::D2A_Task* task, CharaStatus* status, int chara, int full); // inferred: status board
 extern "C" float fn_800A08D4(atn::LH_Motion* motion);                                     // inferred: motion length
-extern "C" float fn_804A4264(MenuCommonTask* menu);
-extern "C" float fn_804A4280(MenuCommonTask* menu);
-extern "C" void fn_804A65A0(MenuCommonTask* menu, const wchar_t* text); // inferred: help text
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int a, atn::Vector3* pos, int b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: the character is not a party member (its status is its own)
@@ -1080,7 +1077,7 @@ void CosEditProtector::vf64() {
             fn_801F4728((atn::D2A_Task*)mSort, "basePos", &pos.x);
             if (m7C == 3) {
                 if (mB4C.size() != 0 && m80 < (int)mB4C.size()) {
-                    if (fn_804A4264(MenuCommonTask::sInstance) >= -5.0f) {
+                    if (MenuCommonTask::sInstance->fn_804A4264() >= -5.0f) {
                         mSort->mFlags &= ~4;
                     }
                     switch (face) {
@@ -1107,7 +1104,7 @@ void CosEditProtector::vf64() {
                 }
             } else if (m7C == 2) {
                 if (mB34[m1E4].size() != 0 && m80 < (int)mB34[m1E4].size()) {
-                    if (fn_804A4264(MenuCommonTask::sInstance) >= -5.0f) {
+                    if (MenuCommonTask::sInstance->fn_804A4264() >= -5.0f) {
                         mSort->mFlags &= ~4;
                     }
                     switch (face) {
@@ -1143,11 +1140,11 @@ void CosEditProtector::vf64() {
         busy = m7C == 13;
     }
     if (busy != 0) {
-        fn_804A65A0(MenuCommonTask::sInstance, lbl_8087F1E4->Get_unk(0x21B));
+        MenuCommonTask::sInstance->fn_804A65A0(lbl_8087F1E4->Get_unk(0x21B));
     }
     if (fn_8050FD20() != 0 && ((NewCampTask*)m48)->m458 >= 25.0f && fn_801CF334() != 0 &&
         fn_801CF334()->mChara != 0) {
-        atn::Vector3 v(0.0f, -(60.0f * fn_804A4280(MenuCommonTask::sInstance)), 0.0f);
+        atn::Vector3 v(0.0f, -(60.0f * MenuCommonTask::sInstance->fn_804A4280()), 0.0f);
         fn_804A5E40(MenuCommonTask::sInstance, 0x10, &v, 0);
     }
 }
