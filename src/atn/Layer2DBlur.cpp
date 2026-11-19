@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/Layer2DBlur.h"
 #include "atn/GXDecl.h"
 #include "atn/RenderManager.h"
@@ -8,12 +9,6 @@ extern "C" double cos(double x);
 static inline float SinF_unk(float x) { return sin(x); }
 static inline float CosF_unk(float x) { return cos(x); }
 
-// inferred: globals of unknown classes
-struct RenderMgr_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
 struct DebugParams_unk {
     unsigned char m000[0x418];
     float m418; // inferred: blur scale X
@@ -23,7 +18,7 @@ struct DebugParams_unk {
     float GetScaleX_unk() const { return m418; }
     float GetScaleY_unk() const { return m41C; }
 };
-extern "C" RenderMgr_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" DebugParams_unk* lbl_8087EFA8;
 namespace atn {
 // inferred: see atn/LinearAllocator.cpp
@@ -35,9 +30,8 @@ public:
 extern "C" atn::PostFxManager* lbl_8087EF8C;
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, int arg5, int arg6,
                             float offsetX, float offsetY); // inferred: directional blur pass
-extern "C" void fn_800763FC(RenderMgr_unk* mgr, GXTexObj* obj, int map);
-extern "C" void fn_80075F58(RenderMgr_unk* mgr, int x, int y, int w, int h);
-extern "C" void fn_80075DEC(RenderMgr_unk* mgr);
+extern "C" void fn_80075F58(atn::GraphicsDevice_unk* mgr, int x, int y, int w, int h);
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* mgr);
 
 namespace atn {
 

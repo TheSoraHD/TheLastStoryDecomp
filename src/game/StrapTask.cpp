@@ -24,23 +24,15 @@ struct Unk_8087F018 {
     int m40E0;
 };
 extern "C" Unk_8087F018* lbl_8087F018;
-// inferred: render manager (see atn/LayerReflect.cpp); vf10 reads the frame buffer height
-struct StrapRender_unk {
-    unsigned char m00[0x0E];
-    unsigned short mFbWidth;  // 0x0E
-    unsigned short mFbHeight; // 0x10
-    unsigned char m12[0x3C - 0x12];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    int mWide;   // 0x44: inferred: 16:9
-};
-extern "C" StrapRender_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
 #include "atn/SequenceBoot_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/ResetShutdown.h"
 #include "game/HomeButtonMenu.h"
+#include "atn/GraphicsDevice.h"
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 StrapTask* StrapTask::fn_805A6208(atn::Task* parent) {
     if (parent != 0) {
@@ -103,7 +95,7 @@ void StrapTask::vf10() {
         break;
     }
     case 1:
-        if ((float)(int)lbl_8087EEE0->mFbHeight > 500.0f) {
+        if ((float)(int)lbl_8087EEE0->mRMode.viHeight > 500.0f) {
             m4C = 0;
             m48 = 3;
         }
@@ -146,10 +138,10 @@ inline float Ratio_unk(int a, int b) {
 inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW, float texH) {
     float w = texW;
     float h = texH;
-    StrapRender_unk* render = lbl_8087EEE0;
-    float sx = Ratio_unk(render->mWidth, render->mFbWidth);
+    atn::GraphicsDevice_unk* render = lbl_8087EEE0;
+    float sx = Ratio_unk(render->mWidth, render->mRMode.viWidth);
     float scrW = render->mWidth;
-    float sy = Ratio_unk(render->mHeight, render->mFbHeight);
+    float sy = Ratio_unk(render->mHeight, render->mRMode.viHeight);
     float kx = 1.0f;
     float ky = 1.0f;
     float x0;

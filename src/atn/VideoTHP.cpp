@@ -5,6 +5,9 @@
 #include "atn/IRender.h"
 #include "atn/Layer3D.h"
 #include "atn/VideoTHP.h"
+#include "atn/GraphicsDevice.h"
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: THP player of the SDK sample library (automatic names)
 extern "C" int fn_805B55A8(int audio);            // THPPlayerInit
@@ -59,16 +62,7 @@ inline void* DebugGroup_unk::Create(const char* name) {
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
-// inferred: globals of unknown classes
-struct RenderState_unk {
-    unsigned char m00[0x10];
-    unsigned short m10; // inferred: frame buffer height
-    unsigned char m12[0x3C - 0x12];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    int m44;     // inferred: progressive / 16:9 flag
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
+// inferred: global of unknown class
 extern "C" void* lbl_8087EE90;
 
 namespace atn {
@@ -167,9 +161,9 @@ void VideoTHP::vf10(RenderManager*) {
     case 2:
         return;
     }
-    RenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     int h = rs->mHeight;
-    float aspect = (float)h / (float)(int)rs->m10;
+    float aspect = (float)h / (float)(int)rs->mRMode.viHeight;
     int w = rs->mWidth;
     int x;
     int y;
@@ -181,7 +175,7 @@ void VideoTHP::vf10(RenderManager*) {
         x = (int)(mPos.x - (float)(m20[0] >> 1));
         y = (int)(mPos.y - (float)(m20[1] >> 1));
     } else if (m04 == 2 || m04 == 3) {
-        if (rs->m44 != 0) {
+        if (rs->mWide != 0) {
             dh = h;
             dw = w;
             x = 0;
@@ -198,7 +192,7 @@ void VideoTHP::vf10(RenderManager*) {
             y = (h - dh) / 2;
         }
     } else {
-        if (rs->m44 != 0) {
+        if (rs->mWide != 0) {
             dh = 416;
             dw = w;
             x = 0;

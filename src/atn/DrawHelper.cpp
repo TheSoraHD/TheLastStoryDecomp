@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/DrawHelper.h"
 #include "atn/DrawCommand_unk.h"
 #include "atn/Font_unk.h"
@@ -26,16 +27,10 @@ struct GimmickUvOwner_unk {
     int fn_800D59B8(); // inferred: nonzero while loading
 };
 
-// inferred: render manager (lbl_8087EEE0): screen size
-struct RenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
 
 extern "C" int lbl_8087D72C;
 extern "C" int lbl_8087D728;
-extern "C" RenderState_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -90,7 +85,6 @@ extern "C" void GXBegin(int type, int fmt, unsigned short count);
 extern "C" void GXSetTevAlphaIn(int stage, int a, int b, int c, int d);
 extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
 extern "C" void fn_800761A8(void* device); // inferred: flushes the render state
-extern "C" void fn_800763FC(void* device, GXTexObj* tex, int map); // inferred: loads a texture
 extern "C" void fn_80072914(void* device, int add); // inferred: additive color state of the render device
 // inferred: material and vertex format of the render device (atn/GraphicsDevice.cpp)
 extern "C" void fn_80074EC8(void* device, const void* desc, int flags, void* light, void* light2, void* shadow);
@@ -1673,7 +1667,7 @@ inline unsigned int DrawRGBA_unk(unsigned int c) {
 }
 
 // inferred: depth test on (render states 8 and 9) and depth write (state 0xA); name invented
-inline void DrawSetZMode_unk(RenderState_unk* device, int write) {
+inline void DrawSetZMode_unk(atn::GraphicsDevice_unk* device, int write) {
     fn_80076760(device, 8, 1);
     fn_80076760(device, 9, 2);
     fn_80076760(device, 0xA, write);
@@ -2162,7 +2156,7 @@ void DrawHelper::ComDrawTextureMaskMono::vf10(RenderManager* view) {
 }
 
 void DrawHelper::ComDrawFont::vf10(RenderManager* view) {
-    RenderState_unk* device = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* device = lbl_8087EEE0;
     GXSetNumChans(1);
     GXSetNumTexGens(1);
     GXSetNumTevStages(1);
@@ -2266,7 +2260,7 @@ void DrawHelper::ComDrawFontSideFade::vf10(RenderManager* view) {
         }
         x += fn_8006F17C(lbl_8087EEC8, c, m0C & 1, m1C, m08);
     }
-    RenderState_unk* device = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* device = lbl_8087EEE0;
     GXSetNumChans(1);
     GXSetNumTexGens(1);
     GXSetNumTevStages(1);
@@ -2380,7 +2374,7 @@ void DrawHelper::ComDrawColliTree::vf10(RenderManager* view) {
 }
 
 void DrawHelper::ComDrawD3TextureMask::vf10(RenderManager* view) {
-    RenderState_unk* device = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* device = lbl_8087EEE0;
     fn_80072914(device, 0);
     fn_80076760(device, 6, 0);
     fn_80076760(device, 8, m20);

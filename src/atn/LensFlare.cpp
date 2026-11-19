@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/LensFlare.h"
 #include "atn/GXDecl.h"
@@ -46,17 +47,10 @@ extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 extern "C" void fn_8006FEBC(atn::AABB_unk* screen, const atn::AABB_unk* box);     // inferred: projects a box
 
-// inferred: render state (viewport size at 0x3C/0x40)
-struct LensRenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;
-    int mHeight;
-};
-extern "C" LensRenderState_unk* lbl_8087EEE0;
-extern "C" void fn_80076760(LensRenderState_unk* rs, int index, int value); // inferred: sets a render state
-extern "C" void fn_80072914(LensRenderState_unk* rs, int mode);
-extern "C" void fn_800761A8(LensRenderState_unk* rs);                     // inferred: sends the render states
-extern "C" void fn_800763C0(LensRenderState_unk* rs, int map, atn::Texture_unk* tex); // inferred: loads a texture
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* rs, int index, int value); // inferred: sets a render state
+extern "C" void fn_80072914(atn::GraphicsDevice_unk* rs, int mode);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* rs);                     // inferred: sends the render states
 
 // inferred: screen limits and alpha range (globals of another file)
 extern "C" float lbl_8087D740;
@@ -263,7 +257,7 @@ void LensFlare::fn_80078938(float alpha) {
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
     GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
-    LensRenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80076760(rs, 8, 0);
     fn_80076760(rs, 9, 7);
     fn_80076760(rs, 10, 0);
