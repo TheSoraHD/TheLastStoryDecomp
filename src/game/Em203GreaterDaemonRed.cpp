@@ -16,6 +16,7 @@
 #include "game/GameSceneFind_unk.h"
 #include "game/SkillEffectManager.h"
 #include "atn/TextTable_unk.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -68,25 +69,7 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-// inferred: frame time and the motion blur parameters (lbl_8087EFA8, as in atn/PostFxMotionBlur.cpp)
-struct RedBlur_unk {
-    int m00;
-    int m04;
-    int m08;
-    float m0C;
-    float m10;
-    int m14;
-    int m18;
-    float m1C;
-    float m20;
-};
-struct FrameTime_unk {
-    unsigned char m000[0x240];
-    RedBlur_unk m240; // inferred: motion blur
-    unsigned char m264[0x3A4 - 0x264];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" SkillEffectManager* lbl_8087F9E8;
@@ -1393,8 +1376,8 @@ void Em203GreaterDaemonRed::fn_8029A0A8() {
     }
     float speed = 1.0f;
     if (m14B4 == 0) {
-        RedBlur_unk blur = lbl_8087EFA8->m240;
-        blur.m00 = 1;
+        MotionBlurParam_unk blur = lbl_8087EFA8->m240;
+        blur.mEnabled = 1;
         lbl_8087EFA8->m240 = blur;
         if (m14B8 >= 55) {
             mMotion.m34C = 1;
@@ -1418,8 +1401,8 @@ void Em203GreaterDaemonRed::fn_8029A0A8() {
         if (frame > 30.0f) {
             field->mCamera.m834 = 0;
             field->mCamera.m910 = 0;
-            RedBlur_unk blur = lbl_8087EFA8->m240;
-            blur.m00 = 0;
+            MotionBlurParam_unk blur = lbl_8087EFA8->m240;
+            blur.mEnabled = 0;
             lbl_8087EFA8->m240 = blur;
             lbl_8087EFA8->m3A4 = 1.0f;
             lbl_8087F430->fn_80370AE4(0x15, 1);

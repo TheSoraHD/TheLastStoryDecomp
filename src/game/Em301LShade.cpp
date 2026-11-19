@@ -20,6 +20,7 @@
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
 #include "atn/TextTable_unk.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -50,25 +51,7 @@ inline void SetCamera_unk(GameTask* field, const ShadeCamera_unk& c) {
     field->mCamera.m514 = c.mFov;
     field->mCamera.m518 = c.mFlag;
 }
-// inferred: game state (lbl_8087EFA8): a block of the camera blur at 0x240 and the time scale at 0x3A4
-struct ShadeBlur_unk {
-    int m00;
-    int m04;
-    int m08;
-    float m0C;
-    float m10;
-    int m14;
-    int m18;
-    float m1C;
-    float m20;
-};
-struct ShadeGame_unk {
-    unsigned char m000[0x240];
-    ShadeBlur_unk m240;
-    unsigned char m264[0x3A4 - 0x264];
-    float m3A4;
-};
-extern "C" ShadeGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" GameTask* lbl_8087F430;
 extern "C" GameTask* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
@@ -1323,17 +1306,9 @@ void Em301LShade::vfEC() {
         fn_801765D8();
         GameCamera* sub = &lbl_8087F430->mCamera;
         sub->fn_80389838(sub->m804);
-        ShadeGame_unk* game = lbl_8087EFA8;
-        ShadeBlur_unk blur;
-        blur.m04 = game->m240.m04;
-        blur.m08 = game->m240.m08;
-        blur.m0C = game->m240.m0C;
-        blur.m10 = game->m240.m10;
-        blur.m14 = game->m240.m14;
-        blur.m18 = game->m240.m18;
-        blur.m1C = game->m240.m1C;
-        blur.m20 = game->m240.m20;
-        blur.m00 = 0;
+        RenderSetting_unk* game = lbl_8087EFA8;
+        MotionBlurParam_unk blur = game->m240;
+        blur.mEnabled = 0;
         game->m240 = blur;
         lbl_8087EFA8->m3A4 = 1.0f;
     }
@@ -1404,17 +1379,9 @@ void Em301LShade::fn_802D57B8() {
     c.mFlag = 0;
     SetCamera_unk(lbl_8087F430, c);
     lbl_8087F430->mCamera.fn_80389838(0x13);
-    ShadeGame_unk* game = lbl_8087EFA8;
-    ShadeBlur_unk blur;
-    blur.m04 = game->m240.m04;
-    blur.m08 = game->m240.m08;
-    blur.m0C = game->m240.m0C;
-    blur.m10 = game->m240.m10;
-    blur.m14 = game->m240.m14;
-    blur.m18 = game->m240.m18;
-    blur.m1C = game->m240.m1C;
-    blur.m20 = game->m240.m20;
-    blur.m00 = 1;
+    RenderSetting_unk* game = lbl_8087EFA8;
+    MotionBlurParam_unk blur = game->m240;
+    blur.mEnabled = 1;
     game->m240 = blur;
     lbl_8087EFA8->m3A4 = 0.5f;
     lbl_8087F430->fn_80370320(0xD0, 1, 0);

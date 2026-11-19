@@ -8,6 +8,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" void GXSetIndTexOrder(int stage, int coord, int map);
 extern "C" void GXSetIndTexCoordScale(int stage, int scaleS, int scaleT);
@@ -32,12 +33,7 @@ struct GodRayColor_unk {
     float r, g, b, a;
 };
 
-// inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
-struct GodRayRenderParams_unk {
-    unsigned char m000[0x264];
-    GodRayParam_unk mGodRay; // 0x264
-};
-extern "C" GodRayRenderParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 
@@ -242,7 +238,7 @@ PostFxGodRay::PostFxGodRay()
     : mParams(0), mColor(0.0f, 0.0f, 0.0f, 0.0f), m68(0.0f), mScreen(0.5f, 0.5f), mIntensity(0.0f) {
     mRamp.fn_800D5B58(0x100, 0x100, 1, 1, "DoFDepthRamp");
     fn_800AECD4(&mRamp, m68);
-    mParams = &lbl_8087EFA8->mGodRay;
+    mParams = &lbl_8087EFA8->m264;
 }
 
 int PostFxGodRay::fn_800AEF4C() {
@@ -251,7 +247,7 @@ int PostFxGodRay::fn_800AEF4C() {
 
 // NONMATCHING: 97.59% - stack slots of the case 0 temporaries and FPR of the screen size
 void PostFxGodRay::fn_800AEF68() {
-    mParams = &lbl_8087EFA8->mGodRay;
+    mParams = &lbl_8087EFA8->m264;
     atn::Scene* o = atn::RenderManager::instance_->fn_800C1424();
     if (o->mGodRay.mSet != 0) {
         mParams = &o->mGodRay.mValue;
@@ -472,7 +468,7 @@ void PostFxGodRay::vf10(RenderManager* view) {
     GXSetBlendMode(0, 4, 1, 3);
     fn_80075F58(lbl_8087EEE0, 0, 0, fullW, fullH);
     atn::RenderManager::instance_->fn_800BFB70();
-    if (lbl_8087EFA8->mGodRay.mDebug != 0) {
+    if (lbl_8087EFA8->m264.mDebug != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &atn::RenderManager::instance_->m77C, 0, 16.0f, 16.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m08, 0, 16.0f, 32.0f + (float)fullH / 3.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
     }

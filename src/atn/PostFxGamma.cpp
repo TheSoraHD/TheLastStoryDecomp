@@ -5,6 +5,7 @@
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" double pow(double x, double y);
 extern "C" unsigned int GXGetTexObjFmt(const GXTexObj* obj);
@@ -14,24 +15,8 @@ extern "C" void GXSetIndTexMtx(int id, const float offset[2][3], signed char sca
 extern "C" void GXSetTevIndirect(int stage, int indStage, int format, int biasSel, int matrixSel, int wrapS, int wrapT,
                                  unsigned char addPrev, unsigned char utcLod, int alphaSel);
 
-// inferred: parameters of the effect (0x34 bytes at lbl_8087EFA8+0x3DC; constructor 0x800BC2E0 in
-// atn/RenderSetting_unk). Names invented.
-struct GammaParams_unk {
-    GammaParams_unk(); // 0x800BC2E0
-    int mDebug;        // 0x00: inferred: debug display
-    int mEnable;       // 0x04
-    float mDepth;      // 0x08: inferred: > 0 draws the depth texture before the copy
-    float mGamma[8];   // 0x0C: exponent of each row of the ramp
-    float mIndX;       // 0x2C: inferred: indirect offset of the ramp lookup
-    float mIndY;       // 0x30: inferred: indirect offset of the final lookup
-};
 
-// inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
-struct GammaRenderParams_unk {
-    unsigned char m000[0x3DC];
-    GammaParams_unk mGamma; // 0x3DC
-};
-extern "C" GammaRenderParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
@@ -144,21 +129,21 @@ PostFxGamma::PostFxGamma() : mNumFrames(0), mFrame(0) {
     GXInitTexObjLOD(&mLut.mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     mRamp.fn_800D5B58(0x40, 8, 1, 1, "GammaRamp");
     GXInitTexObjLOD(&mRamp.mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-    mParams = lbl_8087EFA8->mGamma;
+    mParams = lbl_8087EFA8->m3DC;
     fn_800AD484();
 }
 
 // inferred: rebuilds the ramps when the parameters change
 // NONMATCHING: 81% - the original keeps the flag in one register and a dead induction variable
 void PostFxGamma::fn_800AD340() {
-    GammaRenderParams_unk* rp = lbl_8087EFA8;
-    const GammaParams_unk& p = rp->mGamma;
+    RenderSetting_unk* rp = lbl_8087EFA8;
+    const GammaParams_unk& p = rp->m3DC;
     int changed = 0;
     for (int i = 0; i < 8; i++) {
         changed = changed || mParams.mGamma[i] != p.mGamma[i];
     }
     if (changed) {
-        mParams = rp->mGamma;
+        mParams = rp->m3DC;
         fn_800AD484();
     }
 }
@@ -211,7 +196,7 @@ void PostFxGamma::fn_800AD648() {
 // NONMATCHING: 97.09% - register allocation of the log2 helpers and of the downsampling loop (the original
 // does not reuse cw * 2 across the viewport and the copy)
 void PostFxGamma::vf10(RenderManager* view) {
-    if (lbl_8087EFA8->mGamma.mEnable == 0) {
+    if (lbl_8087EFA8->m3DC.mEnable == 0) {
         return;
     }
     GXPixModeSync();
@@ -373,7 +358,7 @@ void PostFxGamma::vf10(RenderManager* view) {
     GXSetBlendMode(0, 4, 1, 3);
     atn::RenderManager::instance_->fn_800BFB70();
 
-    if (lbl_8087EFA8->mGamma.mDebug != 0) {
+    if (lbl_8087EFA8->m3DC.mDebug != 0) {
         float x = 8.0f;
         for (int i = 0; i < count; i++) {
             lbl_8087EEB0->fn_8005DF90(-1, tex, 0, x, 16.0f, 0.0f, 64.0f, 64.0f);

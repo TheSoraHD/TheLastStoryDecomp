@@ -5,6 +5,7 @@
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -12,9 +13,9 @@ extern "C" void GXSetTevAlphaIn(int stage, int a, int b, int c, int d);
 extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
 extern "C" void GXSetTevKAlphaSel(int stage, int sel);
 
-// inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
+// inferred: local copy of the tint (the original copies the four floats through registers)
 struct DamageColor_unk {
-    DamageColor_unk(const DamageColor_unk& c) {
+    DamageColor_unk(const atn::Color& c) {
         float r_ = c.r;
         float g_ = c.g;
         float b_ = c.b;
@@ -26,15 +27,7 @@ struct DamageColor_unk {
     }
     float r, g, b, a;
 };
-struct DamageParams_unk {
-    unsigned char m00[0x378];
-    int m378;            // 0x378: inferred: debug display
-    DamageColor_unk m37C; // 0x37C: inferred: tint
-    float m38C;          // 0x38C: inferred: blur rotation
-    float m390;          // 0x390: inferred: blur length
-    float m394;          // 0x394: inferred: zoom of the edge texture
-};
-extern "C" DamageParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture and waits
 // inferred: 2D texture matrix (atn/TextureDraw_unk.cpp)
@@ -197,7 +190,7 @@ void PostFxDamage::vf10(RenderManager* view) {
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
     GXPixModeSync();
-    fn_800AB774(&sBlur, image0, w, h, 6, 0, lbl_8087EFA8->m38C, lbl_8087EFA8->m390);
+    fn_800AB774(&sBlur, image0, w, h, 6, 0, lbl_8087EFA8->m374.mAngle, lbl_8087EFA8->m374.mScale);
     // inferred: restores the saved corner
     GXSetBlendMode(0, 1, 0, 3);
     GXSetNumTexGens(1);
@@ -222,14 +215,14 @@ void PostFxDamage::vf10(RenderManager* view) {
     fn_800763FC(lbl_8087EEE0, &sBlur, 1);
     GXSetTexCoordGen2(0, 1, 4, 0x1E, 0, 0x7D);
     GXSetTexCoordGen2(1, 1, 4, 0x3C, 0, 0x7D);
-    float scale = 1.0f + lbl_8087EFA8->m394;
+    float scale = 1.0f + lbl_8087EFA8->m374.mZoom;
     float m[3][4];
     m[0][1] = m[0][2] = m[1][0] = m[1][2] = m[2][0] = m[2][1] = m[2][3] = 0.0f;
     m[2][2] = 1.0f;
     m[1][1] = m[0][0] = scale;
     m[1][3] = m[0][3] = -((scale - 1.0f) * 0.5);
     GXLoadTexMtxImm(m, 0x1E, 1);
-    DamageColor_unk c = lbl_8087EFA8->m37C;
+    DamageColor_unk c = lbl_8087EFA8->m374.mColor;
     float mx = c.r > (c.b > c.g ? c.b : c.g) ? c.r : (c.b > c.g ? c.b : c.g);
     int shift = Shift_unk(mx);
 
@@ -257,7 +250,7 @@ void PostFxDamage::vf10(RenderManager* view) {
     fn_80075DEC(lbl_8087EEE0);
     atn::RenderManager::instance_->fn_800BFB70();
     GXSetBlendMode(0, 4, 1, 3);
-    if (lbl_8087EFA8->m378 != 0) {
+    if (lbl_8087EFA8->m374.mDebug != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &sBlur, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
         lbl_8087EEB0->fn_8005DFC8(-1, &sEdge, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
     }
