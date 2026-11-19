@@ -7,6 +7,7 @@
 #include "atn/SoundManager.h"
 #include "game/GameSaveBackground.h"
 #include "game/Input_unk.h"
+#include "game/GameConfig_unk.h"
 #include "game/MapTask.h"
 
 // inferred: stream of the field (two at Field_unk::m5620/m5624); names invented
@@ -56,7 +57,7 @@ struct Unk8087F540_unk {
         int m194;
     }* m70;
 };
-extern "C" unsigned char* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: global checks (names invented)
 inline bool HasSoundCfg_unk() {
@@ -148,7 +149,7 @@ void GameSoundControl::vf10() {
         if ((field->mFlags & 2) != 2 || field->m5538 != 0) {
             quiet = 1;
         }
-        if (((Input_unk*)(lbl_8087F0A8 + 0x48C))->fn_80124B60()) {
+        if (lbl_8087F0A8->mInput.fn_80124B60()) {
             FieldStream_unk* s = lbl_8087F430->m5620;
             if (s->m48 != 0 && (s->m74 < -1.0f || boss) && STREAM_ENDING(s)) {
                 quiet = 1;
@@ -384,11 +385,6 @@ struct SaveField_unk {
     unsigned char m0000[0x10D0];
     int m10D0;
 };
-struct SaveSystem_unk {
-    unsigned char m0000[0x113C];
-    int m113C;
-    unsigned char m1140;
-};
 
 Unk_803CE3B8::Unk_803CE3B8() {
     m00 = 0;
@@ -400,12 +396,12 @@ Unk_803CE3B8::Unk_803CE3B8() {
 
 void Unk_803CE3B8::fn_803CE408() {
     m00 = ((SaveField_unk*)lbl_8087F430)->m10D0;
-    SaveSystem_unk* sys = (SaveSystem_unk*)lbl_8087F0A8;
+    GameConfig_unk* sys = lbl_8087F0A8;
     if (sys == 0) {
         return;
     }
-    m08 = ((SaveSystem_unk*)lbl_8087F0A8)->m113C;
-    if (((SaveSystem_unk*)lbl_8087F0A8)->m1140 != 0) {
+    m08 = lbl_8087F0A8->m113C;
+    if (lbl_8087F0A8->m1140 != 0) {
         m0A |= 1;
     }
 }
