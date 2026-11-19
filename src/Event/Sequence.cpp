@@ -22,6 +22,7 @@
 #include "game/PlayerTask.h"
 #include "game/GameConfig_unk.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/MemoryManager.h"
 #include "atn/GraphicsDevice.h"

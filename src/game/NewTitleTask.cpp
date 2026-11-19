@@ -4,6 +4,7 @@
 #include "game/NewTitleTask.h"
 #include "atn/Memory.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"

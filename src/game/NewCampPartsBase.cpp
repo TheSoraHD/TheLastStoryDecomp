@@ -2,6 +2,7 @@
 #include "game/NewCampTask.h"
 #include "atn/Memory.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"

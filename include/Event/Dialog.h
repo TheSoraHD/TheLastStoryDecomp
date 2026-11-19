@@ -9,6 +9,7 @@
 #include "Event/DialogHead.h"
 
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 
 // Everything here is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 

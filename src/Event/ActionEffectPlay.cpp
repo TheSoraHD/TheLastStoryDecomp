@@ -17,6 +17,7 @@
 #include "game/EnvSeManager.h"
 #include "game/GameUI.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/Color4f_unk.h"
 #include "atn/Model_unk.h"
 #include "Event/Path.h"

@@ -8,6 +8,7 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"

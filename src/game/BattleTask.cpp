@@ -30,6 +30,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Color.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/ResLoader_unk.h"
 #include "atn/Texture_unk.h"
 #include "game/GimmickCommon.h"

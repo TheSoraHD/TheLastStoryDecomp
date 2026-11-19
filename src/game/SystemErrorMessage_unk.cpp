@@ -3,6 +3,7 @@
 // No vtable or RTTI; class name ErrorManager from the boost::bind type names (game/main.cpp). Instance at lbl_8087F420 (see game/GameSystem_unk.cpp).
 
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/GXDecl.h"
 #include "atn/Memory.h"

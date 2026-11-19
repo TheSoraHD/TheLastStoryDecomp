@@ -2,6 +2,7 @@
 #include "db/SkillParam_unk.h"
 #include "db/ItemParam_unk.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "game/GameTask.h"

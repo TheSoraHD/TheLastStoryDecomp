@@ -2,6 +2,7 @@
 // are reconstructed so far.
 #include "game/TacView.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstance.h"
 #include "game/CharaTask.h"
 #include "game/SkillEffectManager.h"

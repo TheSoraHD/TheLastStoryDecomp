@@ -57,6 +57,7 @@
 #include "atn/RenderSetting_unk.h"
 #include "atn/Keyboard.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/DrawHelper.h"
 #include "atn/MemoryManager.h"
 #include "Event/Sequence.h"

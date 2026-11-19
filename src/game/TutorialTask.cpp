@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 #include "atn/Csv.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/VideoTHP.h"
 #include "atn/SoundRef.h"
 #include "atn/Keyboard.h"

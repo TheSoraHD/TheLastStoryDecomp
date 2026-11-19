@@ -8,6 +8,7 @@
 #include "chr/ControlStickByQuark.h"
 #include <boost/bind.hpp>
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/Memory.h"
 #include "atn/SoundManager.h"
 #include "game/CharaManager.h"

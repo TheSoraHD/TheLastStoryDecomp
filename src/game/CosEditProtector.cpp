@@ -11,6 +11,7 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/SoundRef.h"
 #include "std/string_members.h"
 #include "game/CharaManager.h"

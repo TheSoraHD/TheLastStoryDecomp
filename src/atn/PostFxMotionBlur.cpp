@@ -1,5 +1,6 @@
 // atn/PostFxMotionBlur.cpp: motion blur post effect (the last frames kept in a ring of four textures and
 // blended with decreasing weights).
+#include "atn/RenderSetting_unk.h"
 #include "atn/PostFx.h"
 #include "atn/MemoryManager.h"
 #include "atn/DrawHelper.h"
@@ -11,20 +12,7 @@ extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short 
 
 // inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; opaque here)
 
-// inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
-struct MotionBlurParams_unk {
-    unsigned char m00[0x240];
-    int m240;   // 0x240: inferred: enabled
-    int m244;   // 0x244: inferred: debug display
-    int m248;   // 0x248: inferred: pause (the ring is not advanced)
-    float m24C; // 0x24C: inferred: weight curve exponents
-    float m250;
-    int m254;   // 0x254: inferred: fade in when enabled
-    int m258;   // 0x258: inferred: fade out when disabled
-    float m25C; // 0x25C: inferred: fade speeds
-    float m260;
-};
-extern "C" MotionBlurParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 
@@ -82,25 +70,25 @@ void PostFxMotionBlur::fn_800AFEBC(int div) {
 // NONMATCHING: 99.90% - registers only: the parameter block/flag at the start (r4/r6 against the hoisted
 // 0x4330 of the conversions); the fade loop matches with Lerp1_unk (const float&) (~25 variants)
 void PostFxMotionBlur::vf10(RenderManager* view) {
-    if (mA4 != lbl_8087EFA8->m240) {
-        mA4 = lbl_8087EFA8->m240;
-        if (lbl_8087EFA8->m240 != 0) {
-            mA8 = lbl_8087EFA8->m254 != 0 ? 1.0f : 0.0f;
+    if (mA4 != lbl_8087EFA8->m240.mEnabled) {
+        mA4 = lbl_8087EFA8->m240.mEnabled;
+        if (lbl_8087EFA8->m240.mEnabled != 0) {
+            mA8 = lbl_8087EFA8->m240.mStartBlend != 0 ? 1.0f : 0.0f;
         } else {
-            mA8 = lbl_8087EFA8->m258 != 0 ? 1.0f : 0.0f;
+            mA8 = lbl_8087EFA8->m240.mEndBlend != 0 ? 1.0f : 0.0f;
         }
     } else {
         if (mA8 > 0.0f) {
-            mA8 -= lbl_8087EFA8->m240 != 0 ? lbl_8087EFA8->m25C : lbl_8087EFA8->m260;
+            mA8 -= lbl_8087EFA8->m240.mEnabled != 0 ? lbl_8087EFA8->m240.mStartBlendSpeed : lbl_8087EFA8->m240.mEndBlendSpeed;
         }
-        if (lbl_8087EFA8->m240 == 0 && mA8 <= 0.0f) {
+        if (lbl_8087EFA8->m240.mEnabled == 0 && mA8 <= 0.0f) {
             mIndex = -1;
             mCount = 0;
             return;
         }
     }
-    mA0 = lbl_8087EFA8->m24C;
-    m9C = lbl_8087EFA8->m250;
+    mA0 = lbl_8087EFA8->m240.mScale;
+    m9C = lbl_8087EFA8->m240.mShift;
     float a;
     float weights[6];
     float sum = 0.0f;
@@ -179,7 +167,7 @@ void PostFxMotionBlur::vf10(RenderManager* view) {
         fn_800763FC(lbl_8087EEE0, &mTex[(mIndex - i + 4) % 4], 0);
         atn::RenderManager::instance_->fn_800BFC18(color, 0.0f, 0.0f);
     }
-    if (lbl_8087EFA8->m244 != 0) {
+    if (lbl_8087EFA8->m240.mDebug != 0) {
         float x = 16.0f;
         float y = fullH - fullH / 4.0f - 32.0f;
         float size = (fullW - 32.0f - 64.0f) / 4.0f;
@@ -190,7 +178,7 @@ void PostFxMotionBlur::vf10(RenderManager* view) {
         }
         lbl_8087EEB0->fn_8005DF90(-1, &mTex[index], 0, x, y, 0.0f, size, 0.7f * size);
     }
-    if (lbl_8087EFA8->m248 == 0) {
+    if (lbl_8087EFA8->m240.mFrozen == 0) {
         mIndex = (mIndex + 1) % 4;
         mCount = mCount + 1 > 3 ? 3 : mCount + 1;
     }

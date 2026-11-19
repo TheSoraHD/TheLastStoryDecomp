@@ -12,6 +12,7 @@
 #include "atn/Csv.h"
 #include "string.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
 #include "game/CharaManager.h"

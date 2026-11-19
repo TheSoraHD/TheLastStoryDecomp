@@ -7,6 +7,7 @@
 #include "atn/WordWrap_unk.h"
 #include "game/GameScene.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstance.h"
 
 // inferred: d2anime task with an end frame (GameUI 0x3EC); names invented

@@ -2,6 +2,7 @@
 // (__vt__12GameOverTask). File boundaries in docs/splits-auto-C.md (group 2).
 
 #include "atn/Camera_unk.h"
+#include "atn/D2A_Task.h"
 #include "game/GameTask.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/FadeCommon.h"
@@ -364,8 +365,8 @@ void GameOverTask::vf10() {
                 }
             }
         }
-        SetParam_unk(mCursor->m58, "cursor_pos", 0, -1000.0f);
-        SetParam_unk(mCursor->m58, "cursor_pos", 1, -1000.0f);
+        SetParam_unk(&mCursor->mData.m10, "cursor_pos", 0, -1000.0f);
+        SetParam_unk(&mCursor->mData.m10, "cursor_pos", 1, -1000.0f);
     } else if (mState == 1) {
         mMenu->mFlags &= ~4;
         mCursor->mFlags &= ~4;
@@ -486,9 +487,9 @@ void GameOverTask::vf10() {
         const wchar_t* text = fn_80116FC0(0, id);
         float len = fn_8006EF48(lbl_8087EEC8, 14.0f, text, 0.0f, 1, 1);
         sprintf(name, "msgLen%02d", i);
-        SetRate_unk(mMenu->m58, name, len);
+        SetRate_unk(&mMenu->mData.m10, name, len);
         sprintf(name, "msg%02d", i);
-        SetText_unk(mMenu->m58, name, text);
+        SetText_unk(&mMenu->mData.m10, name, text);
     }
     int pos = 0;
     switch (mChoices.mData[mSelect]) {
@@ -510,11 +511,11 @@ void GameOverTask::vf10() {
     }
     sprintf(name, "cursor_point%02d", pos);
     GameOverPoint_unk point = GetPoint_unk(mMenu, name);
-    SetParam_unk(mCursor->m58, "cursor_pos", 0, point.x);
-    SetParam_unk(mCursor->m58, "cursor_pos", 1, point.y);
-    SetParam_unk(mCursor->m58, "cursor_pos", 4, point.m10);
-    SetRate_unk(mCursor->m58, "wRate", point.m08);
-    SetRate_unk(mCursor->m58, "hRate", point.m0C);
+    SetParam_unk(&mCursor->mData.m10, "cursor_pos", 0, point.x);
+    SetParam_unk(&mCursor->mData.m10, "cursor_pos", 1, point.y);
+    SetParam_unk(&mCursor->mData.m10, "cursor_pos", 4, point.m10);
+    SetRate_unk(&mCursor->mData.m10, "wRate", point.m08);
+    SetRate_unk(&mCursor->mData.m10, "hRate", point.m0C);
     if (MenuCommonTask::sInstance != 0) {
         sprintf(name, "select_text%02d", pos);
         fn_804A5B9C(MenuCommonTask::sInstance, (int)mMenu, name);
@@ -530,9 +531,9 @@ void GameOverTask::vf10() {
 // inferred: the camera position and target go through local copies (asm copies, not removed)
 void GameOverTask::vf14() {
     if (mState == 1) {
-        SetRate_unk(mMenu->m58, "selectOn", 1.0f);
+        SetRate_unk(&mMenu->mData.m10, "selectOn", 1.0f);
     } else {
-        SetRate_unk(mMenu->m58, "selectOn", 0.0f);
+        SetRate_unk(&mMenu->mData.m10, "selectOn", 0.0f);
     }
     atn::Vector3 pos = *mCamera.GetPosition_unk();
     atn::Vector3 target = *mCamera.GetTarget_unk();
