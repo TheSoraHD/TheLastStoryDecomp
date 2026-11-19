@@ -12,6 +12,7 @@ Referencia: `/home/claude/ref` (1077 unidades con .o, labelcheck 11, rep100 23).
 | 02:30 | 0 | 742 u, 16074, 62.39 / 76.18, 0% 45, DRAFT 0 |
 | 03:55 | 2 | 742 u, 16075, 62.40 / 76.18, 0% 45, DRAFT 0 (D1 +1; fase 2 sin cambios de codigo) |
 | 05:20 | 2 | 742 u, 16075, 62.40 / 76.18, 0% 45, DRAFT 0 |
+| 13:05 | cierre | 742 u, 16075, 62.40 / 76.18, 0% 45, DRAFT 0; build limpio `main.dol: OK`, lost 0, sin bajadas, labelcheck 10 (Sound3dListener arreglada), rep100 23, poolcheck igual que main (134 lineas), 16 avisos de alineacion de dtk (splits sin cambios); clon limpio `main.dol: OK` |
 
 ## Fase 0: listas
 

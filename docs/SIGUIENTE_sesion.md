@@ -3,7 +3,7 @@
 > Sesion `secuencial-20261119` (sin agentes) del 2026-11-19 02:12 a 14:12. Notas: `docs/secuencial-20261119.md`; para el
 > port: `docs/secuencial-20261119-port.md` y `claude/port-secuencial-20261119.md` (proyecto).
 
-Estado: **16075 / 18109**, lost 0, rep100 23, labelcheck 11 lineas, `main.dol: OK`. Codigo 62,40 %, datos 76,18 %,
+Estado: **16075 / 18109**, lost 0, rep100 23, labelcheck 10 lineas, `main.dol: OK`. Codigo 62,40 %, datos 76,18 %,
 742 unidades completas. DRAFT 0. Funciones al 0 %: 45 (20 sin iostream/auto_03).
 
 ## Decisiones pendientes del usuario
