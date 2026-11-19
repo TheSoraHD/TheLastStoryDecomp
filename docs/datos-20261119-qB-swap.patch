@@ -1,0 +1,90 @@
+diff --git a/src/chr/ControlAttackBase.cpp b/src/chr/ControlAttackBase.cpp
+index cf05c42..b3a671e 100644
+--- a/src/chr/ControlAttackBase.cpp
++++ b/src/chr/ControlAttackBase.cpp
+@@ -890,50 +890,49 @@ ControlSwapAttack::ControlSwapAttack(Chara_unk* chara, Chara_unk* target)
+ 
+ // NONMATCHING: 95.6% - stack layout of the saved state (position, rotation, velocity).
+ int ControlSwapAttack::vf0C() {
+-    mTime = mTime + lbl_8087EFA8->m3A4;
++    float dt = lbl_8087EFA8->m3A4;
++    mTime = mTime + dt;
+     Motion_unk* motion = &mChara->mMotion;
+-    float speed = mTime < 20.0f ? 1.0f : 0.0f;
++    float rate = 1.0f;
++    float speed = mTime < 20.0f ? rate : 0.0f;
+     atn::Vector3 rot = mDir.ToRotation_unk();
+     if (mTime >= 23.0f && motion->mTracks[0].m00 != 0x1D2) {
+         motion->fn_80097C08(0, 0x1D2, 0, 1, 1, 0.0f, 0.05f);
+         motion->mTracks[0].m08 = 14.0f;
+     }
+     float frame = motion->mTracks[0].m08;
+-    if (frame >= motion->fn_80097D7C(0) - 1.0f) {
+-        return 1;
+-    }
+-    Chara_unk* chara = mChara;
+-    atn::Vector3 pos = chara->mPos;
+-    atn::Vector3 crot = chara->mRot;
+-    atn::Vector3 vel = chara->m574;
+-    atn::Vector3 rot2 = crot;
+-    if (mTime <= 19.0f) {
+-        vel.y = 0.0f;
+-        pos.y += 0.47368422f;
+-    } else {
+-        crot = rot;
+-    }
+-    atn::Vector3 d(mTarget->mPos.x - mStartPos.x, 0.0f, mTarget->mPos.z - mStartPos.z);
+-    if (mTime < 15.0f) {
+-        atn::Vector3 step = d * 0.06666667f;
+-        mChara->mPos = pos + step;
+-    } else {
+-        mChara->mPos = pos;
+-        mChara->mRot = crot;
+-        mChara->m574 = vel;
+-        mChara->fn_8013CB68(rot, 1, 1.0f, speed * mChara->m568);
+-    }
+-    if (mTime > 15.0f) {
+-        crot = mStartRot;
+-        atn::Vector3 back(-mDir.x, -mDir.y, -mDir.z);
+-        atn::Vector3 r = back.ToRotation_unk();
+-        float angle = atn::WrapAngle_unk(r.y - mStartRot.y);
+-        crot.y += angle * MIN(1.0f, (mTime - 15.0f) / 15.0f);
+-        mChara->mRot = crot;
+-    } else {
+-        mStartRot = mChara->mRot;
++    if (!(frame >= motion->fn_80097D7C(0) - 1.0f)) {
++        Chara_unk* chara = mChara;
++        atn::Vector3 pos = chara->mPos;
++        atn::Vector3 crot = chara->mRot;
++        atn::Vector3 vel = chara->m574;
++        atn::Vector3 rot2 = crot;
++        if (mTime <= 19.0f) {
++            vel.y = 0.0f;
++            pos.y += 0.47368422f;
++        } else {
++            crot = rot;
++        }
++        atn::Vector3 d(mTarget->mPos.x - mStartPos.x, 0.0f, mTarget->mPos.z - mStartPos.z);
++        if (mTime < 15.0f) {
++            mChara->mPos = pos + d * 0.06666667f;
++        } else {
++            mChara->mPos = pos;
++            mChara->mRot = crot;
++            mChara->m574 = vel;
++            mChara->fn_8013CB68(rot, 1, rate, speed * mChara->m568);
++        }
++        if (mTime > 15.0f) {
++            crot = mStartRot;
++            float angle = atn::WrapAngle_unk(atn::Vector3(-mDir.x, -mDir.y, -mDir.z).ToRotation_unk().y - mStartRot.y);
++            crot.y += angle * MIN(1.0f, (mTime - 15.0f) / 15.0f);
++            mChara->mRot = crot;
++        } else {
++            mStartRot = mChara->mRot;
++        }
++        return 0;
+     }
+-    return 0;
++    return 1;
+ }
+ 
+ void ControlSwapAttack::vf1C() {}
