@@ -24,9 +24,11 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
 // inferred: graphics device (lbl_8087EEE0)
+namespace atn {
 struct GraphicsDevice_unk;
-extern "C" GraphicsDevice_unk* lbl_8087EEE0;
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device); // inferred: screen aspect ratio
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
 
 // inferred: debug menu entries
 typedef void (*FinishMenuCallback_unk)(void* arg);

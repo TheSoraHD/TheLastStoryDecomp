@@ -27,16 +27,18 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct CannonEffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" CannonEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(CannonEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: sounds
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -187,7 +189,7 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
 static const char* const sSe[4] = {"SE_BTCOM_036", "SE_BTCOM_037", "SE_BTCOM_038"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -204,7 +206,7 @@ inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model*
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 // inferred: plays an effect at a position (name invented)
-inline void PlayEfpAt_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+inline void PlayEfpAt_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                           const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;

@@ -14,9 +14,11 @@
 #include "game/GameSceneFind_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-struct ChaseEffectMgr_unk;
-extern "C" ChaseEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(ChaseEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: camera settings (only the members used here)
 struct ChaseSettings_unk {
     unsigned char m000[0x524];
@@ -162,10 +164,10 @@ int ChaseManager::vf0C() {
     return ret;
 }
 
-extern "C" int fn_80239D58(ChaseEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_8023A098(ChaseEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
-extern "C" void fn_8023A680(ChaseEffectMgr_unk* mgr, atn::EffFile* res, int a, int b, Mtx* mtx, int c, int d,
+extern "C" void fn_8023A098(atn::EffectManager* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int a, int b, Mtx* mtx, int c, int d,
                             const float* color, float scale, int e, int f, int g); // inferred: starts an effect
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);

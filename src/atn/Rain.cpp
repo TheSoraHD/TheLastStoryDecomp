@@ -47,10 +47,12 @@ inline void GXPosition3f32_unk(float x, float y, float z) {
 }
 
 // inferred: render state and debug menu functions (automatic names)
-struct RenderState_unk;
-extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" void fn_80076760(RenderState_unk* rs, int state, int value);
-extern "C" void fn_800761A8(RenderState_unk* rs);
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* rs, int state, int value);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* rs);
 // inferred: ray test against the map (start, end, hit), returns nonzero on hit
 extern "C" int fn_8004ECC0(void* map, atn::Vector3* hit, const atn::Vector3* start, const atn::Vector3* end,
                            unsigned int mask, int arg5, int arg6);
@@ -210,7 +212,7 @@ void fn_800B1C44(Rain* rain, RenderManager* camera) {
     if (rain->mCount <= 0) {
         return;
     }
-    RenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80076760(rs, 8, 1);
     fn_80076760(rs, 9, 2);
     fn_80076760(rs, 10, 0);

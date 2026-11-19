@@ -24,9 +24,11 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" Event::Manager* fn_8000DB1C(); // inferred: returns lbl_8087F540 (weak copy of another file)
 
 // inferred: screen (lbl_8087EEE0)
-struct Screen_unk;
-extern "C" Screen_unk* lbl_8087EEE0;
-extern "C" float fn_80076FF8(Screen_unk* screen); // inferred: aspect ratio
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* screen); // inferred: aspect ratio
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
