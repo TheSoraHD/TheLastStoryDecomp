@@ -477,9 +477,13 @@ void CosEditProtector::vf24() {
 
 // NONMATCHING: 93% - the copy of the zero vector takes the destination before the source (blocker of
 // docs/trucos-mwcc.md: Vector3 operator= register crossing)
-void CosEditProtector::vf28() {
-    atn::Vector3* pos = &m1B84;
+// inferred: clears a vector with the zero vector (name invented)
+static inline void ZeroVec_unk(atn::Vector3* pos) {
     *pos = lbl_807C7030;
+}
+
+void CosEditProtector::vf28() {
+    ZeroVec_unk(&m1B84);
     mB28 = 0.0f;
     for (int i = 0; i < m4C; i++) {
         m54[i].mFrame = 0.0f;
