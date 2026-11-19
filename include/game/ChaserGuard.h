@@ -24,7 +24,7 @@ public:
     bool fn_8017FBEC(); // inferred: the player is seen (sets m14B8/m14C4)
     void fn_8017FED0(); // inferred: moves along the planned route
     // inferred: inlined helpers (names invented)
-    void SwingHead_unk(const struct ChaseParam_unk* param);
+    void SwingHead_unk(const struct GameConfig4DC_unk*);
     bool IsPlayerNear_unk();
 
     int m14B0;          // inferred: state (index into the state names)

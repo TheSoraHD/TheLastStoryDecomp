@@ -144,7 +144,7 @@ int ControlChaseHeld::vf0C() {
     int period = ((GameTask*)lbl_8087F430)->fn_80370174(0xD4) ? 18 : 12;
     if (m10 % period == 0 && mChara->mType != 2) {
         CharaStatus* status = &mChara->mStatus;
-        status->fn_8012DF7C(status->mParamB.m84 * lbl_8087F0A8->m4DC.m44, 0, 0);
+        status->fn_8012DF7C(status->mParamB.m84 * lbl_8087F0A8->m4DC.mCatchDamage, 0, 0);
     }
     return 0;
 }

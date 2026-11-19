@@ -21,15 +21,18 @@ GameConfig418_unk::GameConfig418_unk()
       m24(6.0f), m28(0.0f), m2C(1.5f), m30(6.0f), m34(0), m38(40) {}
 
 GameConfig53C_unk::GameConfig53C_unk()
-    : m00(0), m04(0.6f), m08(0.89f), m0C(1.04f), m10(0.01f), m14(150), m18(200.0f), m1C(200.0f), m20(50.0f),
-      m24(200.0f), m28(20.0f), m2C(100), m30(200.0f), m34(1.7453293f), m38(0.01f), m3C(100), m40(0), m44(0) {}
+    : m00(0), mChWalkSpeed(0.6f), mChMinSpeed(0.89f), mChMaxSpeed(1.04f), mChAcceleration(0.01f),
+      mChRunToWalkFrames(150), mChRunToWalkDistance(200.0f), mChSeeRunDistance(200.0f), mChMinRunDistance(50.0f),
+      mChRunStopDistance(200.0f), mChCatchDistance(20.0f), mChCatchRest(100), m30(200.0f), m34(1.7453293f),
+      mChDeceleration(0.01f), mChDecelerationFrames(100), mChRunnerHit(0), mChPlayerHit(0) {}
 
 GameConfig4DC_unk::GameConfig4DC_unk()
-    : m00(0), m04(120.0f), m08(60.0f), m10(20.0f), m14(35.0f), m18(10.0f), m20(0.2f), m24(1.0f), m28(0.6f),
-      m2C(0.5f), m30(6), m34(6), m38(30), m3C(0), m40(450), m44(0.004f), m48(8), m4C(100), m50(0.0f), m54(12.0f),
-      m58(8.0f), m5C(0.47123894f) {
-    m0C = 2.0943952f;
-    m1C = 0.05235988f;
+    : m00(0), mVisChaseDistance(120.0f), mVisSearchDistance(60.0f), mHearWalk(20.0f), mHearRun(35.0f),
+      mCatchDistance(10.0f), mWalkSpeed(0.2f), mRunSpeed(1.0f), mLostSpeed(0.6f), mReturnSpeed(0.5f), mLoseTime(6),
+      mFindTime(6), mChaseDelay(30), mCatchDelay(0), mWaitTime(450), mCatchDamage(0.004f), mReleaseSwingCount(8),
+      mCapturedTime(100), m50(0.0f), m54(12.0f), m58(8.0f), m5C(0.47123894f) {
+    mVisAngle = 2.0943952f;
+    mScanRate = 0.05235988f;
 }
 
 DialogConfig_unk::DialogConfig_unk() : mUseWaitMotion(1), mUseLipSync(1) {

@@ -4807,19 +4807,19 @@ static inline int ChaseValue_unk(int kind) {
         }
         break;
     case 5:
-        value = lbl_8087F0A8->m4DC.m08;
+        value = lbl_8087F0A8->m4DC.mVisSearchDistance;
         break;
     case 6:
-        value = lbl_8087F0A8->m4DC.m04;
+        value = lbl_8087F0A8->m4DC.mVisChaseDistance;
         break;
     case 7:
-        value = lbl_8087F0A8->m4DC.m0C * 57.295776f;
+        value = lbl_8087F0A8->m4DC.mVisAngle * 57.295776f;
         break;
     case 9:
-        value = lbl_8087F0A8->m53C.m44;
+        value = lbl_8087F0A8->m53C.mChPlayerHit;
         break;
     case 10:
-        value = lbl_8087F0A8->m53C.m40;
+        value = lbl_8087F0A8->m53C.mChRunnerHit;
         break;
     case 11:
         if (lbl_8087F098 != 0) {
@@ -4883,16 +4883,16 @@ void GameEventScript::fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         break;
     case 4:
-        lbl_8087F0A8->m4DC.m38 = value;
+        lbl_8087F0A8->m4DC.mChaseDelay = value;
         break;
     case 5:
-        lbl_8087F0A8->m4DC.m08 = value;
+        lbl_8087F0A8->m4DC.mVisSearchDistance = value;
         break;
     case 6:
-        lbl_8087F0A8->m4DC.m04 = value;
+        lbl_8087F0A8->m4DC.mVisChaseDistance = value;
         break;
     case 7:
-        lbl_8087F0A8->m4DC.m0C = 0.017453292f * value;
+        lbl_8087F0A8->m4DC.mVisAngle = 0.017453292f * value;
         break;
     case 8:
         if (ChaserNpc::fn_8018059C() != 0) {
@@ -4904,10 +4904,10 @@ void GameEventScript::fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         break;
     case 9:
-        lbl_8087F0A8->m53C.m44 = value;
+        lbl_8087F0A8->m53C.mChPlayerHit = value;
         break;
     case 10:
-        lbl_8087F0A8->m53C.m40 = value;
+        lbl_8087F0A8->m53C.mChRunnerHit = value;
         break;
     case 11:
         if (lbl_8087F098 != 0) {

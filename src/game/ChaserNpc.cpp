@@ -88,7 +88,7 @@ void ChaserNpc::vf10() {
     if (m55C == 6) {
         if (m14B0 != 0 && m14B0 != 4 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
             atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
-            if (PSVECMag(&d) < lbl_8087F0A8->m53C.m28) {
+            if (PSVECMag(&d) < lbl_8087F0A8->m53C.mChCatchDistance) {
                 fn_8018161C(4);
                 return;
             }
@@ -121,7 +121,7 @@ void ChaserNpc::fn_80180AE0() {
     case 1: {
         CharaTask* player = lbl_8087F8A0->mHead;
         atn::Vector3 d = player->mPos - mPos;
-        if (PSVECMag(&d) < lbl_8087F0A8->m53C.m28 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+        if (PSVECMag(&d) < lbl_8087F0A8->m53C.mChCatchDistance && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
             fn_8018161C(4);
         } else {
             m14C4 = 1.0f;
@@ -136,7 +136,7 @@ void ChaserNpc::fn_80180AE0() {
         fn_801814F0();
         break;
     case 4:
-        m14D0 = lbl_8087F0A8->m53C.m2C;
+        m14D0 = lbl_8087F0A8->m53C.mChCatchRest;
         fn_8018161C(3);
         break;
     case 5:
@@ -179,14 +179,14 @@ void ChaserNpc::fn_8018128C() {
     atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
     float dist = PSVECMag(&d);
     GameConfig_unk* settings = lbl_8087F0A8;
-    if (dist < settings->m53C.m28 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+    if (dist < settings->m53C.mChCatchDistance && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
         fn_8018161C(4);
         return;
     }
     m14C8++;
-    if (dist > settings->m53C.m18 &&
+    if (dist > settings->m53C.mChRunToWalkDistance &&
         fn_8004ED34(lbl_8087EE98, 0, &mPos, &lbl_8087F8A0->mHead->mPos, 0x80000000, 0, 0) != 0) {
-        if (++m14CC > settings->m53C.m14) {
+        if (++m14CC > settings->m53C.mChRunToWalkFrames) {
             fn_8018161C(2);
             return;
         }
@@ -195,17 +195,17 @@ void ChaserNpc::fn_8018128C() {
     }
     m14C4 /= 1.32f;
     if (dist > 100.0f) {
-        m14C4 = MAX(m14C4 - settings->m53C.m10, settings->m53C.m08);
+        m14C4 = MAX(m14C4 - settings->m53C.mChAcceleration, settings->m53C.mChMinSpeed);
     } else if (dist < 60.0f) {
-        m14C4 = MIN(m14C4 + settings->m53C.m10, settings->m53C.m0C);
+        m14C4 = MIN(m14C4 + settings->m53C.mChAcceleration, settings->m53C.mChMaxSpeed);
     }
-    float slow = settings->m53C.m38 * (float)(m14C8 / settings->m53C.m3C);
-    float limit = settings->m53C.m0C - slow;
+    float slow = settings->m53C.mChDeceleration * (float)(m14C8 / settings->m53C.mChDecelerationFrames);
+    float limit = settings->m53C.mChMaxSpeed - slow;
     m14C4 = MIN(m14C4, limit);
-    m14C4 = (float)MAX((double)m14C4, settings->m53C.m08);
+    m14C4 = (float)MAX((double)m14C4, settings->m53C.mChMinSpeed);
     m14C4 *= 1.32f;
     if (mC58.m0C.m2C != 0) {
-        if (dist > settings->m53C.m24) {
+        if (dist > settings->m53C.mChRunStopDistance) {
             fn_8018161C(1);
             return;
         }
@@ -216,10 +216,10 @@ void ChaserNpc::fn_8018128C() {
 
 void ChaserNpc::fn_801814F0() {
     GameConfig_unk* settings = lbl_8087F0A8;
-    m14C4 = 1.32f * settings->m53C.m04;
+    m14C4 = 1.32f * settings->m53C.mChWalkSpeed;
     atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
     float dist = PSVECMag(&d);
-    if (dist < settings->m53C.m28 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+    if (dist < settings->m53C.mChCatchDistance && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
         fn_8018161C(4);
         return;
     }
@@ -227,7 +227,7 @@ void ChaserNpc::fn_801814F0() {
         fn_8018161C(1);
         return;
     }
-    if (dist < (fn_80182134() ? settings->m53C.m1C : settings->m53C.m20)) {
+    if (dist < (fn_80182134() ? settings->m53C.mChSeeRunDistance : settings->m53C.mChMinRunDistance)) {
         fn_8018161C(3);
         return;
     }

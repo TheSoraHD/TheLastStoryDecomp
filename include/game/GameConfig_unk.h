@@ -60,56 +60,58 @@ struct GameConfig418_unk {
     int m38;
 };
 
-// inferred: 0x60 bytes at 0x4DC, constructor 0x80184B4C; not in the debug menu
+// inferred: 0x60 bytes at 0x4DC, constructor 0x80184B4C; not in the debug menu. Chase parameters:
+// names from the keys of db/ChaseParam_unk.cpp (m00 and m50-m5C are not loaded there)
 struct GameConfig4DC_unk {
     GameConfig4DC_unk();
     int m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    float m2C;
-    int m30;
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    float m44;
-    int m48;
-    int m4C;
+    float mVisChaseDistance;
+    float mVisSearchDistance;
+    float mVisAngle; // radians
+    float mHearWalk;
+    float mHearRun;
+    float mCatchDistance;
+    float mScanRate; // radians
+    float mWalkSpeed;
+    float mRunSpeed;
+    float mLostSpeed;
+    float mReturnSpeed;
+    int mLoseTime;
+    int mFindTime;
+    int mChaseDelay;
+    int mCatchDelay;
+    int mWaitTime;
+    float mCatchDamage;
+    int mReleaseSwingCount;
+    int mCapturedTime;
     float m50;
     float m54;
     float m58;
     float m5C;
 };
 
-// inferred: 0x48 bytes at 0x53C, constructor 0x80184AD4; not in the debug menu
+// inferred: 0x48 bytes at 0x53C, constructor 0x80184AD4; not in the debug menu. Chaser parameters:
+// names from the "ch*" keys of db/ChaseParam_unk.cpp
 struct GameConfig53C_unk {
     GameConfig53C_unk();
     int m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    int m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    int m2C;
+    float mChWalkSpeed;
+    float mChMinSpeed;
+    float mChMaxSpeed;
+    float mChAcceleration;
+    int mChRunToWalkFrames;
+    float mChRunToWalkDistance;
+    float mChSeeRunDistance;
+    float mChMinRunDistance;
+    float mChRunStopDistance;
+    float mChCatchDistance;
+    int mChCatchRest;
     float m30;
     float m34;
-    float m38;
-    int m3C;
-    int m40;
-    int m44;
+    float mChDeceleration;
+    int mChDecelerationFrames;
+    int mChRunnerHit;
+    int mChPlayerHit;
 };
 
 namespace atn {
