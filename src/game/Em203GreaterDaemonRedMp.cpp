@@ -18,6 +18,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "game/SkillEffectManager.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -93,25 +94,7 @@ struct RedBlur_unk {
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-// inferred: skill effect manager (lbl_8087F9E8): 32 effects of 0x140 bytes at 0x48
-struct RedSkill_unk {
-    int m00; // inferred: state (3 = finished)
-    HitInfo_unk* m04;
-    struct RedSkillOwner_unk* m08;
-    unsigned char m0C[0x10 - 0x0C];
-    atn::Vector3 m10;
-    atn::Vector3 m1C;
-    unsigned char m28[0x140 - 0x28];
-};
-struct RedSkillOwner_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-struct RedSkillMgr_unk {
-    unsigned char m00[0x48];
-    RedSkill_unk mSkills[32];
-};
-extern "C" RedSkillMgr_unk* lbl_8087F9E8;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test

@@ -6,6 +6,7 @@
 #include "atn/Camera_unk.h"
 #include "string.h"
 #include "game/GameTask.h"
+#include "game/TacView.h"
 
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
@@ -18,12 +19,7 @@ extern "C" int fn_800A58D0(void* pad, int port); // inferred: classic controller
 extern "C" float PSVECMag(const atn::Vector3* v);
 
 extern "C" GameTask* lbl_8087F430;
-// inferred: tactics view (lbl_8087F9F8, as in game/CharaTask.cpp)
-struct TacView_unk {
-    unsigned char m000[0xA70];
-    int mA70; // inferred: nonzero while the view is active
-};
-extern "C" TacView_unk* lbl_8087F9F8;
+extern "C" TacView* lbl_8087F9F8; // inferred: tactics view
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: settings (lbl_8087F0A8), only the members read here
