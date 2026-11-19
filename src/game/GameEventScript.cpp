@@ -4771,9 +4771,14 @@ void GameEventScript::fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk*
     result.mNext = NextCmd_unk(cmd);
 }
 
-// inferred: value of the chase or of the config `kind` (name invented)
-static inline int ChaseValue_unk(int kind) {
-    int value = 0;
+// inferred: radians to degrees (an inline: the literal written in place gives the fmuls operands in the
+// other registers; name invented)
+static inline float RadToDeg_unk(float rad) {
+    return rad * 57.295776f;
+}
+// inferred: value of the chase or of the config `kind`; an out parameter set to 0 by the caller (the
+// original keeps it in r31) (name invented)
+static inline void ChaseValue_unk(int kind, int& value) {
     switch (kind) {
     case 0:
         if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
@@ -4812,7 +4817,7 @@ static inline int ChaseValue_unk(int kind) {
         value = lbl_8087F0A8->m4DC.mVisChaseDistance;
         break;
     case 7:
-        value = lbl_8087F0A8->m4DC.mVisAngle * 57.295776f;
+        value = RadToDeg_unk(lbl_8087F0A8->m4DC.mVisAngle);
         break;
     case 9:
         value = lbl_8087F0A8->m53C.mChPlayerHit;
@@ -4826,34 +4831,17 @@ static inline int ChaseValue_unk(int kind) {
         }
         break;
     }
-    return value;
 }
 
-// inferred: writes a field flag without recording it (m37C cleared meanwhile) (name invented)
-static inline void StoreValue_unk(GameEventScript* self, int value, int flag, int mode) {
-    GameTask* field = lbl_8087F430;
-    if (field != 0) {
-        int saved = self->m37C;
-        self->m37C = 0;
-        if (mode == 1) {
-            field->fn_80370320(flag, value, 0);
-        } else {
-            field->fn_80370AE4(flag, value);
-        }
-        self->mF0 = 1;
-        self->m37C = saved;
-    }
-}
-
-// NONMATCHING: 98.4% - the value takes r28 instead of r31 (this/result/cmd shifted) and the operands
-// of the fmuls of case 7 are swapped
 // inferred: stores a value of the chase or of the config (m08) into the field flag m10 (m0C: 1 with
 // fn_80370320, else fn_80370AE4); counterpart of the setter above
 void GameEventScript::fn_803A5A8C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
-    int value = ChaseValue_unk(args->m08);
-    StoreValue_unk(this, value, args->m10, args->m0C);
-    result.SetNext_unk(cmd);
+    int value = 0;
+    ChaseValue_unk(args->m08, value);
+    SetFlag_unk(args->m0C, args->m10, value);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: settings of the chase and of the game config, with the value (m10, m0C, as fn_803A6CDC)
