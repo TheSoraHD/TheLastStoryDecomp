@@ -2372,7 +2372,7 @@
   "classes": [
    "gmk::FloatingBox"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/CharaObj.cpp",
