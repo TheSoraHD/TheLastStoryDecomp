@@ -1115,7 +1115,6 @@ int ControlMatHoldDamage::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 89.6% - copies of the direction vector and the order of the velocity products
 // inferred: thrown by the mat towards `target` (control id 0x71), landing after `frames` frames
 ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int frames)
     : ControlBase(chara), mTarget(target), mFrames(frames), mCount(15), mDone(0) {
@@ -1127,16 +1126,20 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
     }
-    if (mChara->mFlag5) {
+    if (mChara->IsFlag5_unk() != 0) {
         mChara->mFlag5 = 0;
     }
+    float inv;
     float n = (float)frames;
-    mVel = (mTarget - mChara->mPos) * (1.0f / n);
+    inv = 1.0f / n;
+    CharaTask* c = mChara;
+    mVel = (mTarget - c->mPos) * inv;
     mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->m030 *
                                                      lbl_8087F0A8->m030))));
-    atn::Vector3 dir = mTarget - mChara->mPos;
-    dir.y = 0.0f;
+    atn::Vector3 dir;
+    dir = mTarget - mChara->mPos;
     dir.Normalize_unk();
+    dir.y = 0.0f;
     mChara->mRot = dir.ToRotation_unk();
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
@@ -1154,21 +1157,29 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     }
 }
 
-// NONMATCHING: 92.3% - flight, then landing (the player can shake the remote to land on his feet)
+// inferred: as CharaTask::fn_80139E9C, inlined (name invented)
+static inline bool HasGimmick_unk(const CharaTask* c) {
+    return c->m1208 != 0;
+}
+
+// inferred: flight, then landing (the player can shake the remote to land on his feet)
 int ControlThrown::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     mChara->mPos = mChara->mPos + mVel;
     int fps = lbl_8087F0A8->m030;
-    mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
+    float scale = lbl_8087EFA8->m3A4;
+    mVel.y += scale * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     switch (mState) {
     case 0:
         if (mFrames < 0) {
-            if (mChara->m1208) {
+            if (HasGimmick_unk(mChara)) {
                 GimmickCommon* gimmick = (GimmickCommon*)mChara->m1208;
                 mChara->fn_801750FC();
-                GimmickMsg_unk msg(6);
+                GimmickMsg_unk msg;
+                msg.mType = 6;
                 msg.mVec = mTarget;
+                msg.m10 = 0; // inferred: stored again after the constructor in the original
                 msg.m04 = 1;
                 gimmick->vf40(&msg);
             }
