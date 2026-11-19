@@ -455,11 +455,11 @@ void GameEventScript::fn_80394C68() {
     mD8 = 0;
 }
 
-// NONMATCHING: 98.4% - registers of the scene and of the entry offset swapped
+// inferred: clears bit 1 of the flags of the character point `id` (points of the scene through a reference)
 void GameEventScript::fn_803957F0(int id) {
-    GameScene* scene = mScene;
-    for (unsigned int i = 0; i < scene->m80.size(); i++) {
-        if (id == scene->m80[i].mId) {
+    atn::SimpleArray<gs::NpcSetPoint>& points = mScene->m80;
+    for (unsigned int i = 0; i < points.size(); i++) {
+        if (id == points[i].mId) {
             m114[i].mFlags &= ~2;
             return;
         }
