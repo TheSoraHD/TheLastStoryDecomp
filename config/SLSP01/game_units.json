@@ -2372,7 +2372,7 @@
   "classes": [
    "gmk::FloatingBox"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/CharaObj.cpp",
@@ -2416,7 +2416,7 @@
    "RandomMerchantChara",
    "gmk::RandomMerchant"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RandomItem.cpp",

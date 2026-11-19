@@ -12,22 +12,7 @@
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
-// inferred: character of gmk::RandomMerchant. The name is in the DOL (__vt__19RandomMerchantChara,
-// 0x1428 bytes, character type 1); all its members are inline (weak copies at the end of the file).
-class RandomMerchantChara : public CharaTask {
-public:
-    RandomMerchantChara(atn::Task* parent, const std::string& path) : CharaTask(parent, 1, 0) {
-        fn_80136544(path.data());
-        m1188.Initialize(&mMotion);
-        m137C |= 1;
-    }
-    virtual ~RandomMerchantChara() {}
-    virtual int vf0C() { return fn_8013655C() == 0; }
-    virtual void vf10() { fn_80145334(); }
-    virtual void vf14() { fn_80149A30(); }
-
-    int m1424; // inferred: unused here (sizeof(RandomMerchantChara) == 0x1428)
-};
+class RandomMerchantChara;
 
 namespace gmk {
 
@@ -91,7 +76,6 @@ public:
 
     void PlayMotion_unk(int motion);
     void PlayMotion2_unk(RandomMerchantChara* chara, int index);
-    void PlayMotion3_unk(atn::Model* motion, int index);
 
     atn::Model mModel;                    // 0xF4
     atn::EfpFile mEfp;             // 0x4C4
@@ -127,5 +111,23 @@ public:
 };
 
 } // namespace gmk
+
+// inferred: character of gmk::RandomMerchant. The name is in the DOL (__vt__19RandomMerchantChara,
+// 0x1428 bytes, character type 1); all its members are inline (weak copies at the end of the file).
+// Declared after gmk::RandomMerchant: its vtable comes first in .data (as GmkChara in gmk/CharaObj).
+class RandomMerchantChara : public CharaTask {
+public:
+    RandomMerchantChara(atn::Task* parent, const std::string& path) : CharaTask(parent, 1, 0) {
+        fn_80136544(path.data());
+        m1188.Initialize(&mMotion);
+        m137C |= 1;
+    }
+    virtual ~RandomMerchantChara() {}
+    virtual int vf0C() { return fn_8013655C() == 0; }
+    virtual void vf10() { fn_80145334(); }
+    virtual void vf14() { fn_80149A30(); }
+
+    int m1424; // inferred: unused here (sizeof(RandomMerchantChara) == 0x1428)
+};
 
 #endif
