@@ -37,16 +37,8 @@ extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 // inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here
 // HomeButtonMenu: game/HomeButtonMenu.h
-// inferred: input manager (lbl_8087F018)
-struct SysInput_unk {
-    int GetExt_unk() { return m5C; } // inferred: name invented
-    bool IsNoPad_unk() const { return m40C0 == 0; }
-    unsigned char m0000[0x5C];
-    unsigned char m5C; // inferred: extension type of the first Wii Remote
-    unsigned char m005D[0x40C0 - 0x5D];
-    int m40C0; // inferred: the first Wii Remote is connected
-};
-extern "C" SysInput_unk* lbl_8087F018;
+#include "atn/WPad_unk.h"
+extern "C" WPad_unk* lbl_8087F018; // inferred: input manager
 extern "C" int DVDCheckDisk();
 // inferred: arena (lbl_8087F610)
 struct SysArena_unk;
@@ -461,7 +453,7 @@ void ErrorManager::fn_80363DBC() {
     }
     int error = 0;
     if (!IsBusy_unk()) {
-        SysInput_unk* input;
+        WPad_unk* input;
         if (m0C != 0 && (input = lbl_8087F018) != 0 &&
             (HomeButtonMenu::sInstance == 0 || HomeButtonMenu::sInstance->m84 != 1)) {
             if (lbl_8087F018->IsNoPad_unk()) {
