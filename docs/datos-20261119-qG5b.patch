@@ -14,3 +14,38 @@ index ca631c3..7a0a6ce 100644
      case 6:
          if (chara->m560 >= 60 && chara->m560 <= 61) {
              return true;
+
+# fn_803A68B8 93,88 -> 99,81 (flags de MapPartsLocatorSet en local, maps->mData[i], mWait/mNext); queda maps/iterador r30/r29 cruzados
+diff --git a/src/game/GameEventScript.cpp b/src/game/GameEventScript.cpp
+index fca9f60..747eaed 100644
+--- a/src/game/GameEventScript.cpp
++++ b/src/game/GameEventScript.cpp
+@@ -5169,7 +5170,7 @@ void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk*
+         }
+         maps = &MapManager::instance_->mMaps;
+         for (unsigned int i = 0; i < maps->size(); i++) {
+-            MapTask* map = (*maps)[i];
++            MapTask* map = maps->mData[i];
+             switch (args->m08) {
+             case 0:
+                 map->fn_804A0E18(name, value);
+@@ -5185,7 +5186,8 @@ void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk*
+             case 1: {
+                 MapPartsLocatorSet* set = (MapPartsLocatorSet*)map->fn_804A06B4(4, name);
+                 if (set != 0) {
+-                    set->fn_8049B72C(value != 0 ? set->mFlags | 0x400 : set->mFlags & ~0x400);
++                    unsigned int flags = set->mFlags;
++                    set->fn_8049B72C(value != 0 ? flags | 0x400 : flags & ~0x400);
+                 }
+                 if (entry != 0) {
+                     if (value != 0) {
+@@ -5200,7 +5202,8 @@ void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk*
+             }
+         }
+     }
+-    result.SetNext_unk(cmd);
++    result.mWait = 0;
++    result.mNext = NextCmd_unk(cmd);
+ }
+ 
+ // inferred: gives the item m08 (bit 0 of m0C: added to the result of the battle instead) and shows it

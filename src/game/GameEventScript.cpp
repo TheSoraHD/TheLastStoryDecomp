@@ -180,8 +180,7 @@ static inline int ScriptValue_unk(int type, int value) {
     }
     return value;
 }
-// inferred: command after the end of the block that starts at `cmd` (commands 0x44 open nested
-// blocks, 0x45 closes one); the end of the script if missing (name invented)
+// inferred: end of the commands of a script (name invented)
 static inline ScriptCmd_unk* ScriptEndOf_unk(ScriptData_unk* data) {
     ScriptCmd_unk* end = &data->mCmds;
     for (unsigned int i = 0; i < data->mCmdCount; i++) {
@@ -189,6 +188,8 @@ static inline ScriptCmd_unk* ScriptEndOf_unk(ScriptData_unk* data) {
     }
     return end;
 }
+// inferred: command after the end of the block that starts at `cmd` (commands 0x44 open nested
+// blocks, 0x45 closes one); the end of the script if missing (name invented)
 static inline ScriptCmd_unk* SkipBlock_unk(ScriptData_unk* data, const ScriptCmd_unk* cmd) {
     ScriptCmd_unk* end = &data->mCmds;
     for (unsigned int i = 0; i < data->mCmdCount; i++) {
