@@ -91,6 +91,17 @@ poolcheck igual que main) salvo el `ordercheck` de GameEventScript, que ya tiene
 | 1ef554e | 2.1 | Bullet y NewCampPartsOption con `GameTask` |
 | d66a8b7 | 2.4 | GameOverTask y NewCampPartsTop con `CampSaveLoad.h` |
 | 27a692d | 2.5 | `PathData_unk` = `Event::Path` |
+| a8e9425 | 2.5 | vistas de `lbl_8087EFA8` -> `RenderSetting_unk` (51 unidades) |
+| e51a120 | 2.5 | resto de vistas de `lbl_8087F0A8` -> `GameConfig_unk` (47 unidades) |
+| 818dfde | 2.5 | vistas de `lbl_8087EEE0` -> `atn::GraphicsDevice_unk` (16 unidades) |
+| 9c00cc9 | 2.5 | GameUI, `Event::Manager`, ChaseManager (16 unidades) |
+| 956b4da | 2.5 | PlayerManager, WPad_unk, SoundManager (12 unidades) |
+| 2905a11 | 2.5 | RenderSetting_unk en 7 vistas con sub-structs |
+| 3120cf3 | 2.5 | `NextChara_unk` por `PlayerTask::mNext` (3 unidades) |
+| b9f5304 | 2.5 | una sola `DebugMessages_unk` (17 unidades) |
+| c8031d3 | 2.5 | GraphicsDevice_unk en 9 vistas mas (`mRMode.viWidth/viHeight`, declaraciones de la cabecera) |
+| 63d7fc6 | 2.5 | `atn::EffectManager` en 12 vistas mas (`mSystem.m70/m78/m7C/mReplaying`, `mFlags`) |
+| ddc1a34 | 2.5 | `GameConfig_unk::m4DC/m53C` con nombres de las claves CSV de db/ChaseParam_unk |
 
 Re-emparejado: `pdbatch.sh` y, para lo que queda (pools iguales que main), `refmap.py` (scratch): nombre en symbols.txt de main ->
 (seccion, desplazamiento) en el .o de main -> nombre en nuestro .o. Mas fiable que lblseq/valfix cuando el pool no cambia;

@@ -191,3 +191,54 @@ Sesion secuencial del 2026-11-19 (rama `secuencial-20261119`, notas `docs/secuen
   en GameConfig_unk: hace falta uno para tiparlo).
 - Commit 1ef554e: game/Bullet (`HomingField_unk` de game/Bullet.h fuera: `m5590` = `GameTask::m5590` ReplayBuffer*)
   y NewCampPartsOption (vista vacia) -> `GameTask*`, sin casts.
+
+## 2.5 Vistas de `lbl_8087EFA8` -> `RenderSetting_unk` (commit a8e9425)
+
+- 51 unidades: la vista local (`GameState_unk`, `FrameTime_unk`, `Timer_unk`, `Params_unk`...) es `RenderSetting_unk`
+  (atn/RenderSetting_unk.h); miembros simples por desplazamiento (casi todos `m3A4`, velocidad de frame). Los accesores de las
+  vistas (`GetTime_unk`/`GetDelta_unk` = m3A4) son `RenderSetting_unk::GetFrameSpeed_unk() const` (declarado en la cabecera,
+  definido inline en AiTarget, CharaStatus, Em001Necromancer, Em003LesserDaemon, MotionCommand_unk, ReplayBuffer).
+- Para el port: estas unidades ya no tienen relleno con desplazamientos de la Wii hacia RenderSetting_unk (su guia: la clase real
+  con `PTR32` en sus dos punteros). Unidades: atn/LayerReflect atn/PostFxColorMatrix atn/PostFxRain chr/ControlAttackBase chr/ControlAttractHateCharge chr/ControlCdnStone chr/ControlChant chr/ControlCharge chr/ControlCliffhang chr/ControlDamage chr/ControlDive chr/ControlDropDown chr/ControlMountle chr/ControlPushedDown chr/ControlTurnQuadruped chr/ControlWallUp game/AiTarget game/Bullet game/CharaFaceControl game/CharaStatus game/Em001Necromancer game/Em003LesserDaemon game/Em201ZanGurgFinal game/Em203GreaterDaemon game/Em203GreaterDaemonRedMp game/Em205Ogre game/Em206CocoonMp game/Em306GurgBeast game/Em309Ghoul game/Em316LaserSphere game/Em316LastLaser game/Em401_01_WhiteLeoPard game/Em403WarLion game/EnemyFieldMagician game/EnemyLizerdBlade game/EnemyQuarkFirst game/EnemyQuarkStand game/EnemyTasha game/EnemyTrista game/GimmickStateCommand game/HomingBullet game/LastCocoonImago game/LastCocoonQuadruped game/MotionCommand_unk game/NewStaffRoll game/QuadrupedTask game/ReplayBuffer game/SetConfig game/TownTask gmk/ArenaFloor gmk/SparkCube 
+- Quedan ~24 vistas con sub-structs (Bloom/Dof/Gamma/GodRay/ColorMatrix/Damage, `m20C[]`, `mFog`, `mSlow`, `mCamera`...).
+
+## 2.5 Resto de vistas de `lbl_8087F0A8` -> `GameConfig_unk` (commit e51a120)
+
+- 47 unidades con vistas de otro nombre (`AiSettings_unk`, `BatDebug_unk`, `BeastSettings_unk`, `ChaseConfig_unk`...): miembros
+  simples por desplazamiento; los casts `((Input_unk*)lbl_8087F0A8->mPad)` y `->mInput` son `&lbl_8087F0A8->mInput` (el
+  `Input_unk` local de Dialog/Em201ZanGurgFinal/EnemyQuarkStand/MP... es el de GameConfig_unk.h). Unidades:
+  AI/AiCommon_unk AI/AiUtil_unk MP/D2AMpMenuFriend MP/D2AMpMenuMessageList MP/D2AMpMenuSetMessage atn/SequenceUnitParam1_const_int chr/ControlCannonLift chr/ControlDive chr/ControlMountle chr/ControlTurnQuadruped chr/ControlWallUp db/PlayerParam_unk db/TutorialTable_unk game/Bullet game/Em201ZanGurgFinal game/Em202SpiderBase game/Em206EggMonster game/Em208Queen game/Em306GurgBeast game/Em308InvertCrab game/Em308ParmCrab game/Em316LaserSphere game/Em316LastLaser game/Em401_01_WhiteLeoPard game/EnemyQuarkSecond game/EnemyQuarkStand game/EnemyTask game/EnvSeBase game/GameSaveBackground game/GameSaveLoadBackgroundCommon game/GameSaveLoadCommon game/GameSystem_unk game/LogMessageTask game/QuadrupedTask game/ShopIdentify game/ShopUpGrade game/TownTask gmk/Bat gmk/Brazier gmk/BulletPoint gmk/Cannonball gmk/DropItem gmk/Fireworks gmk/FlyObjManager gmk/Leaf gmk/Lemon gmk/OnOff gmk/SavePoint 
+- No llevados: GameBgm (con GameConfig_unk.h fn_8037D4C0 cambia de registros), BootTask (`m1B4` = `mStrap`, ConfigString_unk),
+  Event/Dialog y MenuCommonTask (`fn_80124C6C` devuelve un UV por valor con otro tipo), y las vistas con sub-structs.
+
+## 2.5 Vistas de `lbl_8087EEE0` -> `atn::GraphicsDevice_unk` (commit 818dfde)
+
+- 16 unidades: `RenderState_unk`, `RenderMgr_unk`, `DialogRender_unk`... -> `atn::GraphicsDevice_unk` (atn/GraphicsDevice.h):
+  `mWidth`, `mHeight`, `mWide` (`m44`), `mClearColor`. Unidades: Event/Dialog MP/D2AMpMenuCockpit atn/D3Anime atn/D3AnimeInstance atn/FadeCommon atn/Geometry_unk atn/LayerOcclusionCPU atn/LayerReflect atn/Loader atn/NandManager atn/RenderSetting_unk atn/WPad_unk game/CharaTask game/MenuCommonTask game/NewStaffRoll game/SystemErrorMessage_unk 
+- No llevados: DrawHelper, Layer2DBlur, Layer3D, LayerShadow, LensFlare, TextureComposite (sus declaraciones locales de
+  `fn_800763FC`, `fn_80071D68`, `fn_80071D74`, `fn_800763C0` chocan con las de atn/GraphicsDevice.h), HomeButtonMenu y StrapTask
+  (`mFbWidth/mFbHeight` de 16 bits en 0xE/0x10), VideoTHP (`m10`), LayerPostFx (`atn::Vec2f m58`).
+
+## 2.5 Otras vistas de globales (commit 9c00cc9)
+
+- `lbl_8087F490` -> `GameUI`: D2AMpMenuCockpit (`m255C`), CrossbowMenuTask y AutomaticDoor (`m10FC/m1100`), Trap (`m728`).
+- `lbl_8087F540` -> `Event::Manager`: EnvSeBase, GameVoice, RouteWalker_unk, SongManager, main.
+- `lbl_8087F098` -> `ChaseManager`: ControlChaseCaught, CharaTask, CosEditBase, GameUI, LemonBucket, SavePoint, SystemErrorMessage_unk.
+- `lbl_8087F628` (`atn::net::Manager`, 11 vistas) y `lbl_8087F610`: sus vistas tienen sub-structs; sin llevar.
+- Commit 956b4da: `lbl_8087F8A0` -> `PlayerManager` (`mHead` del `CharaManager<PlayerTask>` base) en CharaTask,
+  Em202Spider, Em202_01_BSpider, Em209SmallGolem, Em308InvertCrab, Em308ParmCrab, Em403WarLion, EnemyJill, Np131LivingArmor,
+  TownTask; `lbl_8087F018` -> `WPad_unk` (SoftKeyboardBase_wchar_t_0) y `lbl_8087EFE8` -> `atn::SoundManager` (GameChoiceWindow).
+
+## Para el port: vistas encontradas y no llevadas
+
+- `CharaListNode_unk` y similares (`{ unsigned char m0000[0x14AC]; CharaTask* mNext; }`): leen el siguiente de las listas Convertidos a `static_cast<PlayerTask*>(c)->mNext` en Em403WarLion, Em302Kraken y Em202MothersSpider (todas sus llamadas recorren `lbl_8087F8A0`); el resto mezcla listas de jugadores y enemigos.
+  de `CharaManager<T>` (`PlayerTask::mNext`/`EnemyTask::mNext`, 0x14AC en la Wii) desde un `CharaTask*`. En PC el
+  desplazamiento es otro: hay que leer `static_cast<PlayerTask*>(chara)->mNext` (o `EnemyTask`) segun la lista. Unidades:
+  game/AiTarget game/BattleTask game/CharaTask game/Em002_01BlackSkelton game/Em202ForestSpider game/Em202MothersSpider game/Em202Spider game/Em202_01_BSpider game/Em301LShade game/Em302Kraken game/Em302KrakenMp game/Em403WarLion game/EnemyQuarkSecond gmk/Brazier gmk/BulletPoint gmk/Cannonball gmk/FlamingArrow gmk/FloatingBox gmk/FragileObject gmk/Leaf gmk/LottaSummon gmk/MotionObject gmk/OpenBoard 
+- Vistas grandes de una sola variable de otros globales (sin cabecera real en la decomp): `lbl_8087EE98` (colisiones),
+  `lbl_8087F610` (sesion MP, `MP::Manager2` local de PacketPack), `lbl_8087F138` (`atn::D2A_Manager`), `lbl_8087F1E4`
+  (`TextTable_unk`: sus vistas leen `const wchar_t* mText[]` de 4 bytes, la tabla real son `ptr_string_base<wchar_t, 0>` de 8).
+- `DebugMessages_unk` (`lbl_8087EEB8`): 17 copias locales sustituidas por `atn/DebugMessages_unk.h` (ahora con `fn_800698DC` y `fn_80069E50`); la disposicion completa sigue en `atn/FileUtil_unk.cpp` (para el port: mover alli la clase a la cabecera si hace falta `sizeof`).
+- `lbl_8087EEE0` (2a pasada): DrawHelper, Layer2DBlur, LensFlare, TextureComposite, Layer3D, LayerShadow (sin sus `extern "C"` locales de `fn_800763FC`/`fn_800763C0`/`fn_80071D68`/`fn_80071D74`; se pasa `proj.m`), HomeButtonMenu y StrapTask (`mRMode.viWidth/viHeight`), VideoTHP (`mRMode.viHeight`, `mWide`). Queda LayerPostFx (`atn::Vec2f m58` = `mOffsetX/Y`).
+- `lbl_8087F3C0` (2a pasada): 12 vistas mas a `atn::EffectManager`: Bullet, Brazier, OnOff, RandomItem, WindyItem (`mB8` = `mSystem.mLayer`), Em204Mulue(+Mp), MotionCommand_unk (`mC4`/`mC8` = `mSystem.m78`/`m7C`), Em209SmallGolem, NewCampPartsMapSelect (`mBC` = `mSystem.m70`), SkillEffect (`mD0` = `mSystem.mReplaying`), em005_doppel_ganger (`mEC` = `mFlags`). Quedan EnemyQuarkStand (define su propia `atn::EffectManager` parcial) y NewCampPartsGmk (`SetBC_unk` inline local).
+- `GameConfig_unk::m4DC`/`m53C` (`GameConfig4DC_unk`/`GameConfig53C_unk`): campos con los nombres de las claves CSV de db/ChaseParam_unk (`visChaseDistance`... `chPlayerHit`); fuera la vista `ChaseConfig_unk` de db/ChaseParam_unk y `ChaseParam_unk`/`Settings_unk` de ChaserGuard (`SwingHead_unk(const GameConfig4DC_unk*)`). Campos sin clave: `m4DC.m00` (dibujo de depuracion), `m50`-`m5C`, `m53C.m00`, `m30`, `m34`.
