@@ -33,6 +33,7 @@ extern "C" unsigned long strlen(const char* s);
 #include "game/HomeButtonMenu.h"
 #include "game/GameConfig_unk.h"
 #include "atn/DebugMessages_unk.h"
+#include "atn/WPad_unk.h"
 extern "C" void fn_80363CE4(); // inferred: creates the ErrorManager singleton
 
 // inferred: HOME button menu (game/HomeButtonMenu.cpp), only the members used here
@@ -59,13 +60,7 @@ extern "C" MainLoadMgr_unk* lbl_8087F518;
 extern "C" void fn_8046F014(MainLoadMgr_unk* mgr);
 extern "C" void fn_8046F2C4(MainLoadMgr_unk* mgr);
 
-struct MainSound_unk {
-    unsigned char m0000[0x40D4];
-    int m40D4;
-    int m40D8;
-    int m40DC;
-};
-extern "C" MainSound_unk* lbl_8087F018;
+extern "C" WPad_unk* lbl_8087F018;
 
 
 namespace atn {
@@ -260,9 +255,9 @@ void fn_8047A4C8() {
     fn_8004C9B4();
     fn_800A5508();
     if (lbl_8087F018 != 0) {
-        lbl_8087F018->m40D4 = 0;
-        lbl_8087F018->m40D8 = 0;
-        lbl_8087F018->m40DC = 0;
+        lbl_8087F018->m40D0[1] = 0;
+        lbl_8087F018->m40D0[2] = 0;
+        lbl_8087F018->m40D0[3] = 0;
     }
     fn_800463A8();
     fn_800CCBA4();

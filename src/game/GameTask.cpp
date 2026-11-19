@@ -160,10 +160,6 @@ struct Collision_unk {
     unsigned char m0000[0x9034];
     int m9034; // inferred: single player
 };
-struct SysInput_unk {
-    unsigned char m0000[0x40E0];
-    int m40E0;
-};
 
 #include "game/ErrorManager.h"
 #include "game/InventoryExp_unk.h"
@@ -171,6 +167,7 @@ struct SysInput_unk {
 #include "game/GameSceneFind_unk.h"
 #include "atn/DebugMessages_unk.h"
 #include "game/GameConfig_unk.h"
+#include "atn/WPad_unk.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;
@@ -179,7 +176,7 @@ extern "C" void* lbl_8087EE90; // inferred: sound engine
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle task
 extern "C" int fn_80219558(int id);
 extern "C" GameConfig_unk* lbl_8087F0A8;
-extern "C" SysInput_unk* lbl_8087F018;
+extern "C" WPad_unk* lbl_8087F018;
 extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: pending save data
 
 extern "C" void fn_80212790();
@@ -495,7 +492,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
     if (lbl_8087F610 == 0) {
         lbl_8087F420->m0C = 1;
         if (lbl_8087F018 != 0) {
-            lbl_8087F018->m40E0 = 1;
+            lbl_8087F018->m40E0[0] = 1;
         }
     }
     fn_8037177C();
@@ -585,7 +582,7 @@ GameTask::~GameTask() {
         SetConfig::sInstance->fn_8057EF40();
         lbl_8087F420->m0C = 0;
         if (lbl_8087F018 != 0) {
-            lbl_8087F018->m40E0 = 0;
+            lbl_8087F018->m40E0[0] = 0;
         }
     }
     ((PostFxMgrView_unk*)lbl_8087EF8C)->mMotionBlur.fn_800AFEBC(2);

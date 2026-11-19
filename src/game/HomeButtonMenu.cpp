@@ -20,12 +20,9 @@ extern "C" void* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* obj, int a, int b, int c);
-struct Unk_8087F018 {
-    unsigned char m0000[0x40E0];
-    int m40E0;
-};
-extern "C" Unk_8087F018* lbl_8087F018;
-extern "C" void fn_800DF0F0(Unk_8087F018* obj, int arg);
+#include "atn/WPad_unk.h"
+extern "C" WPad_unk* lbl_8087F018;
+extern "C" void fn_800DF0F0(WPad_unk* obj, int arg);
 extern "C" void KPADEnableDPD(int chan); // inferred: per controller channel (stops the rumble?)
 #include "game/ResetShutdown.h"
 #include "atn/GraphicsDevice.h"
@@ -67,7 +64,7 @@ void HomeButtonMenu::fn_8044073C() {
                     fn_8004A2CC(lbl_8087EE90, 1, 1, 8);
                     HBMRsoInit(m44);
                     fn_800DF0F0(lbl_8087F018, 1);
-                    lbl_8087F018->m40E0 = 0;
+                    lbl_8087F018->m40E0[0] = 0;
                     for (int i = 0; i < 4; i++) {
                         KPADEnableDPD(i);
                     }
@@ -100,7 +97,7 @@ void HomeButtonMenu::fn_8044073C() {
                 lbl_8087EFE8->fn_800CF7DC(0, 1, 9);
                 fn_8004A2CC(lbl_8087EE90, 0, 1, 0);
                 fn_800DF0F0(lbl_8087F018, 0);
-                lbl_8087F018->m40E0 = 1;
+                lbl_8087F018->m40E0[0] = 1;
                 m84 = 0;
                 break;
             }

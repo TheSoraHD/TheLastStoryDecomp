@@ -15,15 +15,8 @@ struct GimmickUvOwner_unk {
     int fn_800D59B8();
 };
 
-// inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here (as in
-// game/GameSystem_unk.cpp)
-// HomeButtonMenu: game/HomeButtonMenu.h
-// inferred: globals of unknown classes
-struct Unk_8087F018 {
-    unsigned char m0000[0x40E0];
-    int m40E0;
-};
-extern "C" Unk_8087F018* lbl_8087F018;
+#include "atn/WPad_unk.h"
+extern "C" WPad_unk* lbl_8087F018;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
 #include "atn/SequenceBoot_unk.h"
@@ -55,13 +48,13 @@ StrapTask::StrapTask(atn::Task* parent) : atn::Task(parent), m48(1), m4C(0), m50
     HomeButtonMenu::sInstance->m88 = 0;
     HomeButtonMenu::sInstance->m90 = 0;
     if (lbl_8087F018 != 0) {
-        lbl_8087F018->m40E0 = 0;
+        lbl_8087F018->m40E0[0] = 0;
     }
 }
 
 static void fn_set(int v) {
     if (lbl_8087F018 != 0) {
-        lbl_8087F018->m40E0 = v;
+        lbl_8087F018->m40E0[0] = v;
     }
 }
 StrapTask::~StrapTask() {
