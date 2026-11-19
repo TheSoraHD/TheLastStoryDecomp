@@ -2935,7 +2935,7 @@ void BattleTask::fn_800FC410(CharaTask* attacker, CharaTask* chara, int index, H
     }
     m38A5C.m10 *= scale;
     if (chara->mFlag10 && PSVECSquareMag(&m38A5C.m10) > 0.01f) {
-        m38A5C.m10 *= lbl_8087F0A8->mForceRatio;
+        m38A5C.m10 *= lbl_8087F0A8->mSurround.mForceRatio;
         if (PSVECMag(&m38A5C.m10) < 0.11f) {
             PSVECNormalize(&m38A5C.m10, &m38A5C.m10);
             m38A5C.m10 *= 0.11f;

@@ -25,12 +25,10 @@
 
 
 
-// inferred: the same object seen from the game settings (fn_800F52F8 returns lbl_8087F0A8)
-struct Settings_unk {
-    Input_unk* fn_80116BAC() { return &mInput; } // inferred: weak copy 0x80116BAC
-    unsigned char m000[0x48C];
-    Input_unk mInput; // 0x48C
-};
+// inferred: weak copy 0x80116BAC
+inline Input_unk* GameConfig_unk::fn_80116BAC() {
+    return &mInput;
+}
 
 // inferred: starts a shake of the field camera (GameCamera::mShake, name invented); the frame keeps its parity
 static inline void Shake_unk(GameTask* task, int time, float a, float b) {
@@ -2065,8 +2063,8 @@ extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
     PSMTXTrans(m.m, pos->x, pos->y, pos->z);
     return m;
 }
-extern "C" inline Settings_unk* fn_800F52F8() {
-    return (Settings_unk*)lbl_8087F0A8;
+extern "C" inline GameConfig_unk* fn_800F52F8() {
+    return lbl_8087F0A8;
 }
 } // namespace chr
 // inferred: global accessors (weak copies of other files, outside chr)

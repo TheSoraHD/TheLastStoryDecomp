@@ -193,6 +193,17 @@ struct SceneDebugConfig_unk {
     int mBgmBox;           // 0x2C
 };
 
+// inferred: debug menu "Surround" (0x1C bytes at 0x454; GameConfig_unk::fn_8013C434 returns its address)
+struct GameConfigSurround_unk {
+    int mEnabled;             // 0x00: "Enabled"
+    int mMode;                // 0x04
+    float mPlayerDamageRatio; // 0x08
+    float mEnemyDamageRatio;  // 0x0C
+    float mForceRatio;        // 0x10
+    float mBattleWaitRatio;   // 0x14
+    float mMoveSpeedRatio;    // 0x18
+};
+
 class GameConfig_unk {
 public:
     static void fn_80185AD4(); // inferred: creates the instance
@@ -201,6 +212,11 @@ public:
     void fn_80187C44(const char* path); // inferred: resets the strap name and some flags; path of
                                         // config.ini (main), unused in this build
     float fn_80187CC0(int diff); // inferred: bonus damage for a level difference (-5..5)
+    // inferred: weak accessors (defined inline by game/TutorialTask.cpp and game/CharaTask.cpp)
+    Input_unk* fn_80116BAC();               // 0x80116BAC: &mInput
+    int fn_8013C41C();                      // 0x8013C41C: m418.m00
+    GameConfigSurround_unk* fn_8013C434();  // 0x8013C434: &mSurround
+    float fn_8013C50C();                    // 0x8013C50C: m048
 
     void* mMenu;                 // 0x000
     int mDrawSystemInfo;         // 0x004
@@ -374,13 +390,7 @@ public:
     float mExplsnAddDamage;      // 0x410
     float mExplsnAddTime;        // 0x414
     GameConfig418_unk m418;
-    int mSurround;               // 0x454: debug menu "Surround"
-    int mSurroundMode;           // 0x458
-    float mPlayerDamageRatio;    // 0x45C
-    float mEnemyDamageRatio;     // 0x460
-    float mForceRatio;           // 0x464
-    float mBattleWaitRatio;      // 0x468
-    float mMoveSpeedRatio;       // 0x46C
+    GameConfigSurround_unk mSurround; // 0x454: debug menu "Surround"
     int mShowPlayerUI;           // 0x470: debug menu "UI"
     int mShowActionIcon;         // 0x474
     int mShowBattleCommand;      // 0x478

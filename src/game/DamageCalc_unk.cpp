@@ -290,8 +290,8 @@ int fn_8003F538(HitInfo_unk* data, CharaStatus* attacker, CharaStatus* target, u
         power += data->m14;
         power += data->m18 > 0 ? rand() % data->m18 : 0;
         if ((flags & 0x40) == 0x40 && attacker->mChara != 0) {
-            float ratio = attacker->mChara->mType == 2 ? lbl_8087F0A8->mEnemyDamageRatio
-                                                       : lbl_8087F0A8->mPlayerDamageRatio;
+            float ratio = attacker->mChara->mType == 2 ? lbl_8087F0A8->mSurround.mEnemyDamageRatio
+                                                       : lbl_8087F0A8->mSurround.mPlayerDamageRatio;
             power = (int)(power * ratio);
         }
         if (!fn_80040994(data, attacker, target, flags)) {

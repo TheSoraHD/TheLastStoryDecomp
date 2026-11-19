@@ -3530,12 +3530,8 @@ inline SetConfig* GetSetConfig_unk() {
 inline CameraConfig_unk* GetCameraConfig_unk(SetConfig* config) {
     return (CameraConfig_unk*)&config->mAttackTurnSpeed;
 }
-// inferred: settings (lbl_8087F0A8) and field (lbl_8087F430) as the accessors of other files see them (as in
-// game/CharaTask.cpp and game/GameUI.cpp)
-struct Settings_unk {
-    Input_unk* fn_80116BAC(); // inferred: pad (this + 0x48C)
-};
-extern "C" Settings_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8
+// inferred: settings (lbl_8087F0A8) and field (lbl_8087F430) accessors of other files
+extern "C" GameConfig_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8
 extern "C" GameTask* fn_80121F00(); // inferred: returns lbl_8087F430
 
 inline void GameCamera::fn_80390374() {

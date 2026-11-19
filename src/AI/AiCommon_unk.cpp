@@ -287,7 +287,7 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
         int time = *b;
         CharaTask* other = (CharaTask*)*a;
         if (other != 0 && other->mFlag10) {
-            time = time * lbl_8087F0A8->mBattleWaitRatio;
+            time = time * lbl_8087F0A8->mSurround.mBattleWaitRatio;
         }
         if (self->mType == 3) {
             time = AI_MAX(time + fn_800142D4(self), 0);

@@ -1130,7 +1130,7 @@ void BattleCharaTask::fn_800E610C() {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     RotateY_unk(front, mRot.y);
     if (PSVECDotProduct(&front, &input) < (float)cos(0.5235987901687622) || !fn_8016AFE8(front)) {
-        int mode = lbl_8087F0A8->mSurroundMode;
+        int mode = lbl_8087F0A8->mSurround.mMode;
         if (!mFlag10 || mode != 1) {
             atn::Vector3 dir(0.0f, 0.0f, 1.0f);
             Mtx m3;
@@ -1524,7 +1524,7 @@ void BattleCharaTask::fn_800E7650(GameTask* field, int, int) {
         }
     } else if (mFlag4) {
         if (lbl_8087F0A8->mInput.fn_801231D0(0x16)) {
-            int mode = lbl_8087F0A8->mSurroundMode;
+            int mode = lbl_8087F0A8->mSurround.mMode;
             if (!mFlag10 || mode != 1) {
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                 atn::Vector3 rot = fn_80178018();

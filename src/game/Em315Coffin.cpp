@@ -30,16 +30,8 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: game settings (as in game/CharaTask.cpp); names invented
-struct CoffinBlock454_unk {
-    int m00; // inferred: enabled
-    unsigned char m04[0x18 - 0x04];
-    float m18;
-};
-struct Settings_unk {
-    CoffinBlock454_unk* fn_8013C434();
-};
-extern "C" Settings_unk* fn_800F52F8();
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* fn_800F52F8();
 BattleTask* fn_8013A194();
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 extern "C" int fn_80267B20(CharaTask* chara); // inferred: returns m55C
@@ -517,7 +509,7 @@ void Em315Coffin::vf108() {
                     rot = dir.ToRotation_unk();
                     break;
                 }
-                if (fn_800F52F8()->fn_8013C434()->m00 != 0) {
+                if (fn_800F52F8()->fn_8013C434()->mEnabled != 0) {
                     atn::Vector3 pos = fn_8013A194()->fn_80109950(this);
                     atn::Vector3 dir2 = pos - mPos;
                     speed = dir2.Length_unk();
@@ -540,7 +532,7 @@ void Em315Coffin::vf108() {
                     } else {
                         rot = dir2.ToRotation_unk();
                     }
-                    rate = fn_800F52F8()->fn_8013C434()->m18;
+                    rate = fn_800F52F8()->fn_8013C434()->mMoveSpeedRatio;
                 } else {
                     speed = 0.0f;
                     rot = dir.ToRotation_unk();

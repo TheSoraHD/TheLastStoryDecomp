@@ -85,14 +85,11 @@ extern "C" inline float fn_80011220(float x) {
     return __fabs(x);
 }
 
-// inferred: settings (lbl_8087F0A8) and their pad input
-struct Settings_unk {
-    // inferred: weak copy 0x80116BAC
-    Input_unk* fn_80116BAC() { return (Input_unk*)&((GameConfig_unk*)this)->mInput; } // inferred: = GameConfig_unk::mInput
-    unsigned char m000[0x48C];
-    unsigned char m48C[1];
-};
-extern "C" Settings_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8 (weak copy of another file)
+// inferred: weak copy 0x80116BAC
+inline Input_unk* GameConfig_unk::fn_80116BAC() {
+    return &mInput;
+}
+extern "C" GameConfig_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8 (weak copy of another file)
 
 // inferred: lerp of two floats
 extern "C" float fn_800F8524(const float* a, const float* b, float t);

@@ -40,17 +40,14 @@ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 
-// inferred: settings (lbl_8087F0A8); only the members used here
-struct Settings_unk {
-    Input_unk* fn_80116BAC() { return &mInput; } // inferred: weak copy 0x80116BAC
-    unsigned char m000[0x484];
-    float m484;         // inferred: offset of the popups
-    unsigned char m488[0x48C - 0x488];
-    Input_unk mInput;   // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
+// inferred: weak copy 0x80116BAC
+inline Input_unk* GameConfig_unk::fn_80116BAC() {
+    return &mInput;
+}
 // inferred: accessor of the settings (weak copy 0x800F52F8 of another file)
-extern "C" inline Settings_unk* fn_800F52F8() {
+extern "C" inline GameConfig_unk* fn_800F52F8() {
     return lbl_8087F0A8;
 }
 struct Pad_unk;
@@ -668,7 +665,7 @@ int TutorialPopup::vf0C() {
     } else if (fn_800D3FA4() != 0) {
         float ofs = -16.0f;
         if (lbl_8087F0A8 != 0) {
-            ofs = lbl_8087F0A8->m484;
+            ofs = lbl_8087F0A8->mTipsYOffset;
         }
         if (mId == 0xC6) {
             ofs = 0.0f;
