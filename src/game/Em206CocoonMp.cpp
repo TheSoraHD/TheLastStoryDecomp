@@ -228,7 +228,7 @@ int Em206CocoonMp::vf0C() {
         m5B4 = 84.0f;
         for (int i = 0; i < 11; i++) {
             m1538[i].mFlags |= 3;
-            m1538[i].m0C = (int)this;
+            m1538[i].m0C = this;
             m1538[i].mFlags &= ~0x80000000;
         }
         vf20();

@@ -103,7 +103,7 @@ void LandMine::Start() {
     mBulletId = mDesc->m24;
     mColli.mSphere = atn::ColliSphere::Sphere_unk(m6C, mColliRadius);
     mColli.mFlags |= 8;
-    mColli.m0C = (int)this;
+    mColli.m0C = this;
 }
 
 void LandMine::vf10() {

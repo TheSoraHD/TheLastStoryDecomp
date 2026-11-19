@@ -92,11 +92,11 @@ int LastCocoonImago::vf0C() {
         m5B4 = 120.0f;
         for (int i = 0; i < 11; i++) {
             mCapsules[i].mFlags |= 3;
-            mCapsules[i].m0C = (int)this;
+            mCapsules[i].m0C = this;
             mCapsules[i].mFlags &= ~0x80000000;
         }
         m18FC.mFlags |= 3;
-        m18FC.m0C = (int)this;
+        m18FC.m0C = this;
         vf20();
         ResetAttacks_unk();
         return 1;

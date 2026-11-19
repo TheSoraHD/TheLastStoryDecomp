@@ -515,7 +515,7 @@ public:
     int m38CD0; // inferred: previous m38CCC
     BattleShots_unk mShots; // 0x38CD4
     BattleHateRow_unk m391E0[0x48]; // inferred: hate of each character toward each other (fn_8010C948)
-    int m3E2E0; // inferred: character under the cursor
+    void* m3E2E0; // inferred: owner of the object under the cursor (flag 2; atn::ColliBase::m0C)
     CharaTask* m3E2E4; // inferred: object under the cursor
     atn::ColliBase* m3E2E8; // inferred: cursor target
     int m3E2EC;

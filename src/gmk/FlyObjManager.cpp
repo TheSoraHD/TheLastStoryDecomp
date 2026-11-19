@@ -100,7 +100,7 @@ inline void FlyObj::Start_unk(const atn::Vector3& pos, const atn::Vector3& vel) 
     mPos = pos;
     mVel = vel;
     mColli.mFlags = (mColli.mFlags & ~1) | 8;
-    mColli.m0C = (int)mOwner;
+    mColli.m0C = mOwner;
 }
 
 inline int FlyObjManager::FindNearest_unk(const atn::Vector3& pos) {
@@ -127,7 +127,7 @@ FlyObj::FlyObj() : mRadius(3.0f), mModel(8, 32), mPos(0.0f, 0.0f, 0.0f), mRot(0.
     mState = 1;
     mVel = mVel;
     mColli.mFlags = (mColli.mFlags & ~1) | 8;
-    mColli.m0C = (int)mOwner;
+    mColli.m0C = mOwner;
 }
 
 FlyObj::~FlyObj() {}

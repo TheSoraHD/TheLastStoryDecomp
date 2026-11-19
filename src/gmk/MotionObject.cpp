@@ -360,7 +360,7 @@ void MotionObject::vf20() {
             }
             target->mSphere.m20 = mask;
             target->mSphere.mFlags |= 8;
-            target->mSphere.m0C = (int)this;
+            target->mSphere.m0C = this;
         } else if (strcmp(field, "EFP") == 0) {
             MotionEfp_unk* efp = &mEfp[model];
             efp->mEfp.LoadRequest(csv.fn_8005B9CC());

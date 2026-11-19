@@ -202,7 +202,7 @@ int Em204BigMulue::vf0C() {
     for (unsigned int i = 0; i < m1558.size(); i++) {
         m1564[i].mFlags &= ~1;
         m1564[i].mFlags |= 2;
-        m1564[i].m0C = (int)this;
+        m1564[i].m0C = this;
         m1564[i].mFlags &= ~0x80000000;
     }
     m54C |= 0x200;

@@ -226,9 +226,9 @@ int Em206EggMonster::vf0C() {
         mStatus.m18 |= 0x401;
         mC10 &= ~0x2000;
         m1600.mFlags |= 3;
-        m1600.m0C = (int)this;
+        m1600.m0C = this;
         m164C.mFlags |= 3;
-        m164C.m0C = (int)this;
+        m164C.m0C = this;
         m164C.mFlags &= ~0x80000000;
         m1600.mSphere.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
         m1600.mSphere.mRadius = 20.0f;

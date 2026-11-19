@@ -114,7 +114,7 @@ int PassBoard::vf0C() {
                 }
             }
         }
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         return 1;
     }
     return 0;

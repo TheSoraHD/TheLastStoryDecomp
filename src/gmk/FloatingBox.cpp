@@ -69,7 +69,7 @@ int FloatingBox::vf0C() {
         atn::Vector3 size(AbsF_unk(box.mMax.x - box.mMin.x) * 0.5f, AbsF_unk(box.mMax.y - box.mMin.y) * 0.5f,
                           AbsF_unk(box.mMax.z - box.mMin.z) * 0.5f);
         fn_803EDB18(&mModel);
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         mColli.fn_800575BC(&m6C, &m78, &size);
         return 1;
     }

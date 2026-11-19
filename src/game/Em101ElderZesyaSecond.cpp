@@ -156,7 +156,7 @@ int Em101ElderZesyaSecond::vf0C() {
         mStatus.m18 |= 0x3000000;
         m1580.mSphere = atn::ColliSphere::Sphere_unk(atn::Vector3(0.0f, -10000.0f, 0.0f), 20.0f);
         m1580.mFlags |= 3;
-        m1580.m0C = (int)this;
+        m1580.m0C = this;
         m1580.m20 = 0x80;
         if (m1438 != 0) {
             m1438->fn_800D246C(0);

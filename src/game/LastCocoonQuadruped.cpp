@@ -221,7 +221,7 @@ int LastCocoonQuadruped::vf0C() {
         m56C = 0.125f;
         mColli.mFlags &= ~0x80000000;
         for (int i = 0; i < 5; i++) {
-            mCapsules[i].m0C = (int)this;
+            mCapsules[i].m0C = this;
             mCapsules[i].mFlags |= 3;
             mCapsules[i].mFlags &= ~0x80000000;
         }
@@ -229,7 +229,7 @@ int LastCocoonQuadruped::vf0C() {
         m17A8.m20 = 0x98;
         m17A8.mFlags &= ~1;
         m17A8.mFlags |= 2;
-        m17A8.m0C = (int)this;
+        m17A8.m0C = this;
         fn_800F29D0(&mMotion, boost::bind(&LastCocoonQuadruped::fn_80462CCC, this, _1, _2));
         mMotion.fn_80091CFC("neck");
         mMotion.fn_80091CFC("waist");
@@ -1570,7 +1570,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
                 atn::ColliResult_unk result;
                 if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &p->mColli, 0) != 0 &&
                     (((atn::ColliBase*)result.m38)->mFlags & 2) == 2 &&
-                    ((atn::ColliBase*)result.m38)->m0C == (int)this) {
+                    ((atn::ColliBase*)result.m38)->m0C == this) {
                     at = mPos;
                     yaw = dir.ToRotationZ_unk().y;
                     found = 1;

@@ -25,7 +25,7 @@ int Em002_02SkeltonKing::vf0C() {
         mHead.mSphere.mCenter = center;
         mHead.mSphere.mRadius = 5.0f;
         mHead.mFlags = (mHead.mFlags & ~1) | 2;
-        mHead.m0C = (int)this;
+        mHead.m0C = this;
         m54C |= 0x1000000;
         return 1;
     }

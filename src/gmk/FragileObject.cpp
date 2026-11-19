@@ -129,7 +129,7 @@ FragileObject::~FragileObject() {}
 
 int FragileObject::vf0C() {
     if (fn_803EC91C() == 0) {
-        mSphere.m0C = (int)this;
+        mSphere.m0C = this;
         mSphere.mFlags |= 8;
         if (mTarget.mNoneActive != 0) {
             mSphere.mFlags &= ~1;

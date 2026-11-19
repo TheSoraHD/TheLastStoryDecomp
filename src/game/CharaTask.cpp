@@ -350,7 +350,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
     m5A4.Set_unk(0.0f, 0.0f, 0.0f);
     mColli.mFlags |= 2;
     mColli.mFlags |= 0x80000000;
-    mColli.m0C = (int)this;
+    mColli.m0C = this;
     m624.clear();
     m614.Set_unk(0.0f, 0.0f, 0.0f);
     m620 = 3.0f;

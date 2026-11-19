@@ -73,7 +73,7 @@ WaterLevel::~WaterLevel() {}
 int WaterLevel::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         mColli.m1C = 0x1A;
         return 1;
     }

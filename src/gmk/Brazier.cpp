@@ -155,7 +155,7 @@ Brazier::Brazier(atn::Task* parent, int id, int arg)
       mRadius(3.0f), mBulletId(0), mWait(0), mTimer(-1), mDesc(0), mEnabled(1) {
     m54 = 0;
     mColli.mFlags |= 8;
-    mColli.m0C = (int)this;
+    mColli.m0C = this;
     mE8 = 6;
     mEC = 0;
 }

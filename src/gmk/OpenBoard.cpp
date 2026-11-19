@@ -80,7 +80,7 @@ OpenBoard::OpenBoard(atn::Task* parent, int id, int arg)
 int OpenBoard::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         return 1;
     }
     return 0;

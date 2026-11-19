@@ -141,7 +141,7 @@ int WaitObject::vf0C() {
         for (int i = 0; i < 7; i++) {
             if (mStates[i].mColli != 0) {
                 mStates[i].mColli->mFlags |= 8;
-                mStates[i].mColli->m0C = (int)this;
+                mStates[i].mColli->m0C = this;
                 mStates[i].mColli->m20 = 0x808F8;
             }
         }

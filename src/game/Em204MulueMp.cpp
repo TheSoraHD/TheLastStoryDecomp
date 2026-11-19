@@ -272,15 +272,15 @@ int Em204MulueMp::vf0C() {
         m1530.IsLoading() == 0 && m153C.IsLoading() == 0 && m1850.fn_80473F50() == 0) {
         mColli.mFlags &= ~0x80000000;
         m1698.mFlags |= 3;
-        m1698.m0C = (int)this;
+        m1698.m0C = this;
         m16F0.mFlags |= 3;
-        m16F0.m0C = (int)this;
+        m16F0.m0C = this;
         m1748.mFlags |= 3;
-        m1748.m0C = (int)this;
+        m1748.m0C = this;
         m17A0.mFlags |= 3;
-        m17A0.m0C = (int)this;
+        m17A0.m0C = this;
         m17F8.mFlags |= 3;
-        m17F8.m0C = (int)this;
+        m17F8.m0C = this;
         fn_802B4B08();
         m154C.mSize = 0;
         if (m1850.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {

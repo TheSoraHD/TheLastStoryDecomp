@@ -333,7 +333,7 @@ void Em101ElderZesya::fn_80256384() {
                             b->m04.mObjects[j][i]->mFlags &= ~1;
                             b->m04.mObjects[j][i]->mFlags |= 2;
                             b->m04.mObjects[j][i]->mFlags |= 0x40000000;
-                            b->m04.mObjects[j][i]->m0C = (int)this;
+                            b->m04.mObjects[j][i]->m0C = this;
                             atn::Matrix3x4 m;
                             m.SetIdentity();
                             b->m04.mObjects[j][i]->SetMtx_unk(m);

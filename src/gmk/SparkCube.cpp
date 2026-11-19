@@ -132,7 +132,7 @@ int SparkCube::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
         fn_803EDB18(&mSpark);
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         mColli.mFlags |= 8;
         if (mId == 48000) {
             mColli.m20 = 0xF8;
