@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/GameTask.h"
 #include "game/Em202_01_BSpider.h"
 #include "math/VecAssign_unk.h"
@@ -17,12 +18,7 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/CharaTask.cpp)
 struct CharaListNode_unk {
     unsigned char m0000[0x14AC];

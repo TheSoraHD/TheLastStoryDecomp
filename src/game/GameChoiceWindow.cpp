@@ -1,3 +1,4 @@
+#include "atn/SoundManager.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
@@ -243,12 +244,7 @@ extern "C" int fn_803B3D2C(std::basic_string<wchar_t>* text) {
     return 1;
 }
 
-// inferred: sound manager (lbl_8087EFE8); only the member used here
-struct GameChoiceSound_unk {
-    unsigned char m0000[0x34D0];
-    int m34D0; // inferred: category of the next sound
-};
-extern "C" GameChoiceSound_unk* lbl_8087EFE8;
+extern "C" atn::SoundManager* lbl_8087EFE8;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 
 // inferred: plays a sound of the interface

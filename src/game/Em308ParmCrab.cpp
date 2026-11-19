@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/GameConfig_unk.h"
 #include "game/GameTask.h"
 #include "game/Em308ParmCrab.h"
@@ -58,12 +59,7 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
-// inferred: player manager (lbl_8087F8A0, as in game/Em308InvertCrab.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test

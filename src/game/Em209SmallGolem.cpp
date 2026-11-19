@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/Em209SmallGolem.h"
 #include "game/BattleTask.h"
 #include "math/Vec.h"
@@ -48,12 +49,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 
 // inferred: field (lbl_8087F430) and its event counters (as in gmk/Coffin.cpp)
 extern "C" GameTask* lbl_8087F430;
-// inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)

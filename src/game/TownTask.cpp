@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/MapPartsLocatorSet.h"
@@ -103,11 +104,7 @@ struct TownPlayer_unk {
     unsigned char m000[0x528];
     atn::Vector3 mPos; // 0x528
 };
-struct TownPlayers_unk {
-    unsigned char m00[0x48];
-    TownPlayer_unk* mHead; // 0x48
-};
-extern "C" TownPlayers_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 inline const ColorMatrixParam_unk& TownGetE_unk(const atn::Override_unk<ColorMatrixParam_unk>& p) {

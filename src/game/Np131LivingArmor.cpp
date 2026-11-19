@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/GameConfig_unk.h"
 #include "game/Np131LivingArmor.h"
 #include "game/BattleTask.h"
@@ -36,12 +37,7 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-// inferred: player manager
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered

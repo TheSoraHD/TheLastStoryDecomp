@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/GameConfig_unk.h"
 #include "game/GameTask.h"
 #include "game/SkillEffectManager.h"
@@ -46,12 +47,7 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale); // inferred: plays an effect (as in gmk/PlayEffect.cpp)
-// inferred: player manager (lbl_8087F8A0, as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); fn_8059C6DC tests whether the
 // skill is already running for the user; the callback is empty here

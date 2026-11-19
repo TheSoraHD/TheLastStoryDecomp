@@ -1,6 +1,7 @@
 // atn/SoftKeyboardBase_wchar_t_0.cpp: atn::SoftKeyboardBase<wchar_t, 0> (on-screen keyboard grid of
 // 8 x 32 keys with boost::function callbacks; its only subclass is atn::SoftKeyboardU, MP area).
 // File name invented (inferred: the vtable and RTTI of the template are emitted here).
+#include "atn/WPad_unk.h"
 #include "atn/SoftKeyboardBase.h"
 #include "atn/Keyboard.h"
 
@@ -9,13 +10,8 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 
 typedef atn::Vector2_unk Pos2_unk;
 
-// inferred: Wii Remote manager (atn/WPad_unk.cpp)
-struct WPadMgr_unk {
-    unsigned char m0000[0x40A8];
-    int m40A8; // inferred: pointer enabled
-};
-extern "C" WPadMgr_unk* lbl_8087F018;
-extern "C" Pos2_unk fn_800DF154(WPadMgr_unk* wpad, int port); // inferred: pointer position
+extern "C" WPad_unk* lbl_8087F018;
+extern "C" Pos2_unk fn_800DF154(WPad_unk* wpad, int port); // inferred: pointer position
 
 struct Pad_unk;
 extern "C" Pad_unk* lbl_8087EF70;
@@ -34,8 +30,8 @@ int fn_800C6128(wchar_t key) {
 
 // inferred: pointer position of the first Wii Remote, (-1, -1) if there is none
 Pos2_unk fn_800C6190() {
-    WPadMgr_unk* wpad = lbl_8087F018;
-    if (wpad != 0 && wpad->m40A8 != 0) {
+    WPad_unk* wpad = lbl_8087F018;
+    if (wpad != 0 && wpad->mPointerEnabled != 0) {
         return fn_800DF154(wpad, 0);
     }
     return Pos2_unk(-1.0f, -1.0f);

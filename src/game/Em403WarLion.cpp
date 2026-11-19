@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "game/SkillEffectManager.h"
@@ -1520,12 +1521,7 @@ void Em403WarLion::vfEC() {
     }
 }
 
-// inferred: player manager (as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/CharaTask.cpp)
 struct CharaListNode_unk {
     unsigned char m0000[0x14AC];

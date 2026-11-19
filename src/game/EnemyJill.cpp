@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/EnemyJill.h"
 #include "game/GameVoice.h"
 #include "atn/Keyboard.h"
@@ -240,16 +241,11 @@ extern "C" inline void fn_8032EC94(int* p) {
 extern "C" inline JillEvent_unk* fn_8032ECA8(FixedArray_unk<JillEvent_unk, 8>* events, int i) {
     return &events->mData[i];
 }
-// inferred: player manager (as in gmk/Cannonball.cpp)
-struct PlayerMgr_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerMgr_unk* lbl_8087F8A0;
-extern "C" inline PlayerMgr_unk* fn_8000D9E8() {
+extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" inline PlayerManager* fn_8000D9E8() {
     return lbl_8087F8A0;
 }
-extern "C" inline CharaTask* fn_8000DCF4(PlayerMgr_unk* mgr) {
+extern "C" inline CharaTask* fn_8000DCF4(PlayerManager* mgr) {
     return mgr->mHead;
 }
 BattleTask* fn_8013A194();

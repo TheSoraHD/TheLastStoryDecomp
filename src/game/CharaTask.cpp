@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/ChaseManager.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/EffectManager.h"
@@ -298,12 +299,7 @@ struct Capsule_unk : public Segment_unk {
 };
 
 
-// inferred: player manager (lbl_8087F8A0, CharaManager<PlayerTask>, see gmk/TodomeCountUp.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 
 // inferred: arena mode (lbl_8087F610, as in CharaStatus.cpp; nonzero also disables "PBONE");
 // names invented
