@@ -41,8 +41,8 @@ extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* srcBase, atn:
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXConcatArray(const Mtx a, const Mtx* srcBase, Mtx* dstBase, unsigned int count);
 extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model); // inferred: inverse joint matrices
-extern "C" int fn_80476194(atn::LH_Model* model); // inferred: the model has no occlusion data
-extern "C" int fn_804761B0(atn::LH_Model* model); // inferred: the occlusion data is ready
+extern "C" void* fn_80476194(atn::LH_Model* model); // inferred: the model has no occlusion data
+extern "C" void* fn_804761B0(atn::LH_Model* model); // inferred: the occlusion data is ready
 namespace atn { struct ModelBase; }
 extern "C" void fn_8008BD10(atn::ModelBase* model); // inferred: creates the materials (a ModelBase member in the original)
 extern "C" ShaderManager_unk* lbl_8087EFE0; // inferred: shader manager

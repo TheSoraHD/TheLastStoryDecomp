@@ -6553,7 +6553,7 @@ void CharaTask::fn_80150178(int slot, chr::CharaEquip_unk* equip) {
     }
 }
 
-extern "C" int fn_804EB814(Arena_unk* arena, CharaTask* chara);
+extern "C" void* fn_804EB814(Arena_unk* arena, CharaTask* chara);
 
 // inferred: name invented
 inline int CharaTask::ControlVf30_unk() {

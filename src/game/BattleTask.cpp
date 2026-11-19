@@ -5797,8 +5797,8 @@ void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
 }
 
 // inferred: the early return as !(a) || !(b) gives the bne over a blr of the original
-extern "C" int fn_804EB7C4(Arena_unk* arena, CharaTask* chara); // inferred: player of a multiplayer session
-extern "C" int fn_804EB814(Arena_unk* arena, CharaTask* chara); // inferred: team of a multiplayer session
+extern "C" void* fn_804EB7C4(Arena_unk* arena, CharaTask* chara); // inferred: player of a multiplayer session
+extern "C" void* fn_804EB814(Arena_unk* arena, CharaTask* chara); // inferred: team of a multiplayer session
 extern "C" int swprintf(wchar_t* s, unsigned int n, const wchar_t* format, ...);
 
 // inferred: the kind of damage has a popup (inlined); name invented

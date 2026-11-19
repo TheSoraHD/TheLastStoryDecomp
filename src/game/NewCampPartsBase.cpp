@@ -24,7 +24,7 @@ extern "C" float fn_800A08D4(atn::LH_Motion* motion);       // inferred: motion 
 extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigned int hash, char* work,
                            float frame); // inferred: pose of the node `hash` at `frame`
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
-extern "C" int fn_8021946C(int chara, int a, int b);
+extern "C" void* fn_8021946C(int chara, int a, int b);
 // debug menu (see game/CosEditBase.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,

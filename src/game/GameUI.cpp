@@ -1495,7 +1495,7 @@ extern "C" int fn_80244CA0(atn::Task* table);                      // inferred: 
 extern "C" GameUISessionPlayer_unk* fn_804EB870(GameUISession_unk* s); // inferred: local player
 extern "C" GameUISession_unk* fn_800F7F90();                                 // inferred: returns lbl_8087F610
 extern "C" int fn_804EB010(GameUISession_unk* session, CharaTask* chara);   // inferred
-extern "C" int fn_804EB7C4(GameUISession_unk* session, CharaTask* chara);   // inferred
+extern "C" void* fn_804EB7C4(GameUISession_unk* session, CharaTask* chara);   // inferred
 
 // inferred: settings behind lbl_8087F0A8 (game/BattleTask.cpp, game/CharaTask.cpp)
 struct GameUISettingsFlags_unk {
