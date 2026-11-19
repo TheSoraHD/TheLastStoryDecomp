@@ -93,6 +93,7 @@ extern "C" SaveEntry_unk* fn_803BA0CC(void* save, int type, int id); // inferred
 #include "game/ErrorManager.h"
 
 #include "game/GameConfig_unk.h"
+#include "atn/SoundManager.h"
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
@@ -106,11 +107,7 @@ extern "C" TownTask* lbl_8087FA20;
 extern "C" ArenaTask* lbl_8087EE78;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" PlayerManager* lbl_8087F8A0;
-struct SoundManager_unk {
-    unsigned char m0000[0x2984];
-    atn::Sound3dListener m2984;
-};
-extern "C" SoundManager_unk* lbl_8087EFE8;
+extern "C" atn::SoundManager* lbl_8087EFE8;
 
 // inferred: paths of the scene script and of the message table of a map (inline: "li r0, 1" before the
 // test; names invented)
@@ -345,7 +342,7 @@ int GameScene::vf0C() {
             atn::Vector3 listener = pos;
             atn::Vector3 dir = rot;
             listener.y += 1.0f;
-            lbl_8087EFE8->m2984.fn_800C7F08(listener, dir);
+            lbl_8087EFE8->mListener.fn_800C7F08(listener, dir);
             if (lbl_8087FA20 != 0) {
                 m998[5].fn_80470528();
             }

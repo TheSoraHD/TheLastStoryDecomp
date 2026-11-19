@@ -10,6 +10,7 @@
 #include "atn/Model_unk.h"
 #include "game/SetConfig.h"
 #include "atn/SoundCore.h"
+#include "atn/SoundManager.h"
 #include "game/Input_unk.h"
 #include "game/GameConfig_unk.h"
 #include "std/string_members.h"
@@ -95,16 +96,13 @@ extern "C" float fn_800F8524(const float* a, const float* b, float t);
 // inferred: rotation matrix from angles (x, y, z)
 extern "C" atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot);
 
-// inferred: sound manager (lbl_8087EFE8); names invented
-struct SoundMgr_unk {
-    // inferred: weak copy 0x80116E74
-    void SetListener_unk(const atn::Vector3& pos, const atn::Vector3& rot) { m2984.fn_800C7F08(pos, rot); }
-    unsigned char m0000[0x2984];
-    atn::Sound3dListener m2984;
-};
-extern "C" SoundMgr_unk* lbl_8087EFE8;
+// inferred: weak copy 0x80116E74
+inline void atn::SoundManager::SetListener_unk(const atn::Vector3& pos, const atn::Vector3& rot) {
+    mListener.fn_800C7F08(pos, rot);
+}
+extern "C" atn::SoundManager* lbl_8087EFE8;
 // inferred: weak copy 0x80116E64
-inline SoundMgr_unk* GetSoundMgr_unk() {
+inline atn::SoundManager* GetSoundMgr_unk() {
     return lbl_8087EFE8;
 }
 

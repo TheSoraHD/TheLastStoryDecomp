@@ -70,6 +70,8 @@ public:
     virtual ~SoundManager();
 
     void fn_800CDF84();                                  // inferred: reset (stops every sound)
+    // inferred: weak copy 0x80116E74 (Event/Path.cpp)
+    void SetListener_unk(const Vector3&, const Vector3&);
     void fn_800CE368();                                  // inferred: restores the default parameters
     void fn_800CE6E0();                                  // inferred: per frame update
     void fn_800CECF0();                                  // inferred: debug display
