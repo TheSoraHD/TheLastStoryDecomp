@@ -1,0 +1,61 @@
+diff --git a/src/chr/ControlAttackBase.cpp b/src/chr/ControlAttackBase.cpp
+index cf05c42..049b335 100644
+--- a/src/chr/ControlAttackBase.cpp
++++ b/src/chr/ControlAttackBase.cpp
+@@ -224,7 +224,8 @@ int ControlAttackBase::vf38(int arg) {
+ float ControlAttackBase::vf60() {
+     Chara_unk* chara = mChara;
+     CharaStatus* status = &chara->mStatus;
+-    float rate = sAttackLevel[MIN(5, MAX(0, chara->mStatus.mParamB.m94 / 100))].mSpeed;
++    const AttackLevel_unk* level = &sAttackLevel[MIN(5, MAX(0, status->mParamB.m94 / 100))];
++    float rate = level->mSpeed;
+     if (status->IsState_unk(0x40)) {
+         rate *= MAX(0.3f, 1.0f - chara->GetF94Rate_unk());
+     }
+@@ -259,11 +260,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
+     int id = self->m484[19];
+     if (self->mFlag31) {
+         id = self->m484[24];
+-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(self->mRot.y);
+-        PSMTXMultVec(m.m, &front, &front);
+-        mDir = front;
++        mDir = GetFront_unk(self->mRot);
+     } else {
+         atn::Vector3 rot = self->mRot;
+         atn::Vector3 front = GetFront_unk(self->mRot);
+@@ -279,16 +276,14 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
+                     id = mChara->m484[kind];
+                 }
+             } else if (dot < -back70) {
+-                atn::Vector3 r = dir.ToRotation_unk();
+-                float angle = atn::WrapAngle_unk(r.y - rot.y);
++                float angle = atn::WrapAngle_unk(dir.ToRotation_unk().y - rot.y);
+                 if (angle > 0.0f) {
+                     id = 0x15A;
+                 } else {
+                     id = 0x15B;
+                 }
+             } else {
+-                atn::Vector3 r = dir.ToRotation_unk();
+-                float angle = atn::WrapAngle_unk(r.y - rot.y);
++                float angle = atn::WrapAngle_unk(dir.ToRotation_unk().y - rot.y);
+                 if (angle > 0.0f) {
+                     id = 0x158;
+                 } else {
+@@ -386,8 +381,12 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir)
+         float back70 = cos(atn::DegToRad_unk(70.0f));
+         Chara_unk* player = mChara;
+         bool on = false;
+-        if (player->IsPlayer() && !IsManualAttack_unk()) {
+-            on = true;
++        bool isPlayer = player->IsPlayer();
++        if (isPlayer) {
++            bool manual = IsManualAttack_unk();
++            if (!manual) {
++                on = true;
++            }
+         }
+         if (player->m50 == 0xAAE76 || player->m50 == 0xAAE77) {
+             on = false;

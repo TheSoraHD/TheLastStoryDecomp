@@ -1,0 +1,59 @@
+diff --git a/include/chr/ControlInteractionBase.h b/include/chr/ControlInteractionBase.h
+index 8cea990..1df4382 100644
+--- a/include/chr/ControlInteractionBase.h
++++ b/include/chr/ControlInteractionBase.h
+@@ -69,7 +69,7 @@ public:
+     virtual atn::Vector3 vf14() const; // 0x801B9814
+     // inferred: position of the first node found among neck, spine1, hips and reference (or the
+     // character position); defined in the .cpp and inlined in the constructor and vf0C; name invented
+-    void GetBodyPos_unk(atn::Vector3& out);
++    atn::Vector3 GetBodyPos_unk();
+ };
+ 
+ } // namespace chr
+diff --git a/src/chr/ControlInteractionBase.cpp b/src/chr/ControlInteractionBase.cpp
+index 9e19fd2..314cc5f 100644
+--- a/src/chr/ControlInteractionBase.cpp
++++ b/src/chr/ControlInteractionBase.cpp
+@@ -172,7 +172,8 @@ ControlThroughRope::ControlThroughRope(Chara_unk* chara, const atn::Vector3& a,
+     mChara->fn_801446F0();
+ }
+ 
+-void ControlDiveIntoWater::GetBodyPos_unk(atn::Vector3& out) {
++atn::Vector3 ControlDiveIntoWater::GetBodyPos_unk() {
++    atn::Vector3 out;
+     MtxPtr node = mChara->mMotion.GetNodeMtx_unk("neck");
+     if (node == 0) {
+         node = mChara->mMotion.GetNodeMtx_unk("spine1");
+@@ -188,6 +189,7 @@ void ControlDiveIntoWater::GetBodyPos_unk(atn::Vector3& out) {
+     } else {
+         out = mChara->mPos;
+     }
++    return out;
+ }
+ 
+ // NONMATCHING: 97.6% - register allocation and stack slots of the rotation vectors.
+@@ -198,11 +200,8 @@ ControlDiveIntoWater::ControlDiveIntoWater(Chara_unk* chara, const atn::Vector3&
+     if (!((float)__fabs(PSVECSquareMag(&m24)) < 1.1920929e-7f)) {
+         PSVECNormalize(&m24, &m24);
+     }
+-    atn::Vector3 rot = m24.ToRotation_unk();
+-    mChara->mRot = atn::Vector3(mChara->mRot.x, rot.y, mChara->mRot.z);
+-    atn::Vector3 pos;
+-    GetBodyPos_unk(pos);
+-    m18 = pos;
++    mChara->mRot = atn::Vector3(mChara->mRot.x, m24.ToRotation_unk().y, mChara->mRot.z);
++    m18 = GetBodyPos_unk();
+ }
+ 
+ // NONMATCHING: 97.7% - registers r3/r5/r9 in the node position copy.
+@@ -214,8 +213,7 @@ int ControlDiveIntoWater::vf0C() {
+         mChara->mMotion.fn_80097C08(0, 0x5D, 1, 0, 1, 1.0f, 0.1f);
+         ret = 1;
+     }
+-    atn::Vector3 pos;
+-    GetBodyPos_unk(pos);
++    atn::Vector3 pos = GetBodyPos_unk();
+     if (mChara->mMotion.mTracks[0].m08 < 30.0f && lbl_8087F048 != 0) {
+         lbl_8087F048->fn_8010A308(&m18, &pos, mChara->m5B0);
+     }
