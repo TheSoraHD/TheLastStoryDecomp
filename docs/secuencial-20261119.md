@@ -21,24 +21,28 @@ Inventario de vistas del port (`grep -rlw` en src + include):
 
 | Vista | Ficheros antes | Despues |
 |---|---|---|
-| `Field_unk` | 99 | 6 (03:55), 5 (05:20) |
-| `BulletField_unk` | 1 | 0 (03:55), 0 (05:20) |
-| `SoundEngine_unk` | 7 | 7 (03:55), 7 (05:20) |
-| `MenuD2A_unk` | 6 | 6 (03:55), 5 (05:20) |
-| `PathData_unk` | 11 | 11 (03:55), 10 (05:20) |
-| `ActionOwner_unk` | 9 | 9 (03:55), 0 (05:20) |
-| `Settings_unk` | 47 | 16 (03:55), 11 (05:20) |
-| `EffectMgr_unk` | 92 | 92 (03:55), 58 (05:20) |
-| `GameTaskTable_unk` | 2 | 3 (03:55), 3 (05:20) |
-| `CharaIdEntry_unk` | 2 | 7 (03:55), 7 (05:20) |
-| `ShopChara_unk` | 1 | 0 (03:55), 0 (05:20) |
-| `NewCampStatusName_unk` | 1 | 0 (03:55), 0 (05:20) |
-| `MenuItem_unk` | 3 | 2 (03:55), 2 (05:20) |
-| `SelectMemberAnim_unk` | 2 | 2 (03:55), 2 (05:20) |
-| `SceneData_unk` | 0 | 0 (03:55), 1 (05:20) |
-| `MotionData_unk` | 1 | 1 (03:55), 2 (05:20) |
-| `ModelOcclusion_unk` | 0 | 0 (03:55), 0 (05:20) |
-| `fn_8013C504__9Field_unkFv` | 1 | 0 (03:55), 0 (05:20) |
+| `Field_unk` | 99 | 6 (03:55), 5 (05:20), 5 (08:45) |
+| `BulletField_unk` | 1 | 0 (03:55), 0 (05:20), 0 (08:45) |
+| `SoundEngine_unk` | 7 | 7 (03:55), 7 (05:20), 7 (08:45) |
+| `MenuD2A_unk` | 6 | 6 (03:55), 5 (05:20), 4 (08:45) |
+| `PathData_unk` | 11 | 11 (03:55), 10 (05:20), 10 (08:45) |
+| `ActionOwner_unk` | 9 | 9 (03:55), 0 (05:20), 0 (08:45) |
+| `Settings_unk` | 47 | 16 (03:55), 11 (05:20), 9 (08:45) |
+| `EffectMgr_unk` | 92 | 92 (03:55), 58 (05:20), 51 (08:45) |
+| `GameTaskTable_unk` | 2 | 3 (03:55), 3 (05:20), 3 (08:45) |
+| `CharaIdEntry_unk` | 2 | 7 (03:55), 7 (05:20), 7 (08:45) |
+| `ShopChara_unk` | 1 | 0 (03:55), 0 (05:20), 0 (08:45) |
+| `NewCampStatusName_unk` | 1 | 0 (03:55), 0 (05:20), 0 (08:45) |
+| `MenuItem_unk` | 3 | 2 (03:55), 2 (05:20), 2 (08:45) |
+| `SelectMemberAnim_unk` | 2 | 2 (03:55), 2 (05:20), 2 (08:45) |
+| `SceneData_unk` | 0 | 0 (03:55), 1 (05:20), 1 (08:45) |
+| `MotionData_unk` | 1 | 1 (03:55), 2 (05:20), 2 (08:45) |
+| `ModelOcclusion_unk` | 0 | 0 (03:55), 0 (05:20), 0 (08:45) |
+| `fn_8013C504__9Field_unkFv` | 1 | 0 (03:55), 0 (05:20), 0 (08:45) |
+
+Vistas locales de globales (un `struct X` del propio .cpp y `extern "C" X* lbl_8087....`): 147 (07:15) -> 96 (08:45).
+Por global a las 08:45: lbl_8087F610 20 (`MP::Manager2`), lbl_8087EFA8 11, lbl_8087F628 10 (`atn::net::Manager`),
+lbl_8087F1E4 9, lbl_8087F0A8 7, lbl_8087F490 6, lbl_8087F018 6, lbl_8087EE98 5, lbl_8087F430 3, lbl_8087EE90 3.
 
 ## Decisiones
 
@@ -102,6 +106,18 @@ poolcheck igual que main) salvo el `ordercheck` de GameEventScript, que ya tiene
 | c8031d3 | 2.5 | GraphicsDevice_unk en 9 vistas mas (`mRMode.viWidth/viHeight`, declaraciones de la cabecera) |
 | 63d7fc6 | 2.5 | `atn::EffectManager` en 12 vistas mas (`mSystem.m70/m78/m7C/mReplaying`, `mFlags`) |
 | ddc1a34 | 2.5 | `GameConfig_unk::m4DC/m53C` con nombres de las claves CSV de db/ChaseParam_unk |
+| 572c18d | 2.5 | `atn::SoundManager` en Event/Path (`SetListener_unk` miembro) y GameScene |
+| 0e5f032 | 2.5 | `CharaManager<PlayerTask>`/`PlayerTask` en GimmickStateCommand, SongManager, LemonBucket |
+| 1dcc25b | 2.5 | `TacView` en PlayerInput_unk; `SkillEffectManager` en Em203GreaterDaemonRed(+Mp) |
+| d51cb4e | 2.5 | `TextTable_unk` (lbl_8087F1E4) en `atn/TextTable_unk.h`; 30 vistas fuera |
+| 1dad3c9 | 2.5 | `GameConfig_unk` en CharaStatus, GameTask (`mDifficulty`), GameOverTask, MapPartsLocatorSet |
+| 927dacc | 2.5 | `GameConfig_unk`/`Input_unk` en ControlCaught, ControlJumpAt, ControlStickByQuark |
+| d2df91b | 2.5 | `GameConfig_unk::mInput` en MenuCommonTask y Event/Dialog |
+| b83d38f | 2.5 | `RenderSetting_unk` en PostFxBloom/Gamma/GodRay/Damage, Em301LShade, Em203GreaterDaemonRed (fn_8029A0A8 81,60 -> 94,13) |
+| 070519a, b200f44, f662477, f97fa52 | regla 10 | 11 funciones `extern "C"` de MenuCommonTask con `menu` pasan a miembros |
+| efa4ee3 | 2.5 | `ShopD2A_unk` = `atn::D2A_Task`; fuera las vistas de D2A_Task de las tiendas y CosEditProtector |
+| fe81365 | 2.5 | `ShopPoint_unk` = `atn::D2A_DrawRect` en ShopBase.h |
+| c91c026 | 2.5 | `atn::D2A_Manager` y `D2A_MessageTable_unk` en cabeceras; 5 vistas de lbl_8087F138 fuera |
 
 Re-emparejado: `pdbatch.sh` y, para lo que queda (pools iguales que main), `refmap.py` (scratch): nombre en symbols.txt de main ->
 (seccion, desplazamiento) en el .o de main -> nombre en nuestro .o. Mas fiable que lblseq/valfix cuando el pool no cambia;
@@ -111,7 +127,20 @@ GameEventScript fn_803A26F4 98,75 -> 99,55 (llama al getter debil y a `GameScene
 
 ## Fase 3: enlazar
 
+- Lista de candidatas en `docs/secuencial-20261119-f3list.txt` (unidades con 1-3 funciones por debajo del 100 %): todas las
+  que quedan cerca estan en `docs/mwcc-blockers.md` con muchas variantes ya probadas (ControlChaseFollow vf0C 99,97,
+  ControlGrappled vf10 99,89, ControlSlip vf0C 99,92, PostFxMotionBlur vf10 99,90...). Sin unidades nuevas enlazadas.
+- Unidades con todas las funciones al 100 % y sin enlazar: game/Em315Coffin y game/MapPartsRain (el `.sdata` a 0.0f,
+  fuera de alcance).
+- GameEventScript fn_803A26F4 98,75 -> 99,55 (fase 2). PostFxMotionBlur vf10 sigue en 99,90 con `RenderSetting_unk`.
+
 ## Fase 4: patrones en lote
+
+- GameEventScript fn_803A2378 / fn_803A2210 / fn_803A7D94 (97,3-97,8 %, las "sin probar"): la unica diferencia es el
+  `stw` de `mWait` dos instrucciones antes que en el original (entre `lis` y `addi` de `lbl_8074ED24`; el original lo pone
+  tras el `addi`). 10 variantes en fn_803A2378 (expandir `SetNext_unk` a mano con tabla/indice/referencia en varios ordenes,
+  `bool`, ternario, ifs anidados, dos llamadas): el `stw` no se mueve. Misma familia que los 21 `SetNext_unk`.
+- `m97C.Set_unk` (patron T): no repetido; las vistas de la fase 2 ya usan `SetCameraLook_unk` libre y el bloqueo sigue.
 
 ## Cambios de splits
 
