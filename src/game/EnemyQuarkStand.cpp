@@ -387,11 +387,11 @@ void EnemyQuarkStand::vf10() {
     m508 = 1.0f;
     m14B8++;
     m14C0++;
-    m14B0 = (int)mC58.mC4;
+    m14B0 = mC58.mC4;
     fn_8035359C();
     if (m14B0 == 0) {
         CharaTask* leader = fn_8000DCF4(fn_8000D9E8());
-        m14B0 = (int)leader;
+        m14B0 = leader;
         mC58.mC4 = leader;
     }
     fn_80352EA4();
@@ -674,7 +674,7 @@ inline int EnemyQuarkStand::NextLong_unk() {
 
 // inferred: picks the next attack from the tables of the current mode by the distance to the target
 void EnemyQuarkStand::fn_80346D8C() {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     if (target == 0) {
         return;
     }
@@ -762,7 +762,7 @@ inline atn::Vector3 QuarkFrontOf_unk(CharaTask* c) {
 
 // inferred: turns toward the target by 12 degrees per frame scaled by `rate` (name invented)
 inline void EnemyQuarkStand::TurnTo_unk(float rate) {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
     float y = rot.y;
     float diff = atn::WrapAngle_unk(y - mRot.y);
@@ -857,7 +857,7 @@ atn::Vector3 EnemyQuarkStand::vf64(int center) {
 // inferred: walks toward the target, turning 12 degrees per frame, until it is in front within the
 // short range
 void EnemyQuarkStand::fn_80348568() {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 d(target->mPos.x - mPos.x, target->mPos.y, target->mPos.z - mPos.z);
     d.y = 0.0f;
     float len = PSVECMag(&d);
@@ -1188,7 +1188,7 @@ void EnemyQuarkStand::fn_80349BA0() {
         if (mMotion.mTracks[0].m08 >= 35.0f) {
             QuarkTargets_unk targets;
             targets.mCount = 0;
-            CharaTask* target = (CharaTask*)m14B0;
+            CharaTask* target = m14B0;
             if (target->mFlag28) {
                 CharaTask** slot = &targets.mTargets[0];
                 if (slot != 0) {
@@ -1641,7 +1641,7 @@ void EnemyQuarkStand::fn_8034D450() {
     }
     for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
         atn::Vector3 base = p->mPos + QuarkFront_unk(p->mRot.y) * 0.1f;
-        if (p->mType == 0 || p == (CharaTask*)m14B0) {
+        if (p->mType == 0 || p == m14B0) {
             w.m00 = base + QuarkFront_unk(p->mRot.y) * 0.1f;
             w.m0C = QuarkRandDelay_unk();
             w.m10 = 0;
@@ -1932,7 +1932,7 @@ void EnemyQuarkStand::fn_8034F53C() {
     fn_80232B7C(this, 0x3E8);
     QuarkPlayMotion_unk(&mMotion, 0x147, 0, 0, 1.0f);
     QuarkPlayEffectAt_unk(&m1630, &mMotion);
-    atn::Vector3 spine = GetTransOf_unk(((CharaTask*)m14B0)->mMotion.GetNodeMtx_unk("spine"));
+    atn::Vector3 spine = GetTransOf_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
     atn::Vector3 head = GetTransOf_unk(mMotion.GetNodeMtx_unk("head"));
     m1654 = spine - head;
     PSVECNormalize(&m1654, &m1654);
@@ -1941,7 +1941,7 @@ void EnemyQuarkStand::fn_8034F53C() {
 
 // inferred: aims the attack at the target (names invented)
 inline void EnemyQuarkStand::AimAt_unk() {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 pos = target->mPos;
     m15DC.SetTarget_unk(pos);
     m15DC.mRot = (pos - mPos).ToRotationZ_unk();
@@ -2057,7 +2057,7 @@ void EnemyQuarkStand::fn_80350BF0() {
     m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x14A, 0, 0, 1.0f);
     mMotion.mTracks[0].m08 = 5.0f;
-    m14B0 = (int)m17E4;
+    m14B0 = m17E4;
     mC58.mC4 = m17E4;
     m17EC = 0;
     m17F0 = rand() % 2;
@@ -2126,7 +2126,7 @@ void EnemyQuarkStand::fn_80351480(int near) {
     m58C = 19;
     QuarkPlayMotion_unk(&mMotion, 0x143, 0, 0, 1.5f);
     if (m17E4 != 0) {
-        m14B0 = (int)m17E4;
+        m14B0 = m17E4;
     }
     float dist;
     if (near != 0) {
@@ -2134,15 +2134,15 @@ void EnemyQuarkStand::fn_80351480(int near) {
     } else {
         dist = m1CE8 - 10.0f;
     }
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 dir = m160C - target->mPos;
     dir.y = 0.0f;
     if (PSVECSquareMag(&dir) < 0.0001f) {
-        dir = QuarkFrontOf_unk((CharaTask*)m14B0);
+        dir = QuarkFrontOf_unk(m14B0);
     } else {
         PSVECNormalize(&dir, &dir);
     }
-    atn::Vector3 pos = ((CharaTask*)m14B0)->mPos + dir * dist;
+    atn::Vector3 pos = m14B0->mPos + dir * dist;
     m15DC.SetTarget_unk(pos);
     m15DC.mRot = (pos - mPos).ToRotationZ_unk();
     m15DC.mDir = pos - mPos;
@@ -2345,7 +2345,7 @@ void EnemyQuarkStand::fn_803526A8() {
 // NONMATCHING: 99.11% - slots de pila de la diferencia y de la copia de ToRotationZ_unk intercambiados
 // (0x50/0x5C); ~8 variantes (inline TurnTo_unk, temporales, bloques)
 void EnemyQuarkStand::fn_80352938(float rate) {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 d(target->mPos - mPos);
     float y = d.ToRotationZ_unk().y;
     float diff = atn::WrapAngle_unk(y - mRot.y);
@@ -2457,13 +2457,13 @@ void EnemyQuarkStand::fn_80353370() {
 // temporaries (0x90/0xA4); ~6 forms (vector forms, temporaries, order of the bind)
 void EnemyQuarkStand::fn_8035359C() {
     if (m17E4 == 0) {
-        if (m14BC == 0 && m14B0 != 0 && !((CharaTask*)m14B0)->mFlag28) {
+        if (m14BC == 0 && m14B0 != 0 && !m14B0->mFlag28) {
             float best = 1e16f;
             for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
                 if (p->m560 == 0x17 && p->CanAct_unk()) {
                     atn::Vector3 d(p->mPos.x - m160C.x, p->mPos.y - m160C.y, p->mPos.z - m160C.z);
                     if (!((float)sqrt(d.x * d.x + d.z * d.z) >= 380.0f)) {
-                        if ((CharaTask*)m14B0 == p) {
+                        if (m14B0 == p) {
                             m17E4 = p;
                             break;
                         }

@@ -179,7 +179,7 @@ public:
     void fn_8035359C();
     void fn_80353370(); // inferred: debug menu entries
 
-    int m14B0;                     // inferred: target (CharaTask*)
+    CharaTask* m14B0;              // inferred: target
     int m14B4;                     // inferred: step of the state
     int m14B8;                     // inferred: frame counter of the state
     int m14BC;                     // inferred: 1 once the hit points reach zero

@@ -119,7 +119,7 @@ int Em312DarkServant::vf0C() {
         m1438->fn_800D246C(0);
         m1438->mFlags |= 4;
     }
-    const char* master = strstr(((EnemyInfo_unk*)m14B0)->m2C, "master=");
+    const char* master = strstr(m14B0->m2C, "master=");
     if (master != 0) {
         EnemyManager* mgr = EnemyManager::sInstance;
         if (mgr != 0) {

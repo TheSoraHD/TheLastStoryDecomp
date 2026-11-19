@@ -77,7 +77,7 @@ inline void Em303KrakenFootMp::PlayMotion_unk(int motion) {
 }
 
 inline void Em303KrakenFootMp::FaceTarget_unk() {
-    CharaTask* target = (CharaTask*)m14F4;
+    CharaTask* target = m14F4;
     atn::Vector3 d;
     float z = target->mPos.z - mPos.z;
     d.x = target->mPos.x - mPos.x;
@@ -254,10 +254,10 @@ void Em303KrakenFootMp::vf100(int state) {
 // NONMATCHING: 99.82% - stack slots of the temporaries of the two inlined movement blocks (written out with a
 // goto; with the helper Move_unk they get other FPRs, 99.0%)
 void Em303KrakenFootMp::vf104() {
-    m14F4 = (int)mC58.mC4;
+    m14F4 = mC58.mC4;
     if (m14F4 == 0) {
-        m14F4 = (int)lbl_8087F8A0->mHead;
-        mC58.mC4 = (CharaTask*)m14F4;
+        m14F4 = lbl_8087F8A0->mHead;
+        mC58.mC4 = m14F4;
     }
     m14E0++;
     if (mC58.mC0 == 0 || m14F4 == 0) {
@@ -460,7 +460,7 @@ void Em303KrakenFootMp::fn_802E7740() {
         }
         break;
     case 1: {
-        CharaTask* target = (CharaTask*)m14F4;
+        CharaTask* target = m14F4;
         if (target != 0) {
             float dist = (target->mPos - mPos).Length_unk();
             switch (m14E8) {

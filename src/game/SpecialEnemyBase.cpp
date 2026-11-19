@@ -119,7 +119,7 @@ struct SpecialRect_unk {
 static const char* const sSound = "SE_UICOM_011";
 
 SpecialEnemyBase::SpecialEnemyBase(atn::Task* parent, EnemyInfo_unk* info)
-    : EnemyTask(parent, info->m20), m14B0((int)info), m14BC(0), m14C0(0), m14C4(0), m14C8(0) {
+    : EnemyTask(parent, info->m20), m14B0(info), m14BC(0), m14C0(0), m14C4(0), m14C8(0) {
     mFlag31 = 0;
     mFlag30 = 0;
     mFlag29 = 0;
