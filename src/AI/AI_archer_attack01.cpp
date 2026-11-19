@@ -1287,6 +1287,11 @@ struct AIString_unk {
     char* mData;
 };
 
+// inferred: operator< of the map's key compare (std::less<std::string>)
+static inline bool StrLess_unk(const std::string& a, const std::string& b) {
+    return a.compare(b) < 0;
+}
+
 // inferred: map value (script name, factory) stored in the node at +0xC; node size 0x1C (fn_8003DD50)
 struct AIScriptMapValue_unk {
     std::string first;
@@ -1337,7 +1342,7 @@ struct AIScriptMap_unk {
                 x = x->mRight;
             }
         }
-        if (result == End_unk() || key.compare(result->mValue.first) < 0) {
+        if (result == End_unk() || StrLess_unk(key, result->mValue.first)) {
             result = End_unk();
         }
         return result;
@@ -1389,7 +1394,7 @@ struct AIScriptMapL1_unk : public AIScriptMapL2_unk {
 };
 
 extern "C" int memcmp(const void*, const void*, unsigned long);
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, bool* insertLeft, bool* insertFirst);
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const std::string* key, AIScriptMapNode_unk** parent, bool* insertLeft, bool* insertFirst);
 
 void operator delete(void* ptr);
 extern "C" void* fn_8001E168(AIString_unk* str, int freeObject);
@@ -1621,7 +1626,7 @@ extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocato
     AIScriptMapNode_unk* pred;
     bool leftmost;
     bool left;
-    AIScriptMapNode_unk* parent = fn_8003E530(tree, &value->mString, &pred, &left, &leftmost);
+    AIScriptMapNode_unk* parent = fn_8003E530(tree, (const std::string*)&value->mString, &pred, &left, &leftmost);
     AIScriptInsertResult_unk r;
     if (pred == 0 || pred->mValue.first.compare(v.first) < 0) {
         r.first = ((AIScriptMap_unk*)tree)->InsertNode_unk(parent, left, leftmost, v);
@@ -1789,12 +1794,15 @@ extern "C" void fn_8001E730() {
 }
 
 // inferred: called with bl by fn_8001C1C0 (MWCC would inline it: noinline as in fn_8003DBA4)
-// NONMATCHING: 88.02% - the key size and data are loaded once before the search loop (the original reads
-// them again for every node and saves four registers instead of seven)
+// NONMATCHING: 97.67% - r29/r30 swapped between the end node and the short key data pointer
 // inferred: std::map<std::string, factory>::find on the script map (0x807C6B84, end node at +0x04 whose
 // left link is the root): the factory of the named script, 0 if there is none
 extern "C" __declspec(noinline) void* fn_8001EA18(const char* name) {
-    AIScriptMapNode_unk* it = lbl_807C6B84.Find_unk(std::string(name));
+    AIScriptMapNode_unk* it;
+    {
+        const std::string& key = std::string(name);
+        it = lbl_807C6B84.Find_unk(key);
+    }
     return it != lbl_807C6B84.End_unk() ? it->mValue.second : 0;
 }
 
@@ -10255,8 +10263,6 @@ void AIScriptMap_unk::Destroy_unk(AIScriptMapNode_unk* node) {
     operator delete(node);
 }
 
-// NONMATCHING: 92.93% - stack slots of the size temporaries of the inlined basic_string::compare
-// (std/string.h) differ (12/8 here, 16/20 in the original)
 // inferred: finds the insertion position for a string key and returns the last visited node.
 namespace std {
 
@@ -10307,19 +10313,19 @@ template void __red_black_tree<__tree_node_base_void*>::balance_insert(__tree_no
 
 } // namespace std
 
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const std::string* key,
                                             AIScriptMapNode_unk** parent,
                                             bool* insertLeft,
                                             bool* insertFirst) {
-    AIScriptMapNode_unk* candidate = ((AIScriptMap_unk*)tree)->End_unk();
+    AIScriptMap_unk* map = (AIScriptMap_unk*)tree;
+    AIScriptMapNode_unk* candidate = map->End_unk();
     *parent = 0;
-    AIScriptMapNode_unk* node = ((AIScriptMap_unk*)tree)->mRoot;
+    AIScriptMapNode_unk* node = map->mRoot;
     *insertLeft = 1;
     *insertFirst = 1;
     while (node != 0) {
         candidate = node;
-        int cmp = ((const std::string*)key)->compare(node->mValue.first);
-        if (cmp < 0) {
+        if (StrLess_unk(*key, node->mValue.first)) {
             node = node->mLeft;
             *insertLeft = 1;
         } else {
