@@ -605,7 +605,7 @@ void gmk::WindyItem::fn_80439574(WindySlot_unk* slot) {
     float sz = mArea->mSizeZ;
     PSMTXRotRad(rot, 'y', rotY);
     slot->mState = 1;
-    slot->m184 = (int)mArea;
+    slot->m184 = mArea;
     slot->mPath.m58 = rand() % 5 * 30 - 75;
     CharaTask* player = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
     atn::Vector3 eye;

@@ -713,7 +713,7 @@ void CosEditProtector::fn_801D94D0() {
         for (unsigned int i = 0; i < m1C30.size(); i++) {
             NewCampPair_unk* pair = m1C30[i];
             int member = pair->mId;
-            CharaTask* chara = (CharaTask*)pair->m04;
+            CharaTask* chara = pair->m04;
             if (fn_801D5420(member, 0)) {
                 fn_801DCF60(member, chara, 0, 0);
             }
@@ -874,7 +874,7 @@ void CosEditProtector::fn_801D94D0() {
     NewCampPair_unk* pair = m1C0C[0];
     fn_801DD26C(pair->mId);
     int member = pair->mId;
-    CharaTask* chara = (CharaTask*)pair->m04;
+    CharaTask* chara = pair->m04;
     if (fn_801D5420(member, 0)) {
         fn_801DCF60(member, chara, 0, 0);
     }

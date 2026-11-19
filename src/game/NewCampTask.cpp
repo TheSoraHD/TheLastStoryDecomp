@@ -430,7 +430,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     ((GameUICounter_unk*)&m1268)->fn_803CF734();
     NewCampPair_unk pair;
     pair.mId = 0;
-    pair.m04 = (int)fn_8000D9E8()->fn_8054A33C(pair.mId);
+    pair.m04 = fn_8000D9E8()->fn_8054A33C(pair.mId);
     m1224.push_back(pair);
     ((atn::FixedArray_unk<NewCampPair_unk, 8>*)&m1268)->push_back(pair);
     ShopMembers_unk* members = fn_80217D9C(fn_8052C64C((GameTask*)fn_80121F00()));
@@ -485,7 +485,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
             if (chara != 0 && (!fn_80244CA0(chara) || chara->IsFrozen_unk())) {
                 chara = 0;
             }
-            pair.m04 = (int)chara;
+            pair.m04 = chara;
             m1224.push_back(pair);
             if (chara != 0) {
                 ((atn::FixedArray_unk<NewCampPair_unk, 8>*)&m1268)->push_back(pair);
