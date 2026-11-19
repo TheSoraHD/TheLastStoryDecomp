@@ -71,8 +71,8 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector (.bss, 0x10 bytes
 
 // inferred: debug menu entries
 typedef void (*EnvSeMenuCallback_unk)(void* arg);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, EnvSeMenuCallback_unk callback, void* arg,
-                            float min, float max, float step);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            EnvSeMenuCallback_unk callback, void* arg);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step,
                             EnvSeMenuCallback_unk callback, void* arg);
 
@@ -99,7 +99,7 @@ EnvSeManager::EnvSeManager(atn::Task* parent)
     m1AC = m1A8.Load("EnvSE");
     if (m1AC != 0) {
         fn_800874C8(m1AC, "DebugLevel", &m1A4, 0, 99, 1, 0, 0);
-        fn_8008771C(m1AC, "ReduceVolume", &m190, 0, 0, 0.0f, 2.0f, 0.1f);
+        fn_8008771C(m1AC, "ReduceVolume", &m190, 0.0f, 2.0f, 0.1f, 0, 0);
     }
     mBgm[0].m0C = 1;
     mBgm[1].m0C = 1;
@@ -144,7 +144,8 @@ void EnvSeManager::vf14() {
             if (0.0f < screen.z && screen.z < 1.0f) {
                 char text[0x100];
                 sprintf(text, "Area[%d] %s\0", area->mId, area->mData.mName);
-                lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, current ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
+                lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text,
+                                          current ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
             }
         }
     }

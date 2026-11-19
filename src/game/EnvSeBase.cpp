@@ -29,10 +29,10 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: debug menu entries
 typedef void (*EnvSeMenuCallback_unk)(void* arg);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, EnvSeMenuCallback_unk callback,
-                            void* arg, float min, float max, float step);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, EnvSeMenuCallback_unk callback, void* arg,
-                            float min, float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            EnvSeMenuCallback_unk callback, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            EnvSeMenuCallback_unk callback, void* arg);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step,
                             EnvSeMenuCallback_unk callback, void* arg);
 
@@ -73,13 +73,12 @@ void EnvSeBase::fn_80360CDC(atn::Csv* csv) {
             char name[0x100];
             sprintf(name, "%s[%d] %s\0", sTypeNames[mData->mType], m4C, mData->mName);
             void* menu = LoadMenu_unk(mMenu, root, name);
-            fn_80087E9C(menu, "Position", &mData->mPos, (EnvSeMenuCallback_unk)fn_80361100, this, -9999.0f,
-                        9999.0f, 1.0f);
-            fn_8008771C(menu, "Distance", &mData->mDistance, (EnvSeMenuCallback_unk)fn_80361100, this, 1.0f,
-                        9999.0f, 1.0f);
-            fn_8008771C(menu, "Volume", &mData->mVolume, (EnvSeMenuCallback_unk)fn_80361100, this, 0.0f, 2.0f,
-                        0.1f);
-            fn_8008771C(menu, "LPF", &mData->mLPF, (EnvSeMenuCallback_unk)fn_80361100, this, 0.0f, 1.0f, 0.1f);
+            fn_80087E9C(menu, "Position", &mData->mPos, -9999.0f, 9999.0f, 1.0f, (EnvSeMenuCallback_unk)fn_80361100,
+                        this);
+            fn_8008771C(menu, "Distance", &mData->mDistance, 1.0f, 9999.0f, 1.0f, (EnvSeMenuCallback_unk)fn_80361100,
+                        this);
+            fn_8008771C(menu, "Volume", &mData->mVolume, 0.0f, 2.0f, 0.1f, (EnvSeMenuCallback_unk)fn_80361100, this);
+            fn_8008771C(menu, "LPF", &mData->mLPF, 0.0f, 1.0f, 0.1f, (EnvSeMenuCallback_unk)fn_80361100, this);
         }
     }
 }
@@ -162,7 +161,8 @@ void EnvSeBase::DrawName_unk(const atn::Vector3& pos) {
     if (0.0f < screen.z && screen.z < 1.0f) {
         char text[0x100];
         sprintf(text, "%s[%d] %s\0", sTypeNames[mData->mType], m4C, mData->mName);
-        lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, m58 != 0 ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, m58 != 0 ? 0xFFFFFFFF : 0xFF7F7F7F,
+                                  0.0f, 1, 1, 0);
     }
 }
 
@@ -466,10 +466,9 @@ void EnvSeArea_unk::fn_80363108(void* root) {
         char name[0x100];
         sprintf(name, "Area[%d] %s\0", mId, mData.mName);
         void* menu = LoadMenu_unk(mMenu, root, name);
-        fn_80087E9C(menu, "Position", &mData.mPos, (EnvSeMenuCallback_unk)fn_8036324C, this, -9999.0f, 9999.0f,
-                    1.0f);
-        fn_8008771C(menu, "Volume", &mData.mVolume, (EnvSeMenuCallback_unk)fn_8036324C, this, 0.0f, 2.0f, 0.1f);
-        fn_8008771C(menu, "LPF", &mData.mLPF, (EnvSeMenuCallback_unk)fn_8036324C, this, 0.0f, 1.0f, 0.1f);
+        fn_80087E9C(menu, "Position", &mData.mPos, -9999.0f, 9999.0f, 1.0f, (EnvSeMenuCallback_unk)fn_8036324C, this);
+        fn_8008771C(menu, "Volume", &mData.mVolume, 0.0f, 2.0f, 0.1f, (EnvSeMenuCallback_unk)fn_8036324C, this);
+        fn_8008771C(menu, "LPF", &mData.mLPF, 0.0f, 1.0f, 0.1f, (EnvSeMenuCallback_unk)fn_8036324C, this);
         fn_800874C8(menu, "ReverbParamId", &mReverb, 0, 20, 1, (EnvSeMenuCallback_unk)fn_8036324C, this);
     }
 }

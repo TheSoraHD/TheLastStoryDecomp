@@ -62,6 +62,8 @@ def arg_class(a):
         return 'I'
     if t in ('long long', 'unsigned long long', 's64', 'u64'):
         return 'L'
+    if re.search(r'(Func|Callback|Ptr)(_unk)?$', t):
+        return 'P'  # typedef of a function or data pointer (MindowsFunc_unk, MtxPtr...)
     return 'S:' + t.split('::')[-1]
 
 

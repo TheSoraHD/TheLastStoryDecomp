@@ -9,10 +9,10 @@
 typedef void (*MenuCallback_unk)(void* arg);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step,
                             MenuCallback_unk callback, void* arg);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, MenuCallback_unk callback,
-                            void* arg, float min, float max, float step);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, MenuCallback_unk callback, void* arg,
-                            float min, float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            MenuCallback_unk callback, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            MenuCallback_unk callback, void* arg);
 
 CharaLook_unk::CharaLook_unk()
     : mChara(0), mType(0), mTarget(0), mOffset(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f),
@@ -367,9 +367,9 @@ void fn_8012AC64(CharaLook_unk* look) {
 void CharaLook_unk::fn_8012AD20(void* menu) {
     void* group = fn_8008937C(menu, "Sight");
     fn_800874C8(group, "type", &mType, 0, 3, 1, (MenuCallback_unk)fn_8012AC64, this);
-    fn_80087E9C(group, "offset", &mOffset, (MenuCallback_unk)fn_8012AC64, this, -100000.0f, 100000.0f, 1.0f);
-    fn_8008771C(group, "speed", &mSpeed, 0, 0, 0.0f, 1.0f, 0.1f);
+    fn_80087E9C(group, "offset", &mOffset, -100000.0f, 100000.0f, 1.0f, (MenuCallback_unk)fn_8012AC64, this);
+    fn_8008771C(group, "speed", &mSpeed, 0.0f, 1.0f, 0.1f, 0, 0);
     fn_800874C8(group, "eyeType", &mEyeType, 0, 3, 1, (MenuCallback_unk)fn_8012AC64, this);
-    fn_80087E9C(group, "eyeOffset", &mEyeOffset, (MenuCallback_unk)fn_8012AC64, this, -100000.0f, 100000.0f, 1.0f);
-    fn_8008771C(group, "eyeSpeed", &mEyeSpeed, 0, 0, 0.0f, 1.0f, 0.1f);
+    fn_80087E9C(group, "eyeOffset", &mEyeOffset, -100000.0f, 100000.0f, 1.0f, (MenuCallback_unk)fn_8012AC64, this);
+    fn_8008771C(group, "eyeSpeed", &mEyeSpeed, 0.0f, 1.0f, 0.1f, 0, 0);
 }
