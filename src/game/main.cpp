@@ -70,7 +70,8 @@ struct GraphicsDevice_unk;
 }
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8006BA54(unsigned char lang);
 extern "C" void fn_80071220();

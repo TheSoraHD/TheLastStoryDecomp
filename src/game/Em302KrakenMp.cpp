@@ -72,7 +72,8 @@ inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
 }
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id

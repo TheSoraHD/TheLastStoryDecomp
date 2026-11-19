@@ -9,7 +9,8 @@ extern "C" int rand();
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (as in gmk/Cannonball.cpp)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
 extern "C" GameTask* lbl_8087F430;

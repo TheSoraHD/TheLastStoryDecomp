@@ -37,7 +37,8 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 // inferred: collision world (lbl_8087EE98)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* arg5, int arg6, float radius); // inferred: sphere test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,

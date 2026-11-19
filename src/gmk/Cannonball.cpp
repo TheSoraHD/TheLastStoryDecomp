@@ -117,7 +117,8 @@ extern "C" inline float fn_802F0998(GameConfig_unk* settings) {
     return -98.1f / (float)(settings->m030 * settings->m030);
 }
 // inferred: collision world and its tests
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }

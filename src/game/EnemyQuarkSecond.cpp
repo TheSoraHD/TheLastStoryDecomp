@@ -327,7 +327,8 @@ struct FieldMap_unk {
     MapHolder_unk* m10D8;
 };
 extern "C" void fn_80354110(EnemyTask* enemy); // inferred: EnemyQuarkStand member of another queue
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: size of a vector (weak copy 0x800E0AA8 of atn/WordWrap_unk.cpp) and element i (weak copy

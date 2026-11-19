@@ -31,7 +31,8 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" GameTask* lbl_8087F430; // inferred: the field
-extern "C" void* lbl_8087EE98;     // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;     // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 

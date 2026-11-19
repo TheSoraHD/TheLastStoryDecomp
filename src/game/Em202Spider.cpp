@@ -610,7 +610,8 @@ void Em202Spider::vf7C(int arg) {
 }
 
 // inferred: result of a ray test (0x50 bytes, as in game/Em208Queen.cpp)
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: nonzero when the sound group is loaded (game/Se_unk.cpp declares it with an int; same C symbol)

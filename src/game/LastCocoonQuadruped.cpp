@@ -133,7 +133,8 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
 }
 
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result,
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result,
                                                           const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 

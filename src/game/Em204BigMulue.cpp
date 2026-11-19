@@ -47,7 +47,8 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 // inferred: collision world (as in gmk/Cannonball.cpp; weak copy of another file)
 inline void* fn_801404F8() {

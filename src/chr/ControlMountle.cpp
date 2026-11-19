@@ -24,7 +24,8 @@ inline float Gravity_unk(GameConfig_unk* settings) {
     return -98.1f / (float)(settings->m030 * settings->m030);
 }
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 // inferred: collision world (accessor 0x801404F8, as in gmk/Cannonball.cpp)
 inline void* fn_801404F8() {
     return lbl_8087EE98;

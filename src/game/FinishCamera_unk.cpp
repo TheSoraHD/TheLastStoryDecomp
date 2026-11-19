@@ -38,7 +38,8 @@ extern "C" void fn_80087858(void* group, const char* name, float* value, float m
                             FinishMenuCallback_unk callback, void* arg); // inferred: angle shown in degrees
 
 // inferred: collision world (lbl_8087EE98)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* a, int b); // inferred: segment test, hit position
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,

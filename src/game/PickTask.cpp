@@ -23,7 +23,8 @@ inline CharaTask* GetBattleChara_unk(BattleChara_unk* charas, int i) {
 
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;     // inferred: player manager
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int flags, void* colli, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length

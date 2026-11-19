@@ -171,7 +171,8 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 
 // inferred: globals returned by accessors that are called out of line
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 
 // inferred: names of some status effects. The table itself is not in the DOL (unused, so the
 // compiler drops it), but its strings are the first .rodata objects of the file (0x80737390) and are

@@ -74,7 +74,8 @@ extern "C" double fmod(double x, double y);
 extern "C" double sqrt(double x);
 extern "C" double sin(double x);
 extern "C" int rand();
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* a, int b, CharaTask* ignore); extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test

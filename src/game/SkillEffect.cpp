@@ -30,7 +30,8 @@ extern "C" const char* fn_800EFE3C(int id); // inferred: start sound of a skill 
 extern "C" const char* fn_800EFEA0(int id); // inferred: loop sound of a skill effect
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: places a ground effect

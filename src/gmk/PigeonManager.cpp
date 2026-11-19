@@ -22,7 +22,8 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 // inferred: collision world (lbl_8087EE98)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004D314(void* world, atn::Vector3* hit, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int attr, float radius); // inferred: sphere sweep
 extern "C" double sqrt(double x);

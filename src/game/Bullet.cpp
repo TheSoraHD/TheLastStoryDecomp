@@ -46,7 +46,8 @@ extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int group, int
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
 extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,

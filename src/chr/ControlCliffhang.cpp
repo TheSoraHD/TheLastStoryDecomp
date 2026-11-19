@@ -22,7 +22,8 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A55D4(void* pad, int player, int button);
 
 // inferred: collision (lbl_8087EE98); fn_8004ECC0 casts a ray
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* colli, void* arg, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
                            void* arg5, int arg6);
 

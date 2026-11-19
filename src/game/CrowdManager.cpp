@@ -24,7 +24,8 @@ inline float LengthSq_unk(const atn::Vector3& v) {
 
 extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int flags, void* colli, int arg);
 

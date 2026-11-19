@@ -10,7 +10,8 @@ extern "C" int rand();
 
 
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_unk::Sphere_unk* sphere,
                             atn::Vector3* move, unsigned int mask, void* ignore, int arg,
                             float radius); // inferred: sweep test

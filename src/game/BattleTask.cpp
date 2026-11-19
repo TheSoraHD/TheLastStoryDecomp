@@ -6239,7 +6239,8 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     return chara->mPos;
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 

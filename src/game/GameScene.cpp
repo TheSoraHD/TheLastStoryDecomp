@@ -42,7 +42,8 @@ extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int rand();
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* world, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" double sin(double x);

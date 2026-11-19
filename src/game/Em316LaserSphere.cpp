@@ -800,7 +800,8 @@ void Em316LaserSphere::fn_80318F9C() {
     }
 }
 
-extern "C" void* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result,
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result,
                                                           CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float radius);
 

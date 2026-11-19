@@ -56,7 +56,8 @@ extern "C" void fn_800761A8(atn::GraphicsDevice_unk* rs);
 // inferred: ray test against the map (start, end, hit), returns nonzero on hit
 extern "C" int fn_8004ECC0(void* map, atn::Vector3* hit, const atn::Vector3* start, const atn::Vector3* end,
                            unsigned int mask, void* arg5, int arg6);
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void* fn_8008937C(void* parent, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
                             void* arg);

@@ -39,7 +39,8 @@ struct RandomTable_unk;
 extern "C" RandomTable_unk* fn_8021D720(int level, int id); // inferred: random table of a level and id
 extern "C" bool fn_8021D770(RandomTable_unk* table, int* item, char* name, int index); // inferred: random item
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 // inferred: sphere and oriented box of the collision tests

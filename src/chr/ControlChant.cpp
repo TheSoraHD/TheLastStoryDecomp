@@ -56,7 +56,8 @@ extern "C" GameTask* lbl_8087F430;
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,

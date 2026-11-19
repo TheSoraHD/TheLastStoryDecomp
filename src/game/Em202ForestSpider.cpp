@@ -51,7 +51,8 @@ extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, in
 extern "C" int fn_80051B70(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
 // inferred: zero vector
 extern "C" atn::Vector3 lbl_807C7030;
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_800C3118(const char* group); // inferred: nonzero when the sound group is loaded

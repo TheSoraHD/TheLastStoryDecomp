@@ -89,7 +89,8 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: skill effect manager (lbl_8087F9E8); fn_8059C2A8 shows the skill of a character
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 // inferred: debug menu entries (as in game/Em315Coffin.cpp)

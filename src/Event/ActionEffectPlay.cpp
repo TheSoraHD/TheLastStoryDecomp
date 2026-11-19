@@ -70,7 +70,8 @@ extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // 
 // inferred: cloud map shadow (scale, position, rate)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* fn_8001260C(Event::Actor* actor);        // inferred: collision of an actor
-extern "C" void* lbl_8087EE98;                                // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;                                // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 

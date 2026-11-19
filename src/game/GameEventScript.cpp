@@ -1181,7 +1181,8 @@ static inline int FlagValue_unk(int kind, int flag) {
     return lbl_8087F430->fn_80370A78(flag);
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from,
                            const atn::Vector3* to, unsigned int mask, void* ignore, int arg); // inferred: ray test
 
@@ -6602,7 +6603,8 @@ void GameEventScript::fn_803AB96C(int scope, unsigned int index, int old, int va
     }
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 

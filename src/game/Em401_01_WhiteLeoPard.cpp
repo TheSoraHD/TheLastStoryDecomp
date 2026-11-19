@@ -267,7 +267,8 @@ void Em401_01_WhiteLeoPard::fn_8031FD34(HitMsg_unk* msg) {
     }
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager

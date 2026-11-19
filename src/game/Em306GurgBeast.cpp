@@ -35,7 +35,8 @@ void* fn_801404F8();                         // inferred: collision world (weak 
 extern "C" GameConfig_unk* fn_800F52F8();
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" GameConfig_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test

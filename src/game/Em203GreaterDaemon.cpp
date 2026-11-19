@@ -174,7 +174,8 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     }
     return m;
 }
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }

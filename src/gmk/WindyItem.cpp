@@ -32,7 +32,8 @@ struct WindyTable_unk;
 extern "C" WindyTable_unk* fn_8021D990(int level); // inferred: random table of the wind items
 extern "C" bool fn_8021D9D4(WindyTable_unk* table, int* item, char* name, int index); // inferred: random item
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087EE98;                     // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;                     // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 

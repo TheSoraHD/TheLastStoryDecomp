@@ -30,7 +30,8 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: RGBA colour (names invented)
 typedef EffectColor_unk Color4f_unk;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 // inferred: collision world (out-of-line copy 0x801404F8 in game/CharaTask.cpp)
 inline void* fn_801404F8() {
     return lbl_8087EE98;

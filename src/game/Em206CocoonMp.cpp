@@ -589,7 +589,8 @@ void Em206CocoonMp::vf54() {
 
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 // NONMATCHING: 96.25% - float registers and stack slots (as LastCocoonImago::fn_8045ABB4, the same walk
