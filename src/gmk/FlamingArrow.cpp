@@ -327,8 +327,7 @@ void FlamingArrow::vf10() {
         target = *(*list.At_unk(rand() % count))->fn_8013C38C();
     }
     atn::Vector3 offset(0.0f, 0.0f, mDesc->m40 * (rand() % 1001 / 1000.0f));
-    atn::Matrix3x4 rot;
-    rot.fn_8013A13C(6.2831855f * (rand() % 1001 / 1000.0f));
+    atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(6.2831855f * (rand() % 1001 / 1000.0f));
     offset.fn_80011410(rot);
     target += offset;
     atn::Vector3 dir;

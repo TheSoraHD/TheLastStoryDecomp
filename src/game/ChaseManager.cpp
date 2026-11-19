@@ -244,7 +244,7 @@ void ChaseManager::vf10() {
         atn::Vector3 offset = lbl_8087F0A8->m52C;
         atn::Vector3 rot = dir.ToRotation_unk();
         atn::Matrix3x4 rotY;
-        rotY.fn_8013A13C(rot.y);
+        rotY.SetRotationY_unk(rot.y);
         PSMTXMultVec(rotY.m, &offset, &offset);
         pos += offset;
         atn::Vector3 angle = dir.ToRotation_unk();

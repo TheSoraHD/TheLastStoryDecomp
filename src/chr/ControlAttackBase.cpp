@@ -82,7 +82,7 @@ static inline bool UseAuto_unk(bool on, CharaTask* chara) {
 static inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
@@ -261,7 +261,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
         id = self->m484[24];
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(self->mRot.y);
+        m.SetRotationY_unk(self->mRot.y);
         PSMTXMultVec(m.m, &front, &front);
         mDir = front;
     } else {
@@ -836,7 +836,7 @@ int ControlHitBackBullet::vf0C() {
     if (vf24() != 0) {
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mChara->mRot.y);
+        m.SetRotationY_unk(mChara->mRot.y);
         PSMTXMultVec(m.m, &front, &front);
         for (unsigned int i = 0; i < mBullets.mCount; i++) {
             HomingBullet* bullet = mBullets.mData[i];

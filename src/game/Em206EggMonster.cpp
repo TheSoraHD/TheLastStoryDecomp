@@ -140,7 +140,7 @@ static inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, a
 static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
@@ -991,7 +991,7 @@ void Em206EggMonster::fn_802C4480() {
         int fps = lbl_8087F0A8->m030;
         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), 1.5f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mRot.y);
+        m.SetRotationY_unk(mRot.y);
         PSMTXMultVec(m.m, &move, &move);
         atn::ColliResult_unk result;
         CharaTask::Sphere_unk sphere = fn_80176548(mPos);
@@ -1156,7 +1156,7 @@ void Em206EggMonster::vf54() {
         m624[1].m04.mCenter.y -= 3.0f;
         atn::Vector3 ofs(0.0f, 0.0f, 7.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mRot.y);
+        m.SetRotationY_unk(mRot.y);
         PSMTXMultVec(m.m, &ofs, &ofs);
         m624[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
         m624[2].m04.mCenter += ofs;

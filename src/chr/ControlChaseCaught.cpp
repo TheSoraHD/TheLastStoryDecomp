@@ -248,7 +248,7 @@ int ControlChaseFollow::vf0C() {
     atn::Vector3 pos(leader->mPos);
     atn::Vector3 target(leader->mPos);
     atn::Matrix3x4 mtx;
-    mtx.fn_8013A13C(-2.3561945f + leader->mRot.y);
+    mtx.SetRotationY_unk(-2.3561945f + leader->mRot.y);
     atn::Vector3 off;
     off = atn::Vector3(0.0f, 0.0f, 1.0f);
     PSMTXMultVec(mtx.m, &off, &off);

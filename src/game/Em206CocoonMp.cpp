@@ -611,7 +611,7 @@ void Em206CocoonMp::fn_802BC4EC(const atn::Vector3& target, float move, float sp
     rot.y += step;
     atn::Vector3 vel(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &vel, &vel);
     if (move > 0.33333334f) {
         vel *= 0.33333334f * speed;
@@ -1157,7 +1157,7 @@ void Em206CocoonMp::fn_802BEE44() {
     atn::Vector3 saved = mPos;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
+    m.SetRotationY_unk(mRot.y);
     PSMTXMultVec(m.m, &front, &front);
     mPos -= front * 5.0f;
     int id = m590;
@@ -1175,7 +1175,7 @@ void Em206CocoonMp::fn_802BEE44() {
         }
         atn::Vector3 ahead(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 r;
-        r.fn_8013A13C(mRot.y);
+        r.SetRotationY_unk(mRot.y);
         PSMTXMultVec(r.m, &ahead, &ahead);
         if (PSVECDotProduct(&to, &ahead) < 0.70710677f || m1504 > 180) {
             SetState_unk(14);
@@ -1267,7 +1267,7 @@ void Em206CocoonMp::fn_802BF5C0() {
     if (++m1504 > 30) {
         atn::Vector3 ahead(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mRot.y);
+        m.SetRotationY_unk(mRot.y);
         PSMTXMultVec(m.m, &ahead, &ahead);
         if (PSVECDotProduct(&to, &ahead) > 0.9659258f || m1504 > 90) {
             if (m14F4 > 1200) {

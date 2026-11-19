@@ -258,7 +258,7 @@ void MotionObject::fn_804137F4() {
     if (target != 0) {
         atn::Vector3 base = model != 0 ? ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() : lbl_807C7060.GetTrans_unk();
         atn::Matrix3x4 mtx;
-        mtx.fn_8013A13C(m78.y);
+        mtx.SetRotationY_unk(m78.y);
         atn::ColliSphere::Sphere_unk sphere;
         atn::VecAssign_unk(sphere.mCenter, base + atn::Transform_unk(mtx, target->mOffset));
         sphere.mRadius = target->mRadius;

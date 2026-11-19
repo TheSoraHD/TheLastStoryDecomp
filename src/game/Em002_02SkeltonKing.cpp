@@ -129,7 +129,7 @@ void Em002_02SkeltonKing::fn_80249394() {
 inline atn::Vector3 FrontDir_unk(const float& rot) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot);
+    m.SetRotationY_unk(rot);
     PSMTXMultVec(m.m, &front, &front);
     return front;
 }

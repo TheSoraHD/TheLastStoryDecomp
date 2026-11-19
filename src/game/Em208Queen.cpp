@@ -712,7 +712,7 @@ void Em208Queen::fn_802CA8C0() {
         m14D4 = 0;
         m14D8 = 0;
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mRot.y);
+        m.SetRotationY_unk(mRot.y);
         atn::Vector3 front;
         front = atn::Vector3(0.0f, 15.0f, 40.0f);
         PSMTXMultVec(m.m, &front, &front);

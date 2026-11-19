@@ -352,7 +352,7 @@ inline atn::Vector3 Side_unk(CharaTask* chara, float up) {
     atn::Vector3 v(0.0f, up, 0.0f);
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(chara->mRot.y);
+    m.SetRotationY_unk(chara->mRot.y);
     PSMTXMultVec(m.m, &front, &front);
     atn::Vector3 side;
     PSVECCrossProduct(&front, &v, &side);

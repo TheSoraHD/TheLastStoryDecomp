@@ -2450,8 +2450,7 @@ void GameUI::fn_803D2A6C() {
                         scale = atn::Lerp_unk<atn::Vector3>(far, near, t);
                         if (open != 0) {
                             open->SetPosition_unk(pos);
-                            atn::Matrix3x4 m;
-                            m.fn_8013A13C(rot.y);
+                            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
                             open->SetRotation_unk(m);
                             open->SetScale_unk(scale);
                             open->GetTask()->SetValue1_unk("basePos", 0, 0.0f);
@@ -2462,8 +2461,7 @@ void GameUI::fn_803D2A6C() {
                         }
                         if (loop != 0) {
                             loop->SetPosition_unk(pos);
-                            atn::Matrix3x4 m;
-                            m.fn_8013A13C(rot.y);
+                            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
                             loop->SetRotation_unk(m);
                             loop->SetScale_unk(scale);
                             loop->GetTask()->SetValue1_unk("basePos", 0, 0.0f);
@@ -6125,7 +6123,7 @@ void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
     icon->SetPosition_unk(base + *pos);
     icon->MeltTask();
     atn::Matrix3x4 mtx;
-    mtx.fn_8013A13C(rot.y);
+    mtx.SetRotationY_unk(rot.y);
     icon->SetRotation_unk(mtx);
     icon->SetScale_unk(scale);
     (GetIconInst_unk(icon))->SetValue1_unk("pos0003", 0, 0.0f);

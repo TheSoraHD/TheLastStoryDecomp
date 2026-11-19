@@ -1556,13 +1556,13 @@ extern "C" void fn_80231508(EffectSlot_unk* slot) {
                 atn::Matrix3x4 m;
                 atn::Matrix3x4 rx;
                 atn::Matrix3x4 ry;
-                ry.fn_8013A13C(slot->mD4);
+                ry.SetRotationY_unk(slot->mD4);
                 PSMTXRotRad(rx.m, 'x', slot->mD0);
                 PSMTXConcat(ry.m, rx.m, m.m);
                 rot = m;
             } else {
                 atn::Matrix3x4 ry;
-                ry.fn_8013A13C(slot->mD4);
+                ry.SetRotationY_unk(slot->mD4);
                 rot = ry;
             }
         } else {

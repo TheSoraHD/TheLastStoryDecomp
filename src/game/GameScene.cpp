@@ -849,7 +849,7 @@ gs::CameraBox* GameScene::fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, Ch
             continue;
         }
         atn::ColliBoxShape_unk shape;
-        shape.mMtx = atn::Matrix3x4::RotY_unk(box.m14);
+        shape.mMtx = atn::Matrix3x4::fn_8013A13C(box.m14);
         atn::Vector3 center = box.mPos;
         center.y += box.mSize.y;
         shape.mMtx.fn_801479E4(center);
@@ -2879,7 +2879,7 @@ gs::BgmBox* GameScene::fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTas
             continue;
         }
         atn::ColliBoxShape_unk shape;
-        shape.mMtx = atn::Matrix3x4::RotY_unk(box.m14);
+        shape.mMtx = atn::Matrix3x4::fn_8013A13C(box.m14);
         atn::Vector3 center = box.mPos;
         center.y += box.mSize.y;
         shape.mMtx.fn_801479E4(center);

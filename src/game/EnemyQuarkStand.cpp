@@ -757,7 +757,7 @@ inline atn::Vector3 QuarkFront_unk(float rotY) {
 inline atn::Vector3 QuarkFrontOf_unk(CharaTask* c) {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(c->mRot.y);
+    m.SetRotationY_unk(c->mRot.y);
     PSMTXMultVec(m.m, &dir, &dir);
     return dir;
 }

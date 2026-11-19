@@ -850,7 +850,7 @@ void Em003LesserDaemon::vf24() {
     }
     atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
+    m.SetRotationY_unk(mRot.y);
     PSMTXMultVec(m.m, &fwd, &fwd);
     atn::Vector3 dir = m574.GetNormalize();
     float dot = PSVECDotProduct(&fwd, &dir);

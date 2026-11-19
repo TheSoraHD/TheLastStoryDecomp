@@ -493,7 +493,7 @@ void Em309GhoulSimple::vf104() {
 inline atn::Vector3 GhoulFront_unk(const float& angle) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(angle);
+    m.SetRotationY_unk(angle);
     PSMTXMultVec(m.m, &front, &front);
     return front;
 }

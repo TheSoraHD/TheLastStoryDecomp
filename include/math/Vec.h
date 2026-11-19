@@ -325,8 +325,9 @@ public:
         m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] = 0.0f;
         m[0][0] = m[1][1] = m[2][2] = 1.0f;
     }
-    // inferred: rotation around y (weak copy 0x8013A13C)
-    void fn_8013A13C(float rad) { PSMTXRotRad(m, 'y', rad); }
+    // inferred: rotation around y in place (name invented; always inlined: the out-of-line function at
+    // 0x8013A13C returns the matrix by value, see fn_8013A13C)
+    void SetRotationY_unk(float rad) { PSMTXRotRad(m, 'y', rad); }
     void fn_8010F668(); // inferred: clears the translation (weak copy 0x8010F668, game/Bullet.cpp)
     void Translate_unk(const Vector3& v); // inferred: *this = *this * trans(v) (weak copy 0x8010F67C, game/Bullet.cpp)
     void fn_80144ED4(float rad); // inferred: *this = *this * rot_z(rad)
@@ -388,10 +389,12 @@ public:
     }
     // inferred: translation (weak copy 0x8000D0F8); name invented
     Vector3 GetTrans_unk() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
-    // inferred: rotation around y by value (inlined by fn_80139F60); name invented
-    static Matrix3x4 RotY_unk(float rad) {
+    // inferred: rotation around y by value (weak copy 0x8013A13C, `li r4, 'y'; b PSMTXRotRad` with r3 the result;
+    // inlined by fn_80139F60). ControlGrappled::vf10 builds a named matrix with it in the first block and passes
+    // a temporary in the second (stack slot after the bind_t of the first block).
+    static Matrix3x4 fn_8013A13C(float rad) {
         Matrix3x4 r;
-        r.fn_8013A13C(rad);
+        r.SetRotationY_unk(rad);
         return r;
     }
     // inferred: name invented (inlined by fn_80139F60)
@@ -514,7 +517,7 @@ inline void Vector3::fn_80139F60() {
     } else {
         r.y = atan2(x, z);
     }
-    Matrix44_unk m44(Matrix3x4::RotY_unk(-r.y));
+    Matrix44_unk m44(Matrix3x4::fn_8013A13C(-r.y));
     Vector3 v(*this);
     PSMTX44MultVec(m44.m, &v, &v);
     if (Abs_unk(v.z) < 1.1920929e-7f) {
@@ -534,7 +537,7 @@ inline void Vector3::RotZ_unk() {
     } else {
         r.y = atan2(x, fz);
     }
-    Matrix44_unk m44(Matrix3x4::RotY_unk(-r.y));
+    Matrix44_unk m44(Matrix3x4::fn_8013A13C(-r.y));
     Vector3 v(*this);
     PSMTX44MultVec(m44.m, &v, &v);
     if (Abs_unk(v.z) < 1.1920929e-7f) {

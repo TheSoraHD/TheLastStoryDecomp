@@ -901,7 +901,7 @@ void Em203GreaterDaemonRedMp::fn_8029FAC0() {
 static inline atn::Vector3 Front_unk(const float& angle) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(angle);
+    m.SetRotationY_unk(angle);
     PSMTXMultVec(m.m, &front, &front);
     return front;
 }
@@ -1541,9 +1541,8 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
         pos += offset;
         float angle = fn_802A40A8(0.0f, 180.0f);
         atn::Vector3 dir(0.0f, 0.0f, 10.0f);
-        Mtx ry;
-        ((atn::Matrix3x4*)ry)->fn_8013A13C(atn::DegToRad_unk(90.0f));
-        dir.fn_80011410(*(atn::Matrix3x4*)ry);
+        atn::Matrix3x4 ry = atn::Matrix3x4::fn_8013A13C(atn::DegToRad_unk(90.0f));
+        dir.fn_80011410(ry);
         dir.fn_80011410(fn_802A3D64(atn::DegToRad_unk(angle)));
         dir.fn_80011410(fn_800109E0(mRot));
         fn_802A4120(&param);
