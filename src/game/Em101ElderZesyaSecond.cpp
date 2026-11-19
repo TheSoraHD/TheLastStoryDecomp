@@ -37,7 +37,9 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
-extern "C" float PSVECSquareMag(const atn::Vector3* v); extern "C" void* lbl_8087EE98;
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int atoi(const char* s);

@@ -51,7 +51,9 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 struct Pad_unk;
-extern "C" Pad_unk* lbl_8087EF70; extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" Pad_unk* lbl_8087EF70;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,

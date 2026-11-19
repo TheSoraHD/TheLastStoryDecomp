@@ -24,7 +24,9 @@ extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" GameTask* lbl_8087F430;
-extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); extern "C" void* lbl_8087EE98;
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point);
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0) and camera (atn::RenderManager::instance_)

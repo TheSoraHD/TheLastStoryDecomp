@@ -32,7 +32,9 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); extern "C" void* lbl_8087EE98;
+extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target);
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: starts a camera mode with its parameters (GameCamera::m46C; formerly the view FieldCamera_unk at GameTask

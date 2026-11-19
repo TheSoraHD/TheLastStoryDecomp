@@ -27,7 +27,9 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; extern "C" void* lbl_8087EE98;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" int rand();

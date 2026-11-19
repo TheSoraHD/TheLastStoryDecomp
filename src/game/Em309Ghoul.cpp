@@ -1047,7 +1047,9 @@ inline void GhoulEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" atn::Vector3 lbl_807C7030; extern "C" void* lbl_8087EE98;
+extern "C" atn::Vector3 lbl_807C7030;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" double tan(double x);

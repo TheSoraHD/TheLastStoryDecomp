@@ -32,7 +32,9 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_802378C4(atn::EfpFile* efp); // inferred: number of loops of the effect
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" atn::Matrix3x4 lbl_807C7060; extern "C" void* lbl_8087EE98;
+extern "C" atn::Matrix3x4 lbl_807C7060;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC)
