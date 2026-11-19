@@ -53,7 +53,7 @@ extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
 extern "C" int fn_80219558(int kind);
 extern "C" PlayerParam_unk* fn_80219160(int kind, int level); // db/PlayerParam_unk.cpp
 extern "C" int fn_8021AF98(int slot);
-extern "C" int fn_8021AFF4(int slot);
+extern "C" HitInfo_unk* fn_8021AFF4(int slot);
 
 // inferred: name invented
 inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
@@ -421,7 +421,7 @@ void CharaStatus::fn_8012D180() {
     }
     fn_8012CE4C(kind);
     int ids[6];
-    int items[6];
+    HitInfo_unk* items[6];
     int owned[6];
     for (int i = 0; i < 6; i++) {
         ids[i] = fn_8021AF98(set->mSlots[i]);
@@ -430,7 +430,7 @@ void CharaStatus::fn_8012D180() {
         if (lbl_8087EE68 != 0 && items[i] != 0) {
             ok = true;
         }
-        owned[i] = ok ? (int)lbl_8087EE68->fn_800185B4(mChara, (HitInfo_unk*)items[i]) : 0;
+        owned[i] = ok ? (int)lbl_8087EE68->fn_800185B4(mChara, items[i]) : 0;
     }
     for (int i = 0; i < 4; i++) {
         m2CC.mData[i] = CharaStatusPair_unk(0);
@@ -1669,7 +1669,7 @@ struct StatusItem_unk {
     int mB4;
     float mB8;
 };
-extern "C" int fn_8021AF50(int stat);
+extern "C" void* fn_8021AF50(int stat);
 
 void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
     float value = 0.0f;
