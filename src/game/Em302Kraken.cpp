@@ -455,7 +455,7 @@ void Em302Kraken::vf10() {
         if (target != 0) {
             GameTask* field = lbl_8087F430;
             if (m1658 > 0) {
-                atn::Vector3 pos = *(atn::Vector3*)((char*)target + 0x6C);
+                atn::Vector3 pos = ((GimmickCommon*)m1654)->m6C; // inferred: m1654 is the gimmick of fn_802DC4E0
                 pos.y += 20.0f;
                 if (m165C == 0) {
                     field->mCamera.m834 = this;

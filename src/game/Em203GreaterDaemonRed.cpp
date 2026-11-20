@@ -437,10 +437,10 @@ void Em203GreaterDaemonRed::vf10() {
         PlayerTask* player = lbl_8087F8A0->fn_8054A33C(1);
         if (player != 0) {
             if ((mStatus.m0C & 0x20) == 0x20) {
-                *(float*)((char*)player + 0xAD0) = 1.0f;
+                player->mStatus.m2FC = 1.0f;
             } else {
                 player->mStatus.fn_8012F034(0.0002f);
-                *(float*)((char*)player + 0xAD0) = 3.0f;
+                player->mStatus.m2FC = 3.0f;
             }
         }
     }

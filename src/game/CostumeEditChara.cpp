@@ -211,7 +211,7 @@ void CostumeEditChara::vf14() {
             for (unsigned int i = 0; i < fn_800119B8(); i++) {
                 chr::CharaEquip_unk* equip = mChara->m680[i];
                 if (equip != 0) {
-                    *(unsigned int*)((char*)equip + 0x28) &= ~0x80000;
+                    equip->m024.mFlags &= ~0x80000;
                 }
             }
             atn::Model::Float4_unk color;
