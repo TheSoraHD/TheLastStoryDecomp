@@ -1,0 +1,375 @@
+diff --git a/config/SLSP01/symbols.txt b/config/SLSP01/symbols.txt
+index c6050fb..7afa3a9 100644
+--- a/config/SLSP01/symbols.txt
++++ b/config/SLSP01/symbols.txt
+@@ -22441,61 +22441,61 @@ sTimes__Q22MP16D2AMpMenuSetRule = .rodata:0x807595E0; // type:object size:0x10 d
+ @2783 = .rodata:0x807595F0; // type:object size:0x8 scope:local align:8 data:double
+ lbl_807595F8 = .rodata:0x807595F8; // type:object size:0x15 data:string
+ @stringBase0 = .rodata:0x80759610; // type:object size:0xDA scope:local data:string_table
+-@18172 = .rodata:0x807596F0; // type:object size:0x28 scope:local data:4byte
+-@18180 = .rodata:0x80759718; // type:object size:0x28 scope:local data:4byte
+-@44706 = .rodata:0x80759740; // type:object size:0x8 scope:local align:8 data:double
+-@44707 = .rodata:0x80759748; // type:object size:0x8 scope:local align:8 data:double
++@18184 = .rodata:0x807596F0; // type:object size:0x28 scope:local data:4byte
++@18192 = .rodata:0x80759718; // type:object size:0x28 scope:local data:4byte
++@44764 = .rodata:0x80759740; // type:object size:0x8 scope:local align:8 data:double
++@44765 = .rodata:0x80759748; // type:object size:0x8 scope:local align:8 data:double
+ lbl_80759750 = .rodata:0x80759750; // type:object size:0x1D data:string
+ lbl_80759770 = .rodata:0x80759770; // type:object size:0x20 data:string
+ lbl_80759790 = .rodata:0x80759790; // type:object size:0x20 data:string
+ lbl_807597B0 = .rodata:0x807597B0; // type:object size:0x24 data:string
+ lbl_807597D4 = .rodata:0x807597D4; // type:object size:0x1B data:string
+ lbl_807597F0 = .rodata:0x807597F0; // type:object size:0x1E data:string
+-@13478 = .rodata:0x80759810; // type:object size:0xD data:string
+-@13479 = .rodata:0x80759820; // type:object size:0xD data:string
+-@13480 = .rodata:0x80759830; // type:object size:0xD data:string
+-@13481 = .rodata:0x80759840; // type:object size:0xD data:string
+-@13482 = .rodata:0x80759850; // type:object size:0xD data:string
+-@13483 = .rodata:0x80759860; // type:object size:0xD data:string
+-@13484 = .rodata:0x80759870; // type:object size:0xD data:string
+-@13485 = .rodata:0x80759880; // type:object size:0xD data:string
+-@13486 = .rodata:0x80759890; // type:object size:0xD data:string
+-@13487 = .rodata:0x807598A0; // type:object size:0xD data:string
+-@13488 = .rodata:0x807598B0; // type:object size:0xD data:string
+-@13489 = .rodata:0x807598C0; // type:object size:0xD data:string
+-@13490 = .rodata:0x807598D0; // type:object size:0xD data:string
+-@13491 = .rodata:0x807598E0; // type:object size:0xD data:string
+-@13492 = .rodata:0x807598F0; // type:object size:0xD data:string
+-@13493 = .rodata:0x80759900; // type:object size:0xD data:string
+-@13494 = .rodata:0x80759910; // type:object size:0xD data:string
+-@13495 = .rodata:0x80759920; // type:object size:0xD data:string
+-@13496 = .rodata:0x80759930; // type:object size:0xD data:string
+-@13497 = .rodata:0x80759940; // type:object size:0xD data:string
+-@13498 = .rodata:0x80759950; // type:object size:0xD data:string
+-@13499 = .rodata:0x80759960; // type:object size:0xD data:string
+-@13500 = .rodata:0x80759970; // type:object size:0xD data:string
+-@13501 = .rodata:0x80759980; // type:object size:0xD data:string
+-@13502 = .rodata:0x80759990; // type:object size:0xD data:string
+-@13503 = .rodata:0x807599A0; // type:object size:0xD data:string
+-@13504 = .rodata:0x807599B0; // type:object size:0xD data:string
+-@13505 = .rodata:0x807599C0; // type:object size:0xD data:string
+-@13506 = .rodata:0x807599D0; // type:object size:0xD data:string
+-@13507 = .rodata:0x807599E0; // type:object size:0xD data:string
+-@13508 = .rodata:0x807599F0; // type:object size:0xD data:string
+-@13509 = .rodata:0x80759A00; // type:object size:0xD data:string
+-@13510 = .rodata:0x80759A10; // type:object size:0xD data:string
+-@13511 = .rodata:0x80759A20; // type:object size:0xD data:string
+-@13512 = .rodata:0x80759A30; // type:object size:0xD data:string
+-@13513 = .rodata:0x80759A40; // type:object size:0xD data:string
+-@13514 = .rodata:0x80759A50; // type:object size:0xD data:string
+-@13515 = .rodata:0x80759A60; // type:object size:0xD data:string
+-@13516 = .rodata:0x80759A70; // type:object size:0xD data:string
+-@13517 = .rodata:0x80759A80; // type:object size:0xD data:string
+-@13518 = .rodata:0x80759A90; // type:object size:0xD data:string
+-@13519 = .rodata:0x80759AA0; // type:object size:0xD data:string
+-@13520 = .rodata:0x80759AB0; // type:object size:0xD data:string
+-@13521 = .rodata:0x80759AC0; // type:object size:0xD data:string
+-@13522 = .rodata:0x80759AD0; // type:object size:0xD data:string
++@13486 = .rodata:0x80759810; // type:object size:0xD data:string
++@13487 = .rodata:0x80759820; // type:object size:0xD data:string
++@13488 = .rodata:0x80759830; // type:object size:0xD data:string
++@13489 = .rodata:0x80759840; // type:object size:0xD data:string
++@13490 = .rodata:0x80759850; // type:object size:0xD data:string
++@13491 = .rodata:0x80759860; // type:object size:0xD data:string
++@13492 = .rodata:0x80759870; // type:object size:0xD data:string
++@13493 = .rodata:0x80759880; // type:object size:0xD data:string
++@13494 = .rodata:0x80759890; // type:object size:0xD data:string
++@13495 = .rodata:0x807598A0; // type:object size:0xD data:string
++@13496 = .rodata:0x807598B0; // type:object size:0xD data:string
++@13497 = .rodata:0x807598C0; // type:object size:0xD data:string
++@13498 = .rodata:0x807598D0; // type:object size:0xD data:string
++@13499 = .rodata:0x807598E0; // type:object size:0xD data:string
++@13500 = .rodata:0x807598F0; // type:object size:0xD data:string
++@13501 = .rodata:0x80759900; // type:object size:0xD data:string
++@13502 = .rodata:0x80759910; // type:object size:0xD data:string
++@13503 = .rodata:0x80759920; // type:object size:0xD data:string
++@13504 = .rodata:0x80759930; // type:object size:0xD data:string
++@13505 = .rodata:0x80759940; // type:object size:0xD data:string
++@13506 = .rodata:0x80759950; // type:object size:0xD data:string
++@13507 = .rodata:0x80759960; // type:object size:0xD data:string
++@13508 = .rodata:0x80759970; // type:object size:0xD data:string
++@13509 = .rodata:0x80759980; // type:object size:0xD data:string
++@13510 = .rodata:0x80759990; // type:object size:0xD data:string
++@13511 = .rodata:0x807599A0; // type:object size:0xD data:string
++@13512 = .rodata:0x807599B0; // type:object size:0xD data:string
++@13513 = .rodata:0x807599C0; // type:object size:0xD data:string
++@13514 = .rodata:0x807599D0; // type:object size:0xD data:string
++@13515 = .rodata:0x807599E0; // type:object size:0xD data:string
++@13516 = .rodata:0x807599F0; // type:object size:0xD data:string
++@13517 = .rodata:0x80759A00; // type:object size:0xD data:string
++@13518 = .rodata:0x80759A10; // type:object size:0xD data:string
++@13519 = .rodata:0x80759A20; // type:object size:0xD data:string
++@13520 = .rodata:0x80759A30; // type:object size:0xD data:string
++@13521 = .rodata:0x80759A40; // type:object size:0xD data:string
++@13522 = .rodata:0x80759A50; // type:object size:0xD data:string
++@13523 = .rodata:0x80759A60; // type:object size:0xD data:string
++@13524 = .rodata:0x80759A70; // type:object size:0xD data:string
++@13525 = .rodata:0x80759A80; // type:object size:0xD data:string
++@13526 = .rodata:0x80759A90; // type:object size:0xD data:string
++@13527 = .rodata:0x80759AA0; // type:object size:0xD data:string
++@13528 = .rodata:0x80759AB0; // type:object size:0xD data:string
++@13529 = .rodata:0x80759AC0; // type:object size:0xD data:string
++@13530 = .rodata:0x80759AD0; // type:object size:0xD data:string
+ lbl_80759AE0 = .rodata:0x80759AE0; // type:object size:0x30
+ lbl_80759B10 = .rodata:0x80759B10; // type:object size:0x10 data:string
+ lbl_80759B20 = .rodata:0x80759B20; // type:object size:0x10 data:string
+@@ -22503,7 +22503,7 @@ lbl_80759B30 = .rodata:0x80759B30; // type:object size:0x10 data:string
+ lbl_80759B40 = .rodata:0x80759B40; // type:object size:0xD data:string
+ lbl_80759B50 = .rodata:0x80759B50; // type:object size:0xC data:string
+ lbl_80759B5C = .rodata:0x80759B5C; // type:object size:0xF data:string
+-@11987 = .rodata:0x80759B6C; // type:object size:0x68 scope:local data:4byte
++@11995 = .rodata:0x80759B6C; // type:object size:0x68 scope:local data:4byte
+ lbl_80759BD4 = .rodata:0x80759BD4; // type:object size:0x54 data:4byte
+ lbl_80759C28 = .rodata:0x80759C28; // type:object size:0x40 data:4byte
+ lbl_80759C68 = .rodata:0x80759C68; // type:object size:0x18 data:4byte
+@@ -22511,7 +22511,7 @@ lbl_80759C80 = .rodata:0x80759C80; // type:object size:0x20 data:4byte
+ lbl_80759CA0 = .rodata:0x80759CA0; // type:object size:0x10 data:4byte
+ lbl_80759CB0 = .rodata:0x80759CB0; // type:object size:0x10 data:4byte
+ lbl_80759CC0 = .rodata:0x80759CC0; // type:object size:0x8 align:8 data:double
+-@17026 = .rodata:0x80759CC8; // type:object size:0x68 scope:local data:4byte
++@17038 = .rodata:0x80759CC8; // type:object size:0x68 scope:local data:4byte
+ lbl_80759D30 = .rodata:0x80759D30; // type:object size:0x74
+ lbl_80759DA4 = .rodata:0x80759DA4; // type:object size:0xE data:string
+ lbl_80759DB4 = .rodata:0x80759DB4; // type:object size:0x26 data:string
+@@ -26724,12 +26724,12 @@ jumptable_807910B0 = .data:0x807910B0; // type:object size:0x20 scope:local
+ jumptable_807910D0 = .data:0x807910D0; // type:object size:0xBC scope:local
+ lbl_80791190 = .data:0x80791190; // type:object size:0x18 data:4byte
+ lbl_807911A8 = .data:0x807911A8; // type:object size:0xC data:4byte
+-@52790 = .data:0x807911B4; // type:object size:0x58 scope:local
+-@54005 = .data:0x8079120C; // type:object size:0xA4 scope:local
+-@55464 = .data:0x807912B0; // type:object size:0x2C scope:local
+-@55797 = .data:0x807912DC; // type:object size:0x104 scope:local
+-@57230 = .data:0x807913E0; // type:object size:0x58 scope:local
+-@57570 = .data:0x80791438; // type:object size:0x58 scope:local
++@52856 = .data:0x807911B4; // type:object size:0x58 scope:local
++@54071 = .data:0x8079120C; // type:object size:0xA4 scope:local
++@55530 = .data:0x807912B0; // type:object size:0x2C scope:local
++@55863 = .data:0x807912DC; // type:object size:0x104 scope:local
++@57296 = .data:0x807913E0; // type:object size:0x58 scope:local
++@57636 = .data:0x80791438; // type:object size:0x58 scope:local
+ jumptable_80791490 = .data:0x80791490; // type:object size:0x2C scope:local
+ jumptable_807914BC = .data:0x807914BC; // type:object size:0xB0 scope:local
+ __vt__Q22MP17Chara<9EnemyTask> = .data:0x80791570; // type:object size:0xF8
+@@ -29738,11 +29738,11 @@ lbl_807C8AB0 = .bss:0x807C8AB0; // type:object size:0x18 align:4 data:float
+ @LOCAL@assign_to<PFQ23atn6SpherePv_PQ23atn5Scene>__Q25boost62function2<PQ23atn5Scene,Q23atn6Sphere,Pv,Q23std12allocator<v>>FPFQ23atn6SpherePv_PQ23atn5Scene_v@stored_vtable = .bss:0x807C8AC8; // type:object size:0x8 data:4byte
+ @347 = .bss:0x807C8AD0; // type:object size:0xC scope:local
+ @348 = .bss:0x807C8ADC; // type:object size:0xC scope:local
+-@11442 = .bss:0x807C8AE8; // type:object size:0xC scope:local
+-@11891 = .bss:0x807C8AF4; // type:object size:0xC scope:local
+-@11892 = .bss:0x807C8B00; // type:object size:0x10 scope:local
++@11450 = .bss:0x807C8AE8; // type:object size:0xC scope:local
++@11899 = .bss:0x807C8AF4; // type:object size:0xC scope:local
++@11900 = .bss:0x807C8B00; // type:object size:0x10 scope:local
+ lbl_807C8B10 = .bss:0x807C8B10; // type:object size:0x438 data:4byte
+-@11898 = .bss:0x807C8F48; // type:object size:0x20 scope:local
++@11906 = .bss:0x807C8F48; // type:object size:0x20 scope:local
+ lbl_807C8F68 = .bss:0x807C8F68; // type:object size:0xC
+ lbl_807C8F74 = .bss:0x807C8F74; // type:object size:0xC
+ @1256 = .bss:0x807C8F80; // type:object size:0xC scope:local
+@@ -39493,15 +39493,15 @@ lbl_808874B4 = .sdata2:0x808874B4; // type:object size:0x4 align:4 data:float
+ @2538 = .sdata2:0x80887564; // type:object size:0x4 scope:local align:4 data:float
+ @2562 = .sdata2:0x80887568; // type:object size:0x4 scope:local align:4 data:float
+ @2851 = .sdata2:0x8088756C; // type:object size:0x4 scope:local align:4 data:float
+-@44694 = .sdata2:0x80887570; // type:object size:0x4 scope:local align:4 data:float
+-@44695 = .sdata2:0x80887574; // type:object size:0x4 scope:local align:4 data:float
+-@44696 = .sdata2:0x80887578; // type:object size:0x4 scope:local align:4 data:float
+-@44697 = .sdata2:0x8088757C; // type:object size:0x4 scope:local align:4 data:float
+-@44698 = .sdata2:0x80887580; // type:object size:0x4 scope:local align:4 data:float
+-@44699 = .sdata2:0x80887584; // type:object size:0x4 scope:local align:4 data:float
+-@44700 = .sdata2:0x80887588; // type:object size:0x4 scope:local align:4 data:float
+-@44701 = .sdata2:0x8088758C; // type:object size:0x4 scope:local align:4 data:float
+-@45101 = .sdata2:0x80887590; // type:object size:0x4 scope:local align:4 data:float
++@44752 = .sdata2:0x80887570; // type:object size:0x4 scope:local align:4 data:float
++@44753 = .sdata2:0x80887574; // type:object size:0x4 scope:local align:4 data:float
++@44754 = .sdata2:0x80887578; // type:object size:0x4 scope:local align:4 data:float
++@44755 = .sdata2:0x8088757C; // type:object size:0x4 scope:local align:4 data:float
++@44756 = .sdata2:0x80887580; // type:object size:0x4 scope:local align:4 data:float
++@44757 = .sdata2:0x80887584; // type:object size:0x4 scope:local align:4 data:float
++@44758 = .sdata2:0x80887588; // type:object size:0x4 scope:local align:4 data:float
++@44759 = .sdata2:0x8088758C; // type:object size:0x4 scope:local align:4 data:float
++@45167 = .sdata2:0x80887590; // type:object size:0x4 scope:local align:4 data:float
+ lbl_80887594 = .sdata2:0x80887594; // type:object size:0x4 data:4byte
+ lbl_80887598 = .sdata2:0x80887598; // type:object size:0x4 data:4byte
+ lbl_8088759C = .sdata2:0x8088759C; // type:object size:0x4 data:4byte
+@@ -39509,56 +39509,56 @@ lbl_808875A0 = .sdata2:0x808875A0; // type:object size:0x4 data:4byte
+ lbl_808875A4 = .sdata2:0x808875A4; // type:object size:0x4 data:4byte
+ lbl_808875A8 = .sdata2:0x808875A8; // type:object size:0x4 data:4byte
+ lbl_808875AC = .sdata2:0x808875AC; // type:object size:0x4 data:4byte
+-@45149 = .sdata2:0x808875B0; // type:object size:0x4 scope:local align:4 data:float
+-@45150 = .sdata2:0x808875B4; // type:object size:0x4 scope:local align:4 data:float
+-@45480 = .sdata2:0x808875B8; // type:object size:0x4 scope:local align:4 data:float
+-@45481 = .sdata2:0x808875BC; // type:object size:0x4 scope:local align:4 data:float
+-@45482 = .sdata2:0x808875C0; // type:object size:0x4 scope:local align:4 data:float
+-@45483 = .sdata2:0x808875C4; // type:object size:0x4 scope:local align:4 data:float
+-@45484 = .sdata2:0x808875C8; // type:object size:0x4 scope:local align:4 data:float
+-@46145 = .sdata2:0x808875CC; // type:object size:0x4 scope:local align:4 data:float
+-@46932 = .sdata2:0x808875D0; // type:object size:0x4 scope:local align:4 data:float
+-@46933 = .sdata2:0x808875D4; // type:object size:0x4 scope:local align:4 data:float
+-@46934 = .sdata2:0x808875D8; // type:object size:0x4 scope:local align:4 data:float
+-@48826 = .sdata2:0x808875DC; // type:object size:0x4 scope:local align:4 data:float
++@45215 = .sdata2:0x808875B0; // type:object size:0x4 scope:local align:4 data:float
++@45216 = .sdata2:0x808875B4; // type:object size:0x4 scope:local align:4 data:float
++@45546 = .sdata2:0x808875B8; // type:object size:0x4 scope:local align:4 data:float
++@45547 = .sdata2:0x808875BC; // type:object size:0x4 scope:local align:4 data:float
++@45548 = .sdata2:0x808875C0; // type:object size:0x4 scope:local align:4 data:float
++@45549 = .sdata2:0x808875C4; // type:object size:0x4 scope:local align:4 data:float
++@45550 = .sdata2:0x808875C8; // type:object size:0x4 scope:local align:4 data:float
++@46211 = .sdata2:0x808875CC; // type:object size:0x4 scope:local align:4 data:float
++@46998 = .sdata2:0x808875D0; // type:object size:0x4 scope:local align:4 data:float
++@46999 = .sdata2:0x808875D4; // type:object size:0x4 scope:local align:4 data:float
++@47000 = .sdata2:0x808875D8; // type:object size:0x4 scope:local align:4 data:float
++@48892 = .sdata2:0x808875DC; // type:object size:0x4 scope:local align:4 data:float
+ lbl_808875E0 = .sdata2:0x808875E0; // type:object size:0x2 data:string
+ lbl_808875E4 = .sdata2:0x808875E4; // type:object size:0x2 data:string
+ lbl_808875E8 = .sdata2:0x808875E8; // type:object size:0x2 data:string
+ lbl_808875EC = .sdata2:0x808875EC; // type:object size:0x2 data:string
+ lbl_808875F0 = .sdata2:0x808875F0; // type:object size:0x2 data:string
+ lbl_808875F4 = .sdata2:0x808875F4; // type:object size:0x2 data:string
+-@49518 = .sdata2:0x808875F8; // type:object size:0x4 scope:local align:4 data:float
+-@50528 = .sdata2:0x808875FC; // type:object size:0x4 scope:local align:4 data:float
+-@50529 = .sdata2:0x80887600; // type:object size:0x4 scope:local align:4 data:float
+-@59661 = .sdata2:0x80887604; // type:object size:0x4 scope:local align:4 data:float
+-@56876 = .sdata2:0x80887608; // type:object size:0x4 scope:local align:4 data:float
+-@54179 = .sdata2:0x8088760C; // type:object size:0x4 scope:local align:4 data:float
+-@54180 = .sdata2:0x80887610; // type:object size:0x4 scope:local align:4 data:float
+-@54181 = .sdata2:0x80887614; // type:object size:0x4 scope:local align:4 data:float
+-@54182 = .sdata2:0x80887618; // type:object size:0x4 scope:local align:4 data:float
+-@55962 = .sdata2:0x8088761C; // type:object size:0x4 scope:local align:4 data:float
+-@55963 = .sdata2:0x80887620; // type:object size:0x4 scope:local align:4 data:float
+-@55964 = .sdata2:0x80887624; // type:object size:0x4 scope:local align:4 data:float
+-@56147 = .sdata2:0x80887628; // type:object size:0x4 scope:local align:4 data:float
+-@56148 = .sdata2:0x8088762C; // type:object size:0x4 scope:local align:4 data:float
+-@56862 = .sdata2:0x80887630; // type:object size:0x4 scope:local align:4 data:float
+-@56863 = .sdata2:0x80887634; // type:object size:0x4 scope:local align:4 data:float
+-@59659 = .sdata2:0x80887638; // type:object size:0x4 scope:local align:4 data:float
+-@59660 = .sdata2:0x8088763C; // type:object size:0x4 scope:local align:4 data:float
+-@60923 = .sdata2:0x80887640; // type:object size:0x4 scope:local align:4 data:float
+-@60924 = .sdata2:0x80887644; // type:object size:0x4 scope:local align:4 data:float
+-@60925 = .sdata2:0x80887648; // type:object size:0x4 scope:local align:4 data:float
+-@60926 = .sdata2:0x8088764C; // type:object size:0x4 scope:local align:4 data:float
+-@61531 = .sdata2:0x80887650; // type:object size:0x4 scope:local align:4 data:float
+-@61532 = .sdata2:0x80887654; // type:object size:0x4 scope:local align:4 data:float
+-@61533 = .sdata2:0x80887658; // type:object size:0x4 scope:local align:4 data:float
+-@61534 = .sdata2:0x8088765C; // type:object size:0x4 scope:local align:4 data:float
+-@61535 = .sdata2:0x80887660; // type:object size:0x4 scope:local align:4 data:float
+-@61536 = .sdata2:0x80887664; // type:object size:0x4 scope:local align:4 data:float
+-@61537 = .sdata2:0x80887668; // type:object size:0x4 scope:local align:4 data:float
+-@61538 = .sdata2:0x8088766C; // type:object size:0x4 scope:local align:4 data:float
+-@61539 = .sdata2:0x80887670; // type:object size:0x4 scope:local align:4 data:float
+-@61540 = .sdata2:0x80887674; // type:object size:0x4 scope:local align:4 data:float
++@49584 = .sdata2:0x808875F8; // type:object size:0x4 scope:local align:4 data:float
++@50594 = .sdata2:0x808875FC; // type:object size:0x4 scope:local align:4 data:float
++@50595 = .sdata2:0x80887600; // type:object size:0x4 scope:local align:4 data:float
++@59727 = .sdata2:0x80887604; // type:object size:0x4 scope:local align:4 data:float
++@56942 = .sdata2:0x80887608; // type:object size:0x4 scope:local align:4 data:float
++@54245 = .sdata2:0x8088760C; // type:object size:0x4 scope:local align:4 data:float
++@54246 = .sdata2:0x80887610; // type:object size:0x4 scope:local align:4 data:float
++@54247 = .sdata2:0x80887614; // type:object size:0x4 scope:local align:4 data:float
++@54248 = .sdata2:0x80887618; // type:object size:0x4 scope:local align:4 data:float
++@56028 = .sdata2:0x8088761C; // type:object size:0x4 scope:local align:4 data:float
++@56029 = .sdata2:0x80887620; // type:object size:0x4 scope:local align:4 data:float
++@56030 = .sdata2:0x80887624; // type:object size:0x4 scope:local align:4 data:float
++@56213 = .sdata2:0x80887628; // type:object size:0x4 scope:local align:4 data:float
++@56214 = .sdata2:0x8088762C; // type:object size:0x4 scope:local align:4 data:float
++@56928 = .sdata2:0x80887630; // type:object size:0x4 scope:local align:4 data:float
++@56929 = .sdata2:0x80887634; // type:object size:0x4 scope:local align:4 data:float
++@59725 = .sdata2:0x80887638; // type:object size:0x4 scope:local align:4 data:float
++@59726 = .sdata2:0x8088763C; // type:object size:0x4 scope:local align:4 data:float
++@60989 = .sdata2:0x80887640; // type:object size:0x4 scope:local align:4 data:float
++@60990 = .sdata2:0x80887644; // type:object size:0x4 scope:local align:4 data:float
++@60991 = .sdata2:0x80887648; // type:object size:0x4 scope:local align:4 data:float
++@60992 = .sdata2:0x8088764C; // type:object size:0x4 scope:local align:4 data:float
++@61597 = .sdata2:0x80887650; // type:object size:0x4 scope:local align:4 data:float
++@61598 = .sdata2:0x80887654; // type:object size:0x4 scope:local align:4 data:float
++@61599 = .sdata2:0x80887658; // type:object size:0x4 scope:local align:4 data:float
++@61600 = .sdata2:0x8088765C; // type:object size:0x4 scope:local align:4 data:float
++@61601 = .sdata2:0x80887660; // type:object size:0x4 scope:local align:4 data:float
++@61602 = .sdata2:0x80887664; // type:object size:0x4 scope:local align:4 data:float
++@61603 = .sdata2:0x80887668; // type:object size:0x4 scope:local align:4 data:float
++@61604 = .sdata2:0x8088766C; // type:object size:0x4 scope:local align:4 data:float
++@61605 = .sdata2:0x80887670; // type:object size:0x4 scope:local align:4 data:float
++@61606 = .sdata2:0x80887674; // type:object size:0x4 scope:local align:4 data:float
+ @6588 = .sdata2:0x80887678; // type:object size:0x4 scope:local align:4 data:float
+ @6589 = .sdata2:0x8088767C; // type:object size:0x4 scope:local align:4 data:float
+ sPath = .sdata2:0x80887680; // type:object size:0x4 scope:local data:4byte
+diff --git a/src/atn/PacketPack.cpp b/src/atn/PacketPack.cpp
+index e5d7b2f..d24be63 100644
+--- a/src/atn/PacketPack.cpp
++++ b/src/atn/PacketPack.cpp
+@@ -54,6 +54,10 @@ extern "C" long long fn_804CF194() {
+     return OSGetTime();
+ }
+ 
++// inferred: unpacks a rate packed in a byte (fn_804CF374)
++static inline float PPUnpackRate_unk(unsigned char v) {
++    return v / 255.0f;
++}
+ // NONMATCHING: 99.37% - FPRs of the two frame differences
+ // inferred: applies a packed motion state to slot `index` of a model
+ extern "C" void fn_804CF198(const PackedMotion_unk* in, atn::Model* model, int index) {
+@@ -78,9 +82,9 @@ extern "C" void fn_804CF198(const PackedMotion_unk* in, atn::Model* model, int i
+         }
+     }
+     slots->mSlots[index].mSpeed = speed;
+-    slots->mSlots[index].m10 = in->m04 / 255.0f;
+-    slots->mSlots[index].m14 = in->m05 / 255.0f;
+-    slots->mSlots[index].m20 = in->m06 / 255.0f;
++    slots->mSlots[index].m10 = PPUnpackRate_unk(in->m04);
++    slots->mSlots[index].m14 = PPUnpackRate_unk(in->m05);
++    slots->mSlots[index].m20 = PPUnpackRate_unk(in->m06);
+ }
+ 
+ // inferred: packs the motion state of slot `index` of a model
+@@ -233,6 +237,10 @@ static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in)
+ // the inlined searches
+ // inferred: applies the packed state of a character (fn_804CF468): part, state, values mFB8/mFBC, hit, flags,
+ // the status bits of m13 (each one with its effect of the battle), the motion mode and the targets
++// inferred: conversion of a packed value
++static inline float PPToFloat_unk(unsigned short v) {
++    return v;
++}
+ extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
+     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 10) {
+         return;
+@@ -245,9 +253,9 @@ extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
+         }
+     }
+     chara->fn_8016E970((unsigned short)in->m04);
+-    chara->mFB8 = in->m08;
+-    chara->mFBC = in->m0A;
+     chara->m560 = (unsigned short)in->m06;
++    chara->mFB8 = PPToFloat_unk(in->m08);
++    chara->mFBC = PPToFloat_unk(in->m0A);
+     chara->SetHit_unk(in->m0C > 0 ? fn_80219E6C(in->m0C) : 0);
+     if (!chara->mStatus.IsState_unk(0x20)) {
+         chara->mFlag5 = in->m12_7 == 1;
+@@ -5136,6 +5144,15 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr);
+ // NONMATCHING: 98.90% - registers of the inlined searches fn_804DD158 and of the loops (own/counter, aid/index)
+ // inferred: on the server: keeps the flags and m00B0 of every slot (mD4/mD8), fn_804DDA04, fn_804DD574 for the hosts
+ // whose slot has no m00B0, fn_804DCA54 and the state of its own slot (mode 2) to everybody
++// inferred: fn_804DD574 for the hosts whose slot has no m00B0; name invented
++static inline void PPStartHosts_unk(PPManager2_unk* mgr) {
++    for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
++        PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(i));
++        if (player != 0 && player->mFlags.mActive == 1 && player->mB0 == -1) {
++            fn_804DD574(mgr, player->mAid, 0);
++        }
++    }
++}
+ extern "C" int fn_804DDFFC(PPManager2_unk* mgr) {
+     if (IsServer_unk() == 1) {
+         fn_804E9360(mgr);
+@@ -5146,12 +5163,7 @@ extern "C" int fn_804DDFFC(PPManager2_unk* mgr) {
+             player->mD8 = player->mB0;
+         }
+         fn_804DDA04(mgr);
+-        for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
+-            PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(i));
+-            if (player != 0 && player->mFlags.mActive == 1 && player->mB0 == -1) {
+-                fn_804DD574(mgr, player->mAid, 0);
+-            }
+-        }
++        PPStartHosts_unk(mgr);
+         fn_804DCA54(mgr);
+         fn_804D824C(mgr, own, 2);
+         fn_804AE3BC()->fn_8050DDDC(-1, 1);
