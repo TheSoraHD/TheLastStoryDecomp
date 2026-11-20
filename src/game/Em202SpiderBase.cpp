@@ -180,7 +180,6 @@ Em202SpiderBase::Em202SpiderBase(atn::Task* parent, EnemyInfo_unk* info)
 
 Em202SpiderBase::~Em202SpiderBase() {}
 
-// NONMATCHING: 99.92% - push_back registers (known open case) and the pool of __allocate (lbl_80775A88)
 int Em202SpiderBase::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15A4.IsLoading() == 0 &&
         m1520.IsLoading() == 0 && m14DC.IsLoading() == 0 && m15BC.fn_80473F50() == 0) {

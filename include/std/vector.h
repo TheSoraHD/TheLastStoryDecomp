@@ -488,7 +488,7 @@ public:
     typedef unsigned int size_type;
     vector() {}
     // declared only (boost::offset_separator, never used by the game)
-    vector(size_type n, const T& value);
+    vector(size_type, const T&);
     // inferred: weak copy 0x8032B6F8 (float elements)
     explicit vector(size_type n);
     void __init_n_unk(size_type n);
@@ -525,13 +525,14 @@ public:
     // small out-of-class helpers: a function that is not declared inline is still inlined by
     // `-inline auto` when it has at most about 13 statements, and its literals go to the file pool
     // (the three "vector length error" messages share one address, as in the original).
-    // NONMATCHING (weak copy 0x800DB3EC, compiled standalone): only the fast path differs, the
-    // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
-    // the comparison reversed, if/else forms and a helper for the length check.
+    // NONMATCHING (weak copy 0x800DB3EC, 98.7%): the original copies the float element as a word
+    // (lwz/stwx); the size/capacity registers come out right through __push_unk (see its comment).
     void push_back(const T& x);
-    void __push_back_slow_unk(const T& x);
-    bool __expand_by_unk(size_type n);
-    void __insert_realloc_unk(size_type n, const T& x);
+    void __push_unk(size_type, const T&);
+    void __expand_by_cap_unk(size_type, size_type);
+    void __push_back_slow_unk(const T&);
+    bool __expand_by_unk(size_type);
+    void __insert_realloc_unk(size_type, const T&);
     // inferred: erase of a POD element, moving the next ones with memmove (inlined in
     // Event::Manager::fn_80485028, 0x80485090)
     T* erase(T* pos) {
@@ -669,6 +670,17 @@ private:
         }
         return cap;
     }
+    // inferred: same as __recommend_ref_unk, from a capacity already read (push_back)
+    size_type __recommend_from_unk(size_type cap, const size_type& n) {
+        if (cap < max_size() / 3) {
+            cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
+        } else if (cap < max_size() / 3 * 2) {
+            cap += __vec_max_unk(size_type((cap + 1) / 2), n);
+        } else {
+            cap = max_size();
+        }
+        return cap;
+    }
     // inferred: growth without the length checks; push_back computes it once for one element and drops the
     // result (dead code that stays when push_back is inlined into a large function, CrowdManager 0x801EB188)
     size_type __recommend_unk(size_type n) {
@@ -782,20 +794,41 @@ struct __vec_grow_sel_unk<float> {
     }
 };
 
+// inferred: expand_by with the capacity already read by push_back (its growth is dead code; n is taken by
+// reference, so it keeps a stack slot in some copies, MapPartsBase push_back<atn::AABB_unk>)
+template <class T>
+void vector<T>::__expand_by_cap_unk(size_type n, size_type c) {
+    if (n > max_size() - c) {
+        __msl_error("vector length error");
+    }
+    __recommend_from_unk(c, n);
+}
+
+// inferred: the size is read in push_back and the capacity one inline level below, and the length check of
+// the growth uses that capacity: with the size and the capacity in the same function (or the capacity
+// re-read by the check, a common subexpression) the registers of the two come out swapped either in the
+// inlined copies (~73 sites, ChaserNpc::ChaserNpc 0x801805A4) or in the weak copies (0x800DB3EC)
 template <class T>
 void vector<T>::push_back(const T& x) {
     size_type n = this->mSize;
-    if (n < this->mCap) {
+    this->__push_unk(n, x);
+}
+
+template <class T>
+void vector<T>::__push_unk(size_type n, const T& x) {
+    size_type c = this->mCap;
+    if (n < c) {
         this->__push_fast_unk(n, x);
         return;
     }
-    __push_back_slow_unk(x);
+    __expand_by_cap_unk(1, c);
+    __insert_realloc_unk(1, x);
 }
 
-// inferred: slow path of push_back (0x805428A8; Event/Manager fn_80481B9C calls expand_by 0x8049003C, construct
-// 0x80482400 and realloc 0x80490098). The size is incremented after the call (0x804823C0); it fits in the
-// budget of the constructor of atn::RenderManager (0x800BC874) since the dead loop of ~__vec_split_unk is
-// out of line
+// inferred: slow path of the push_back specializations of include/Event/EventVector_unk.h and src/Event/Manager.cpp
+// (0x805428A8; Event/Manager fn_80481B9C calls expand_by 0x8049003C, construct 0x80482400 and realloc
+// 0x80490098). The size is incremented after the call (0x804823C0); it fits in the budget of the constructor
+// of atn::RenderManager (0x800BC874) since the dead loop of ~__vec_split_unk is out of line
 template <class T>
 void vector<T>::__push_back_slow_unk(const T& x) {
     if (__expand_by_unk(1)) {

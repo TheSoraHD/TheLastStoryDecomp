@@ -69,8 +69,6 @@ ChaserNpc* ChaserNpc::fn_8018059C() {
     return sInstance;
 }
 
-// NONMATCHING: 99.9% - the message of vector::__allocate is lbl_80775A88 (a pool of another file)
-// and the inlined vector::push_back loads the capacity before the size.
 ChaserNpc::ChaserNpc(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14C0(-1), m14C4(1.0f), m14C8(0), m14CC(0), m14D0(0) {
     atn::Csv csv(info->m2C, strlen(info->m2C));

@@ -5193,8 +5193,6 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
 }
 
 // inferred: HUD notice about a character: characters of kind 3 are added to the list m30C
-// NONMATCHING: 99.8% - size and capacity of the inlined push_back fast path in swapped registers (r7/r6 in the
-// original; known residue of std/vector.h, docs/mwcc-blockers.md)
 void GameUI::fn_803E2110(int index, CharaTask* chara) {
     if (chara->mType == 3) {
         GameUIListEntry_unk e = {index, chara};
