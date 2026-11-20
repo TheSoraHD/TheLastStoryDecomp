@@ -1778,15 +1778,15 @@ int ControlAbsorbedHP::vf0C() {
 
 inline ControlAbsorbedHPReleased::ControlAbsorbedHPReleased(Chara_unk* chara) : ControlBase(chara) {
     chara->SetControlId_unk(0x83);
-    Motion_unk* m = &mChara->mMotion;
+    // inferred: through the accessor (as the ctors of chr/ControlJumpAt.h); &mChara->mMotion puts the boost
+    // node of vf10 in another register
+    Motion_unk* m = mChara->GetModel_unk();
     m->m34C = 1;
     m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, 0x229, 0, 0, 1, 0.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 99.85% - the boost node of the Released branch gets r29 (r30 in the original, the register of
-// `next`)
 boost::function<void()> ControlAbsorbedHP::vf10() const {
     if (mCount > 0) {
         atn::Vector3 dir(0.0f, 0.0f, -1.0f);
