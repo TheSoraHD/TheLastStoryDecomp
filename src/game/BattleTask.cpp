@@ -289,7 +289,7 @@ BattleTask::BattleTask(atn::Task* parent)
       m38A34(0.0f), m38A38(1.5f), m38A3C(1.0f), m38A40(1.0f), m38A44(0.006f), m38A48(0.01f), m38A4C(0.05f),
       m38A50(0.012f), m38A54(0.005f), m38C74(0), m38C78(0.0f), m38C7C(0.0f), m38C80(0.0f), m38C84(0.0f),
       m38C88(0.0f), m38C8C(1.0f), m3E2E0(0), m3E2E4(0), m3E2E8(0), m3E2EC(0), m3E2F8(0), m3E2FC(0.1f), m3E300(0),
-      mStunCount(0), m3E390(0), m3E394(0), m3E398(0), m3E39C(0), m3E3A0(4.0f), m3E3A4(0.1f), m3E3A8(6.0f) {
+      m3E390(0), m3E394(0), m3E398(0), m3E39C(0), m3E3A0(4.0f), m3E3A4(0.1f), m3E3A8(6.0f) {
     SkillEffectManager::fn_8059AB98(this);
     fn_8054A6E8(this);
     LogMessageTask::fn_80478714(this);
@@ -753,7 +753,7 @@ void BattleTask::fn_800F3D28() {
     }
     mCharaCount = 0;
     mTimers.mCount = 0;
-    mStunCount = 0;
+    mStuns.clear();
     for (int i = 0; i < 8; i++) {
         mSlots[i].mChara = 0;
         mSlots[i].mUsed = 0;
@@ -4527,7 +4527,8 @@ void BattleTask::fn_8010337C(CharaTask* chara, CharaTask* other) {
     }
 }
 
-// NONMATCHING: 99.5% - registers of the index of `other` and of the count base swapped
+// inferred: value of fn_801083D8 of the entry of `chara` for `other`, or its average over the entries without bit 0
+// of the flags when `chara` has no entry
 int BattleTask::fn_80103484(CharaTask* chara, CharaTask* other) {
     int b;
     int a = FindChara_unk(chara);
@@ -4542,15 +4543,14 @@ int BattleTask::fn_80103484(CharaTask* chara, CharaTask* other) {
         }
         return entry->fn_801083D8(b);
     }
-    BattleChara_unk* entry = mCharas;
     int sum = 0;
     int count = 0;
     for (int i = 0; i < mCharaCount; i++) {
-        if ((entry->mChara->mFlags & 1) != 1) {
-            sum += entry->fn_801083D8(b);
+        BattleChara_unk& e = mCharas[i];
+        if ((e.mChara->mFlags & 1) != 1) {
+            sum += e.fn_801083D8(b);
             count++;
         }
-        entry++;
     }
     if (count > 0) {
         return sum / count;
@@ -5871,7 +5871,7 @@ void BattleTask::fn_80108C10(DamageResult_unk* damage, const atn::Vector3& pos, 
     }
     wchar_t text[32];
     memset(text, 0, sizeof(text));
-    swprintf(text, 32, L"%d", value);
+    swprintf(text, 32, L"%d\0", value);
     lbl_8087F8A8->fn_8054D794(recover, text, &pos, 0, flags, damage->m10, damage->m0C != 0, attacker, chara, big,
                               damage->m14, damage->m18);
 }
@@ -6360,46 +6360,30 @@ void BattleTask::fn_8010A308(const atn::Vector3* from, const atn::Vector3* to, f
     }
 }
 
-// inferred: push_back of mStuns (inlined); name invented
-inline void PushStun_unk(BattleTask* mgr, const BattleStun_unk& stun) {
-    new (&mgr->mStuns[mgr->mStunCount]) BattleStun_unk(stun);
-    mgr->mStunCount++;
-}
-
 // inferred: plays an EFP effect at the model with a scale (inlined); name invented
 inline void PlayEfpScaled_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, lbl_807C7030, lbl_807C7030, EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1,
                 -1, 1, scale);
 }
 
-// inferred: removes an entry of mStuns (inlined); name invented
-inline void EraseStun_unk(BattleTask* mgr, BattleStun_unk* it) {
-    for (unsigned int i = it - mgr->mStuns; i < mgr->mStunCount - 1; i++) {
-        mgr->mStuns[i] = mgr->mStuns[i + 1];
-    }
-    mgr->mStunCount--;
-}
-
-// NONMATCHING: 95.7% - the original reloads mStunCount for the push after storing the new entry; the height is loaded in
-// the other register order; string pool offsets differ (file not complete)
 // inferred: the character becomes stunned: restarts its timer if it is in mStuns, else adds it, starts the first
 // effect of its row, shows the popup over its neck and counts the stuns of the players (global flag 0x442). called
 // by game/CharaTask.cpp
 void BattleTask::fn_8010A4A8(CharaTask* chara) {
-    for (unsigned int i = 0; i < mStunCount; i++) {
-        if (mStuns[i].mChara == chara) {
-            mStuns[i].mTimer = 1;
+    for (unsigned int i = 0; i < mStuns.size(); i++) {
+        if (mStuns.mData[i].mChara == chara) {
+            mStuns.mData[i].mTimer = 1;
             return;
         }
     }
-    if (mStunCount >= 4) {
+    if (mStuns.size() >= 4) {
         return;
     }
     BattleStun_unk stun;
     stun.mChara = chara;
     stun.mTimer = 1;
     stun.mStarted = 0;
-    PushStun_unk(this, stun);
+    mStuns.push_back(stun);
     bool enemy;
     if (lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
         enemy = !chara->fn_8016F3D0(lbl_8087F8A0->mHead, 1);
@@ -6419,11 +6403,11 @@ void BattleTask::fn_8010A4A8(CharaTask* chara) {
     e.m60.x = 0.0f;
     e.m60.y = 3.0f;
     e.m60.z = 0.0f;
-    atn::Model* model = fn_800F84C8(chara);
-    e.mB0 = model->GetNodeMtx_unk("neck");
+    e.mB0 = fn_800F84C8(chara)->GetNodeMtx_unk("neck");
     if (e.mB0 == 0) {
         e.mB0 = chara->mMotion.mMtx.m;
-        e.m60.y += chara->m5B4;
+        float h = chara->m5B4;
+        e.m60.y += h;
     }
     e.m04 = 40.0f;
     e.m78 = enemy ? 0xFF6496E6 : 0xFFFF2020;
@@ -6437,8 +6421,8 @@ void BattleTask::fn_8010A4A8(CharaTask* chara) {
 // inferred: counts down the timed effects of mStuns: starts the loop effect once, and at the end stops it, plays
 // the end effect and removes the entry. The effects of the enemies of the player use the second row
 void BattleTask::fn_8010A868() {
-    BattleStun_unk* it = mStuns;
-    while (it != mStuns + mStunCount) {
+    BattleStun_unk* it = mStuns.begin();
+    while (it != mStuns.end()) {
         bool enemy;
         if (lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
             enemy = !it->mChara->fn_8016F3D0(lbl_8087F8A0->mHead, 1);
@@ -6455,7 +6439,7 @@ void BattleTask::fn_8010A868() {
             fn_80239DAC(lbl_8087F3C0, (unsigned int)it->mChara, 0x3EA, 0);
             fn_800F7FA8(fn_800F7FA0(), 0, 0);
             PlayEfpScaled_unk(&mStunEfp[row][2], fn_800F84C8(it->mChara), scale);
-            EraseStun_unk(this, it);
+            mStuns.erase(it);
         } else {
             it->mTimer--;
             if (it->mStarted == 0 && fn_80239D58(lbl_8087F3C0, it->mChara, 0x3E9) == 0) {
