@@ -5,8 +5,8 @@
 // Event::Channel, labels and sections of Event::Cut, cuts of Event::Sequence). Their push_back differs from
 // the generic one of std/vector.h: the original keeps max_size() in a register and divides it at run time
 // (a local of the growth), keeps an unreachable copy of the fast path after the length check of expand_by,
-// moves the old elements comparing first < last and destroys the buffer element by element one inline
-// level below its destructor. The destroy loop of their destructors is also one level below
+// moves the old elements comparing first < last and destroys the buffer element by element three inline
+// levels below its destructor. The destroy loop of their destructors is also one level below
 // __vec_storage_unk::__shrink_unk (Event::Channel::~Channel 0x8053AD50, Event::Cut::~Cut). Each user .cpp
 // includes this header first and specializes vector<T>::__push_unk and __vec_storage_unk<T>::__shrink_unk
 // for its element types with the helpers below (an explicit specialization here would take @N labels in
@@ -31,7 +31,7 @@ struct __vec_split_gbase_unk<boost::shared_ptr<T> > {
             ::operator delete(mData);
         }
     }
-    void __shrink_unk(unsigned int newSize) { __vec_sp_unk<E>::__shrink_loop2_unk(mData, mSize, newSize); }
+    void __shrink_unk(unsigned int newSize) { __vec_sp_unk<E>::__shrink_buf_unk(mData, mSize, newSize); }
     E* mData;
     unsigned int mSize;
     unsigned int mCap;
@@ -44,7 +44,7 @@ struct __vec_split_unk<boost::shared_ptr<T> > : public __vec_split_gbase_unk<boo
     __vec_split_unk(void* alloc) : __vec_split_gbase_unk<E>(alloc), mStart(0) {}
     ~__vec_split_unk() { __destroy_front_unk(); }
     void __destroy_front_unk() {
-        __vec_sp_unk<E>::__destroy_range_unk(begin(), begin() + this->mSize);
+        __vec_sp_unk<E>::__destroy_front_unk(begin(), begin() + this->mSize);
         this->mSize = 0;
     }
     enum { __clear_src_unk = 0 };
@@ -80,16 +80,21 @@ struct __vec_sp_unk {
             p->~T();
         }
     }
-    // inferred: destroy loop of the reallocation buffer
-    static void __shrink_loop2_unk(T* data, unsigned int& size, unsigned int newSize) {
+    // inferred: destroy loop of the reallocation buffer, three levels below its destructor; the end pointer
+    // is computed by the caller and the count in the loop function (register order of the loop)
+    static void __shrink_buf_unk(T* data, unsigned int& size, unsigned int newSize) { __shrink_buf2_unk(data, size, newSize); }
+    static void __shrink_buf2_unk(T* data, unsigned int& size, unsigned int newSize) {
+        __destroy_back_unk(data + size, size, newSize);
+    }
+    static void __destroy_back_unk(T* p, unsigned int& size, unsigned int newSize) {
         unsigned int n = size - newSize;
-        T* p = data + size;
         size -= n;
         for (; n != 0; n--) {
             --p;
             p->~T();
         }
     }
+    static void __destroy_front_unk(T* first, T* last) { __destroy_range_unk(first, last); }
     static void __destroy_range_unk(T* first, T* last) {
         while (last > first) {
             (--last)->~T();
