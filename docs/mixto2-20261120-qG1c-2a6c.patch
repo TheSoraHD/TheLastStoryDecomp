@@ -1,0 +1,80 @@
+diff --git a/src/game/GameUI.cpp b/src/game/GameUI.cpp
+index b4d0519..b94f3f5 100644
+--- a/src/game/GameUI.cpp
++++ b/src/game/GameUI.cpp
+@@ -1704,11 +1704,10 @@ void GameUI::fn_803D2A6C() {
+         m870->FreezeTask();
+     }
+     if (m848[0] != 0) {
+-        atn::D2A_Task* mark = static_cast<atn::D2A_Task*>(m848[0]);
+-        if (mark->IsFrozen_unk()) {
+-            mark->Rewind_unk();
++        if (static_cast<atn::D2A_Task*>(m848[0])->IsFrozen_unk()) {
++            static_cast<atn::D2A_Task*>(m848[0])->Rewind_unk();
+         }
+-        mark->FreezeTask();
++        static_cast<atn::D2A_Task*>(m848[0])->FreezeTask();
+         for (int i = 0; i < 4; i++) {
+             static_cast<GameUIInst_unk*>(m848[i + 1])->Rewind_unk();
+             m848[i + 1]->FreezeTask();
+@@ -1935,13 +1934,12 @@ void GameUI::fn_803D2A6C() {
+                     pos.y += 2.0f;
+                     atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
+                     if (screen.z >= 0.0f && screen.z <= 1.0f) {
+-                        atn::D2A_Task* mark = static_cast<atn::D2A_Task*>(m848[0]);
+-                        mark->MeltTask();
+-                        if (mark->IsEnd_unk()) {
+-                            mark->SetFrame_unk(5.0f);
++                        static_cast<atn::D2A_Task*>(m848[0])->MeltTask();
++                        if (static_cast<atn::D2A_Task*>(m848[0])->IsEnd_unk()) {
++                            static_cast<atn::D2A_Task*>(m848[0])->SetFrame_unk(5.0f);
+                         }
+-                        mark->SetLayoutValue_unk("base_point", 0, screen.x);
+-                        mark->SetLayoutValue_unk("base_point", 1, screen.y);
++                        static_cast<atn::D2A_Task*>(m848[0])->SetLayoutValue_unk("base_point", 0, screen.x);
++                        static_cast<atn::D2A_Task*>(m848[0])->SetLayoutValue_unk("base_point", 1, screen.y);
+                     }
+                 }
+                 // inferred: markers over the other characters near the leader
+@@ -1956,10 +1954,9 @@ void GameUI::fn_803D2A6C() {
+                             pos.y += 2.0f;
+                             atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
+                             if (screen.z >= 0.0f && screen.z <= 1.0f) {
+-                                GameUIInst_unk* mark = static_cast<GameUIInst_unk*>(m848[i + 1]);
+-                                mark->MeltTask();
+-                                mark->SetValue1_unk("base_point", 0, screen.x);
+-                                mark->SetValue1_unk("base_point", 1, screen.y);
++                                static_cast<GameUIInst_unk*>(m848[i + 1])->MeltTask();
++                                static_cast<GameUIInst_unk*>(m848[i + 1])->SetValue1_unk("base_point", 0, screen.x);
++                                static_cast<GameUIInst_unk*>(m848[i + 1])->SetValue1_unk("base_point", 1, screen.y);
+                             }
+                         }
+                     }
+@@ -1993,21 +1990,19 @@ void GameUI::fn_803D2A6C() {
+                         }
+                     }
+                     if (bestIndex >= 0) {
+-                        atn::D2A_Task* mark = static_cast<atn::D2A_Task*>(m874[0]);
+-                        mark->MeltTask();
++                        static_cast<atn::D2A_Task*>(m874[0])->MeltTask();
+                         atn::Vector3 screen = fn_8008B964()->GetScreenPosition(targets[bestIndex].mPos);
+-                        mark->SetLayoutValue_unk("base_point", 0, screen.x);
+-                        mark->SetLayoutValue_unk("base_point", 1, screen.y);
++                        static_cast<atn::D2A_Task*>(m874[0])->SetLayoutValue_unk("base_point", 0, screen.x);
++                        static_cast<atn::D2A_Task*>(m874[0])->SetLayoutValue_unk("base_point", 1, screen.y);
+                         aim->SetTarget_unk(targets[bestIndex].mChara);
+                     }
+                     int count = 0;
+                     for (unsigned int i = 0; i < fn_80372574(&targets); i++) {
+                         if (bestIndex != i) {
+-                            GameUIInst_unk* mark = static_cast<GameUIInst_unk*>(m874[count + 1]);
+-                            mark->MeltTask();
++                            static_cast<GameUIInst_unk*>(m874[count + 1])->MeltTask();
+                             atn::Vector3 screen = fn_8008B964()->GetScreenPosition(targets[i].mPos);
+-                            mark->SetValue1_unk("base_point", 0, screen.x);
+-                            mark->SetValue1_unk("base_point", 1, screen.y);
++                            static_cast<GameUIInst_unk*>(m874[count + 1])->SetValue1_unk("base_point", 0, screen.x);
++                            static_cast<GameUIInst_unk*>(m874[count + 1])->SetValue1_unk("base_point", 1, screen.y);
+                             count++;
+                         }
+                         if (count >= 4) {

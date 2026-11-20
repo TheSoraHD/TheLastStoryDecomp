@@ -1,0 +1,79 @@
+diff --git a/include/game/GameUI.h b/include/game/GameUI.h
+index 1cb5018..1c96414 100644
+--- a/include/game/GameUI.h
++++ b/include/game/GameUI.h
+@@ -8,6 +8,7 @@
+ #include "game/CharaStatus.h"
+ #include "game/ResHandle.h"
+ #include "math/Vec.h"
++#include "atn/Color.h"
+ #include "std/string.h"
+ #include "std/vector.h"
+ 
+@@ -582,12 +583,12 @@ public:
+     GameUIColor_unk m26F8;
+     GameUIColor_unk m2708;
+     GameUIColor_unk m2718;
+-    GameUIColor_unk m2728;
+-    GameUIColor_unk m2738;
+-    GameUIColor_unk m2748;
+-    GameUIColor_unk m2758;
+-    GameUIColor_unk m2768;
+-    GameUIColor_unk m2778;
++    atn::Color m2728;
++    atn::Color m2738;
++    atn::Color m2748;
++    atn::Color m2758;
++    atn::Color m2768;
++    atn::Color m2778;
+     GameUIDistList_unk m2788; // 0x2788: inferred: enemies sorted by distance (fn_803E4A5C)
+     GameUIColor_unk m288C;
+     GameUIColor_unk m289C;
+diff --git a/src/game/GameUI.cpp b/src/game/GameUI.cpp
+index b4d0519..0536dcf 100644
+--- a/src/game/GameUI.cpp
++++ b/src/game/GameUI.cpp
+@@ -275,7 +275,7 @@ GameUI::GameUI(atn::Task* parent)
+     : atn::Task(parent), m48(0.0f), m4C(-1.0f), m834(0), mD84(0), mD88(0),
+       mD8C(0), mDA4(0), mDA8(0), mDAC(0), mDB0(0), mDC8(0), m1118(0), m1130(0), m1140(0), m1144(0), m1148(0), m114C(0), m1150(0), m1154(0), m1170(0), m15B4(0), m15B8(0),
+       m253C(0), m2540(0), m254C(0), m255C(-1), m2560(0.0f), m2658(0), mSeState(0), mSeMask(0), m2668(1.0f), m266C(0.07f), m2670(5.0f), m2674(3000.0f),
+-      m2678(128, 128, 128, 255), m2688(10, 10, 128, 255), m2698(128, 128, 128, 255), m26A8(10, 10, 255, 255), m26B8(0, 0, 0, 255), m26C8(19, 59, 23, 255), m26D8(220, 220, 200, 255), m26E8(250, 150, 90, 255), m26F8(140, 170, 220, 255), m2708(60, 100, 70, 255), m2718(250, 240, 130, 255), m2728(255, 180, 0, 0), m2738(0, 180, 80, 0), m2748(255, 100, 100, 0), m2758(90, 90, 90, 0), m2768(50, 20, 90, 0), m2778(150, 100, 200, 0), m288C(255, 255, 255, 0), m289C(85, 112, 206, 255) {
++      m2678(128, 128, 128, 255), m2688(10, 10, 128, 255), m2698(128, 128, 128, 255), m26A8(10, 10, 255, 255), m26B8(0, 0, 0, 255), m26C8(19, 59, 23, 255), m26D8(220, 220, 200, 255), m26E8(250, 150, 90, 255), m26F8(140, 170, 220, 255), m2708(60, 100, 70, 255), m2718(250, 240, 130, 255), m2728(255 / 255.0f, 180 / 255.0f, 0 / 255.0f, 0 / 255.0f), m2738(0 / 255.0f, 180 / 255.0f, 80 / 255.0f, 0 / 255.0f), m2748(255 / 255.0f, 100 / 255.0f, 100 / 255.0f, 0 / 255.0f), m2758(90 / 255.0f, 90 / 255.0f, 90 / 255.0f, 0 / 255.0f), m2768(50 / 255.0f, 20 / 255.0f, 90 / 255.0f, 0 / 255.0f), m2778(150 / 255.0f, 100 / 255.0f, 200 / 255.0f, 0 / 255.0f), m288C(255, 255, 255, 0), m289C(85, 112, 206, 255) {
+     m2788.mCount = 0;
+     for (int i = 0; i < 6; i++) {
+         m318[i].mInst[0] = 0;
+@@ -5331,8 +5331,8 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int
+         int seconds = fn_803CE854(frames);
+         int sub = fn_803CE8A8(frames);
+         GameUIInst_unk* point = mA90[mA8C];
+-        GameUISmallInst_unk* giga = AsSmallInst_unk(mAB8[mA8C]);
+-        GameUISmallInst_unk* gauge = AsSmallInst_unk(mAE0[mA8C]);
++        GameUISmallInst_unk* giga = static_cast<GameUISmallInst_unk*>(mAB8[mA8C]);
++        GameUISmallInst_unk* gauge = static_cast<GameUISmallInst_unk*>(mAE0[mA8C]);
+         point->MeltTask();
+         point->SetValue1_unk("basePoint", 0, pos.x);
+         point->SetValue1_unk("basePoint", 1, pos.y);
+@@ -5348,7 +5348,7 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int
+         bool lit = false;
+         bool many = false;
+         int max = (seconds > 12 ? 12 : seconds) < 0 ? 0 : (seconds > 12 ? 12 : seconds);
+-        GameUIColor_unk color;
++        atn::Color color;
+         if (kind == 0) {
+             lit = true;
+             if (count > 1) {
+@@ -5374,11 +5374,11 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int
+         } else if (kind == 4) {
+             color = m2778;
+         } else if (kind == 5) {
+-            color = GameUIColor_unk(240, 0, 0, 255);
++            color = atn::Color(240 / 255.0f, 0 / 255.0f, 0 / 255.0f, 255 / 255.0f);
+         } else {
+-            color = GameUIColor_unk(240, 170, 0, 255);
++            color = atn::Color(240 / 255.0f, 170 / 255.0f, 0 / 255.0f, 255 / 255.0f);
+         }
+-        SetInstColorU_unk(point, "baseColor", color);
++        point->SetColor255_unk("baseColor", color);
+         point->SetValue0_unk("colOn", 0.0f);
+         point->SetValue0_unk("colR", 255.0f * color.r);
+         point->SetValue0_unk("colG", 255.0f * color.g);
