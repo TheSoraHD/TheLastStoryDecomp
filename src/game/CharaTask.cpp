@@ -11359,9 +11359,6 @@ int CharaTask::fn_80179AB4() {
     return m60 != 0 ? fn_80208748(m60->m10) : 0;
 }
 
-// NONMATCHING: ~16% by line (132/157, same instructions) - the original unrolls the equipment loop with
-// one pointer to m680[1] (offsets 4..0x18), ours advances a base by 8; tried int/unsigned index, a
-// local copy, a pointer loop (not unrolled), peeling element 0.
 // inferred: sets or clears model flags on the model, the weapons, the equipment and the items
 void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
     if (clear) {
@@ -11372,9 +11369,10 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
                 m64C->m014 &= ~mask;
             }
         }
-        for (int i = 0; i < 8; i++) {
-            if (m680[i] != 0) {
-                m680[i]->m024.mFlags &= ~mask;
+        chr::CharaEquip_unk** equip = m680;
+        for (int i = 0; i < 8; i++, equip++) {
+            if (*equip != 0) {
+                (*equip)->m024.mFlags &= ~mask;
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
@@ -11388,9 +11386,10 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
                 m64C->m014 |= mask;
             }
         }
-        for (int i = 0; i < 8; i++) {
-            if (m680[i] != 0) {
-                m680[i]->m024.mFlags |= mask;
+        chr::CharaEquip_unk** equip = m680;
+        for (int i = 0; i < 8; i++, equip++) {
+            if (*equip != 0) {
+                (*equip)->m024.mFlags |= mask;
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
