@@ -34,6 +34,7 @@
 #include "std/locale_facets_unk.h"
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
+#include "game/AiTarget.h"
 
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 
@@ -48,8 +49,6 @@ extern "C" int fn_8004ED34(void* world, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" double sin(double x);
 extern "C" double cos(double x);
-extern "C" void fn_80016888(void* arg);
-extern "C" void* lbl_8087EE68;
 struct GameTask;
 extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
 extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gmk/WindyItem.cpp)
@@ -539,7 +538,7 @@ void GameScene::fn_803C0F48(int warp) {
     lbl_8087F048->fn_800D246C(0);
     EnemyManager::sInstance->vf1C();
     NpcManager::sInstance->vf1C();
-    fn_80016888(lbl_8087EE68);
+    lbl_8087EE68->fn_80016888();
     lbl_8087F8A0->vf1C();
     GimmickManager::instance_->fn_803EE374(0);
     m134->fn_800D246C(0);
@@ -778,6 +777,12 @@ inline int CheckTime_unk(const int* cond) {
     return ok;
 }
 
+// inferred: the map is showing its default camera (an inline bool: the original reloads mDefaultCamera
+// for the call after the comparison)
+static inline bool IsDefaultCamera_unk(const MapTask* map) {
+    return map->mCamera == map->mDefaultCamera;
+}
+
 void GameScene::fn_803C1CAC() {
     CharaTask* leader = GetLeader_unk();
     if (leader == 0) {
@@ -792,7 +797,7 @@ void GameScene::fn_803C1CAC() {
         if (box->m24 != m64->mCamera) {
             m64->fn_804A04AC(box->m24, box->m28, box->m2C, box);
         }
-    } else if (m64->mDefaultCamera != m64->mCamera) {
+    } else if (!IsDefaultCamera_unk(m64)) {
         m64->fn_804A04AC(m64->mDefaultCamera, -1, -1, 0);
     }
 }
@@ -1980,11 +1985,12 @@ extern "C" gs::NpcSetPoint* fn_803C795C(const atn::SimpleArray<gs::NpcSetPoint>*
     return points->mData;
 }
 
-// inferred: clears the run counts and data pointer of a U16Table_unk.
-extern "C" void fn_803C94BC(U16Table_unk* table) {
-    table->mCount = 0;
-    table->mRuns = 0;
-    table->mData = 0;
+// inferred: clears the run counts and data pointer (the constructor passed to the array new of
+// SimpleArray<U16Table_unk>::Resize_unk)
+U16Table_unk::U16Table_unk() {
+    mCount = 0;
+    mRuns = 0;
+    mData = 0;
 }
 
 
