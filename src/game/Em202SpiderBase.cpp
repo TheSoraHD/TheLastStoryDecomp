@@ -992,9 +992,12 @@ void Em202SpiderBase::fn_80287788() {
     fn_800EB7A0();
 }
 
-// NONMATCHING: 99.78% - stack slots of the two differences inside the loop (d at 0x68 instead of 0x50); 8
-// variants
 // inferred: runs to the farthest base point (the points behind the spider count double)
+// inferred: length in the xz plane (as CrabLengthXZ_unk of game/Em308ParmCrab.cpp; name invented)
+inline float SpiderLengthXZ_unk(atn::Vector3 d) {
+    return sqrt(d.x * d.x + d.z * d.z);
+}
+
 void Em202SpiderBase::fn_802878EC(CharaTask* target) {
     if (fn_80287400(target, 12) != 0) {
         return;
@@ -1011,11 +1014,9 @@ void Em202SpiderBase::fn_802878EC(CharaTask* target) {
     float best = 0.0f;
     int place = -1;
     for (unsigned int i = 0; i < m1570.size(); i++) {
-        atn::Vector3 d = m1570[i]->mPos - mPos;
-        float dist = sqrt(d.x * d.x + d.z * d.z);
-        atn::Vector3 dir = (m1570[i]->mPos - mPos).GetNormalize();
-        atn::Vector3 rot = dir.ToRotation_unk();
-        float diff = atn::WrapAngle_unk(rot.y - mRot.y);
+        float dist = SpiderLengthXZ_unk(m1570[i]->mPos - mPos);
+        atn::Vector3 dir = m1570[i]->mPos - mPos;
+        float diff = atn::WrapAngle_unk(dir.GetNormalize().ToRotation_unk().y - mRot.y);
         if (diff > 1.5707964f || diff < -1.5707964f) {
             dist *= 2.0f;
         }
