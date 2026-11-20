@@ -3596,14 +3596,9 @@ int AI::Script::AI_em_scout::vf24() {
     return 1;
 }
 
-// NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
 int AI::Script::AI_em_scout::vf28() {
-    int args[4];
-    args[0] = (int)"CH_PSN_MEET04C";
-    args[1] = 0;
-    args[2] = 0;
-    args[3] = 0;
-    fn_8001AEDC(0x14, &args[0], &args[1], &args[2], &args[3]);
+    const char* name = "CH_PSN_MEET04C";
+    Command_unk(20, (int)name, 0, 0, 0);
     lbl_807C6A40.mValid = 1;
     lbl_807C6A40.m18[3] = 5;
     return 1;
@@ -4915,14 +4910,9 @@ int AI::Script::AI_em_type106::vf24() {
     return 1;
 }
 
-// NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
 int AI::Script::AI_em_type106::vf28() {
-    int args[4];
-    args[0] = (int)"CH_PSN_MEET04C";
-    args[1] = 0;
-    args[2] = 0;
-    args[3] = 0;
-    fn_8001AEDC(0x14, &args[0], &args[1], &args[2], &args[3]);
+    const char* name = "CH_PSN_MEET04C";
+    Command_unk(20, (int)name, 0, 0, 0);
     lbl_807C6A40.mValid = 1;
     lbl_807C6A40.m18[3] = 5;
     return 1;
@@ -6446,7 +6436,6 @@ int AI::Script::AI_fr_sword_pointguard01::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 88.52% - argument-register allocation differs around the AI call.
 int AI::Script::AI_fr_type005::vf08() {
     lbl_807C6A40.m18[0] = 0x2711;
     lbl_807C6A40.m18[1] = 0x32;
@@ -8356,10 +8345,10 @@ int AI::Script::AI_np_type002::vf14() {
     return -1;
 }
 
-// NONMATCHING: 99.06% - pending the string pool (register choice for the literal address).
 int AI::Script::AI_np_type002::vf20() {
     if (lbl_807C68C0.mDone != 0) {
-        Command_unk(20, (int)"CH_ITA01", 0, 0, 0);
+        const char* name = "CH_ITA01";
+        Command_unk(20, (int)name, 0, 0, 0);
         lbl_807C6A40.mValid = 1;
         return 1;
     }
@@ -8532,7 +8521,6 @@ int AI::Script::AI_np_wait_reaction_minus::vf08() {
     return 1;
 }
 
-// NONMATCHING: 99.47% - register choice for the motion name/zero args of command 20 (as AI_np_type002::vf20).
 int AI::Script::AI_np_wait_reaction_minus::vf0C() {
     int result = -1;
     if (lbl_807C6A40.m18[0] < lbl_807C6A40.m18[1]) {
@@ -8541,7 +8529,8 @@ int AI::Script::AI_np_wait_reaction_minus::vf0C() {
     } else if (fn_8001A444(2) <= lbl_807C6A40.m18[4]) {
         if (Distance_unk(lbl_807C68C0.mChara, lbl_807C6B30.m00) < lbl_807C6A40.m18[2]) {
             lbl_807C6A40.m18[0] = 0;
-            Command_unk(20, (int)"CH_AI01", 0, 0, 0);
+            const char* name = "CH_AI01";
+            Command_unk(20, (int)name, 0, 0, 0);
             lbl_807C6A40.mValid = 1;
             result = 11;
         }
@@ -8549,10 +8538,10 @@ int AI::Script::AI_np_wait_reaction_minus::vf0C() {
     return result;
 }
 
-// NONMATCHING: 99.55% - register choice for the motion name/zero args of command 20 (as AI_np_type002::vf20).
 int AI::Script::AI_np_wait_reaction_minus::vf34() {
     if (Distance_unk(lbl_807C68C0.mChara, lbl_807C6B30.m00) < lbl_807C6A40.m18[2] && fn_8001A444(2) <= lbl_807C6A40.m18[4]) {
-        Command_unk(20, (int)"CH_AI01", 0, 0, 0);
+        const char* name = "CH_AI01";
+        Command_unk(20, (int)name, 0, 0, 0);
         lbl_807C6A40.mValid = 1;
         return 11;
     }
