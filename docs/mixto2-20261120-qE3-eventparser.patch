@@ -1,0 +1,144 @@
+diff --git a/src/Event/EventParser_unk.cpp b/src/Event/EventParser_unk.cpp
+index edc8f78..2e6690e 100644
+--- a/src/Event/EventParser_unk.cpp
++++ b/src/Event/EventParser_unk.cpp
+@@ -15,6 +15,123 @@ extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
+ extern "C" bool fn_800696B4();            // inferred: the platform is little endian (game/IffChunkFile_unk)
+ extern "C" void* fn_8006BA8C(const char* path, int* size, int flag); // inferred: loads a file
+ 
++namespace std {
++// inferred: reallocation buffer of the data lists (as __vec_split_unk of std/vector.h)
++template <class T>
++struct __vec_data_split_unk : public __vec_split_gbase_unk<T> {
++    __vec_data_split_unk(void* alloc) : __vec_split_gbase_unk<T>(alloc), mStart(0) {}
++    ~__vec_data_split_unk() {
++        T* first = begin();
++        T* last = first + this->mSize;
++        while (last > first) {
++            (--last)->~T();
++        }
++        this->mSize = 0;
++    }
++    T* begin() { return this->mData + mStart; }
++    static void __destroy_range_unk(T* first, T* last) {
++        while (last > first) {
++            (--last)->~T();
++        }
++    }
++    static void __destroy_range2_unk(T* first, T* last) { __destroy_range_unk(first, last); }
++    void __destroy_front_unk() {
++        T* first = begin();
++        T* last = first + this->mSize;
++        while (last > first) {
++            (--last)->~T();
++        }
++        this->mSize = 0;
++    }
++    void __append_copies_unk(unsigned int n, const T& x) {
++        T* p = mStart + this->mData + this->mSize;
++        for (; n != 0; n--, p++) {
++            new (p) T(x);
++            this->mSize++;
++        }
++    }
++    void __push_front_unk(T* first, T* last) {
++        __push_front_loop_unk(first, last);
++    }
++    void __push_front_loop_unk(T* first, T* last) {
++        T* p = begin();
++        while (last > first) {
++            --p;
++            --last;
++            ((__vec_allocator_unk<T>*)this->mAlloc)->construct(p, *last);
++            mStart--;
++            this->mSize++;
++        }
++    }
++    unsigned int mStart;
++};
++
++// inferred: reallocation of push_back for the data lists, one inline level below (the slots of its growth
++// and of the copy come out reversed otherwise)
++template <class T>
++struct __vec_data_realloc_unk {
++    static void __copy_unk(vector<T>& v, __vec_data_split_unk<T>& buf, unsigned int n, const T& x) {
++        buf.__append_copies_unk(n, x);
++        buf.__push_front_unk(v.mData, v.mData + v.mSize);
++    }
++    static void __alloc_split_unk(vector<T>& v, __vec_data_split_unk<T>& buf, unsigned int n) {
++        unsigned int cap = v.__grow_cap_unk(v.mSize + n - v.mCap);
++        buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
++        buf.mCap = cap;
++        buf.mStart = v.mSize;
++    }
++    static void __realloc_unk(vector<T>& v, unsigned int n, const T& x) {
++        __vec_data_split_unk<T> buf(&v.mCap);
++        __alloc_split_unk(v, buf, n);
++        __copy_unk(v, buf, n, x);
++        __vec_swap_unk(v.mCap, buf.mCap);
++        __vec_swap_unk(v.mData, buf.mData);
++        __vec_swap_unk(v.mSize, buf.mSize);
++    }
++    static void __swap_unk(vector<T>& v, __vec_data_split_unk<T>& buf) {
++        __vec_swap_unk(v.mCap, buf.mCap);
++        __vec_swap_unk(v.mData, buf.mData);
++        __vec_swap_unk(v.mSize, buf.mSize);
++    }
++};
++template <>
++inline void vector<Event::MotionData>::__insert_realloc_unk(size_type n, const Event::MotionData& x) {
++    __vec_data_realloc_unk<Event::MotionData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::AnimationData>::__insert_realloc_unk(size_type n, const Event::AnimationData& x) {
++    __vec_data_realloc_unk<Event::AnimationData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::EffectData>::__insert_realloc_unk(size_type n, const Event::EffectData& x) {
++    __vec_data_realloc_unk<Event::EffectData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::ModelData>::__insert_realloc_unk(size_type n, const Event::ModelData& x) {
++    __vec_data_realloc_unk<Event::ModelData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::DummyData>::__insert_realloc_unk(size_type n, const Event::DummyData& x) {
++    __vec_data_realloc_unk<Event::DummyData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::StringData>::__insert_realloc_unk(size_type n, const Event::StringData& x) {
++    __vec_data_realloc_unk<Event::StringData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::CameraData>::__insert_realloc_unk(size_type n, const Event::CameraData& x) {
++    __vec_data_realloc_unk<Event::CameraData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::PoseData>::__insert_realloc_unk(size_type n, const Event::PoseData& x) {
++    __vec_data_realloc_unk<Event::PoseData>::__realloc_unk(*this, n, x);
++}
++template <>
++inline void vector<Event::MovieData>::__insert_realloc_unk(size_type n, const Event::MovieData& x) {
++    __vec_data_realloc_unk<Event::MovieData>::__realloc_unk(*this, n, x);
++}
++} // namespace std
++
+ namespace Event {
+ 
+ // inferred: declared inline in Event/Action.h
+@@ -280,9 +397,14 @@ inline Path::Path(Sequence* owner, const char* name, int id) : CommonData(owner,
+ inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m24(0) {}
+ 
+ // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
++template <class T>
++static inline void PushBack_unk(std::vector<T>& list, const T& x) {
++    list.push_back(x);
++}
++
+ template <class T>
+ T* DataList_unk<T>::Add_unk(const char* name, int arg) {
+-    this->push_back(T(mOwner, name, arg));
++    PushBack_unk(*this, T(mOwner, name, arg));
+     return &this->back();
+ }
+ 

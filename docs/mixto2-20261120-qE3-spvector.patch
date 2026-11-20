@@ -1,0 +1,189 @@
+diff --git a/include/Event/EventSpVector_unk.h b/include/Event/EventSpVector_unk.h
+index 9ff64b5..7d43656 100644
+--- a/include/Event/EventSpVector_unk.h
++++ b/include/Event/EventSpVector_unk.h
+@@ -31,7 +31,7 @@ struct __vec_split_gbase_unk<boost::shared_ptr<T> > {
+             ::operator delete(mData);
+         }
+     }
+-    void __shrink_unk(unsigned int newSize) { __vec_sp_unk<E>::__shrink_loop2_unk(mData, mSize, newSize); }
++    void __shrink_unk(unsigned int newSize) { __vec_sp_unk<E>::__shrink_buf_unk(mData, mSize, newSize); }
+     E* mData;
+     unsigned int mSize;
+     unsigned int mCap;
+@@ -44,7 +44,7 @@ struct __vec_split_unk<boost::shared_ptr<T> > : public __vec_split_gbase_unk<boo
+     __vec_split_unk(void* alloc) : __vec_split_gbase_unk<E>(alloc), mStart(0) {}
+     ~__vec_split_unk() { __destroy_front_unk(); }
+     void __destroy_front_unk() {
+-        __vec_sp_unk<E>::__destroy_range_unk(begin(), begin() + this->mSize);
++        __vec_sp_unk<E>::__destroy_front_unk(begin(), begin() + this->mSize);
+         this->mSize = 0;
+     }
+     enum { __clear_src_unk = 0 };
+@@ -80,16 +80,18 @@ struct __vec_sp_unk {
+             p->~T();
+         }
+     }
+-    // inferred: destroy loop of the reallocation buffer
+-    static void __shrink_loop2_unk(T* data, unsigned int& size, unsigned int newSize) {
+-        unsigned int n = size - newSize;
++    // inferred: destroy loop of the reallocation buffer, two levels below its destructor
++    static void __shrink_buf_loop_unk(T* data, unsigned int& size, unsigned int newSize) {
+         T* p = data + size;
++        unsigned int n = size - newSize;
+         size -= n;
+         for (; n != 0; n--) {
+             --p;
+             p->~T();
+         }
+     }
++    static void __shrink_buf_unk(T* data, unsigned int& size, unsigned int newSize) { __shrink_buf_loop_unk(data, size, newSize); }
++    static void __destroy_front_unk(T* first, T* last) { __destroy_range_unk(first, last); }
+     static void __destroy_range_unk(T* first, T* last) {
+         while (last > first) {
+             (--last)->~T();
+diff --git a/src/Event/Channel.cpp b/src/Event/Channel.cpp
+index 184f658..0877dd6 100644
+--- a/src/Event/Channel.cpp
++++ b/src/Event/Channel.cpp
+@@ -26,9 +26,9 @@ namespace Event {
+ 
+ Channel::Channel(Section* section) : mSection(section), m0C(0), m10(1) {}
+ 
+-// NONMATCHING: 99.7% - push_back through Event/EventSpVector_unk.h; only register numbers left: the
+-// shared_count (&pn, pi) registers of the two destroy loops of the reallocation buffer are swapped and the
+-// original frees the buffer storage through its `this` (lwz r3, 0x0(r30)).
++// NONMATCHING: 99.9% - push_back through Event/EventSpVector_unk.h; only the count and &pn registers of
++// the destroy loop of the base of the reallocation buffer are swapped and the original frees the buffer
++// storage through its `this` (lwz r3, 0x0(r30)).
+ Action* Channel::fn_8053A510(int index) {
+     mActions.push_back(boost::shared_ptr<Action>(new ((MemoryTag)4, "", "", 0) Action(this, index)));
+     return mActions.back().get();
+diff --git a/src/Event/Cut.cpp b/src/Event/Cut.cpp
+index ce1a868..06dafc0 100644
+--- a/src/Event/Cut.cpp
++++ b/src/Event/Cut.cpp
+@@ -54,9 +54,9 @@ int Cut::fn_8053B028() {
+     return mNextCut;
+ }
+ 
+-// NONMATCHING: 99.7% - push_back through Event/EventSpVector_unk.h; only register numbers left: the
+-// shared_count (&pn, pi) registers of the two destroy loops of the reallocation buffer are swapped and the
+-// original frees the buffer storage through its `this` (lwz r3, 0x0(r30)).
++// NONMATCHING: 99.9% - push_back through Event/EventSpVector_unk.h; only the count and &pn registers of
++// the destroy loop of the base of the reallocation buffer are swapped and the original frees the buffer
++// storage through its `this` (lwz r3, 0x0(r30)).
+ Label* Cut::fn_8053B030(int index) {
+     Sequence* sequence = mSequence;
+     if (index == -1) {
+@@ -68,9 +68,9 @@ Label* Cut::fn_8053B030(int index) {
+     return mLabels.back().get();
+ }
+ 
+-// NONMATCHING: 99.7% - push_back through Event/EventSpVector_unk.h; only register numbers left: the
+-// shared_count (&pn, pi) registers of the two destroy loops of the reallocation buffer are swapped and the
+-// original frees the buffer storage through its `this` (lwz r3, 0x0(r30)).
++// NONMATCHING: 99.9% - push_back through Event/EventSpVector_unk.h; only the count and &pn registers of
++// the destroy loop of the base of the reallocation buffer are swapped and the original frees the buffer
++// storage through its `this` (lwz r3, 0x0(r30)).
+ Section* Cut::fn_8053B828(int index) {
+     mSections.push_back(boost::shared_ptr<Section>(new ((MemoryTag)4, "", "", 0) Section(this, index)));
+     return mSections.back().get();
+diff --git a/src/Event/Section.cpp b/src/Event/Section.cpp
+index 06a2991..2afbff9 100644
+--- a/src/Event/Section.cpp
++++ b/src/Event/Section.cpp
+@@ -1,19 +1,36 @@
++#include "Event/EventSpVector_unk.h"
+ #include "Event/Section.h"
+ #include "atn/Memory.h"
+ #include "std/string_members.h"
+ 
++namespace std {
++// inferred: push_back of the channels (see Event/EventSpVector_unk.h)
++template <>
++inline void vector<boost::shared_ptr<Event::Channel> >::__push_unk(size_type n, const boost::shared_ptr<Event::Channel>& x) {
++    size_type c = this->mCap;
++    if (n < c) {
++        this->__push_fast_unk(n, x);
++        return;
++    }
++    __vec_sp_unk<boost::shared_ptr<Event::Channel> >::__push_slow_unk(*this, x);
++}
++// inferred: the elements are destroyed one inline level below (register order of the destroy loop)
++template <>
++inline void __vec_storage_unk<boost::shared_ptr<Event::Channel> >::__shrink_unk(unsigned int newSize) {
++    __vec_sp_unk<boost::shared_ptr<Event::Channel> >::__shrink_loop_unk(*this, newSize);
++}
++} // namespace std
++
+ namespace Event {
+ 
+ Section::Section(Cut* cut, int index) : mCut(cut), m0C(0), m10(0), m14(1) {}
+ 
+-// NONMATCHING: 41.2% - the boost::shared_ptr counts (lwarx/stwcx. of sp_counted_base_cw_ppc.hpp)
+-// now match; what differs is the inlined std::vector::push_back growth path of std/vector.h
+-// (the original keeps max_size() in a register and divides it at run time, and keeps an
+-// unreachable copy of the fast path after the length check).
++// NONMATCHING: 99.9% - push_back through Event/EventSpVector_unk.h; only the count and &pn registers of
++// the destroy loop of the base of the reallocation buffer are swapped and the original frees the buffer
++// storage through its `this` (lwz r3, 0x0(r30)).
+ Channel* Section::fn_8053C788() {
+-    boost::shared_ptr<Channel> channel(new ((MemoryTag)4, "", "", 0) Channel(this));
+-    mChannels.push_back(channel);
+-    return mChannels[mChannels.size() - 1].get();
++    mChannels.push_back(boost::shared_ptr<Channel>(new ((MemoryTag)4, "", "", 0) Channel(this)));
++    return mChannels.back().get();
+ }
+ 
+ // inferred: the reader of the section attributes was stripped by the linker; only its literals are
+diff --git a/src/Event/Sequence.cpp b/src/Event/Sequence.cpp
+index cfc1e04..82a144a 100644
+--- a/src/Event/Sequence.cpp
++++ b/src/Event/Sequence.cpp
+@@ -1,3 +1,4 @@
++#include "Event/EventSpVector_unk.h"
+ // Event/Sequence.cpp (0x8053D0F4-0x80546000): Event::Sequence, the task that owns the cuts and the data
+ // of an event. One TU with the inline virtuals of Event::StringData/DummyData (0x805430E8) and the
+ // template instances emitted after them (vector growth, DataList_unk::SetOwner_unk...).
+@@ -70,6 +71,19 @@ extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: path w
+ extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
+ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
+ 
++namespace std {
++// inferred: push_back of the cuts (see Event/EventSpVector_unk.h)
++template <>
++inline void vector<boost::shared_ptr<Event::Cut> >::__push_unk(size_type n, const boost::shared_ptr<Event::Cut>& x) {
++    size_type c = this->mCap;
++    if (n < c) {
++        this->__push_fast_unk(n, x);
++        return;
++    }
++    __vec_sp_unk<boost::shared_ptr<Event::Cut> >::__push_slow_unk(*this, x);
++}
++} // namespace std
++
+ namespace Event {
+ 
+ // inferred: declared inline in Event/Actor.h
+@@ -806,7 +820,7 @@ void Sequence::fn_805406BC(int keep) {
+     m194 = 4;
+ }
+ 
+-// NONMATCHING: same blocker as Event::Cut::fn_8053B030 (inlined std::vector::push_back growth path)
++// NONMATCHING: 99.9% - same as Event::Cut::fn_8053B030 (registers of the destroy loops of the reallocation buffer)
+ // inferred: appends a new cut, numbered after the highest index
+ Cut* Sequence::fn_80540A08() {
+     int index = 0;
+@@ -815,9 +829,8 @@ Cut* Sequence::fn_80540A08() {
+             index = mB8[i]->mIndex + 1;
+         }
+     }
+-    boost::shared_ptr<Cut> cut(new ((MemoryTag)4, "", "", 0) Cut(this, index));
+-    mB8.push_back(cut);
+-    return mB8[mB8.size() - 1].get();
++    mB8.push_back(boost::shared_ptr<Cut>(new ((MemoryTag)4, "", "", 0) Cut(this, index)));
++    return mB8.back().get();
+ }
+ 
+ // inferred: index of a cut (-1 if missing)
