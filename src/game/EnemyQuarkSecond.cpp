@@ -1456,46 +1456,71 @@ void EnemyQuarkSecond::fn_8033E058() {
     }
 }
 
+// inferred: the motion of track 0 is within `frames` of its end (as EnemyQuarkStand; name invented)
+inline bool QuarkNearEnd_unk(atn::Model* model, float frames) {
+    float end = model->fn_80097D7C(0);
+    bool ok = false;
+    if (model->mTracks[0].m08 >= end - frames) {
+        ok = true;
+    }
+    return ok;
+}
+
+// inferred: turns toward `target` by at most 12 degrees (as EnemyQuarkStand::TurnTo_unk; name invented)
+inline void QuarkTurnTo_unk(EnemyQuarkSecond* self, const atn::Vector3* target) {
+    float rot = (*target - self->mPos).ToRotationZ_unk().y;
+    float d = atn::WrapAngle_unk(rot - self->mRot.y);
+    if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+        self->mRot.y = rot;
+    } else if (d <= 0.0f) {
+        self->mRot.y -= 0.20943952f;
+    } else {
+        self->mRot.y += 0.20943952f;
+    }
+}
+
+// inferred: horizontal and full distance between two points (as EnemyQuarkStand; names invented)
+inline float QuarkDistXZ_unk(const atn::Vector3& to, const atn::Vector3& from) {
+    atn::Vector3 d(to.x - from.x, to.y - from.y, to.z - from.z);
+    return sqrt(d.x * d.x + d.z * d.z);
+}
+inline float QuarkDist_unk(const atn::Vector3& to, const atn::Vector3& from) {
+    atn::Vector3 d = to - from;
+    return PSVECMag(&d);
+}
+
 // inferred: jump step of the stick attack and of the jumps (motions 0x13F rise, 0x140 flight, 0x141 landing): moves
 // along the direction of the jump (m1568) at m570, turns towards `target` and rises `height` over the motion;
 // `flat`: distance in the xz plane. Not a member: a function of the file with the enemy as first argument (name
 // keeps the address)
-// NONMATCHING: 98% - stack slots of the distance vectors and of the landing direction, float registers of the
-// landing; 4 variants
 static void fn_8033E8D4(EnemyQuarkSecond* self, int flat, const atn::Vector3* target, float height) {
-    float dist;
-    if (flat) {
-        dist = fn_801C3910(self->m1568.mTarget - self->mPos);
-    } else {
-        atn::Vector3 d = self->m1568.mTarget - self->mPos;
-        dist = PSVECMag(&d);
-    }
+    float dist = flat != 0 ? QuarkDistXZ_unk(self->m1568.mTarget, self->mPos) : QuarkDist_unk(self->m1568.mTarget, self->mPos);
     float step = QuarkMin_unk(10.0f, dist);
     int motion = self->mMotion.mTracks[0].m00;
     if (motion == 0x13F) {
         self->mMotion.mTracks[0].m0C = 2.0f;
-        if (IsNearEnd_unk(&self->mMotion, 5.0f)) {
+        if (QuarkNearEnd_unk(&self->mMotion, 5.0f)) {
             self->mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 0.0f, 0.1f);
         }
         if (IsFrameReached_unk(&self->mMotion, 15.0f)) {
-            self->m570 = QuarkMin_unk(step, self->m570 + 0.5f);
+            self->m570 = QuarkMin_unk(step, 0.5f + self->m570);
         }
     } else if (motion == 0x140) {
         self->mMotion.mTracks[0].m0C = 1.0f;
         if (dist < 20.0f) {
             self->mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
         }
-        self->m570 = QuarkMin_unk(step, self->m570 + 0.5f);
+        self->m570 = QuarkMin_unk(step, 0.5f + self->m570);
     } else if (motion == 0x141) {
-        float slow = 0.2f * dist;
         self->mMotion.mTracks[0].m0C = 2.0f;
-        atn::Vector3 dir(self->m1568.mTarget.x - self->mPos.x, 0.0f, self->m1568.mTarget.z - self->mPos.z);
-        self->m570 = QuarkMin_unk(step, slow);
+        atn::Vector3 dir = self->m1568.mTarget - self->mPos;
+        dir.y = 0.0f;
+        self->m570 = QuarkMin_unk(step, 0.2f * dist);
         PSVECNormalize(&dir, &dir);
         if (PSVECDotProduct(&dir, &self->m1568.mDir) < 0.0f) {
             self->m570 = 0.0f;
         }
-        if (IsNearEnd_unk(&self->mMotion, 8.0f)) {
+        if (QuarkNearEnd_unk(&self->mMotion, 8.0f)) {
             self->ResetState_unk();
             self->fn_8016E970(3);
             self->m58C = 0;
@@ -1504,15 +1529,7 @@ static void fn_8033E8D4(EnemyQuarkSecond* self, int flat, const atn::Vector3* ta
         }
     }
     if (self->m570 > 0.5f) {
-        float rot = (*target - self->mPos).ToRotationZ_unk().y;
-        float d = atn::WrapAngle_unk(rot - self->mRot.y);
-        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
-            self->mRot.y = rot;
-        } else if (d <= 0.0f) {
-            self->mRot.y -= 0.20943952f;
-        } else {
-            self->mRot.y += 0.20943952f;
-        }
+        QuarkTurnTo_unk(self, target);
     }
     self->mPos += self->m1568.mDir * self->m570;
     self->mPos.y += height / self->mMotion.fn_80097D7C(0);
