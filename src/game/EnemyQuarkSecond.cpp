@@ -1408,54 +1408,6 @@ inline void QuarkSetJumpZ_unk(EnemyQuarkSecond* self, const atn::Vector3& target
     self->m570 = 0.0f;
 }
 
-// inferred: jump attack (state 10): slows the motion around the landing, moves from the start of the jump to its
-// target, follows the target until frame 49 and hits on landing
-// NONMATCHING: 95.6% - stack slots and float registers (the turn target in f31, the copies of the jump target and
-// the order of the loads of the lerp); 6 variants
-void EnemyQuarkSecond::fn_8033E058() {
-    if (IsNearEnd_unk(&mMotion, 5.0f)) {
-        ResetState_unk();
-        fn_8016E970(3);
-        m58C = 0;
-        PlayMotion_unk(2, 1, 1.0f);
-        return;
-    }
-    bool slow = false;
-    if (mMotion.mTracks[0].m08 >= 65.0f && mMotion.mTracks[0].m08 < 67.0f) {
-        slow = true;
-    }
-    if (slow) {
-        mMotion.mTracks[0].m0C = 0.15f;
-    } else {
-        mMotion.mTracks[0].m0C = 2.0f;
-    }
-    ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m1698, 0, mMotion.mTracks[0].m0C);
-    float t = MAX(0.0f, MIN(1.0f, (mMotion.mTracks[0].m08 - 58.0f) / 3.0f));
-    mPos = (m1568.mTarget - m1568.mStart) * t + m1568.mStart;
-    if (mMotion.mTracks[0].m08 <= 49.0f) {
-        CharaTask* c = m14B0;
-        float target = (c->mPos - mPos).ToRotationZ_unk().y;
-        float d = atn::WrapAngle_unk(target - mRot.y);
-        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
-            mRot.y = target;
-        } else if (d <= 0.0f) {
-            mRot.y -= 0.20943952f;
-        } else {
-            mRot.y += 0.20943952f;
-        }
-        atn::Vector3 p = m14B0->mPos;
-        QuarkSetJumpZ_unk(this, p);
-        atn::Vector3 back(0.0f, 0.0f, 45.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', m1568.mRot.y);
-        PSMTXMultVec(m, &back, &back);
-        m1568.mTarget -= back;
-    }
-    if (mMotion.mTracks[0].m08 >= 61.0f && mMotion.mTracks[0].m08 < 65.0f) {
-        lbl_8087F048->fn_800F8C6C(0, 0, this, m14D4, m590, 0.0f, 30, -1);
-    }
-}
-
 // inferred: the motion of track 0 is within `frames` of its end (as EnemyQuarkStand; name invented)
 inline bool QuarkNearEnd_unk(atn::Model* model, float frames) {
     float end = model->fn_80097D7C(0);
@@ -1488,6 +1440,65 @@ inline float QuarkDist_unk(const atn::Vector3& to, const atn::Vector3& from) {
     atn::Vector3 d = to - from;
     return PSVECMag(&d);
 }
+
+// inferred: (b - a) * t + a (as EnemyQuarkStand; name invented)
+inline atn::Vector3 QuarkLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: playing rate of the effects of `efp` (name invented)
+inline void QuarkEffectRate_unk(atn::EfpFile* efp, float rate) {
+    ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)efp, 0, rate);
+}
+
+// inferred: jump attack (state 10): slows the motion around the landing, moves from the start of the jump to its
+// target, follows the target until frame 49 and hits on landing
+// NONMATCHING: 95.6% - stack slots and float registers (the turn target in f31, the copies of the jump target and
+// the order of the loads of the lerp); 6 variants
+void EnemyQuarkSecond::fn_8033E058() {
+    if (QuarkNearEnd_unk(&mMotion, 5.0f)) {
+        ResetState_unk();
+        fn_8016E970(3);
+        m58C = 0;
+        PlayMotion_unk(2, 1, 1.0f);
+        return;
+    }
+    bool slow = false;
+    if (mMotion.mTracks[0].m08 >= 65.0f && mMotion.mTracks[0].m08 < 67.0f) {
+        slow = true;
+    }
+    if (slow) {
+        mMotion.mTracks[0].m0C = 0.15f;
+    } else {
+        mMotion.mTracks[0].m0C = 2.0f;
+    }
+    QuarkEffectRate_unk(&m1698, mMotion.mTracks[0].m0C);
+    float t = MAX(0.0f, MIN(1.0f, (mMotion.mTracks[0].m08 - 58.0f) / 3.0f));
+    mPos = QuarkLerp_unk(m1568.mStart, m1568.mTarget, t);
+    if (mMotion.mTracks[0].m08 <= 49.0f) {
+        CharaTask* c = m14B0;
+        float target = (c->mPos - mPos).ToRotationZ_unk().y;
+        float d = atn::WrapAngle_unk(target - mRot.y);
+        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+            mRot.y = target;
+        } else if (d <= 0.0f) {
+            mRot.y -= 0.20943952f;
+        } else {
+            mRot.y += 0.20943952f;
+        }
+        atn::Vector3 p = m14B0->mPos;
+        QuarkSetJumpZ_unk(this, p);
+        atn::Vector3 back(0.0f, 0.0f, 45.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', m1568.mRot.y);
+        PSMTXMultVec(m, &back, &back);
+        m1568.mTarget -= back;
+    }
+    if (mMotion.mTracks[0].m08 >= 61.0f && mMotion.mTracks[0].m08 < 65.0f) {
+        lbl_8087F048->fn_800F8C6C(0, 0, this, m14D4, m590, 0.0f, 30, -1);
+    }
+}
+
 
 // inferred: jump step of the stick attack and of the jumps (motions 0x13F rise, 0x140 flight, 0x141 landing): moves
 // along the direction of the jump (m1568) at m570, turns towards `target` and rises `height` over the motion;
