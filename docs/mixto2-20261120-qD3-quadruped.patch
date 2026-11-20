@@ -1,0 +1,110 @@
+diff --git a/src/game/QuadrupedTask.cpp b/src/game/QuadrupedTask.cpp
+index 3590357..779d6e8 100644
+--- a/src/game/QuadrupedTask.cpp
++++ b/src/game/QuadrupedTask.cpp
+@@ -503,6 +503,12 @@ void QuadrupedTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
+ // the push of state 1 is scaled by mStatus.fn_8012DB04() (it was missing)
+ // inferred: moves the leopard towards the rotation `target` (as Em403WarLion::fn_80324A38, plus the push
+ // forward of the first 24 frames of the attack)
++static inline int StatusFlag0_unk(const CharaStatus& status) {
++    return status.mParamB.m9C & 1;
++}
++static inline bool NoFlag0_unk(const CharaStatus& status) {
++    return StatusFlag0_unk(status) != 1;
++}
+ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed, float rate) {
+     atn::Vector3 pos(mPos);
+     atn::Vector3 rot(mRot);
+@@ -511,7 +517,7 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+     float cur = rot.y;
+     float turn = m56C;
+     rate *= dt;
+-    float k = 0.75f * atn::Abs_unk(diff / 3.1415927f);
++    float k = atn::Abs_unk(diff / 3.1415927f) * 0.75f;
+     turn *= 1.0f + k;
+     float step = diff * turn;
+     cur += step;
+@@ -534,7 +540,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+         if (angle < 0.0f) {
+             angle = 0.0f;
+         }
+-        speed *= 1.0f - 1.5f * (angle / (1.0f - ofs));
++        angle /= 1.0f - ofs;
++        speed *= 1.0f - 1.5f * angle;
+         if (speed < 0.0f) {
+             speed = 0.0f;
+         }
+@@ -563,14 +570,14 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+     }
+     // inferred: the original tests a default-constructed status here (temporary built and destroyed
+     // around the test), not mStatus
+-    if ((CharaStatus().mParamB.m9C & 1) != 1) {
++    if (NoFlag0_unk(CharaStatus())) {
+         int fps = lbl_8087F0A8->m030;
+         m574.y += dt * (-98.1f / (float)(fps * fps));
+     }
+     move += m6B8;
+     m6B8.x *= 0.8f;
+-    m6B8.y = 0.0f;
+     m6B8.z *= 0.8f;
++    m6B8.y = 0.0f;
+     if (m6B8.Length_unk() < 0.1f) {
+         m6B8.Set_unk(0.0f, 0.0f, 0.0f);
+     }
+@@ -605,7 +612,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+         move.y = 0.0f;
+     }
+     bool landed = false;
+-    if (result.m34 != 0 && *(unsigned int*)result.m34 == 0x1A) {
++    unsigned int* hitType = (unsigned int*)result.m34;
++    if (hitType != 0 && *hitType == 0x1A) {
+         landed = true;
+     }
+     mFlag3 = landed;
+@@ -615,7 +623,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+         lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
+     }
+     lean *= 2.0f;
+-    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
++    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f);
++    m584 *= 0.9f;
+     if ((m54C & 2) == 2 && pos.y < 0.0f) {
+         pos.y = 0.0f;
+     }
+@@ -624,8 +633,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+         mRot = rot;
+     }
+     m574 = move;
+-    m574.z /= dt;
+     m574.x /= dt;
++    m574.z /= dt;
+ }
+ 
+ extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
+@@ -724,21 +733,22 @@ inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
+ 
+ // inferred: turns the neck and the spine with the lean (node pose callback; as in Em403WarLion)
+ // NONMATCHING: 97.62% - same as Em403WarLion::fn_803256F8 (one more saved GPR and order of the quaternions)
++static inline atn::Quaternion_unk QuatRotX_unk(float rad) {
++    return QuatAxis_unk(atn::Vector3(1.0f, 0.0f, 0.0f), rad);
++}
+ void QuadrupedTask::fn_805686F0(atn::MotionBuffer* nodes, int count) {
+     for (int i = 0; i < count; i++) {
+         const char* name = ((ModelNodeDesc_unk*)mMotion.GetRes_unk()->m48[i])->mName;
+         if (strcmp(name, "neck") == 0) {
+             if (m648 == 0) {
+                 atn::Quaternion_unk rot(nodes[i].m10);
+-                atn::Quaternion_unk q = QuatAxis_unk(atn::Vector3(1.0f, 0.0f, 0.0f), m580 - 0.7f * m584);
+-                PSQUATMultiply(&q, &rot, &rot);
++                PSQUATMultiply(&QuatRotX_unk(m580 - 0.7f * m584), &rot, &rot);
+                 nodes[i].m10 = rot;
+             }
+         } else if (strcmp(name, "spine") == 0) {
+             if (m648 == 0 && !mFlag31 && !mFlag6) {
+                 atn::Quaternion_unk rot(nodes[i].m10);
+-                atn::Quaternion_unk q = QuatAxis_unk(atn::Vector3(1.0f, 0.0f, 0.0f), 0.9f * m580 + m584);
+-                PSQUATMultiply(&q, &rot, &rot);
++                PSQUATMultiply(&QuatRotX_unk(0.9f * m580 + m584), &rot, &rot);
+                 nodes[i].m10 = rot;
+             }
+         }
