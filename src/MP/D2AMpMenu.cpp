@@ -1001,6 +1001,9 @@ void D2AMpMenu::fn_804B2934() {
     }
 }
 
+// inferred: typed reference to the network manager (case 12 of vf14 reloads it)
+static inline MpData_unk*& NetManagerRef_unk() { return *(MpData_unk**)&lbl_8087F628; }
+
 // NONMATCHING: 99.7% - case 12 reloads lbl_8087F628 in the original; alpha and the device pointer of the fade
 // get r7/r8 swapped
 // inferred: draw of the menu: shows the windows of the current state, then the fade
@@ -1080,7 +1083,7 @@ void D2AMpMenu::vf14() {
         mB8->mFlags &= ~4;
         if (lbl_8087F628->mC1F8 == 8 || lbl_8087F628->mC1F4 == 1) {
             if (lbl_8087F610->m99EC <= 0) {
-                if (lbl_8087F628->mC0 == 1) {
+                if (NetManagerRef_unk()->mC0 == 1) {
                     m150++;
                 } else {
                     m150 = 0;

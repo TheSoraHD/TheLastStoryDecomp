@@ -4731,6 +4731,9 @@ inline GameUIElem60_unk* GameUIFindWindow_unk(GameUIElem60_unk* windows, CharaTa
 // accessor as if/else and with a result variable
 // inferred: gives a HUD window (mB0) to each friend (up to 6) and, in multiplayer, to each player of the same
 // side, frees the windows of the characters that left and sorts the active windows (m2F0)
+// inferred: typed reference to the session (the loop over its players reloads it)
+static inline GameUISession_unk*& SessionRef_unk() { return *(GameUISession_unk**)&lbl_8087F610; }
+
 void GameUI::fn_803DF648(int arg) {
     FixedArray_unk<CharaTask*, 6> list;
     for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = ((PlayerTask*)c)->mNext) {
@@ -4744,7 +4747,7 @@ void GameUI::fn_803DF648(int arg) {
     }
     if (lbl_8087F610 != 0) {
         for (int i = 0; i < lbl_8087F610->m5E8; i++) {
-            GameUISession_unk* session = lbl_8087F610;
+            GameUISession_unk* session = SessionRef_unk();
             GameUISessionPlayer_unk* p = session->GetPlayer_unk(i);
             if (p != fn_804EB870(session) && p->m00 != 0 && p->mD0_31 == 1 && lbl_8087F8A0 != 0 &&
                 lbl_8087F8A0->mHead != 0 && lbl_8087F8A0->mHead->fn_8016F3D0(p->m00, 1)) {
