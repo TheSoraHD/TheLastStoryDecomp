@@ -1816,56 +1816,6 @@ extern "C" gs::CharaGroup<gs::NpcSetPoint>* fn_803C63C8(
     return groups->mData;
 }
 
-// inferred: data pointer of the warp-point group array.
-extern "C" gs::PointGroup<gs::WarpPoint>* fn_803C68DC(const atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* groups) {
-    return groups->mData;
-}
-
-// inferred: resizes the warp-point group array.
-// NONMATCHING: 99.52% - allocator string relocations and the group constructor relocation differ.
-extern "C" void fn_803C68E4(atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* groups, int size, int heap,
-                            const char* name) {
-    groups->Resize_unk(size, heap, name);
-}
-
-// inferred: grows the warp-point group array.
-// NONMATCHING: 96.22% - allocator/constructor relocations and old/new data register allocation differ.
-extern "C" void fn_803C6990(atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* groups, int size, int heap,
-                            const char* name) {
-    groups->Grow_unk(size, heap, name);
-}
-
-// inferred: indexed access to a warp-point group.
-extern "C" gs::PointGroup<gs::WarpPoint>* fn_803C6AD8(
-    const atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* groups, unsigned int index) {
-    return &groups->mData[index];
-}
-
-// inferred: data pointer of the hide-point group array.
-extern "C" gs::PointGroup<gs::HidePoint>* fn_803C6DD8(const atn::SimpleArray<gs::PointGroup<gs::HidePoint> >* groups) {
-    return groups->mData;
-}
-
-// inferred: resizes the hide-point group array.
-// NONMATCHING: 99.52% - allocator string relocations and the group constructor relocation differ.
-extern "C" void fn_803C6DE0(atn::SimpleArray<gs::PointGroup<gs::HidePoint> >* groups, int size, int heap,
-                            const char* name) {
-    groups->Resize_unk(size, heap, name);
-}
-
-// inferred: grows the hide-point group array.
-// NONMATCHING: 96.22% - allocator/constructor relocations and old/new data register allocation differ.
-extern "C" void fn_803C6E8C(atn::SimpleArray<gs::PointGroup<gs::HidePoint> >* groups, int size, int heap,
-                            const char* name) {
-    groups->Grow_unk(size, heap, name);
-}
-
-// inferred: indexed access to a hide-point group.
-extern "C" gs::PointGroup<gs::HidePoint>* fn_803C6FD4(
-    const atn::SimpleArray<gs::PointGroup<gs::HidePoint> >* groups, unsigned int index) {
-    return &groups->mData[index];
-}
-
 template <class G, class T>
 void GameScene::fn_803C6FE4(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& points, atn::Csv& csv) {
     unsigned int i = 0;
@@ -1900,31 +1850,6 @@ void GameScene::fn_803C6FE4(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& po
         groups[i].m90 = FindPoint_unk(points, atoi(csv.fn_8005B9CC()));
         i++;
     }
-}
-
-// inferred: data pointer of the move-point group array.
-extern "C" gs::PointGroup<gs::MovePoint>* fn_803C72D4(const atn::SimpleArray<gs::PointGroup<gs::MovePoint> >* groups) {
-    return groups->mData;
-}
-
-// inferred: resizes the move-point group array.
-// NONMATCHING: 99.52% - allocator string relocations and the group constructor relocation differ.
-extern "C" void fn_803C72DC(atn::SimpleArray<gs::PointGroup<gs::MovePoint> >* groups, int size, int heap,
-                            const char* name) {
-    groups->Resize_unk(size, heap, name);
-}
-
-// inferred: grows the move-point group array.
-// NONMATCHING: 96.22% - allocator/constructor relocations and old/new data register allocation differ.
-extern "C" void fn_803C7388(atn::SimpleArray<gs::PointGroup<gs::MovePoint> >* groups, int size, int heap,
-                            const char* name) {
-    groups->Grow_unk(size, heap, name);
-}
-
-// inferred: indexed access to a move-point group.
-extern "C" gs::PointGroup<gs::MovePoint>* fn_803C74D0(
-    const atn::SimpleArray<gs::PointGroup<gs::MovePoint> >* groups, unsigned int index) {
-    return &groups->mData[index];
 }
 
 template <class T>
