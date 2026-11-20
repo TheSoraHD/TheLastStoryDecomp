@@ -1,0 +1,33 @@
+diff --git a/src/atn/PacketPack.cpp b/src/atn/PacketPack.cpp
+index 6e4b8a4..bdde13c 100644
+--- a/src/atn/PacketPack.cpp
++++ b/src/atn/PacketPack.cpp
+@@ -8973,7 +8973,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
+     }
+     const PPMsgAttack_unk* data = (const PPMsgAttack_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+     CharaTask* attacker = GetHitChara_unk((PPManager2_unk*)lbl_8087F610, &data->mAttacker);
+-    CharaTask* target = GetHitChara_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
++    CharaTask* target = GetHitChara_unk(PPManager2Ref_unk(), &data->mTarget);
+     if (target == 0) {
+         return;
+     }
+@@ -9331,7 +9331,7 @@ static inline int IsSameTeam_unk(PPPlayer_unk* player, PPPlayer_unk* leader) {
+     if (leader == 0 || player == 0 || !IsTeamPlayer_unk(player)) {
+         return 0;
+     }
+-    return (player->mAid & 0xF) == leader->mAid;
++    return leader->mAid == (player->mAid & 0xF);
+ }
+ 
+ // inferred: message 0x18: marks the player and the players of its team (m26) and the team flag
+@@ -9776,8 +9776,8 @@ extern "C" void fn_804F3BAC() {
+     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+         return;
+     }
+-    for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
+-        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
++    for (int i = 0; i < (int)PPManager2Ref_unk()->mPlayers.size(); i++) {
++        PPPlayer_unk* player = fn_804D5F0C(PPManager2Ref_unk(), i);
+         if (player->mFlags.mActive && player->mRef.mChara != 0) {
+             if (player->mFlags.m30 == 1 || IsSameTeam_unk(player, GetMyPlayer_unk())) {
+                 fn_804EAA84((PPManager2_unk*)lbl_8087F610, player->mRef.mChara, 1, 0);
