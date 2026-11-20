@@ -1,0 +1,59 @@
+diff --git a/config/SLSP01/symbols.txt b/config/SLSP01/symbols.txt
+index 0dd51ef..e333618 100644
+--- a/config/SLSP01/symbols.txt
++++ b/config/SLSP01/symbols.txt
+@@ -22382,7 +22382,7 @@ lbl_807573C0 = .rodata:0x807573C0; // type:object size:0xF data:string
+ @12645 = .rodata:0x80757640; // type:object size:0x8 scope:local align:8 data:double
+ @12650 = .rodata:0x80757648; // type:object size:0x8 scope:local align:8 data:double
+ lbl_80757650 = .rodata:0x80757650; // type:object size:0xC data:string
+-@stringBase0 = .rodata:0x8075765C; // type:object size:0x1C4 scope:local
++@stringBase0 = .rodata:0x8075765C; // type:object size:0x1C4 scope:local data:string_table
+ lbl_80757820 = .rodata:0x80757820; // type:object size:0x14 data:string
+ @stringBase0 = .rodata:0x80757834; // type:object size:0x1F7 scope:local data:string_table
+ lbl_80757A30 = .rodata:0x80757A30; // type:object size:0x8 align:8 data:double
+diff --git a/src/AI/AI_archer_attack01.cpp b/src/AI/AI_archer_attack01.cpp
+index 1737eea..f2dec02 100644
+--- a/src/AI/AI_archer_attack01.cpp
++++ b/src/AI/AI_archer_attack01.cpp
+@@ -1763,12 +1763,15 @@ AI_return_guard01::AI_return_guard01() {} // 0x8001E720
+ } // namespace Script
+ } // namespace AI
+ 
+-// NONMATCHING: 93.82% - the address of the map is kept in r30 (the original loads it again with lis/addi
+-// after the loop and for each call) and one more saved register
++// NONMATCHING: 99.76% - the node pointer is in r30 (r31 in the original, shared with the root of the inlined
++// clear); the end node is computed before the loop as in the original
+ // inferred: empties the script map: deletes the factories in key order, then the nodes
+-extern "C" void fn_8001E730() {
+-    for (AIScriptMapNode_unk* x = lbl_807C6B84.mFirst; x != lbl_807C6B84.End_unk();) {
++extern "C" __declspec(noinline) void fn_8001E730() {
++    AIScriptMapNode_unk* end = lbl_807C6B84.End_unk();
++    AIScriptMapNode_unk* x = lbl_807C6B84.mFirst;
++    while (x != end) {
+         operator delete(x->mValue.second);
++        AIScriptMapNode_unk* p;
+         if (x->mRight != 0) {
+             AIScriptMapNode_unk* y = x->mRight;
+             while (y->mLeft != 0) {
+@@ -1776,14 +1779,19 @@ extern "C" void fn_8001E730() {
+             }
+             x = y;
+         } else {
+-            AIScriptMapNode_unk* p;
+             while (x != (p = x->Parent())->mLeft) {
+                 x = p;
+             }
+             x = p;
+         }
+     }
+-    lbl_807C6B84.clear();
++    AIScriptMapNode_unk* root = lbl_807C6B84.mRoot;
++    if (root != 0) {
++        lbl_807C6B84.Destroy_unk(root);
++        lbl_807C6B84.mSize = 0;
++        lbl_807C6B84.mRoot = 0;
++        lbl_807C6B84.mFirst = lbl_807C6B84.End_unk();
++    }
+ }
+ 
+ // inferred: called with bl by fn_8001C1C0 (MWCC would inline it: noinline as in fn_8003DBA4)
