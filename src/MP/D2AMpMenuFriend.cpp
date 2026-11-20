@@ -95,8 +95,15 @@ int D2AMpMenuFriend::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.88% - inlined vector<int>::push_back (the original loads the size before the
-// capacity, open problem of std/vector.h)
+// inferred: name of a friend for the deletion message (name invented; the two reads of the id and the
+// list come out in the registers of the original only through this inline)
+static inline const wchar_t* FriendName_unk(MpFriendList_unk* list, MpFriendIds_unk& ids, int index) {
+    if (fn_8050F868(list, ids[index]) != 0) {
+        const wchar_t* str = fn_8050F724(list, ids[index]);
+        return str[0] == 0 ? lbl_8087F86C->Get_unk(0x122) : str;
+    }
+    return lbl_8087F86C->Get_unk(0x120);
+}
 void D2AMpMenuFriend::fn_804B6F08(int state) {
     if (m2BC != state && state >= 0) {
         int cursor = m2E0;
@@ -139,14 +146,7 @@ void D2AMpMenuFriend::fn_804B6F08(int state) {
             m318 = cursor;
             wchar_t text[0x100] = {0};
             int index = m318 + m2C8 - 1;
-            MpFriendList_unk* list = &lbl_8087F628->m430;
-            const wchar_t* name;
-            if (fn_8050F868(list, mIds[index]) != 0) {
-                const wchar_t* str = fn_8050F724(list, mIds[index]);
-                name = str[0] == 0 ? lbl_8087F86C->Get_unk(0x122) : str;
-            } else {
-                name = lbl_8087F86C->Get_unk(0x120);
-            }
+            const wchar_t* name = FriendName_unk(&lbl_8087F628->m430, mIds, index);
             fn_800DD3FC(text, lbl_8087F86C->Get_unk(0xEE), name);
             D2ACommonDialog::sInstance->fn_804AD000(text, 0);
             break;
@@ -375,7 +375,6 @@ void D2AMpMenuFriend::fn_804B79F4() {
     SetPaneValue3_unk(layout, "s_hightMax", 197.0f);
 }
 
-// NONMATCHING: 99.89% - inlined vector<int>::push_back (as fn_804B6F08)
 void D2AMpMenuFriend::fn_804B7F88() {
     if (m248 == 0) {
         if (D2ACommonDialog::sInstance->m4C != 0) {

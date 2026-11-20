@@ -807,10 +807,12 @@ void vector<T>::__expand_by_cap_unk(size_type n, size_type c) {
 // inferred: the size is read in push_back and the capacity one inline level below, and the length check of
 // the growth uses that capacity: with the size and the capacity in the same function (or the capacity
 // re-read by the check, a common subexpression) the registers of the two come out swapped either in the
-// inlined copies (~73 sites, ChaserNpc::ChaserNpc 0x801805A4) or in the weak copies (0x800DB3EC)
+// inlined copies (~73 sites, ChaserNpc::ChaserNpc 0x801805A4) or in the weak copies (0x800DB3EC). The size is
+// read through size(): with a plain member read the registers alternate with the depth of inlining of push_back
+// in the caller (right at 1 and 3, swapped at 2: D2AMpMenuFriend fn_804B7F88 0x804B7F88)
 template <class T>
 void vector<T>::push_back(const T& x) {
-    size_type n = this->mSize;
+    size_type n = size();
     this->__push_unk(n, x);
 }
 
