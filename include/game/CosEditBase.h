@@ -6,6 +6,13 @@
 #include "game/ResHandle.h"
 #include "std/new.h"
 
+// inferred: the resource handle of ResHandle.h without its zeroing constructor (the constructor of
+// CosEditBase zeroes mAA0 in its body, 0x801CCE50)
+struct ResHandleRaw_unk {
+    inline ~ResHandleRaw_unk(); // defined in CosEditBase.cpp
+    void* mRes;
+};
+
 namespace atn {
 class D3AnimeInstance;
 }
@@ -163,7 +170,7 @@ public:
     int mA94;
     int mA98;
     float mA9C;
-    ResHandle mAA0;               // 0xAA0: inferred: debug menu group (vf40)
+    ResHandleRaw_unk mAA0;            // 0xAA0: inferred: debug menu group (vf40)
     float mAA4;
     atn::Vector3 mCharaUpperOfs;  // 0xAA8
     atn::Vector3 mCharaLowerOfs;  // 0xAB4
