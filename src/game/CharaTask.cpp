@@ -6486,12 +6486,20 @@ inline int CharaTask::ControlVf30_unk() {
     return mControl ? mControl->vf30() : 0;
 }
 
-// NONMATCHING: ~92% - in the two inlined hit loops the original keeps the array pointer in r4
-// (reusing the register of `other`) and the hit in r5, ours the other way round; the rest are the
-// .data offsets of the scoped_ptr bool ptmf. tried: index/pointer/iterator loops, a free inline
-// function, the ternary written inline. (The same loop inlined in fn_80151448 matches.)
+// inferred: CharaTask::GetFlaggedHitBullet_unk written over m12D0.mData[i] (vf5C, fn_80150460); name
+// invented
+static inline HitInfo_unk* FlaggedHitBullet_unk(CharaTask* chara) {
+    CharaHit_unk* it = chara->m12D0.mData;
+    for (unsigned int i = 0; i < chara->m12D0.mSize; i++, it++) {
+        if ((it->mHit->mAC & 0x04000000) == 0x04000000 && it->mHit->m04 > 0) {
+            return fn_80219E6C(it->mHit->m04);
+        }
+    }
+    return 0;
+}
+
 void CharaTask::vf5C(CharaTask* other) {
-    if (other->GetFlaggedHitBullet_unk() == 0 && other != 0) {
+    if (FlaggedHitBullet_unk(other) == 0 && other != 0) {
         if (other->ControlVf30_unk() != 0) {
             return;
         }
@@ -6510,7 +6518,7 @@ void CharaTask::vf5C(CharaTask* other) {
                 combo = true;
             }
         }
-        if (other->GetFlaggedHitBullet_unk() != 0) {
+        if (FlaggedHitBullet_unk(other) != 0) {
             combo = true;
         }
     }
@@ -6527,8 +6535,6 @@ inline bool HasPartParam_unk(chr::CharaPart_unk* part, int kind, int value, int 
 }
 
 // inferred: starts the combo window against `other` (mFE0: frames, mFDC: last opponent?)
-// NONMATCHING: 91% - same r4/r5 swap as vf5C in the two inlined GetFlaggedHitBullet_unk loops;
-// tried index, pointer, iterator and break forms of the loop.
 void CharaTask::fn_80150460(CharaTask* other, int combo) {
     CharaTask* prev = mFDC;
     mFE4 = combo;
@@ -6541,7 +6547,7 @@ void CharaTask::fn_80150460(CharaTask* other, int combo) {
         } else if (prev != 0 && prev->m648 != 0 && HasPartParam_unk(prev->m648, 8, 0, 10, -1)) {
             mFE0 += ((Arms*)prev->m648)->fn_80045694(8, 0, 10, -1)->m04 * 30;
         }
-        if (other->GetFlaggedHitBullet_unk() != 0 || (prev != 0 && prev->GetFlaggedHitBullet_unk() != 0)) {
+        if (FlaggedHitBullet_unk(other) != 0 || (prev != 0 && FlaggedHitBullet_unk(prev) != 0)) {
             mFE0 += 150;
         }
     }
