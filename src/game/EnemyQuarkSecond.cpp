@@ -1376,16 +1376,7 @@ void EnemyQuarkSecond::fn_8033DB8C() {
 }
 
 
-// inferred: the frame of track 0 is `frames` or less from the end / has reached `frame` (names invented)
-inline bool IsNearEnd_unk(atn::Model* model, float frames) {
-    float end = model->fn_80097D7C(0);
-    end -= frames;
-    bool r = false;
-    if (model->mTracks[0].m08 >= end) {
-        r = true;
-    }
-    return r;
-}
+// inferred: the frame of track 0 has reached `frame` (name invented)
 inline bool IsFrameReached_unk(atn::Model* model, float frame) {
     bool r = false;
     if (model->mTracks[0].m08 >= frame) {
