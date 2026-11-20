@@ -1656,3 +1656,15 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Dos lecturas del mismo elemento de un vector (`ids[index]`) junto a un puntero local quedan en los registros del original escritas en una inline aparte con el puntero como parametro (D2AMpMenuFriend fn_804B6F08). (mixto2-20261120 qV2)
 - MWCC: un parametro por referencia a un local (`void f(unsigned& cap, unsigned n)` con `cap += ...`) mantiene la lectura de memoria y la variable modificada en la misma web (mismo registro), cosa que no consigue `cap = leido; cap += ...` cuando la lectura ya se hizo antes para otra expresion (la copia se propaga). (mixto2-20261120 qV3)
 - Una especializacion explicita (`template <> ... vector<string>::f`) o una funcion `inline` no plantilla pone sus literales en `@STRING@<funcion>`; una plantilla de funcion sin `inline` los deja en `@stringBase0`. (mixto2-20261120 qV3)
+
+## codigo-20261120
+
+- Un valor que se usa una sola vez escrito como expresion (`WrapDeg_unk(57.295776f * (d.GetNormalize().ToRotation_unk().y - mRot.y))`, `rot = move.GetNormalize().ToRotation_unk()`) en lugar de una copia con nombre + `PSVECNormalize` + local de la rotacion da los huecos de pila del original (Em206EggMonster fn_802C38E4, EnemyQuarkSecond fn_8033C000 96 -> 99). (codigo-20261120)
+- Normal opuesta guardada en un miembro: `atn::VecAssign_unk(m.m28, HitNeg_unk(dir.GetNormalize()))` con `HitNeg_unk(const Vector3&)` inline cerro BattleTask fn_800FD658; sin `VecAssign_unk` los registros de la copia salen al reves. (codigo-20261120)
+- Mover parte del cuerpo a una inline anidada (giro `QuarkTurnTo_unk`, fin de movimiento `end - frames` frente a `end -= frames`) baja sus temporales en el marco: forma de la gemela de la misma familia (EnemyQuarkStand -> EnemyQuarkSecond). (codigo-20261120)
+- Relectura de un global que el original hace tras un `if` o dentro de un bucle: referencia tipada `static inline T*& XRef_unk() { return *(T**)&lbl_X; }` solo en el uso que relee (GameTask fn_8036CC90, Cockpit fn_804B5B10, D2AMpMenuLobby, PacketPack fn_804F3BAC/fn_804F2994, ControlAttackLastOne vf0C). (codigo-20261120)
+- `atoi` comparado dentro de una inline con un local (`int value = atoi(s); return value == n;`) da el `cmpw r3, rX` del original (ItemManager_unk fn_80448B80). (codigo-20261120)
+- Un local `double` intermedio da el `frsp` del original en una division o un tiempo (MapPartsGimmickLoc SetLod_unk, EventCamera_unk fn_801140A0). (codigo-20261120)
+- Un `0.0f` que el original carga al principio y pasa al final puede ser una variable iniciada arriba (`float mag = 0.0f;` y `fn_8013CB68(rot, 0, mag, ...)`) (Em202ForestSpider vfFC 98,9 -> 99,1). (codigo-20261120)
+- `c->m63C = c->m638; c->m638 = x;` escrito con el setter de la clase (`CharaTask::SetHit_unk(x)`) lee `x` antes como el original (ControlAttackLastOne vf0C). (codigo-20261120)
+- Copias debiles de plantillas (`SimpleArray<...>::Grow_unk`, `vector<EnemyTask*>::~vector`, `Camera::operator=`) nombradas en symbols.txt con su nombre mangled: los envoltorios `extern "C"` sobran y cuentan al 100. (codigo-20261120)
