@@ -1130,6 +1130,9 @@ extern "C" int fn_80208740();                       // db/ChapterList_unk: numbe
 
 // inferred: the place `map` ("any", "dgNNN" or "dgNNN_PP") matches the current map (or the map of the item
 // being added); `from` ("any", "dgNNN", "to_dgNNN") limits it to the chapters reached before (fn_80445F44)
+// inferred: map name number test
+static inline bool AtoiIs_unk(const char* s, int n) { int value = atoi(s); return value == n; }
+
 extern "C" int fn_80448B80(Inventory* inventory, const char* map, const char* from) {
     if (map == 0 || *map == 0) {
         return 0;
@@ -1163,9 +1166,9 @@ extern "C" int fn_80448B80(Inventory* inventory, const char* map, const char* fr
     int ret = 0;
     if (strcmp(map, "any") == 0) {
         ret = 1;
-    } else if (strncmp(map, "dg", 2) == 0 && atoi(map + 2) == id) {
+    } else if (strncmp(map, "dg", 2) == 0 && AtoiIs_unk(map + 2, id)) {
         if (strlen(map) >= 6) {
-            if (atoi(map + 6) == sub) {
+            if (AtoiIs_unk(map + 6, sub)) {
                 ret = 1;
             } else {
                 ret = 0;
@@ -1208,9 +1211,9 @@ extern "C" int fn_80448B80(Inventory* inventory, const char* map, const char* fr
                     break;
                 }
             }
-        } else if (strncmp(from, "dg", 2) == 0 && atoi(from + 2) == id) {
+        } else if (strncmp(from, "dg", 2) == 0 && AtoiIs_unk(from + 2, id)) {
             if (strlen(from) >= 6) {
-                if (atoi(from + 6) == sub) {
+                if (AtoiIs_unk(from + 6, sub)) {
                     ret = 1;
                 } else {
                     ret = 0;

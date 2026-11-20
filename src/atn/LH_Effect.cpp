@@ -11,7 +11,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int fn_80239030(void* data, void* effect);       // inferred: parses the effect data
 extern "C" void fn_802396A0(void* data);                  // inferred: releases the data (atn/EffectLoader_unk.cpp)
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
-extern "C" std::string fn_8006D008(const std::string& a, const char* b); // inferred: a + b
 extern "C" void fn_8006AD24(std::string& path, const std::string& dir); // inferred
 
 // inferred: fn_800D59B8 is a member of the texture class (it follows its constructor), declared for
@@ -123,11 +122,11 @@ void LoadEffect::vf0C() {
     for (unsigned int i = 0; i < mData.mNumEntries; i++) {
         EffectEntry_unk* entry = &mData.mEntries[i];
         fn_8022D754(entry);
-        std::string name = fn_8006D008(fn_8006D008(dir, "/"), entry->mName);
+        std::string name = dir + "/" + entry->mName;
         if (entry->mType == 1) {
             atn::ModelBase* model = new ((MemoryTag)7, "", "", 0) atn::ModelBase(0x2000001);
             if (strcmp(entry->mTexture, "") != 0) {
-                std::string texture = fn_8006D008(fn_8006D008(dir, "/"), entry->mTexture);
+                std::string texture = dir + "/" + entry->mTexture;
                 ((atn::Model*)model)->fn_8008AD4C(name.c_str(), texture.c_str());
             } else {
                 ((atn::Model*)model)->fn_8008AD4C(name.c_str(), 0);
@@ -140,7 +139,7 @@ void LoadEffect::vf0C() {
             }
             pair->m00.m2D = 1;
             pair->m00.m2E = 1;
-            name = fn_8006D008(fn_8006D008(dir, "/"), entry->mTexture);
+            name = dir + "/" + entry->mTexture;
             pair->m30.fn_800D5908(name.c_str());
             pair->m30.m2D = 1;
             pair->m30.m2E = 1;
