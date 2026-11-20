@@ -44,7 +44,17 @@ struct GameVoiceChannel_unk {
 // inferred: voice waiting `mDelay` frames to be spoken (0x28 bytes; GameVoice::fn_803EA77C)
 struct GameVoiceDelayed_unk {
     GameVoiceDelayed_unk(CharaTask* chara, int kind, const char* name, float volume, float time, int a, int b, int delay)
-        : mChara(chara), m04(0), mKind(kind), mName(name), mVolume(volume), mTime(time), m18(a), m1C(b), mDelay(delay), mTimer(0) {}
+        : m04(0), mTimer(0) {
+        // inferred: the original stores the two zeros first, then the arguments
+        mChara = chara;
+        mKind = kind;
+        mName = name;
+        mVolume = volume;
+        mTime = time;
+        m18 = a;
+        m1C = b;
+        mDelay = delay;
+    }
     GameVoiceDelayed_unk() : mChara(0), m04(0), mKind(-1), mName(0), mVolume(1.0f), mTime(0.0f), m18(1), m1C(0), mDelay(0), mTimer(0) {}
 
     CharaTask* mChara; // 0x00

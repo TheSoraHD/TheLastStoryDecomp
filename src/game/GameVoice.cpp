@@ -454,19 +454,17 @@ atn::SoundRef GameVoice::fn_803EA09C(CharaTask* chara, const char* name, int at,
     return channel->mSound;
 }
 
-// NONMATCHING: 96.88% - branch shape of the check of lbl_8087F540 (beq; beq; b in the original), registers of
-// the party loop
+// inferred: typed reference to the game task pointer (the original reloads it after the test)
+static inline GameTask*& GameTaskRef_unk() { return *(GameTask**)&lbl_8087F430; }
+
 void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time) {
     if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761CC() == 0) {
         return;
     }
-    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
+    if ((lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) || (lbl_8087F540 != 0 && lbl_8087F540->m70 != 0)) {
         return;
     }
-    if (lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
-        return;
-    }
-    if (lbl_8087F430 != 0 && lbl_8087F430->m550C.mState != 0) {
+    if (lbl_8087F430 != 0 && GameTaskRef_unk()->m550C.mState != 0) {
         return;
     }
     if (!IsMessageFree_unk(time)) {
@@ -481,8 +479,9 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
     if (chara == 0 && FriendManager::sInstance != 0) {
         int n = lbl_8087F8A0->mCount - 1;
         if (n > 0) {
+            PlayerTask* player;
             PlayerTask* first = lbl_8087F8A0->FindByIndex_unk(rand() % n + 1);
-            PlayerTask* player = first;
+            player = first;
             do {
                 if (player->fn_80179EBC(kind) && ((VoiceEntry_unk*)player->m7C)->fn_8021FD7C(kind) != 0) {
                     chara = player;
@@ -495,10 +494,7 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
             } while (player != first);
         }
     }
-    if (chara == 0) {
-        return;
-    }
-    if (chara->fn_80179EBC(kind) == 0) {
+    if (chara == 0 || chara->fn_80179EBC(kind) == 0) {
         return;
     }
     const char* name = ((VoiceEntry_unk*)chara->m7C)->fn_8021FD7C(kind);
