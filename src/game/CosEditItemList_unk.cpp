@@ -2087,6 +2087,12 @@ void CosEditProtector::fn_801E75F8(int member, CharaStatus* status, atn::D3Anime
     }
 }
 
+// inferred: skill entry of an item (0x14 bytes)
+struct CosEditSkill_unk {
+    CosEditStat_unk mStat;
+    unsigned char m08[0xC];
+};
+
 // inferred: writes the names of the two skills of the protector (dashes without one, question marks
 // while it is not known)
 extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
@@ -2096,13 +2102,13 @@ extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
     wchar_t names[2][64];
     memset(names[0], 0, sizeof(names[0]));
     memset(names[1], 0, sizeof(names[1]));
-    CosEditStat_unk* skill = &((CosEditArmor_unk*)item)->mElem0;
-    for (int i = 0; i < 2; i++, skill = (CosEditStat_unk*)((char*)skill + 0x14)) {
+    CosEditSkill_unk* skills = (CosEditSkill_unk*)&((CosEditArmor_unk*)item)->mElem0;
+    for (int i = 0; i < 2; i++) {
         if (item == 0) {
             wcscpy(names[i], L"-----");
         } else if (known == 0) {
             wcscpy(names[i], L"?????");
-        } else if (skill == 0 || !fn_8021C6A4(names[i], skill)) {
+        } else if (&skills[i] == 0 || !fn_8021C6A4(names[i], &skills[i].mStat)) {
             wcscpy(names[i], L"-----");
         }
         char name[0x40];
@@ -2120,19 +2126,18 @@ extern "C" void fn_801E7EA8(atn::D3Anime* anime, void* entry, int known) {
     wchar_t names[2][64];
     memset(names[0], 0, sizeof(names[0]));
     memset(names[1], 0, sizeof(names[1]));
-    CosEditStat_unk* skill = &((CosEditGear_unk*)entry)->mElem0;
+    CosEditSkill_unk* skills = (CosEditSkill_unk*)&((CosEditGear_unk*)entry)->mElem0;
     for (int i = 0; i < 2; i++) {
         if (entry == 0) {
             wcscpy(names[i], L"-----");
         } else if (known == 0) {
             wcscpy(names[i], L"?????");
-        } else if (skill == 0 || !fn_8021C6A4(names[i], skill)) {
+        } else if (&skills[i] == 0 || !fn_8021C6A4(names[i], &skills[i].mStat)) {
             wcscpy(names[i], L"-----");
         }
         char name[0x40];
         sprintf(name, "skill_name%02d", i);
         CosEditListTask_unk* task = (CosEditListTask_unk*)anime->GetTask();
         fn_801FEE08(task->mLayout, fn_800DC6B4(name), names[i]);
-        skill = (CosEditStat_unk*)((char*)skill + 0x14);
     }
 }
