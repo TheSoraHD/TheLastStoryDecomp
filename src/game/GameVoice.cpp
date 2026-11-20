@@ -632,8 +632,8 @@ int GameVoice::fn_803EB338() {
     return 0;
 }
 
-// NONMATCHING: 93.70% - registers of the character and of its lip sync swapped (r3/r4)
-int GameVoice::fn_803EB394(const char* name) {
+// NONMATCHING: 98.91% - registers of the character and of its lip sync swapped (r3/r4, as vf10)
+void GameVoice::fn_803EB394(const char* name) {
     unsigned int id = VoiceId_unk(name);
     for (int i = 0; i < 4; i++) {
         GameVoiceChannel_unk* channel = &mChannels[i];
@@ -641,7 +641,6 @@ int GameVoice::fn_803EB394(const char* name) {
             channel->Stop_unk(0);
         }
     }
-    return 0;
 }
 
 // NONMATCHING: 98.8% - r3/r4 of Stop_unk in the loops

@@ -145,7 +145,7 @@ public:
     int fn_803EB234();                   // inferred: a voice is playing or loading
     int fn_803EB2A4(const char* name);   // inferred: the voice `name` is prepared
     int fn_803EB338();                   // inferred: a voice is prepared
-    int fn_803EB394(const char* name);   // inferred: stops the prepared voice `name`
+    void fn_803EB394(const char* name);  // inferred: stops the prepared voice `name`
     void fn_803EB4A8(int keepChara, int keepRequests); // inferred: stops the voices
     GameVoiceChannel_unk* fn_803EB668(CharaTask* chara, const char* name, int steal); // inferred: channel for a voice of `chara`
     GameVoiceChannel_unk* fn_803EB7E4(unsigned int id, int steal); // inferred: channel for the voice `id`
