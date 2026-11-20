@@ -1,6 +1,6 @@
 # Siguiente sesion (tras codigo-20261120)
 
-> Sesion `codigo-20261120` (secuencial, sin agentes) del 2026-11-20 13:58 al ~23:50. Notas: `docs/codigo-20261120.md`;
+> Sesion `codigo-20261120` (secuencial, sin agentes) del 2026-11-20 13:58 al ~22:20. Notas: `docs/codigo-20261120.md`;
 > para el port: `claude/port-codigo-20261120.md` (proyecto). Anterior: `mixto2-20261120` (`docs/mixto2-20261120.md`).
 
 Estado: **16347 / 18113**, lost 0, rep100 6, labelcheck 10 lineas, `main.dol: OK`. Codigo **65,50 %**, datos 76,77 %,
