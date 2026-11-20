@@ -4209,9 +4209,21 @@ void GameEventScript::fn_803A39F8(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, wait);
 }
 
+// inferred: guide request of the UI (as ZanUIHint_unk of game/Em201ZanGurgFinal.cpp)
+struct ScriptGuide_unk : public GameUIElem1C_unk {
+    ScriptGuide_unk(int type, int id, int c) {
+        m00 = type;
+        m04 = id;
+        m08 = c;
+        m0C = 0;
+        m10 = 0;
+        m14 = 0;
+        m18 = 0;
+    }
+};
+
 // inferred: waits for the tactical view (m08 2) or for a button after showing a guide (3: guide 13,
 // else 12) in the UI; then ends the grapple camera
-// NONMATCHING: 93.7% - registers of the guide fields and the store of mWait
 void GameEventScript::fn_803A3AB4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int wait = 0;
@@ -4226,14 +4238,7 @@ void GameEventScript::fn_803A3AB4(ScriptResult_unk& result, const ScriptCmd_unk*
             }
         } else {
             if (lbl_8087F490 != 0) {
-                GameUIElem1C_unk& guide = lbl_8087F490->m764;
-                guide.m00 = 6;
-                guide.m04 = (args->m08 == 3) + 12;
-                guide.m08 = -1;
-                guide.m0C = 0;
-                guide.m10 = 0;
-                guide.m14 = 0;
-                guide.m18 = 0;
+                lbl_8087F490->m764 = ScriptGuide_unk(6, (args->m08 == 3) + 12, -1);
             }
             if (fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
                 fn_800C31F4(lbl_8074EF78[8], 0, -1, 1.0f);
@@ -4686,15 +4691,29 @@ void GameEventScript::fn_803A5650(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 95.5% - IsFree_unk is computed as a bool (cror) in the original and mState is reused
+// inferred: the free test of the window as a bool in an inline (cror/mfcr and mState reused as the original)
+// inferred: the text message window of the UI (name invented)
+static inline GameTextMessageWindow* TextWindow_unk() {
+    return lbl_8087F490->m2640;
+}
+static inline bool TextFree_unk(GameTextMessageWindow* w, float t) {
+    bool free = true;
+    if (w->mState != 0) {
+        bool ok = t <= w->m60;
+        if (!ok) {
+            free = false;
+        }
+    }
+    return free;
+}
 // inferred: shows the text messages m10 to m1C of the scene in the text window (m14 bit 0: do not wait,
 // bit 1: closes the window instead, bit 2: sets the event counter (m08, m0C))
 void GameEventScript::fn_803A5804(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(args->m10);
-    GameTextMessageWindow* window = lbl_8087F490->m2640;
+    GameTextMessageWindow* window = TextWindow_unk();
     if ((args->m14 & 2) != 2) {
-        if (window != 0 && window->IsFree_unk(5.0f) && msg != 0) {
+        if (window != 0 && TextFree_unk(window, 5.0f) && msg != 0) {
             if (window->mState == 2) {
                 window->fn_803B6E04(msg, args->m18, 5.0f);
             } else {
