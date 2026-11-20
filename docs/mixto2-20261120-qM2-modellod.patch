@@ -1,0 +1,40 @@
+diff --git a/include/atn/Model_unk.h b/include/atn/Model_unk.h
+index 6e31246..ec091de 100644
+--- a/include/atn/Model_unk.h
++++ b/include/atn/Model_unk.h
+@@ -67,10 +67,11 @@ struct MaterialSet_unk {
+ namespace atn {
+ 
+ // inferred: one level of detail of a model (0x18 bytes; constructor 0x80089C28 and destructor
+-// 0x80089CE4 are weak copies of atn/Model.cpp). Names invented.
++// 0x80089CE4 defined in atn/Model.cpp after MaterialSet_unk: their position puts the 0.0f first in .sdata2).
++// Names invented.
+ struct ModelLod_unk {
+-    ModelLod_unk() : m08(0), m0C(0.0f) {}
+-    ~ModelLod_unk() { mHandle.fn_80473F88(); }
++    ModelLod_unk();
++    ~ModelLod_unk();
+ 
+     LH_Model mHandle; // 0x00
+     void* m08;        // inferred: loaded data (atn::ModelBase::Res_unk)
+diff --git a/src/atn/Model.cpp b/src/atn/Model.cpp
+index 0c79635..4c33bcd 100644
+--- a/src/atn/Model.cpp
++++ b/src/atn/Model.cpp
+@@ -167,6 +167,16 @@ int MaterialSet_unk::fn_80089B5C() {
+     return 0;
+ }
+ 
++namespace atn {
++// inferred: defined here, not inline in the class: the original emits them right after MaterialSet_unk
++// (0x80089C28/0x80089CE4) and its 0.0f is the first float of .sdata2
++ModelLod_unk::ModelLod_unk() : m08(0), m0C(0.0f) {}
++
++ModelLod_unk::~ModelLod_unk() {
++    mHandle.fn_80473F88();
++}
++} // namespace atn
++
+ // inferred: fills a node edit (flags: which parts are not identity); called by atn::Model::fn_80093F1C
+ extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, const atn::Vector3& offset,
+                             const atn::Vector3& rot, const atn::Vector3& scale, int flags) {

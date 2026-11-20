@@ -167,6 +167,16 @@ int MaterialSet_unk::fn_80089B5C() {
     return 0;
 }
 
+namespace atn {
+// inferred: defined here, not inline in the class: the original emits them right after MaterialSet_unk
+// (0x80089C28/0x80089CE4) and its 0.0f is the first float of .sdata2
+ModelLod_unk::ModelLod_unk() : m08(0), m0C(0.0f) {}
+
+ModelLod_unk::~ModelLod_unk() {
+    mHandle.fn_80473F88();
+}
+} // namespace atn
+
 // inferred: fills a node edit (flags: which parts are not identity); called by atn::Model::fn_80093F1C
 extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, const atn::Vector3& offset,
                             const atn::Vector3& rot, const atn::Vector3& scale, int flags) {
