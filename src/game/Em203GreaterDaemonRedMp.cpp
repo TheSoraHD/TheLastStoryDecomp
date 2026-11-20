@@ -1511,8 +1511,6 @@ template EnemyTask*& std::vector<EnemyTask*>::operator[](size_type i);
 // that can act (names invented)
 // inferred: over the inline budget in the original (R3 of docs/inlining.md: every helper, push_back,
 // CanAct_unk, GetTrans_unk, DegToRad_unk... is called with bl): the asserts of fn_802A4120 put it there
-// NONMATCHING: 99.9% - only the name of the destructor relocation of the list (the original calls the copy
-// named __dt__18NecroPlaceList_unkFv in symbols.txt, emitted by Em001Necromancer; as Em206CocoonMp::vf104)
 void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
     if (m14E8 == 0) {
         return;
