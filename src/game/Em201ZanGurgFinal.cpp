@@ -980,7 +980,8 @@ void Em201ZanGurgFinal::vf3C(HitInfo_unk* hit, int) {
     }
 }
 
-// NONMATCHING: stack slots of the vector temporaries and the order of two loads (inlining matches)
+// NONMATCHING: 98.86% - only the order of `mr r3, this` / the 0.1f load before fn_8015D8C0 (local, earlier
+// local, wrapper (not inlined: budget), getter: nothing)
 void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m14C0 == 1) {
@@ -995,8 +996,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
                 if (m6B8.LengthSq_unk() > 0.0f) {
                     fn_8015E4B0(m6B8, -1);
                 } else {
-                    atn::Vector3 front = fn_8014052C();
-                    fn_8015E4B0(-front, -1);
+                    fn_8015E4B0(-fn_8014052C(), -1);
                 }
                 fn_802657FC(this, 0);
                 fn_8026AF24();
@@ -1012,7 +1012,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
     if (m55C == 6) {
         if (m560 - 22U <= 1) {
             fn_800F7FA8(fn_800F7FA0(), this, 101);
-            if (!(msg->m0C & 0x40000000) && m1658 > 0) {
+            if ((msg->m0C & 0x40000000) == 0x40000000 && m1658 > 0) {
                 atn::Vector3 dir(msg->m10);
                 m1504++;
                 if (m1658 > 0 && msg->mAttacker != 0 && msg->m44 == 0 && m1504 >= 4) {
@@ -1036,8 +1036,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
             fn_80239DAC(fn_800F7FA0(), this, 100, 0);
             fn_80239DAC(fn_800F7FA0(), this, 101, 1);
         } else if (m560 == 20) {
-            atn::Vector3 rot = (-msg->m28).ToRotation_unk();
-            mRot.y = rot.y;
+            mRot.y = (-msg->m28).ToRotation_unk().y;
             fn_800F7FA8(fn_800F7FA0(), 0, 0);
             fn_8026607C(fn_800F7FA0(), &m1588, &mMotion, 1);
             if (m58C != 7) {
@@ -1077,13 +1076,14 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
             fn_80121F00()->fn_80370320(0x396, 0, 0);
             if (fn_80121F00()->fn_80370A78(0xEA) == 0) {
                 fn_80121F00()->fn_80370AE4(0xEA, 1);
-                if (fn_8000D9E8()->GetHead_unk() != 0 && *fn_80266FB4(fn_80266FA4(this), 0) == m1628 &&
+                PlayerTask* player = fn_8000D9E8()->GetHead_unk();
+                if (player != 0 && *fn_80266FB4(fn_80266FA4(player), 0) == m1628 &&
                     m1624 != 0) {
                     Inventory::Order()->AddItem(fn_80206BE4(fn_80266FAC(m1624)), 1, 1, 0, 0, 1, 0);
                 }
             }
+            m163C = 1;
         }
-        m163C = 1;
     }
 }
 
