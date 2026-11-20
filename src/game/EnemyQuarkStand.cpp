@@ -2330,16 +2330,13 @@ void EnemyQuarkStand::fn_803526A8() {
 
 
 // inferred: out-of-line turn toward the target (the same body as TurnTo_unk)
-// NONMATCHING: 99.11% - slots de pila de la diferencia y de la copia de ToRotationZ_unk intercambiados
-// (0x50/0x5C); ~8 variantes (inline TurnTo_unk, temporales, bloques)
 void EnemyQuarkStand::fn_80352938(float rate) {
     CharaTask* target = m14B0;
-    atn::Vector3 d(target->mPos - mPos);
-    float y = d.ToRotationZ_unk().y;
+    float y = (target->mPos - mPos).ToRotationZ_unk().y;
     float diff = atn::WrapAngle_unk(y - mRot.y);
     float step = 12.0f * rate;
     float abs = diff < 0.0f ? -diff : diff;
-    step = 0.017453292f * step;
+    step = atn::DegToRad_unk(step);
     if (abs <= step) {
         mMotion.fn_80097CCC(1, 0.0f);
         mRot.y = y;

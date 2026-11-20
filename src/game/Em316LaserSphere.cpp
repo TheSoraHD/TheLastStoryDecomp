@@ -44,7 +44,6 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, float m
                             void* arg);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
                             void* func, void* arg);
-extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: control of a character caught by the tackle (only m4C, set to end it); name invented
 struct LaserCatch_unk {
@@ -66,7 +65,12 @@ static const char* const sSounds_unk[] = {"SE_EM601_006", "SE_EM601_002", "SE_EM
 
 // inferred: alpha range of the trail models (.sdata 0x8087DC48/0x8087DC4C); names invented
 static float sOne_unk = 1.0f;
+// inferred: the original keeps the zero in .sdata, which MWCC only does with explicit_zero_data (approved
+// exception, only around the zero definition; without it the variable goes to .sbss).
+#pragma push
+#pragma explicit_zero_data on
 static float sZero_unk = 0.0f;
+#pragma pop
 static int sFirstCount_unk = 1; // inferred: count of a new group of spheres (fn_803176D0)
 
 // inferred: shared by all the spheres: set once the targets have been shared this frame (lbl_8087F3F4)
@@ -225,8 +229,6 @@ Em316LaserSphere::Em316LaserSphere(atn::Task* parent, EnemyInfo_unk* info)
     mFlag21 = 1;
 }
 
-// NONMATCHING: 99.49% - in the last loop the original steps `this` itself (0x164C(r30)) for the model
-// flags and keeps the counter in r27; ~12 variants (pointer, index, increments, locals)
 int Em316LaserSphere::vf0C() {
     atn::ModelBase* models = m1648;
     for (int i = 0; i < 3; i++) {
@@ -272,7 +274,7 @@ int Em316LaserSphere::vf0C() {
         m54C |= 0x200;
         for (int i = 0; i < 3; i++) {
             atn::Model* model = models[i].GetModel_unk();
-            fn_80094D88(model, 3, 0, 0, 0, 0);
+            model->fn_80094D88(3, 0, 0, 0, 0);
             float t = (float)(i + 1) / 4.0f;
             float a = sOne_unk + t * (sZero_unk - sOne_unk);
             atn::Model::Float4_unk color;
@@ -281,7 +283,7 @@ int Em316LaserSphere::vf0C() {
             color.m08 = 1.0f;
             color.m0C = a;
             model->m40 = color;
-            models[i].GetModel_unk()->mFlags |= 0x10;
+            m1648[i].mFlags |= 0x10;
         }
         return 1;
     }
@@ -810,8 +812,6 @@ extern "C" ColliManager_unk* lbl_8087EE98; extern "C" int fn_8004D388(void* worl
                                                           CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float radius);
 
-// NONMATCHING: 94.2% - the mask 0x80000080 is built in r0 then or-ed into r7 in the original, the 0.5f is
-// loaded after the fabs, and r3/r4 of the copy of the zero vector (__VecCopy family); ~8 variants
 void Em316LaserSphere::vfEC() {
     if (m14C0 >= 30) {
         fn_80239DAC(lbl_8087F3C0, this, 1001, 0);
@@ -823,14 +823,15 @@ void Em316LaserSphere::vfEC() {
         atn::ColliResult_unk result;
         Sphere_unk sphere = fn_80176548(mPos);
         unsigned int mask = 0x80000000;
-        int hit = fn_8004D388(lbl_8087EE98, &result, &sphere, &m1540, mask | 0x80, &mColli, 0, sphere.mRadius);
+        mask |= 0x80;
+        int hit = fn_8004D388(lbl_8087EE98, &result, &sphere, &m1540, mask, &mColli, 0, sphere.mRadius);
         m1540.y += m154C;
         if (hit != 0) {
             m1540 *= -0.3f;
             if (mPos.y < result.m10.y) {
                 mPos.y = result.m10.y;
                 if (atn::Abs_unk(m1540.y) < 0.5f) {
-                    m1540 = lbl_807C7030;
+                    atn::VecAssign_unk(m1540, lbl_807C7030);
                 }
             }
         }
@@ -1062,8 +1063,6 @@ void Em316LaserSphere::fn_80319C90() {
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// NONMATCHING: 99.23% - FPR numbering of the gravity (f3-f6 permuted) and r3/r4 of the copy to m1540
-// (__VecCopy family); ~10 variants
 void Em316LaserSphere::fn_8031A484() {
     int zero = 0;
     SetState_unk(2);
@@ -1074,7 +1073,7 @@ void Em316LaserSphere::fn_8031A484() {
         zero = 1;
     }
     if (!zero) {
-        m1540 = m6B8.GetNormalize() * 2.0f;
+        atn::VecAssign_unk(m1540, m6B8.GetNormalize() * 2.0f);
         m1540.y *= 0.5f;
         if (m1540.y > 0.0f) {
             m1540.y = 0.0f;
@@ -1082,7 +1081,8 @@ void Em316LaserSphere::fn_8031A484() {
     }
     int fps = lbl_8087F0A8->m030;
     float g = -98.1f / (float)(fps * fps);
-    m154C = 1.5f * (lbl_8087EFA8->m3A4 * g);
+    float dt = lbl_8087EFA8->m3A4;
+    m154C = 1.5f * (g * dt);
     CharaTask* caught = m15B4;
     if (caught != 0 && caught->m55C == 6 && caught->m560 == 0x8C) {
         fn_80319998((LaserCatch_unk*)fn_80318F90(caught));
