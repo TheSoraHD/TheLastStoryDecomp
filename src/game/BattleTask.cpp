@@ -5805,16 +5805,14 @@ inline bool IsPopupKind_unk(int kind) {
     return kind == 1 || kind == 4 || kind == 5;
 }
 
-// NONMATCHING: 97.8% - the early return for an empty damage is a bne/b pair in the original; lbl_8087F610 is reloaded
-// before its mode test; the format string is in the wide string table of the file (not complete)
+// inferred: typed reference to the multiplayer manager (the original reloads lbl_8087F610 before its mode test)
+static inline Arena_unk*& ArenaRef_unk() { return *(Arena_unk**)&lbl_8087F610; }
+
 // inferred: shows the damage popup of `damage` dealt by `attacker` to `chara` at `pos`, unless the options hide the
 // popups of that side. called by other files
 void BattleTask::fn_80108C10(DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker, CharaTask* chara,
                              unsigned int flags, int skipEmpty) {
-    if (!IsPopupKind_unk(damage->mType)) {
-        return;
-    }
-    if (skipEmpty != 0 && damage->mDamage == 0 && damage->m0C == 0) {
+    if (!IsPopupKind_unk(damage->mType) || (skipEmpty != 0 && damage->mDamage == 0 && damage->m0C == 0)) {
         return;
     }
     if (lbl_8087F610 == 0) {
@@ -5827,7 +5825,7 @@ void BattleTask::fn_80108C10(DamageResult_unk* damage, const atn::Vector3& pos, 
     } else {
         PlayerTask* head = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if (attacker != 0 && !attacker->mFlag2) {
-            if (lbl_8087F610->m540 != 2) {
+            if (ArenaRef_unk()->m540 != 2) {
                 if (head != 0) {
                     if (chara != 0 && chara->fn_8016F3D0(head, 1) && SetConfig::sInstance->mDrawFriendPopup == 0) {
                         return;
