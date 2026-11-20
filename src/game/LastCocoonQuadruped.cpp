@@ -1219,7 +1219,6 @@ void LastCocoonQuadruped::fn_804654F0() {
     }
 }
 
-// NONMATCHING: 99.6% - r3/r4 of the step copy and the float registers of the sum to mPos
 // inferred: mode 15: the jump of fn_80467C18 (m15BC per frame), then turns towards the place 600
 void LastCocoonQuadruped::fn_804655AC() {
     float frame = mMotion.mTracks[0].m08;
@@ -1237,14 +1236,16 @@ void LastCocoonQuadruped::fn_804655AC() {
     }
     frame = mMotion.mTracks[0].m08;
     if (frame <= 30.0f) {
-        atn::Vector3 step = m15BC;
+        const atn::Vector3& jump = m15BC;
+        atn::Vector3 step = jump;
         bool start = frame <= 5.0f;
         if (!start) {
             step.z = 0.0f;
             step.x = 0.0f;
         }
         mPos += step;
-        if (mMotion.mTracks[0].m08 > 20.0f) {
+        frame = mMotion.mTracks[0].m08;
+        if (frame > 20.0f) {
             gs::WarpPoint* place = FindQuadPlace_unk(600);
             if (place != 0) {
                 atn::Vector3 d = place->mPos - mPos;
