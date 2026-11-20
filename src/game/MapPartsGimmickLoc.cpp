@@ -355,13 +355,14 @@ inline atn::ModelInstance* GetInst_unk(SwingPart_unk* part) {
 inline void SetLightMap_unk(SwingPart_unk* part, atn::Texture_unk* tex) {
     part->mInst.m7C = tex;
 }
-// NONMATCHING: 88.57% (weak copy 0x80498F14) - the original rounds the distance (frsp) before the
-// divisions; tried reading back the member and a double parameter
+// inferred: weak copy 0x80498F14; the divisor goes through a double local (the original rounds it with frsp
+// before the divisions)
 // inferred: LOD distances of a model instance (as in game/MapInstance_unk.cpp)
 inline void SetLod_unk(atn::ModelInstance* inst, float dist, const float* range) {
     inst->m70 = dist;
-    inst->m74 = -1.0f * range[0] / dist;
-    inst->m78 = 1.0f - (range[1] + dist) / dist;
+    double d = dist;
+    inst->m74 = -1.0f * range[0] / (float)d;
+    inst->m78 = 1.0f - (range[1] + dist) / (float)d;
 }
 inline const char* CStr_unk(const atn::static_string<32, char, std::char_traits<char> >& s) {
     return s.mStr;
