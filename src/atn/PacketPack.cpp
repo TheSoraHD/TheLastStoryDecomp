@@ -9518,14 +9518,15 @@ struct PPMsgSpecialHit_unk {
     };
 };
 
-// NONMATCHING: 98.07% - registers of the inlined searches: the original reloads lbl_8087F610 for the second one
+// NONMATCHING: 99.42% - only the reload of lbl_8087F610 before the second search (fn_800F7F90 there gives the
+// reload but other registers, 99.44%)
 // inferred: a hit on a special enemy dealt by another player (only in the game, state 30): the hit is rebuilt in
 // a BattleCalcParam_unk and given to vf40 of the enemy (SpecialEnemyBase ids, unless its flag 2 is set)
 extern "C" void fn_804F2994() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         const PPMsgSpecialHit_unk* data = (const PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
-        CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mAttacker);
-        CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mTarget);
+        CharaTask* attacker = GetHitAttacker_unk(PPManager2Ref_unk(), &data->mRefs.mAttacker);
+        CharaTask* target = GetHitAttacker_unk(PPManager2Ref_unk(), &data->mRefs.mTarget);
         if (target != 0 && !target->IsFlag2_unk()) {
             switch (((BattleCharaTask*)target)->m146C) {
             case 19:
