@@ -44,7 +44,6 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, float m
                             void* arg);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
                             void* func, void* arg);
-extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: control of a character caught by the tackle (only m4C, set to end it); name invented
 struct LaserCatch_unk {
@@ -66,7 +65,12 @@ static const char* const sSounds_unk[] = {"SE_EM601_006", "SE_EM601_002", "SE_EM
 
 // inferred: alpha range of the trail models (.sdata 0x8087DC48/0x8087DC4C); names invented
 static float sOne_unk = 1.0f;
+// inferred: the original keeps the zero in .sdata, which MWCC only does with explicit_zero_data (approved
+// exception, only around the zero definition; without it the variable goes to .sbss).
+#pragma push
+#pragma explicit_zero_data on
 static float sZero_unk = 0.0f;
+#pragma pop
 static int sFirstCount_unk = 1; // inferred: count of a new group of spheres (fn_803176D0)
 
 // inferred: shared by all the spheres: set once the targets have been shared this frame (lbl_8087F3F4)
@@ -225,8 +229,6 @@ Em316LaserSphere::Em316LaserSphere(atn::Task* parent, EnemyInfo_unk* info)
     mFlag21 = 1;
 }
 
-// NONMATCHING: 99.49% - in the last loop the original steps `this` itself (0x164C(r30)) for the model
-// flags and keeps the counter in r27; ~12 variants (pointer, index, increments, locals)
 int Em316LaserSphere::vf0C() {
     atn::ModelBase* models = m1648;
     for (int i = 0; i < 3; i++) {
@@ -272,7 +274,7 @@ int Em316LaserSphere::vf0C() {
         m54C |= 0x200;
         for (int i = 0; i < 3; i++) {
             atn::Model* model = models[i].GetModel_unk();
-            fn_80094D88(model, 3, 0, 0, 0, 0);
+            model->fn_80094D88(3, 0, 0, 0, 0);
             float t = (float)(i + 1) / 4.0f;
             float a = sOne_unk + t * (sZero_unk - sOne_unk);
             atn::Model::Float4_unk color;
@@ -281,7 +283,7 @@ int Em316LaserSphere::vf0C() {
             color.m08 = 1.0f;
             color.m0C = a;
             model->m40 = color;
-            models[i].GetModel_unk()->mFlags |= 0x10;
+            m1648[i].mFlags |= 0x10;
         }
         return 1;
     }
