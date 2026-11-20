@@ -5038,22 +5038,20 @@ extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, u
 
 extern "C" int rand();
 
-// NONMATCHING: 94.90% - the original indexes the shuffle and the last loop as base + offset (here a moving pointer,
-// one register less) and registers
 // inferred: on the server: in a random order of the hosts, the players get a team: in mode 1 the one with fewer
 // players (at random when even) unless they already have one, else team 2
 extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
-    atn::FixedArray_unk<int, 20> order;
+    atn::D2A_FixedArray_unk<int, 16> order;
     for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
         order.push_back(i);
     }
-    for (unsigned int i = 0; i < order.size(); i++) {
+    for (int i = 0; i < (int)order.size(); i++) {
         int j = rand() % (i + 1);
         int tmp = order[i];
         order[i] = order[j];
         order[j] = tmp;
     }
-    for (unsigned int i = 0; i < order.size(); i++) {
+    for (int i = 0; i < (int)order.size(); i++) {
         PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(order[i]));
         if (player == 0) {
             continue;
@@ -5061,14 +5059,7 @@ extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
         if (mgr->mMode == 1) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
-            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            PPPlayerArray_unk& players = mgr2->mPlayers;
-            for (unsigned int k = 0; k < players.size(); k++) {
-                PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
-                if (other->mFlags.mActive == 1) {
-                    counts[other->mFlags.m22]++;
-                }
-            }
+            PPCountTeams_unk(counts);
             if (player->mFlags.m22 != 0) {
                 continue;
             }
