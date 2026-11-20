@@ -1051,9 +1051,6 @@ static inline atn::Vector3 LookPos_unk(CharaTask* chara) {
     return chara->fn_801781B0();
 }
 
-// NONMATCHING: 89.3% - six handlers of the table take a non-const command here (the register trick of
-// SetNext_unk, see their comments): their casted member pointers are copied at run time like the null ones;
-// in the original only the null entries are
 // inferred: per-frame update of the scripts: the camera follows the looked character, the running command
 // goes on (the commands of the frame through the table below), the records of finished characters resume
 // their scripts, then every point of the scene is updated (characters, boxes, spheres, their markers and
@@ -1097,7 +1094,9 @@ void GameEventScript::vf10() {
     for (unsigned int i = 0; i < m12C.size();) {
         ScriptRecord14_unk record = m12C[i];
         if (record.mChara->mRoute.m2C != 0) {
-            m12C.erase(&m12C[i]);
+            // inferred: erased through an iterator with a signed offset (the original keeps a second
+            // offset register for it instead of reusing the one of m12C[i])
+            m12C.erase(m12C.begin() + (int)i);
             if (record.mLabel != 0 && fn_8039CF8C(record.mData, record.mLabel) == 0) {
                 m8C = 1;
                 m9C = record.m0C;
