@@ -875,14 +875,14 @@ void Em308InvertCrab::fn_802F469C() {
 // inferred: state 11 (keeps the distance): needle when the target is far, tackle run (state 10) beyond 0.8 of the
 // attack distance, walk (fn_802F5BCC) when m159C runs out; else keeps 0.8-1.2 of the tackle reach, backing away
 // (m1590 0), standing (1) or closing in (2) while facing the target
-// NONMATCHING: 97.05% - stack layout and order of the escape rotation (written as a reference to mRot or to a
-// temporary); first form
+// inferred: same shape as its twin Em202SpiderBase::fn_80285FA0 (early returns, the yaw by ToRotationZ_unk)
 void Em308InvertCrab::fn_802F4A98() {
+    float dist;
     float rate = 1.0f;
-    CharaTask* target = (CharaTask*)m1580;
-    atn::Vector3 d = target->mPos - mPos;
-    float dist = sqrt(d.x * d.x + d.z * d.z);
-    atn::Vector3 rot = d.ToRotation_unk();
+    atn::Vector3 rot;
+    atn::Vector3 d = ((CharaTask*)m1580)->mPos - mPos;
+    dist = sqrt(d.x * d.x + d.z * d.z);
+    rot = d.ToRotation_unk();
     if (m1554 >= m1558 && m1570.size() != 0) {
         fn_802F693C((CharaTask*)m1580);
         return;
@@ -892,7 +892,9 @@ void Em308InvertCrab::fn_802F4A98() {
         if (fn_802F62A0((CharaTask*)m1580, 8) == 0) {
             fn_802F5F20((CharaTask*)m1580);
         }
-    } else if (dist > 0.8f * m1524) {
+        return;
+    }
+    if (dist > 0.8f * m1524) {
         fn_8016E970(3);
         if (fn_802F62A0((CharaTask*)m1580, 10) == 0 && fn_802F62A0((CharaTask*)m1580, 10) == 0) {
             ResetAttack_unk();
@@ -904,37 +906,39 @@ void Em308InvertCrab::fn_802F4A98() {
             mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
             m1584 = m1580;
         }
-    } else if (m159C < 0) {
+        return;
+    }
+    if (m159C < 0) {
         fn_8016E970(3);
         if (fn_802F62A0((CharaTask*)m1580, 7) == 0) {
             fn_802F5BCC((CharaTask*)m1580);
         }
-    } else {
-        float reach = 30.0f;
-        if (m1528 != 0) {
-            reach = m1528->m40;
-        }
-        if (dist >= 0.8f * reach && dist <= 1.2f * reach) {
-            m1590 = 1;
-        } else if (dist < 0.8f * reach) {
-            m1590 = 0;
-        } else if (dist > 1.2f * reach) {
-            m1590 = 2;
-        }
-        if (m1590 == 0) {
-            dist = reach * (1.0f - dist / reach);
-            const atn::Vector3& src = dist <= 0.0f ? mRot : d.GetNormalize().ToRotation_unk();
-            rot = src;
-            rot.y -= 3.1415927f;
-        } else if (m1590 == 1) {
-            dist = 0.0f;
-        } else if (m1590 == 2) {
-            dist *= dist / reach;
-        }
-        mRot.y = (((CharaTask*)m1580)->mPos - mPos).ToRotation_unk().y;
-        fn_801426A4(&rot, dist, m568 * rate);
-        m159C--;
+        return;
     }
+    float reach = 30.0f;
+    if (m1528 != 0) {
+        reach = m1528->m40;
+    }
+    if (dist >= 0.8f * reach && dist <= 1.2f * reach) {
+        m1590 = 1;
+    } else if (dist < 0.8f * reach) {
+        m1590 = 0;
+    } else if (dist > 1.2f * reach) {
+        m1590 = 2;
+    }
+    if (m1590 == 0) {
+        dist = reach * (1.0f - dist / reach);
+        rot = dist <= 0.0f ? mRot : d.GetNormalize().ToRotation_unk();
+        rot.y -= 3.1415927f;
+    } else if (m1590 == 1) {
+        dist = 0.0f;
+    } else if (m1590 == 2) {
+        dist *= dist / reach;
+    }
+    CharaTask* target = (CharaTask*)m1580;
+    mRot.y = (target->mPos - mPos).ToRotationZ_unk().y;
+    fn_801426A4(&rot, dist, m568 * rate);
+    m159C--;
 }
 
 // inferred: state 12 (escape): runs to the escape point m1564 (route place m1560) and attacks the target when it
