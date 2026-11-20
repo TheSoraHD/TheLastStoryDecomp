@@ -1058,8 +1058,6 @@ void Em316LaserSphere::fn_80319C90() {
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// NONMATCHING: 99.23% - FPR numbering of the gravity (f3-f6 permuted) and r3/r4 of the copy to m1540
-// (__VecCopy family); ~10 variants
 void Em316LaserSphere::fn_8031A484() {
     int zero = 0;
     SetState_unk(2);
@@ -1070,7 +1068,7 @@ void Em316LaserSphere::fn_8031A484() {
         zero = 1;
     }
     if (!zero) {
-        m1540 = m6B8.GetNormalize() * 2.0f;
+        atn::VecAssign_unk(m1540, m6B8.GetNormalize() * 2.0f);
         m1540.y *= 0.5f;
         if (m1540.y > 0.0f) {
             m1540.y = 0.0f;
@@ -1078,7 +1076,8 @@ void Em316LaserSphere::fn_8031A484() {
     }
     int fps = lbl_8087F0A8->m030;
     float g = -98.1f / (float)(fps * fps);
-    m154C = 1.5f * (lbl_8087EFA8->m3A4 * g);
+    float dt = lbl_8087EFA8->m3A4;
+    m154C = 1.5f * (g * dt);
     CharaTask* caught = m15B4;
     if (caught != 0 && caught->m55C == 6 && caught->m560 == 0x8C) {
         fn_80319998((LaserCatch_unk*)fn_80318F90(caught));
