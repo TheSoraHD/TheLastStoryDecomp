@@ -1,0 +1,85 @@
+diff --git a/src/game/Em401_01_WhiteLeoPard.cpp b/src/game/Em401_01_WhiteLeoPard.cpp
+index 497ddc8..cb25133 100644
+--- a/src/game/Em401_01_WhiteLeoPard.cpp
++++ b/src/game/Em401_01_WhiteLeoPard.cpp
+@@ -480,6 +480,13 @@ void Em401_01_WhiteLeoPard::vf34(const atn::Vector3& rot, int arg, float a, floa
+ // of move.x/z around sin, order of m574 at the end); ~6 variants
+ // inferred: moves the leopard towards the rotation `target` (as Em403WarLion::fn_80324A38, plus the push
+ // forward of the first 24 frames of the attack)
++// inferred: flag 0 of the parameters through int/bool accessors (as QuadrupedTask; names invented)
++static inline int StatusFlag0_unk(const CharaStatus& status) {
++    return status.mParamB.m9C & 1;
++}
++static inline bool NoFlag0_unk(const CharaStatus& status) {
++    return StatusFlag0_unk(status) != 1;
++}
+ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, float speed, float rate) {
+     atn::Vector3 pos(mPos);
+     atn::Vector3 rot(mRot);
+@@ -488,7 +495,8 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
+     float cur = rot.y;
+     float turn = m56C;
+     rate *= dt;
+-    float k = 0.75f * atn::Abs_unk(diff / 3.1415927f);
++    float k = atn::Abs_unk(diff / 3.1415927f);
++    k *= 0.75f;
+     turn *= 1.0f + k;
+     float step = diff * turn;
+     cur += step;
+@@ -511,7 +519,8 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
+         if (angle < 0.0f) {
+             angle = 0.0f;
+         }
+-        speed *= 1.0f - 1.5f * (angle / (1.0f - ofs));
++        angle /= 1.0f - ofs;
++        speed *= 1.0f - 1.5f * angle;
+         if (speed < 0.0f) {
+             speed = 0.0f;
+         }
+@@ -538,14 +547,14 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
+         move.y *= 2.0f;
+         move.z *= 2.0f;
+     }
+-    if ((mStatus.mParamB.m9C & 1) != 1) {
++    if (NoFlag0_unk(mStatus)) {
+         int fps = lbl_8087F0A8->m030;
+         m574.y += dt * (-98.1f / (float)(fps * fps));
+     }
+     move += m6B8;
+     m6B8.x *= 0.8f;
+-    m6B8.y = 0.0f;
+     m6B8.z *= 0.8f;
++    m6B8.y = 0.0f;
+     if (m6B8.Length_unk() < 0.1f) {
+         m6B8.Set_unk(0.0f, 0.0f, 0.0f);
+     }
+@@ -580,7 +589,8 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
+         move.y = 0.0f;
+     }
+     bool landed = false;
+-    if (result.m34 != 0 && *(unsigned int*)result.m34 == 0x1A) {
++    unsigned int* hitType = (unsigned int*)result.m34;
++    if (hitType != 0 && *hitType == 0x1A) {
+         landed = true;
+     }
+     mFlag3 = landed;
+@@ -590,7 +600,8 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
+         lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
+     }
+     lean *= 2.0f;
+-    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
++    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f);
++    m584 *= 0.9f;
+     if ((m54C & 2) == 2 && pos.y < 0.0f) {
+         pos.y = 0.0f;
+     }
+@@ -599,8 +610,8 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
+         mRot = rot;
+     }
+     m574 = move;
+-    m574.z /= dt;
+     m574.x /= dt;
++    m574.z /= dt;
+ }
+ 
+ extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
