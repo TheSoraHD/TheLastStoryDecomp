@@ -10208,17 +10208,21 @@ extern "C" __declspec(noinline) int fn_8003DBA4() {
     return 6;
 }
 
-// NONMATCHING: 99.05% - the pool string is addressed as base + 0x454 in the original (one more addi) and
-// the stack slots of the iterator tag copy are swapped (as in game/GameEventScript)
+// inferred: allocator<value_type>::construct of MSL (placement copy of the pair)
+static inline void ConstructValue_unk(AIScriptMapValue_unk* p, const AIScriptMapValue_unk& value) {
+    ::new (p) AIScriptMapValue_unk(value);
+}
+
 // inferred: MSL __tree::insert_node (as ScriptTreeData_unk::InsertNode_unk of game/GameEventScript.h); the
-// length error message is in the string pool of the unit (+0x454, see the note on em_scout)
+// value is copied through ConstructValue_unk (allocator::construct): without that level the two
+// iterator tag slots of the string copy are swapped
 AIScriptMapNode_unk* AIScriptMap_unk::InsertNode_unk(AIScriptMapNode_unk* parent, bool left, bool leftmost,
                                                      const AIScriptMapValue_unk& value) {
     if (mSize == 0xFFFFFFFF) {
         __msl_error("tree::insert length error");
     }
     NodeHolder_unk holder(&mRoot, Allocate_unk());
-    ::new (&holder.mNode->mValue) AIScriptMapValue_unk(value);
+    ConstructValue_unk(&holder.mNode->mValue, value);
     AIScriptMapNode_unk* node = holder.release();
     node->mRight = 0;
     node->mLeft = 0;
