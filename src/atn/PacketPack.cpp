@@ -9770,15 +9770,15 @@ extern "C" void fn_804F3AF0() {
 
 extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int a, int b);
 
-// NONMATCHING: 96.78% - here the manager pointer is kept in r29 across the loop (the original loads it again
-// in every iteration)
+// NONMATCHING: 99.27% - saved registers of the counter, the offset and the manager of GetMyPlayer_unk
+// (r29/r28/r30 in the original), registers of the team test
 // inferred: message 0x31: fn_804EAA84 on the characters of the players marked m30 and of the own team
 extern "C" void fn_804F3BAC() {
-    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+    if (PPManager2Ref_unk()->mState != 30) {
         return;
     }
-    for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
-        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
+    for (int i = 0; i < (int)PPManager2Ref_unk()->mPlayers.size(); i++) {
+        PPPlayer_unk* player = fn_804D5F0C(PPManager2Ref_unk(), i);
         if (player->mFlags.mActive && player->mRef.mChara != 0) {
             if (player->mFlags.m30 == 1 || IsSameTeam_unk(player, GetMyPlayer_unk())) {
                 fn_804EAA84((PPManager2_unk*)lbl_8087F610, player->mRef.mChara, 1, 0);
