@@ -1161,13 +1161,6 @@ void fn_8050A990(unsigned int aid, const unsigned char* data);
 
 extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
-// inferred: atn::net::Manager (lbl_8087F628), only for mC2C: a word of the data saved by the game inside
-// MpFriendList_unk::m7F0 (atn::net::Manager::mFriendList + 0x7FC), not yet split in include/atn/net/Manager.h
-struct PPNet_unk {
-    unsigned char m000[0xC2C];
-    unsigned int mC2C; // inferred: bit 0 and bit 1 set by message 0x0D
-};
-
 // inferred: weak copies used by the receive loop (fn_804EE040) and by fn_804D25D0
 extern "C" inline PPPlayer_unk* fn_804D5F0C(PPManager2_unk* mgr, int index) {
     if (index >= 0 && index < (int)mgr->mPlayers.size()) {
@@ -9122,9 +9115,8 @@ extern "C" void fn_804F1068() {
     ((PPManager2_unk*)lbl_8087F610)->m55C = data[0];
 }
 
-// NONMATCHING: 99.26% - r3/r4/r5 of the network manager, its flags and bit 0 rotated
-// inferred: message 0x0D: value m564; in game mode 2 it plays a BGM and sets the flags of the network
-// manager (bit 0, then bit 1) and a flag of the game (0x1B0)
+// inferred: message 0x0D: value m564; in game mode 2 it plays a BGM and sets the word of the saved data shown by
+// the server (mFriendList.m7F0 + 0x0C, as fn_804E4EB0: bit 0, then bit 1) and a flag of the game (0x1B0)
 extern "C" void fn_804F1124() {
     if (PP_NO_DATA_UNK) {
         return;
@@ -9135,15 +9127,15 @@ extern "C" void fn_804F1124() {
         if (GameBgm::sInstance != 0) {
             GameBgm::sInstance->fn_8037D4C0(0x53D, 15, 1, 0, 0.7f);
         }
-        PPNet_unk* net = (PPNet_unk*)lbl_8087F628;
-        unsigned int flags = net->mC2C;
-        if ((flags & 1) == 1 && (flags & 2) == 2) {
+        atn::net::Manager* net = lbl_8087F628;
+        unsigned int* shown = (unsigned int*)&net->mFriendList.m7F0[0x0C];
+        if ((*shown & 1) == 1 && (*shown & 2) == 2) {
             return;
         }
-        if ((flags & 1) != 1) {
-            net->mC2C |= 1;
-        } else if ((flags & 2) != 2) {
-            net->mC2C |= 2;
+        if ((*shown & 1) != 1) {
+            *shown |= 1;
+        } else if ((*shown & 2) != 2) {
+            *shown |= 2;
         }
         if (lbl_8087F430 != 0) {
             SetConfig::sInstance->mShowTutorial = 1;
