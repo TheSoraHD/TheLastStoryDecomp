@@ -2146,24 +2146,29 @@ void EnemyQuarkSecond::fn_80341EE4() {
     PlayMotion_unk(2, 1, 1.0f);
 }
 
-// NONMATCHING: ~80% - the original frame is 0x10 bytes bigger (the node positions and the
-// difference live in other slots); 6 variants
+// inferred: plays an effect on the model at the origin (as EnemyQuarkStand; name invented)
+inline void QuarkPlayEffectAt_unk(atn::EfpFile* efp, atn::Model* model) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    atn::EffectManager* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts attack 5 (state 6, motion 0x147): laser from the "spine" of the target toward the "head" (as
+// EnemyQuarkStand::fn_8034F53C)
 void EnemyQuarkSecond::fn_80342004() {
     ResetState_unk();
     fn_8016E970(3);
     m58C = 6;
     fn_80232B7C(this, 0x3E8);
     PlayMotion_unk(0x147, 0, 2.0f);
-    atn::Vector3 target;
-    atn::Vector3 dir;
-    Color4f_unk color;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &m15B0, &mMotion, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
-    target = GetNodePos_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
-    m15D4 = target - GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    QuarkPlayEffectAt_unk(&m15B0, &mMotion);
+    atn::Vector3 spine = GetNodePos_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
+    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    m15D4 = spine - head;
     PSVECNormalize(&m15D4, &m15D4);
     fn_800C31F4("SE_EM211_009_1", 0, -1, 1.0f);
 }
