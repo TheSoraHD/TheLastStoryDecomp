@@ -49,3 +49,20 @@ index c1746ac..ef5dff6 100644
                      return 1;
                  }
              }
+diff --git a/src/game/Em316LaserSphere.cpp b/src/game/Em316LaserSphere.cpp
+index c1746ac..867a019 100644
+--- a/src/game/Em316LaserSphere.cpp
++++ b/src/game/Em316LaserSphere.cpp
+@@ -568,8 +568,10 @@ void Em316LaserSphere::fn_803176D0() {
+         Em316LaserSphere* sphere = (Em316LaserSphere*)e;
+         bool inserted = false;
+         for (Em316LaserSphere** it = spheres.begin(); it != spheres.end(); ++it) {
+-            int key = SharedTarget_unk(sphere)->m50;
+-            if (SharedTarget_unk(*it)->m50 >= key) {
++            CharaTask* leader = lbl_8087F8A0->mHead;
++            int key = (leader->mFlag28 ? leader : sphere->m14D4)->m50;
++            Em316LaserSphere* other = *it;
++            if ((leader->mFlag28 ? leader : other->m14D4)->m50 >= key) {
+                 spheres.insert(it, sphere);
+                 inserted = true;
+                 break;
