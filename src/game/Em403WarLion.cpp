@@ -843,10 +843,11 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 97.76% - r3/r4 de las copias de Vector3 (__VecCopy) y offset de "tale" en el pool de cadenas
+// inferred: copies through VecAssign_unk, the radius in a local and m620 doubled in place (as QuadrupedTask)
 // inferred: places the collision capsule along the body (own version of CharaTask::vf20)
 void Em403WarLion::vf20() {
-    m620 = 2.0f * m5B0;
+    m620 = m5B0;
+    m620 *= 2.0f;
     atn::Vector3 ofs(0.0f, 0.0f, -10.0f);
     atn::Matrix3x4 m;
     MakeRotationZYX_unk(m, mRot);
@@ -857,17 +858,18 @@ void Em403WarLion::vf20() {
     atn::Vector3 b;
     int tail = mMotion.GetNodeNoByName("tale", 0);
     if (tail > -1) {
-        b = GetNodePos_unk(mMotion.mMtx.mNodes.mData[tail].m);
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.mMtx.mNodes.mData[tail].m));
         b.y -= 1.0f;
     } else {
-        b = a;
+        atn::VecAssign_unk(b, a);
         b.y += m5B4 - 2.0f * m620;
     }
+    float radius = m620;
     mColli.m3C = a;
     mColli.m48 = b;
-    mColli.m54 = m620;
+    mColli.m54 = radius;
     mColli.mFlags &= ~0x80000000;
-    m148C = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    atn::VecAssign_unk(m148C, GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")));
     m1498 = 5.0f;
 }
 

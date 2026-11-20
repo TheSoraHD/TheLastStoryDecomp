@@ -518,16 +518,21 @@ void Em203GreaterDaemonRedMp::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 85% - stack slots and scheduling of the capsule vectors (as Red vfF8)
+// inferred: as Em203GreaterDaemonRed::vfF8 (center/head through VecAssign_unk, radius in a local)
 void Em203GreaterDaemonRedMp::vf11C() {
-    m614 = mPos + m5A4;
     m620 = m5B0;
-    m614.y += m5B0;
-    atn::Vector3 center = (GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) + GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"))) * 0.5f;
-    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Vector3 center;
+    atn::VecAssign_unk(center, (GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")) +
+                                GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"))) *
+                                   0.5f);
+    atn::Vector3 head;
+    atn::VecAssign_unk(head, GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));
+    float radius = m620;
     mColli.m3C = center;
     mColli.m48 = head;
-    mColli.m54 = m620;
+    mColli.m54 = radius;
 }
 
 void Em203GreaterDaemonRedMp::vf50() {

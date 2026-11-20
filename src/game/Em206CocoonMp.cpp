@@ -537,7 +537,7 @@ void Em206CocoonMp::vf104() {
 
 void Em206CocoonMp::vf108() {}
 
-// NONMATCHING: 99.9% - stack slots of the front vector and of the center
+// inferred: matches with the by-value lerp (LerpR_unk) and the final mFlagB29 = 0
 // inferred: creates the damage spheres of the table sSpheres_unk
 void Em206CocoonMp::vf50() {
     Item14_unk item;
@@ -678,7 +678,14 @@ void Em206CocoonMp::vf24() {
     }
 }
 
-// NONMATCHING: 99.88% - r4/r5 of the copies into the capsule points (m3C/m48)
+// inferred: sets the segment and radius of a capsule (as in Em204BigMulue: the copies of the loop take the
+// registers of the original only through it; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
 // inferred: updates the collision of the body and of the capsules (masks 0xE0 in ice mode, 4 in state 10)
 void Em206CocoonMp::vf20() {
     m620 = m5B0;
@@ -699,9 +706,7 @@ void Em206CocoonMp::vf20() {
         float radius = sCapsules_unk[i].mRadius;
         atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode)));
         atn::VecAssign_unk(top, GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode2)));
-        m1538[i].m3C = a;
-        m1538[i].m48 = top;
-        m1538[i].m54 = radius;
+        SetCapsule_unk(m1538[i], a, top, radius);
         m1538[i].m20 = mask;
     }
     atn::VecAssign_unk(m148C, GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));
