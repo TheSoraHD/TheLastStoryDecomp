@@ -328,9 +328,10 @@ void D2AMpMenuCockpit::vf14() {
 // the loops, not in an inline (the vector temporaries keep the order of the original); the mode is
 // read before the team (register order of the two loads).
 // The on-screen test is written in each if (an inline bool function leaves its result in a register).
-// NONMATCHING: 99.78% - the original reloads lbl_8087F610 at the top of the player loop body (here it
-// is reused from the loop condition; tried the weak getter fn_800F7F90 in the body and in the condition,
-// GetPlayer_unk defined after the function)
+// inferred: typed reference to the session (the original reloads lbl_8087F610 at the top of the player loop
+// body; as SessionRef_unk of MP/D2AMpMenuLobby.cpp)
+static inline MpSession_unk*& SessionRef_unk() { return *(MpSession_unk**)&lbl_8087F610; }
+
 void D2AMpMenuCockpit::fn_804B5B10() {
     if (fn_804EB870(lbl_8087F610) == 0) {
         return;
@@ -378,7 +379,7 @@ void D2AMpMenuCockpit::fn_804B5B10() {
     }
     if (lbl_8087F610->m540 == 1) {
         for (int i = 0; i < lbl_8087F610->m5E8; i++) {
-            MpPlayer_unk* player = lbl_8087F610->GetPlayer_unk(i);
+            MpPlayer_unk* player = SessionRef_unk()->GetPlayer_unk(i);
             MpPlayerInfo_unk* info = lbl_8087F628->GetInfo_unk(i);
             if (info != 0 && player != 0 && team == player->mTeam) {
                 float (*mtx)[4] = player->m00->mModel.GetNodeMtx_unk("neck");
