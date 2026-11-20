@@ -807,8 +807,6 @@ extern "C" ColliManager_unk* lbl_8087EE98; extern "C" int fn_8004D388(void* worl
                                                           CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float radius);
 
-// NONMATCHING: 94.2% - the mask 0x80000080 is built in r0 then or-ed into r7 in the original, the 0.5f is
-// loaded after the fabs, and r3/r4 of the copy of the zero vector (__VecCopy family); ~8 variants
 void Em316LaserSphere::vfEC() {
     if (m14C0 >= 30) {
         fn_80239DAC(lbl_8087F3C0, this, 1001, 0);
@@ -820,14 +818,15 @@ void Em316LaserSphere::vfEC() {
         atn::ColliResult_unk result;
         Sphere_unk sphere = fn_80176548(mPos);
         unsigned int mask = 0x80000000;
-        int hit = fn_8004D388(lbl_8087EE98, &result, &sphere, &m1540, mask | 0x80, &mColli, 0, sphere.mRadius);
+        mask |= 0x80;
+        int hit = fn_8004D388(lbl_8087EE98, &result, &sphere, &m1540, mask, &mColli, 0, sphere.mRadius);
         m1540.y += m154C;
         if (hit != 0) {
             m1540 *= -0.3f;
             if (mPos.y < result.m10.y) {
                 mPos.y = result.m10.y;
                 if (atn::Abs_unk(m1540.y) < 0.5f) {
-                    m1540 = lbl_807C7030;
+                    atn::VecAssign_unk(m1540, lbl_807C7030);
                 }
             }
         }
