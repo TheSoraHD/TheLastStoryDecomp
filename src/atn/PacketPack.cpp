@@ -1506,6 +1506,10 @@ extern "C" inline atn::EffectManager* fn_800F7FA0() {
 extern "C" inline PPManager2_unk* fn_800F7F90() {
     return (PPManager2_unk*)lbl_8087F610;
 }
+// inferred: the MP::Manager2 instance as a reference (the inlined player loops reload it at each use)
+static inline PPManager2_unk*& PPManager2Ref_unk() {
+    return *(PPManager2_unk**)&lbl_8087F610;
+}
 // inferred: the request searches of fn_804F5A98/fn_804F5B08 on the MP::Manager2 instance, read through the
 // getter at each use (as the inlined copies in fn_804D8910, fn_804F3258 and fn_804FAB40)
 static inline PPRequest_unk* FindRequestM_unk(unsigned int id) {
@@ -3723,7 +3727,7 @@ struct PPMsgRoom_unk {
     int m21;
     unsigned int mFlags;
     unsigned char mTeams[8];
-    unsigned char mB0[8];
+    signed char mB0[8];
     unsigned char mD4[8];
     unsigned char m41;
     int mD8[8];
@@ -5034,22 +5038,20 @@ extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, u
 
 extern "C" int rand();
 
-// NONMATCHING: 94.90% - the original indexes the shuffle and the last loop as base + offset (here a moving pointer,
-// one register less) and registers
 // inferred: on the server: in a random order of the hosts, the players get a team: in mode 1 the one with fewer
 // players (at random when even) unless they already have one, else team 2
 extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
-    atn::FixedArray_unk<int, 20> order;
+    atn::D2A_FixedArray_unk<int, 16> order;
     for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
         order.push_back(i);
     }
-    for (unsigned int i = 0; i < order.size(); i++) {
+    for (int i = 0; i < (int)order.size(); i++) {
         int j = rand() % (i + 1);
         int tmp = order[i];
         order[i] = order[j];
         order[j] = tmp;
     }
-    for (unsigned int i = 0; i < order.size(); i++) {
+    for (int i = 0; i < (int)order.size(); i++) {
         PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(order[i]));
         if (player == 0) {
             continue;
@@ -5057,14 +5059,7 @@ extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
         if (mgr->mMode == 1) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
-            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            PPPlayerArray_unk& players = mgr2->mPlayers;
-            for (unsigned int k = 0; k < players.size(); k++) {
-                PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
-                if (other->mFlags.mActive == 1) {
-                    counts[other->mFlags.m22]++;
-                }
-            }
+            PPCountTeams_unk(counts);
             if (player->mFlags.m22 != 0) {
                 continue;
             }
@@ -5471,14 +5466,12 @@ extern "C" void fn_804DF11C(PPManager2_unk* mgr, unsigned int reset) {
     fn_800C3124("GROUP_MP_EM003");
 }
 
-// NONMATCHING: 90.49% - the original reloads lbl_8087F610 in every iteration and keeps the zero of the index in
-// two more registers
 // inferred: resets the player slots (and the aid tables m9984/m998C)
 extern "C" void fn_804DF310(PPManager2_unk* mgr) {
     memset(mgr->m9984, 0, 8);
     memset(mgr->m998C, 0xFF, 8);
     for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
-        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
+        PPPlayer_unk* player = fn_804D5F0C(PPManager2Ref_unk(), i);
         player->mB0 = 0;
         player->mAid = 0xFF;
         player->mFlags.mActive = 0;
@@ -9237,8 +9230,22 @@ struct PPMsgSlot_unk {
     signed char mStages[8];
 };
 
-// NONMATCHING: 98.52% - registers of the inlined searches and loop; the call in fn_804EE040 has to pass the
-// type, which moves its registers (99.83 -> 99.49%)
+// inferred: teams and stages of the slots from a message (fn_804F1564, fn_804F47FC)
+static inline void PPSetTeams_unk(const unsigned char* teams, const signed char* stages) {
+    PPManager2_unk* mgr = fn_800F7F90();
+    if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) == 0) {
+        return;
+    }
+    for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
+        PPPlayer_unk* slot = fn_804D5F0C(PPManager2Ref_unk(), i);
+        if (slot != 0) {
+            slot->mFlags.m22 = teams[i];
+            slot->mB0 = stages[i];
+        }
+    }
+}
+// NONMATCHING: 99.84% - the slot pointer of 0x2C and the manager of the search in r31/r28 (r30/r31 in the
+// original; probed: mgr declared before the if, mgr as parameter of PPSetTeams_unk, no local in the else)
 // inferred: messages 0x13 and 0x2C (`type`) from a player: flags of its slot (its values too when it is the
 // server); 0x2C also sets the teams and stages of the slots when this machine has a slot, 0x13 marks the player
 // in the own slot (bit of its aid in mD53); not while m999C is set
@@ -9265,16 +9272,7 @@ extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type) {
     }
     if (type == 0x2C) {
         PPMsgSlot_unk* slots = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
-        PPManager2_unk* mgr = fn_800F7F90();
-        if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) != 0) {
-            for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
-                PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
-                if (slot != 0) {
-                    slot->mFlags.m22 = slots->mTeams[i];
-                    slot->mB0 = slots->mStages[i];
-                }
-            }
-        }
+        PPSetTeams_unk(slots->mTeams, slots->mStages);
     } else {
         PPManager2_unk* mgr = fn_800F7F90();
         PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
@@ -9892,8 +9890,6 @@ extern "C" void fn_804F4728() {
     }
 }
 
-// NONMATCHING: 97.97% - `player`/`aid` in r30/r29 (r29/r30 in the original) and the words at +0x42 through a
-// pointer that advances by 4 (packed payload, as fn_804D824C)
 // inferred: message 0x1040 (fn_804D824C) from `aid`: the settings of the room, the flags of the sender's slot
 // (its values too when it is the server), the teams and stages of the slots when this machine has a slot; mode 0
 // is answered with its sequence number (message 0x1035, m99B0), mode 1 marks the server as ready (m9A74[0])
@@ -9906,7 +9902,7 @@ extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
     }
     const PPMsgRoom_unk* data = (const PPMsgRoom_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
-        PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
+        PPPlayer_unk* slot = fn_804D5F0C(PPManager2Ref_unk(), i);
         slot->mD8 = data->mD8[i];
         slot->mD4Flags.m22 = data->mD4[i];
     }
@@ -9937,16 +9933,7 @@ extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
         player->mFlags.m22 = ((PPPlayerFlags_unk*)&data->mFlags)->m22;
         player->mFlags.m10 = ((PPPlayerFlags_unk*)&data->mFlags)->m10;
     }
-    PPManager2_unk* mgr2 = fn_800F7F90();
-    if (fn_804DD158(mgr2, lbl_8087F628->GetMyAid_unk()) != 0) {
-        for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
-            PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
-            if (slot != 0) {
-                slot->mFlags.m22 = data->mTeams[i];
-                slot->mB0 = (signed char)data->mB0[i];
-            }
-        }
-    }
+    PPSetTeams_unk(data->mTeams, data->mB0);
     fn_800F7F90()->m5B4 = data->m69;
     switch (data->m6C) {
     case 0: {
