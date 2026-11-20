@@ -112,8 +112,6 @@ extern "C" void fn_80338CDC(atn::ColliBase* colli, int upright) {
 }
 
 // inferred: reads a list of ids into `table` until a zero id (not a member: it gets no `this`)
-// NONMATCHING: ~99% - known push_back residue: the inlined fast path loads size/capacity in the other
-// registers (docs: push_back in loops)
 static void fn_80338D14(QuarkTable_unk* table, atn::Csv* csv) {
     for (;;) {
         int id = fn_800DC12C(csv->fn_8005B9CC());

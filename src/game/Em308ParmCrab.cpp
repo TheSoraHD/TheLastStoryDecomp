@@ -132,8 +132,6 @@ Em308ParmCrab::Em308ParmCrab(atn::Task* parent, EnemyInfo_unk* info)
 Em308ParmCrab::~Em308ParmCrab() {}
 
 // inferred: as Em308InvertCrab::vf0C, with the flags Move/RecoverMove/AutoLockon and the recover parameters
-// NONMATCHING: 99.95% - r3/r4 of the inlined std::vector::push_back (known blocker) and the message of
-// vector::__allocate (lbl_80775A88, a pool of another file)
 int Em308ParmCrab::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15F4.IsLoading() == 0 &&
         m1520.IsLoading() == 0 && m14DC.IsLoading() == 0 && m1600.IsLoading() == 0 &&

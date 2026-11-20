@@ -142,8 +142,6 @@ Em308InvertCrab::~Em308InvertCrab() {}
 
 // inferred: once loaded reads the data file: the attack flags, the route of the "BasePoints", the
 // parameters of the needle and the escape, the sounds; then the status flags and the debug menu "em308_ParmCrab"
-// NONMATCHING: 99.94% - r3/r4 of the inlined std::vector::push_back (known blocker) and the message of
-// vector::__allocate (lbl_80775A88, a pool of another file, as in ChaserNpc)
 int Em308InvertCrab::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m15AC.IsLoading() == 0 &&
         m1518.IsLoading() == 0 && m14D8.IsLoading() == 0 && m15B8.IsLoading() == 0 &&

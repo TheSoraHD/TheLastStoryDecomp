@@ -55,6 +55,21 @@
 #include "nw4r/math/triangular.h"
 #include "std/string_members.h"
 
+namespace std {
+// inferred: the light settings keep the push_back of std/vector.h before the change of the capacity read: their
+// slow path stays out of line (Event::fn_80481B9C calls expand_by 0x8049003C, construct 0x80482400 and the
+// reallocation 0x80490098)
+template <>
+inline void vector<Event::SceneSettingEntry_unk>::push_back(const Event::SceneSettingEntry_unk& x) {
+    size_type n = this->mSize;
+    if (n < this->mCap) {
+        this->__push_fast_unk(n, x);
+        return;
+    }
+    __push_back_slow_unk(x);
+}
+} // namespace std
+
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)

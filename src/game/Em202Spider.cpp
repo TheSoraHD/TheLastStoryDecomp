@@ -121,8 +121,6 @@ inline gs::WarpPoint* FindRoutePlace3_unk(int id) {
     return 0;
 }
 
-// NONMATCHING: 99.90% - size/capacity registers of the inlined push_back (known open case) and the name of
-// the pool of __allocate (lbl_80775A88, another unit)
 int Em202Spider::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1550.IsLoading() == 0 &&
         m155C.IsLoading() == 0 && m1568.IsLoading() == 0 && m1574.IsLoading() == 0 &&

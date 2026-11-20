@@ -229,8 +229,8 @@ EnemyQuarkStand::EnemyQuarkStand(atn::Task* parent, EnemyInfo_unk* info)
     mFlag24 = 0;
 }
 
-// inferred: reads the skill ids of a line of the data file until a zero (names invented)
-inline void ReadIds_unk(IntVector_unk* list, atn::Csv* csv) {
+// inferred: reads the skill ids of a line of the data file until a zero
+extern "C" void fn_803458EC(IntVector_unk* list, atn::Csv* csv) {
     while (true) {
         int id = fn_800DC12C(csv->fn_8005B9CC());
         if (id == 0) {
@@ -238,11 +238,6 @@ inline void ReadIds_unk(IntVector_unk* list, atn::Csv* csv) {
         }
         list->push_back(id);
     }
-}
-// NONMATCHING: 99.73% - inlined vector<int>::push_back (size/capacity loads swapped, known family) and the
-// "Memory allocation failure" literal of another file (lbl_80775A88)
-extern "C" void fn_803458EC(IntVector_unk* list, atn::Csv* csv) {
-    ReadIds_unk(list, csv);
 }
 
 int EnemyQuarkStand::vf0C() {

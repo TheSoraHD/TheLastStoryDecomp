@@ -2877,8 +2877,6 @@ void GameEventScript::fn_8039EBB8(ScriptResult_unk& result, const ScriptCmd_unk*
     }
 }
 
-// NONMATCHING: 98.5% - inside the inlined vector::push_back: @stringBase0 offset (earlier strings unwritten)
-// and two stack slots of the growth computation swapped
 // inferred: makes the character m10/m14 act (m08: 0 fn_8016F824, 1 fn_8016FDCC, 2 fn_8017039C with m0C)
 // and, with m18, records the label m1C to run for it
 void GameEventScript::fn_8039F08C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
