@@ -1196,7 +1196,10 @@ static inline bool CanStartTalk_unk(PlayerTask* chara) {
     case 1:
     case 9:
     case 10:
-        return !chara->mFlag31 && !chara->mFlag6 && chara->m14A0 <= 0 && chara->m1208 == 0;
+        if (!chara->mFlag31 && !chara->mFlag6 && chara->m14A0 <= 0 && chara->m1208 == 0) {
+            return true;
+        }
+        break;
     case 6:
         if (chara->m560 >= 60 && chara->m560 <= 61) {
             return true;
@@ -1331,15 +1334,10 @@ void GameEventScript::CharaMarkers_unk(Manager* manager, atn::SimpleArray<gs::Np
     }
 }
 
-// NONMATCHING: 99.1% - registers of the loop and stack slots of the ray (as fn_8039AB10)
-// inferred: the events of the event boxes that start by approach (kind 1: entering, 8: leaving, 6: outside,
-// 2: always) or by talking (kind 0: the nearest talk box and the action button; shows the hint of the HUD);
-// conditions on unfinished events mark them finished; stops at the first event that runs
-void GameEventScript::fn_80399148() {
-    m98 = 0;
-    m9C = 5;
+// inferred: the hit sphere of the leader; while hanging (control 6, state 11) it is projected on the
+// ground below (the same block in four functions; name invented)
+static inline PlayerTask* LeaderSphere_unk(atn::Sphere& sphere) {
     PlayerTask* leader = lbl_8087F8A0->mHead;
-    atn::Sphere sphere;
     sphere.mCenter = leader->m614;
     sphere.mRadius = leader->m620;
     if (leader->m55C == 6 && leader->m560 == 11) {
@@ -1349,20 +1347,29 @@ void GameEventScript::fn_80399148() {
             sphere.mCenter = result.m10 + atn::Vector3(0.0f, sphere.mRadius, 0.0f);
         }
     }
+    return leader;
+}
+
+// NONMATCHING: 99.1% - registers of the loop and stack slots of the ray (as fn_8039AB10)
+// inferred: the events of the event boxes that start by approach (kind 1: entering, 8: leaving, 6: outside,
+// 2: always) or by talking (kind 0: the nearest talk box and the action button; shows the hint of the HUD);
+// conditions on unfinished events mark them finished; stops at the first event that runs
+void GameEventScript::fn_80399148() {
+    m98 = 0;
+    m9C = 5;
+    atn::Sphere sphere;
+    PlayerTask* leader = LeaderSphere_unk(sphere);
     GameUIElem1C_unk hint;
-    GameScene* scene = mScene;
-    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
-        gs::EventBox& box = scene->mE4[i];
+    atn::SimpleArray<gs::EventBox>& boxes = mScene->mE4;
+    for (unsigned int i = 0; i < boxes.size(); i++) {
+        gs::EventBox& box = boxes[i];
         bool stop = false;
         mA0 = box.mId;
-        int group = i;
-        if (box.m2C >= 0) {
-            group = box.m2C;
-        }
+        int group = box.m2C >= 0 ? box.m2C : i;
         ScriptNpcFlag_unk& state = mFC[group];
         if (state.m00 >= 0) {
             mA4 = state.m00;
-            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(scene->mE4[group].m24[state.m00]);
+            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(boxes[group].m24[state.m00]);
             if (e != 0) {
                 bool start = false;
                 if (e->m0C == 0) {
@@ -1484,17 +1491,8 @@ extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, flo
 void GameEventScript::fn_80399734() {
     m98 = 0;
     m9C = 4;
-    PlayerTask* leader = lbl_8087F8A0->mHead;
     atn::Sphere own;
-    own.mCenter = leader->m614;
-    own.mRadius = leader->m620;
-    if (leader->m55C == 6 && leader->m560 == 11) {
-        atn::ColliResult_unk result;
-        atn::Vector3 to = own.mCenter + atn::Vector3(0.0f, -100.0f, 0.0f);
-        if (fn_8004ED34(lbl_8087EE98, &result, &own.mCenter, &to, 0x80000000, 0, 0)) {
-            own.mCenter = result.m10 + atn::Vector3(0.0f, own.mRadius, 0.0f);
-        }
-    }
+    PlayerTask* leader = LeaderSphere_unk(own);
     GameUIElem1C_unk hint;
     GameScene* scene = mScene;
     for (unsigned int i = 0; i < scene->mEC.size(); i++) {
@@ -1745,31 +1743,19 @@ void GameEventScript::fn_80399734() {
 // NONMATCHING: 98.5% - as fn_8039AF50
 // inferred: same as fn_8039AF50 for the talk event boxes (with m40, the leader must also face the box)
 void GameEventScript::fn_8039AB10() {
-    PlayerTask* leader = lbl_8087F8A0->mHead;
     atn::Sphere sphere;
-    sphere.mCenter = leader->m614;
-    sphere.mRadius = leader->m620;
-    if (leader->m55C == 6 && leader->m560 == 11) {
-        atn::ColliResult_unk result;
-        atn::Vector3 to = sphere.mCenter + atn::Vector3(0.0f, -100.0f, 0.0f);
-        if (fn_8004ED34(lbl_8087EE98, &result, &sphere.mCenter, &to, 0x80000000, 0, 0)) {
-            sphere.mCenter = result.m10 + atn::Vector3(0.0f, sphere.mRadius, 0.0f);
-        }
-    }
-    GameScene* scene = mScene;
-    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
-        gs::EventBox& box = scene->mE4[i];
-        int group = i;
-        if (box.m2C >= 0) {
-            group = box.m2C;
-        }
+    PlayerTask* leader = LeaderSphere_unk(sphere);
+    atn::SimpleArray<gs::EventBox>& boxes = mScene->mE4;
+    for (unsigned int i = 0; i < boxes.size(); i++) {
+        gs::EventBox& box = boxes[i];
+        int group = box.m2C >= 0 ? box.m2C : i;
         ScriptNpcFlag_unk& state = mFC[group];
         if (state.m00 >= 0) {
             state.mFlags &= ~0x20;
             const ScriptEventConds_unk* e =
-                (const ScriptEventConds_unk*)FindEvent_unk(scene->mE4[group].m24[state.m00]);
+                (const ScriptEventConds_unk*)FindEvent_unk(boxes[group].m24[state.m00]);
             if (e != 0 && e->m0C == 0) {
-                bool facing = true;
+                unsigned int facing = true;
                 if (box.m40 != 0) {
                     Mtx m;
                     atn::Vector3 front(0.0f, 0.0f, 1.0f);
@@ -1781,7 +1767,8 @@ void GameEventScript::fn_8039AB10() {
                     PSMTXMultVec(r, &dir, &dir);
                     facing = PSVECDotProduct(&front, &dir) > 0.70710677f;
                 }
-                if ((facing & fn_803ACE18(i, &sphere, 0)) && CanStartTalk_unk(leader) && !TalkAllowed_unk(this)) {
+                facing &= fn_803ACE18(i, &sphere, 0);
+                if (facing && CanStartTalk_unk(leader) && !TalkAllowed_unk(this)) {
                     state.mFlags |= 0x20;
                     state.m08 = -1.0f;
                     if (mF4 == 0 || state.m08 < mF4->m08) {
@@ -1797,28 +1784,16 @@ void GameEventScript::fn_8039AB10() {
 // inferred: marks the talk event spheres the leader stands in (flag 0x20) and keeps the nearest in mF4;
 // while hanging (control 6, state 11) the leader is projected on the ground below
 void GameEventScript::fn_8039AF50() {
-    PlayerTask* leader = lbl_8087F8A0->mHead;
     atn::Sphere sphere;
-    sphere.mCenter = leader->m614;
-    sphere.mRadius = leader->m620;
-    if (leader->m55C == 6 && leader->m560 == 11) {
-        atn::ColliResult_unk result;
-        atn::Vector3 to = sphere.mCenter + atn::Vector3(0.0f, -100.0f, 0.0f);
-        if (fn_8004ED34(lbl_8087EE98, &result, &sphere.mCenter, &to, 0x80000000, 0, 0)) {
-            sphere.mCenter = result.m10 + atn::Vector3(0.0f, sphere.mRadius, 0.0f);
-        }
-    }
-    GameScene* scene = mScene;
-    for (unsigned int i = 0; i < scene->mEC.size(); i++) {
-        int group = i;
-        if (scene->mEC[i].m20 >= 0) {
-            group = scene->mEC[i].m20;
-        }
+    PlayerTask* leader = LeaderSphere_unk(sphere);
+    atn::SimpleArray<gs::EventSphere>& spheres = mScene->mEC;
+    for (unsigned int i = 0; i < spheres.size(); i++) {
+        int group = spheres[i].m20 >= 0 ? spheres[i].m20 : i;
         ScriptNpcFlag_unk& state = m10C[group];
         if (state.m00 >= 0) {
             state.mFlags &= ~0x20;
             const ScriptEventConds_unk* e =
-                (const ScriptEventConds_unk*)FindEvent_unk(scene->mEC[group].m18[state.m00]);
+                (const ScriptEventConds_unk*)FindEvent_unk(spheres[group].m18[state.m00]);
             if (e != 0 && e->m0C == 0 && fn_803ACF88(i, &sphere, 0) && CanStartTalk_unk(leader) &&
                 !TalkAllowed_unk(this)) {
                 state.mFlags |= 0x20;
@@ -5169,7 +5144,7 @@ void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         maps = &MapManager::instance_->mMaps;
         for (unsigned int i = 0; i < maps->size(); i++) {
-            MapTask* map = (*maps)[i];
+            MapTask* map = maps->mData[i];
             switch (args->m08) {
             case 0:
                 map->fn_804A0E18(name, value);
@@ -5185,7 +5160,8 @@ void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk*
             case 1: {
                 MapPartsLocatorSet* set = (MapPartsLocatorSet*)map->fn_804A06B4(4, name);
                 if (set != 0) {
-                    set->fn_8049B72C(value != 0 ? set->mFlags | 0x400 : set->mFlags & ~0x400);
+                    unsigned int flags = set->mFlags;
+                    set->fn_8049B72C(value != 0 ? flags | 0x400 : flags & ~0x400);
                 }
                 if (entry != 0) {
                     if (value != 0) {
@@ -5200,7 +5176,8 @@ void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk*
             }
         }
     }
-    result.SetNext_unk(cmd);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: gives the item m08 (bit 0 of m0C: added to the result of the battle instead) and shows it
