@@ -14,7 +14,7 @@ extern "C" unsigned int fn_800DC6B4(const char* s);
 extern "C" float fn_801F0544(atn::D2A_ParamTable* table, int key);
 extern "C" const char lbl_8073E57C[];
 extern "C" void fn_800D58A4(atn::Texture_unk* texture);
-extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value);
+extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_TexAnim_unk* value);
 extern "C" float fn_800A6BD4(const unsigned char* code, float value);
 extern "C" void fn_801EDCB8(atn::D2A_Common* element);
 extern "C" unsigned int fn_800DC6B4(const char* text);
@@ -355,7 +355,7 @@ extern "C" void fn_801FEDBC(atn::D2A_Layout_unk* layout, unsigned int hash, int 
 extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value);
 extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* value);
 extern "C" void fn_801FEF40(atn::D2A_Layout_unk* layout, int frame);
-extern "C" void fn_801FE090(D2A_Layout_unk* layout, const unsigned int* counts);
+extern "C" void fn_801FE090(D2A_Layout_unk* layout, unsigned int* counts);
 
 // NONMATCHING: the path normalization and string temporaries still differ from MWCC.
 extern "C" int fn_801FD5A0(atn::D2A_Texture* texture, const char* path, int arg) {
@@ -425,7 +425,7 @@ D2A_Layout_unk::~D2A_Layout_unk() {
             delete[] data1;
             mAnims5.mData = 0;
         }
-        D2A_Anim_unk<4>** data2 = mTextureAnims.mData;
+        D2A_TexAnim_unk** data2 = mTextureAnims.mData;
         mTextureAnims.mSize = 0;
         mTextureAnims.mCapacity = 0;
         if (data2 != 0) {
@@ -455,8 +455,8 @@ D2A_Layout_unk::~D2A_Layout_unk() {
         }
 }
 
-// NONMATCHING: 99.59% - one inlined reserve/copy sequence differs from MWCC's loop schedule.
-extern "C" void fn_801FE090(D2A_Layout_unk* layout, const unsigned int* counts) {
+// inferred: reserves the element arrays of the layout (the six counts of the header, not const)
+extern "C" void fn_801FE090(D2A_Layout_unk* layout, unsigned int* counts) {
     layout->mAnims1.Reserve(counts[0], 8);
     layout->mAnims5.Reserve(counts[1], 8);
     layout->mTextureAnims.Reserve(counts[2], 8);
@@ -472,7 +472,7 @@ extern "C" void fn_801FE89C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<1>* v
 extern "C" void fn_801FE91C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<5>* value) { layout->mAnims5.Remove(value); }
 
 // inferred: unregisters an element value from the layout
-extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value) { layout->mTextureAnims.Remove(value); }
+extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_TexAnim_unk* value) { layout->mTextureAnims.Remove(value); }
 
 // inferred: unregisters an element value from the layout
 extern "C" void fn_801FEA1C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value) { layout->mAnims4.Remove(value); }
@@ -611,7 +611,7 @@ extern "C" void fn_801FEF40(atn::D2A_Layout_unk* layout, int frame) {
         for (int j = 0; j < 5; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
     }
     for (unsigned int i = 0; i < layout->mTextureAnims.mSize; i++) {
-        atn::D2A_Anim_unk<4>* anim = layout->mTextureAnims.mData[i];
+        atn::D2A_TexAnim_unk* anim = layout->mTextureAnims.mData[i];
         for (int j = 0; j < 4; j++) anim->mValues[j] = fn_801F0544(&anim->mTables[j], frame);
     }
     for (unsigned int i = 0; i < layout->mAnims4.mSize; i++) {

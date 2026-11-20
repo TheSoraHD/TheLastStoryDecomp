@@ -157,6 +157,7 @@ public:
 
 // inferred: layout of the elements (functions 0x801FDE94-0x801FF8EC; name invented)
 struct D2A_TextParam_unk;
+struct D2A_TexAnim_unk;
 
 class D2A_Layout_unk {
 public:
@@ -165,7 +166,7 @@ public:
 
     D2A_PtrArray_unk<D2A_Anim_unk<1>*> mAnims1; // 0x00: inferred: animated values registered by the elements
     D2A_PtrArray_unk<D2A_Anim_unk<5>*> mAnims5; // 0x0C
-    D2A_PtrArray_unk<D2A_Anim_unk<4>*> mTextureAnims; // 0x18: inferred: texture UV animations
+    D2A_PtrArray_unk<D2A_TexAnim_unk*> mTextureAnims; // 0x18: inferred: texture UV animations
     D2A_PtrArray_unk<D2A_Anim_unk<4>*> mAnims4; // 0x24
     D2A_PtrArray_unk<D2A_TextParam_unk*> mTexts; // 0x30: inferred: text parameters of the messages
     D2A_PtrArray_unk<D2A_IntAnim_unk*> mIntAnims; // 0x3C

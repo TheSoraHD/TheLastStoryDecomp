@@ -8,6 +8,10 @@ namespace atn {
 
 class D2A_Data;
 
+// inferred: animated UV values of a texture; a type of its own (the reserve of D2A_Layout_unk::mTextureAnims
+// has its own string pool, 0x8087DB00, apart from the D2A_Anim_unk<4> one of D2A_Common); name invented
+struct D2A_TexAnim_unk : D2A_Anim_unk<4> {};
+
 // inferred: texture animation element; member offsets follow its constructor at 0x801F94F4.
 class D2A_Texture : public D2A_Common {
 public:
@@ -21,8 +25,8 @@ public:
     virtual void vf20();
 
     // inferred: two sets of four animated texture coordinates/scales, followed by texture state.
-    D2A_Anim_unk<4> mTexRect;  // 0x12C
-    D2A_Anim_unk<4> mTexScale; // 0x160
+    D2A_TexAnim_unk mTexRect;  // 0x12C
+    D2A_TexAnim_unk mTexScale; // 0x160
     Texture_unk mTexture0;     // 0x194
     Texture_unk mTexture1;     // 0x1C4
     D2A_Expr_unk mRectCode[4];  // 0x1F4: inferred: expressions for UV rectangle values
