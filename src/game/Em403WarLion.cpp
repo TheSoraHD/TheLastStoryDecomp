@@ -1413,7 +1413,12 @@ void Em403WarLion::fn_8032943C() {
     }
 }
 
-// NONMATCHING: 99.29% - orden de los temporales de Lerp en la pila y stfs 0x2e8 del estado 18
+// inferred: linear interpolation with the step first (fadds of the step and the start; atn::Lerp_unk adds
+// them the other way)
+static inline atn::Vector3 WarLionLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
 void Em403WarLion::fn_80329744() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1439,7 +1444,7 @@ void Em403WarLion::fn_80329744() {
             } else {
                 t = MIN(1.0f, (mMotion.mTracks[0].m08 - 22.0f) / (end - 22.0f));
             }
-            mPos = atn::Lerp_unk(m1574, m1580, t);
+            mPos = WarLionLerp_unk(m1574, m1580, t);
         } else if (m14C4 == 0) {
             m14C4 = 1;
         } else {
@@ -1453,7 +1458,6 @@ void Em403WarLion::fn_80329744() {
                     SetState_unk(18);
                     mMotion.m34C = 1;
                     mMotion.mTracks[0].m20 = 1.0f;
-                    mMotion.mTracks[0].m0C = 1.0f;
                     mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
                     mMotion.mTracks[0].m0C = 0.7f;
                     m1598 = 0;
