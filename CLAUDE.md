@@ -81,6 +81,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
    - `goto` a la etiqueta de un caso desde un `case` adelantado en `DWC_ReportFriendData` (`dwc/src/base/dwc_account.c`: el original compara 2,3,1 y coloca 3,2,1), aprobado 2026-11-16.
    - `#pragma pack(push, 1)`/`pop` alrededor de cada struct de los mensajes de red de `atn/PacketPack` (payloads sin relleno), con `// inferred:`; solo ahi, aprobado 2026-11-16.
+   - Aprobados 2026-11-20, con `// inferred:`, solo ahi: el local que nunca se lee de `atn/PBoneBasic` `vf10` (el original tiene sus tres stores muertos); los dos `goto` de `game/Em003LesserDaemon` (`vf10`, `vf40`); el macro `REGISTER_AI_SCRIPT` de `AI/AI_archer_attack01` `fn_8001C284` (la inline no cabe en el presupuesto de inlining con 64 llamadas).
    - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
 3. Avisar y explicar antes de tocar `splits.txt`, `symbols.txt` (salvo renombrados), `configure.py`, `config.yml` o flags.
 4. No tocar ni subir ficheros originales (`orig/`, `.dol`, ISO, assets).

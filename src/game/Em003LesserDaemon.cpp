@@ -554,6 +554,7 @@ void Em003LesserDaemon::vf10() {
     }
     if (mC58.mC0 == 0) {
         if (m58C == 0 || m58C == 2) {
+            // inferred: goto approved 2026-11-20 (the original shares the tail of this branch)
             goto update;
         }
         return;
@@ -818,6 +819,7 @@ void Em003LesserDaemon::vf40(HitInfo_unk* hit) {
     if (m55C == 6) {
         switch (m560) {
         case 22:
+            // inferred: goto approved 2026-11-20 (the original shares the tail of this branch)
             goto reset;
         case 23:
             fn_8015E4B0(m6B8, -1);

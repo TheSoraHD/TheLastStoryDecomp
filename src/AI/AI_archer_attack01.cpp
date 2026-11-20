@@ -1491,7 +1491,7 @@ extern "C" __declspec(noinline) AiTargets_unk* fn_8001C278() {
 // inferred: registers each script name with a heap-3 instance in the global AI script tree.
 extern "C" void fn_8001C284() {
     // inferred: a macro and not an inline: 64 inline candidates exceed MWCC's per-caller inline budget
-    // (docs/inlining.md R3) and none would be inlined
+    // (docs/inlining.md R3) and none would be inlined; macro approved 2026-11-20
 #define REGISTER_AI_SCRIPT(NAME, CLASS) do { \
         std::string key(NAME); \
         AIStringWithAllocator_unk value; \
