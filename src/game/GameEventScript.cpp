@@ -4331,7 +4331,7 @@ void GameEventScript::fn_803A3D20(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 97.9% - the original stores mDB0C = 1 in the middle of SetNext_unk (as fn_803A6B9C)
+// (the result built by value lets the store of mDB0C go before the load of the size, as the original)
 // inferred: gives (or removes, m14 bit 0) the item m08 (unknown codes are item 1) in the amount
 // m0C/m10, logs it and shows it
 void GameEventScript::fn_803A3FFC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -4356,7 +4356,7 @@ void GameEventScript::fn_803A3FFC(ScriptResult_unk& result, const ScriptCmd_unk*
         fn_800C31F4(lbl_8074EF78[4], 0, -1, 1.0f);
     }
     Inventory::instance_->mDB0C = 1;
-    result.SetNext_unk(cmd);
+    result = ScriptResult_unk(NextCmd_unk(cmd), 0);
 }
 
 void GameEventScript::fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
