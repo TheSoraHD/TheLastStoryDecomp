@@ -606,15 +606,16 @@ ControlThrustForQuarkStand::ControlThrustForQuarkStand(Chara_unk* chara, Chara_u
     mFront = Front_unk(mChara);
 }
 
-// inferred: bullet of a thrust with the hit data `hit` (the manager and the rotation are read inside)
-static inline void StandShoot_unk(ControlBase* self, const atn::Vector3& pos, HitInfo_unk* hit) {
+// inferred: bullet of a thrust with the hit data `hit` from the node `node` (the position goes to the caller's
+// `pos`, the manager and the rotation are read inside: stack slot and saved registers of the original)
+static inline void StandShoot_unk(ControlBase* self, atn::Vector3& pos, const atn::Matrix3x4* node,
+                                  HitInfo_unk* hit) {
+    pos.Set_unk(node->m[0][3], node->m[1][3], node->m[2][3]);
     BattleTask* mgr = lbl_8087F048;
     const atn::Vector3* r = &self->mChara->mRot;
     mgr->fn_800FAB80(self->mChara, hit, mgr->fn_800F8548(), &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
-// NONMATCHING: 99.9% - stack slot of the temporary of the bullet position (0x4c in the original, between the
-// first phase and the step back; naming it swaps the saved registers of the bullet call)
 int ControlThrustForQuarkStand::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     float frame = m->mTracks[0].m08;
@@ -645,7 +646,8 @@ int ControlThrustForQuarkStand::vf0C() {
         if (m28 == 0 && m->mTracks[0].m08 > 55.0f) {
             m28 = 1;
             mChara->fn_8016DA4C();
-            StandShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), mChara->m638);
+            atn::Vector3 from;
+            StandShoot_unk(this, from, (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"), mChara->m638);
         }
     } else if (frame > 90.0001f) {
         atn::Vector3 pos = mChara->mPos;
