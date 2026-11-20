@@ -4527,7 +4527,8 @@ void BattleTask::fn_8010337C(CharaTask* chara, CharaTask* other) {
     }
 }
 
-// NONMATCHING: 99.5% - registers of the index of `other` and of the count base swapped
+// inferred: value of fn_801083D8 of the entry of `chara` for `other`, or its average over the entries without bit 0
+// of the flags when `chara` has no entry
 int BattleTask::fn_80103484(CharaTask* chara, CharaTask* other) {
     int b;
     int a = FindChara_unk(chara);
@@ -4542,15 +4543,14 @@ int BattleTask::fn_80103484(CharaTask* chara, CharaTask* other) {
         }
         return entry->fn_801083D8(b);
     }
-    BattleChara_unk* entry = mCharas;
     int sum = 0;
     int count = 0;
     for (int i = 0; i < mCharaCount; i++) {
-        if ((entry->mChara->mFlags & 1) != 1) {
-            sum += entry->fn_801083D8(b);
+        BattleChara_unk& e = mCharas[i];
+        if ((e.mChara->mFlags & 1) != 1) {
+            sum += e.fn_801083D8(b);
             count++;
         }
-        entry++;
     }
     if (count > 0) {
         return sum / count;
@@ -5871,7 +5871,7 @@ void BattleTask::fn_80108C10(DamageResult_unk* damage, const atn::Vector3& pos, 
     }
     wchar_t text[32];
     memset(text, 0, sizeof(text));
-    swprintf(text, 32, L"%d", value);
+    swprintf(text, 32, L"%d\0", value);
     lbl_8087F8A8->fn_8054D794(recover, text, &pos, 0, flags, damage->m10, damage->m0C != 0, attacker, chara, big,
                               damage->m14, damage->m18);
 }
