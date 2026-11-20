@@ -2043,22 +2043,10 @@ void GameUI::fn_803D2A6C() {
             if (m738 != 0) {
                 ButtonUv_unk uv(0.0f, 0.0f, 0.0f, 0.0f);
                 uv = fn_800F52F8()->fn_80116BAC()->fn_80124C6C(0);
-                {
-                    ButtonUv_unk uvCopy1(uv);
-                    m72C->SetParam2_unk("btnUv", &uvCopy1.x);
-                }
-                {
-                    ButtonUv_unk uvCopy2(uv);
-                    m72C->SetParam2_unk("btnUvMask", &uvCopy2.x);
-                }
-                {
-                    ButtonUv_unk uvCopy3(uv);
-                    m730->SetParam2_unk("btnUv", &uvCopy3.x);
-                }
-                {
-                    ButtonUv_unk uvCopy4(uv);
-                    m730->SetParam2_unk("btnUvMask", &uvCopy4.x);
-                }
+                m72C->SetParam2_unk("btnUv", uv);
+                m72C->SetParam2_unk("btnUvMask", uv);
+                m730->SetParam2_unk("btnUv", uv);
+                m730->SetParam2_unk("btnUvMask", uv);
                 if (m734 == 0) {
                     m730->Rewind_unk();
                     m72C->Rewind_unk();
@@ -2292,22 +2280,10 @@ void GameUI::fn_803D2A6C() {
                 mD70->SetLayoutText_unk("string0002(1)", text);
                 mD74->SetLayoutText_unk("string0001(1)", text);
                 mD74->SetLayoutText_unk("string0002(1)", text);
-                {
-                    ButtonUv_unk uvCopy5(uv);
-                    mD70->SetParam2_unk("btnUv", &uvCopy5.x);
-                }
-                {
-                    ButtonUv_unk uvCopy6(uv);
-                    mD70->SetParam2_unk("btnUvMask", &uvCopy6.x);
-                }
-                {
-                    ButtonUv_unk uvCopy7(uv);
-                    mD74->SetParam2_unk("btnUv", &uvCopy7.x);
-                }
-                {
-                    ButtonUv_unk uvCopy8(uv);
-                    mD74->SetParam2_unk("btnUvMask", &uvCopy8.x);
-                }
+                mD70->SetParam2_unk("btnUv", uv);
+                mD70->SetParam2_unk("btnUvMask", uv);
+                mD74->SetParam2_unk("btnUv", uv);
+                mD74->SetParam2_unk("btnUvMask", uv);
                 float end = ((GameUIDuration_unk*)mD74)->fn_803CFC6C() - 1.0f;
                 if (mD74->GetFrame_unk() >= end) {
                     mD74->Rewind_unk();
@@ -3907,22 +3883,10 @@ void GameUI::fn_803DBD44() {
         }
         m114C = (int)cursor;
         ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0x30);
-        {
-            ButtonUv_unk uvCopy(uv);
-            m1140->SetParam2_unk("btnUv", &uvCopy.x);
-        }
-        {
-            ButtonUv_unk uvCopy(uv);
-            m1140->SetParam2_unk("btnUvMask", &uvCopy.x);
-        }
-        {
-            ButtonUv_unk uvCopy(uv);
-            m1144->SetParam2_unk("btnUv", &uvCopy.x);
-        }
-        {
-            ButtonUv_unk uvCopy(uv);
-            m1144->SetParam2_unk("btnUvMask", &uvCopy.x);
-        }
+        m1140->SetParam2_unk("btnUv", uv);
+        m1140->SetParam2_unk("btnUvMask", uv);
+        m1144->SetParam2_unk("btnUv", uv);
+        m1144->SetParam2_unk("btnUvMask", uv);
         if (m1140->IsEnd_unk()) {
             m1144->MeltTask();
         } else {
@@ -4081,20 +4045,6 @@ void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
     }
 }
 
-// inferred: UV rectangle of a d2anime parameter (names invented)
-struct GameUIUvRect_unk {
-    GameUIUvRect_unk(float u0, float v0, float u1, float v1) {
-        v[0] = u0;
-        v[1] = v0;
-        v[2] = u1;
-        v[3] = v1;
-    }
-    float v[4];
-};
-inline void SetJobUv_unk(atn::D2A_Task* task, const char* name, const GameUIUvRect_unk& r) {
-    task->SetParam2_unk(name, r.v);
-}
-
 extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value); // inferred: int parameter
 // inferred: int layout parameter of a d2anime task by name (name invented)
 inline void SetLayoutInt_unk(atn::D2A_Task* task, const char* name, int value) {
@@ -4116,50 +4066,50 @@ extern "C" void fn_803DD160(atn::D2A_Task* task, chr::CharaData_unk* data) {
     int attr = (signed char)data->m120[0];
     if (attr == 2) {
         task->SetLayoutValue_unk("attr01", 1.0f);
-        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
-        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        task->SetParam2_unk("attrUv01ma", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        task->SetParam2_unk("attrUv01mb", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
         task->SetColor255_unk("attrCol01a", sColorAttrFire_unk);
         task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 1) {
         task->SetLayoutValue_unk("attr01", 1.0f);
-        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
-        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        task->SetParam2_unk("attrUv01ma", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        task->SetParam2_unk("attrUv01mb", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
         task->SetColor255_unk("attrCol01a", sColorAttrIce_unk);
         task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 4) {
         task->SetLayoutValue_unk("attr01", 1.0f);
-        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
-        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        task->SetParam2_unk("attrUv01ma", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        task->SetParam2_unk("attrUv01mb", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
         task->SetColor255_unk("attrCol01a", sColorAttrForest_unk);
         task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 3) {
         task->SetLayoutValue_unk("attr01", 1.0f);
-        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
-        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        task->SetParam2_unk("attrUv01ma", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        task->SetParam2_unk("attrUv01mb", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
         task->SetColor255_unk("attrCol01a", sColorAttrWind_unk);
         task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 5) {
         task->SetLayoutValue_unk("attr01", 1.0f);
-        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
-        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        task->SetParam2_unk("attrUv01ma", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        task->SetParam2_unk("attrUv01mb", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
         task->SetColor255_unk("attrCol01a", sColorAttrHoly_unk);
         task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 6) {
         task->SetLayoutValue_unk("attr01", 1.0f);
-        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
-        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
+        task->SetParam2_unk("attrUv01ma", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f));
+        task->SetParam2_unk("attrUv01mb", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f));
         task->SetColor255_unk("attrCol01a", sColorAttrDark_unk);
         task->SetColor255_unk("attrCol01b", sColorAttrBack2_unk);
         SetLayoutInt_unk(task, "attrBlend", 3);
     } else if (attr == 7) {
         task->SetLayoutValue_unk("attr01", 1.0f);
-        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
-        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
+        task->SetParam2_unk("attrUv01ma", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f));
+        task->SetParam2_unk("attrUv01mb", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f));
         task->SetColor255_unk("attrCol01a", sColorAttrStar_unk);
         task->SetColor255_unk("attrCol01b", sColorAttrBack2_unk);
         SetLayoutInt_unk(task, "attrBlend", 3);
@@ -4171,28 +4121,28 @@ extern "C" void fn_803DD160(atn::D2A_Task* task, chr::CharaData_unk* data) {
 // inferred: job icon of a character window (UV of the icon and its colours)
 extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
     if (job == 4) {
-        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
-        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
+        task->SetParam2_unk("jobUv01ma", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
+        task->SetParam2_unk("jobUv01mb", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
         task->SetColor255_unk("jobCol01a", sColorJobArcher_unk);
         task->SetColor255_unk("jobGradation", sColorJobArcher_unk);
     } else if (job == 2) {
-        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.0f, 0.0f, 0.25f, 0.25f));
-        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.0f, 0.0f, 0.25f, 0.25f));
+        task->SetParam2_unk("jobUv01ma", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f));
+        task->SetParam2_unk("jobUv01mb", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f));
         task->SetColor255_unk("jobCol01a", sColorJobMagic_unk);
         task->SetColor255_unk("jobGradation", sColorJobMagic_unk);
     } else if (job == 3) {
-        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.25f, 0.0f, 0.5f, 0.25f));
-        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.25f, 0.0f, 0.5f, 0.25f));
+        task->SetParam2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
+        task->SetParam2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
         task->SetColor255_unk("jobCol01a", sColorJobHealer_unk);
         task->SetColor255_unk("jobGradation", sColorJobHealer_unk);
     } else if (job == 1) {
-        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetParam2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetParam2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         task->SetColor255_unk("jobCol01a", sColorJobSoldier_unk);
         task->SetColor255_unk("jobGradation", sColorJobSoldier_unk);
     } else {
-        SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetParam2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetParam2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         task->SetColor255_unk("jobCol01a", sColorJobOthers_unk);
         task->SetColor255_unk("jobGradation", sColorJobOthers_unk);
     }
@@ -5475,10 +5425,6 @@ struct GameUINamed_unk {
     int m04;
     const wchar_t* mName;
 };
-// inferred: UV rect parameter of a d2anime task from a rect passed by value (name invented)
-inline void SetUvRect_unk(atn::D2A_Task* task, const char* name, atn::Vector4_unk r) {
-    task->SetParam2_unk(name, &r.x);
-}
 
 // inferred: button prompt of an action: the item part, the button glyph (by the icon kind of the action, the
 // pad, the attack type and the gathering type of the settings), the arrows of the cross pad on `arrows` and
@@ -5677,8 +5623,8 @@ void GameUI::fn_803E3468(atn::D2A_Task* task, atn::D2A_Task* arrows, GameUIElem1
             }
         }
     }
-    SetUvRect_unk(task, "btnUv", sButtonGlyphs_unk[glyph].mUv);
-    SetUvRect_unk(task, "btnUvMask", sButtonGlyphs_unk[glyph].mUv);
+    task->SetParam2_unk("btnUv", sButtonGlyphs_unk[glyph].mUv);
+    task->SetParam2_unk("btnUvMask", sButtonGlyphs_unk[glyph].mUv);
     task->SetLayoutValue_unk("crossOn", 0.0f);
     if ((unsigned int)(glyph - 8) <= 3) {
         task->SetLayoutValue_unk("crossOn", 1.0f);
@@ -5708,14 +5654,14 @@ void GameUI::fn_803E3468(atn::D2A_Task* task, atn::D2A_Task* arrows, GameUIElem1
         int msg = sButtonHelp2_unk[sub].mMsg;
         task->SetLayoutText_unk("action_name", lbl_8087F1E4->GetEntry_unk(msg));
         task->SetLayoutText_unk("action_name_sub", lbl_8087F1E4->GetEntry_unk(msg));
-        SetUvRect_unk(task, "icon_uv", sButtonHelp2_unk[sub].mUv);
-        SetUvRect_unk(task, "icon_mk_uv", sButtonHelp2_unk[sub].mUv);
+        task->SetParam2_unk("icon_uv", sButtonHelp2_unk[sub].mUv);
+        task->SetParam2_unk("icon_mk_uv", sButtonHelp2_unk[sub].mUv);
     } else {
         int msg = sButtonHelp_unk[kind].mMsg;
         task->SetLayoutText_unk("action_name", lbl_8087F1E4->GetEntry_unk(msg));
         task->SetLayoutText_unk("action_name_sub", lbl_8087F1E4->GetEntry_unk(msg));
-        SetUvRect_unk(task, "icon_uv", sButtonHelp_unk[kind].mUv);
-        SetUvRect_unk(task, "icon_mk_uv", sButtonHelp_unk[kind].mUv);
+        task->SetParam2_unk("icon_uv", sButtonHelp_unk[kind].mUv);
+        task->SetParam2_unk("icon_mk_uv", sButtonHelp_unk[kind].mUv);
     }
 }
 

@@ -1,5 +1,6 @@
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskApi_unk.h"
+#include "atn/Vector4_unk.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -216,11 +217,11 @@ void D2A_Task::SetParam1_unk(const char* name, float* v) {
 }
 
 // NONMATCHING: 96.15% - same early load of v[0] as fn_801F4728
-void D2A_Task::SetParam2_unk(const char* name, const float* v) {
-    SetParamB_unk(this, name, 0, v[0]);
-    SetParamB_unk(this, name, 1, v[1]);
-    SetParamB_unk(this, name, 2, v[2]);
-    SetParamB_unk(this, name, 3, v[3]);
+void D2A_Task::SetParam2_unk(const char* name, Vector4_unk v) {
+    SetParamB_unk(this, name, 0, v.x);
+    SetParamB_unk(this, name, 1, v.y);
+    SetParamB_unk(this, name, 2, v.z);
+    SetParamB_unk(this, name, 3, v.w);
 }
 
 void D2A_Task::SetColor_unk(const char* name, unsigned int color) {

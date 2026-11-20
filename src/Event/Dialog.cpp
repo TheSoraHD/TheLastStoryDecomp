@@ -596,10 +596,8 @@ void Dialog::fn_802297AC() {
     }
     if (lbl_8087F0A8 != 0) {
         ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
-        ButtonUv_unk uv0 = uv;
-        m10C->SetParam2_unk("btnUv", &uv0.x);
-        ButtonUv_unk uv1 = uv;
-        m10C->SetParam2_unk("btnUvMask", &uv1.x);
+        m10C->SetParam2_unk("btnUv", uv);
+        m10C->SetParam2_unk("btnUvMask", uv);
     }
     fn_80229414();
     fn_800D9560(lbl_8087F008);

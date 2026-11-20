@@ -1883,8 +1883,8 @@ inline void SetListText_unk(atn::D2A_Task* task, const char* name, const wchar_t
     fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
 // inferred: sets a texture rectangle of the task (by value, as SetUV_unk of game/CosEditProtector.cpp)
-inline void SetTaskUV_unk(atn::D2A_Task* task, const char* name, CosEditListUV_unk uv) {
-    task->SetParam2_unk(name, &uv.x);
+inline void SetTaskUV_unk(atn::D2A_Task* task, const char* name, const CosEditListUV_unk& uv) {
+    task->SetParam2_unk(name, uv);
 }
 
 // inferred: shows the weapons and the protectors that the member wears (names and icons)

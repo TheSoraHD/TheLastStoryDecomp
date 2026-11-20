@@ -839,10 +839,8 @@ void CampSaveLoad::fn_8011A4D0() {
     m6C->FreezeTask();
     SetLayoutText_unk(&m58->mData.m10, "string0001(1)", L"");
     SetLayoutText_unk(&m58->mData.m10, "string0002(1)", L"");
-    ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    m58->SetParam2_unk("btnUv", (const float*)&uv);
-    ButtonUv_unk mask = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    m58->SetParam2_unk("btnUvMask", (const float*)&mask);
+    m58->SetParam2_unk("btnUv", lbl_8087F0A8->mInput.fn_80124C6C(0));
+    m58->SetParam2_unk("btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(0));
     SetLayoutValue_unk(&m58->mData.m10, "pos0001(2)", 2, 12.0f);
     SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 4, -101.0f);
     SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 0, 320.0f);

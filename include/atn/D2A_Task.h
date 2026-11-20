@@ -7,6 +7,7 @@
 
 namespace atn {
 struct Color;
+struct Vector4_unk; // inferred: uv rectangle passed by value to SetParam2_unk (atn/Vector4_unk.h)
 
 // inferred: task that loads and plays a d2anime file (names of the members invented)
 class D2A_Task : public Task {
@@ -19,7 +20,7 @@ public:
 
     void ApplyFrame();                             // 0x801F45F4
     void SetParam1_unk(const char* name, float* v);     // 0x801F4818
-    void SetParam2_unk(const char* name, const float* v);     // 0x801F48C8
+    void SetParam2_unk(const char* name, Vector4_unk v);     // 0x801F48C8
     void SetColor_unk(const char* name, unsigned int color);  // 0x801F4998
     void SetColor_unk(const char* name, float r, float g, float b); // 0x801F4AA0
     // inferred: [0,1] channels; the callers copy the whole atn::Color (GameUI fn_803DD90C)

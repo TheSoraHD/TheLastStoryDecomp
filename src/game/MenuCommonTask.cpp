@@ -656,9 +656,6 @@ inline MenuUV_unk GetIconUV_unk(CharaIdEntry_unk* item, int cols, int rows) {
     }
     return uv;
 }
-inline void SetUV_unk(atn::D2A_Task* anime, const char* name, MenuUV_unk uv) {
-    anime->SetParam2_unk(name, &uv.x);
-}
 inline void SetUV_unk(MenuLayout_unk* layout, const char* name, const MenuUV_unk& uv) {
     layout->SetValues2_unk(name, uv);
 }
@@ -667,10 +664,10 @@ inline void SetUV_unk(MenuLayout_unk* layout, const char* name, const MenuUV_unk
 extern "C" void fn_804A4AEC(MenuD2A_unk* menuAnime, CharaIdEntry_unk* item, int cols, int rows) {
     atn::D2A_Task* anime = (atn::D2A_Task*)menuAnime;
     MenuUV_unk uv = GetIconUV_unk(item, cols, rows);
-    SetUV_unk(anime, "faceUV", uv);
-    SetUV_unk(anime, "faceMUV", uv);
-    SetUV_unk(anime, "faceSubUV", uv);
-    SetUV_unk(anime, "faceSubMUV", uv);
+    anime->SetParam2_unk("faceUV", uv);
+    anime->SetParam2_unk("faceMUV", uv);
+    anime->SetParam2_unk("faceSubUV", uv);
+    anime->SetParam2_unk("faceSubMUV", uv);
 }
 
 // inferred: sets the face icon of an item on a layout anime
@@ -939,16 +936,16 @@ extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, const float* ofs, in
     SetPaneValue_unk(&menu->m1D8[menu->m1CC]->mData.m10, "basePos", 1, y + ofs[1]);
     SetPaneValue_unk(&menu->m1D8[menu->m1CC]->mData.m10, "basePos", 4, info->mZ);
     SetPaneValue2_unk(&menu->m1D8[menu->m1CC]->mData.m10, "crossOn", info->mCross);
-    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUv", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
-    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
+    ((atn::D2A_Task*)menu->m1D8[menu->m1CC])->SetParam2_unk("btnUv", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
+    ((atn::D2A_Task*)menu->m1D8[menu->m1CC])->SetParam2_unk("btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
     SetPaneText_unk(&menu->m1D8[menu->m1CC]->mData.m10, "buttonStr", info->mButton);
     SetPaneText_unk(&menu->m1D8[menu->m1CC]->mData.m10, "action_name", fn_80116FC0(0, info->mMsg));
     SetPaneValue_unk(&menu->m1E0[menu->m1CC]->mData.m10, "basePos", 0, x + ofs[0]);
     SetPaneValue_unk(&menu->m1E0[menu->m1CC]->mData.m10, "basePos", 1, y + ofs[1]);
     SetPaneValue_unk(&menu->m1E0[menu->m1CC]->mData.m10, "basePos", 4, info->mZ);
     SetPaneValue2_unk(&menu->m1E0[menu->m1CC]->mData.m10, "crossOn", info->mCross);
-    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUv", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
-    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
+    ((atn::D2A_Task*)menu->m1E0[menu->m1CC])->SetParam2_unk("btnUv", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
+    ((atn::D2A_Task*)menu->m1E0[menu->m1CC])->SetParam2_unk("btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
     SetPaneText_unk(&menu->m1E0[menu->m1CC]->mData.m10, "buttonStr", info->mButton);
     SetPaneText_unk(&menu->m1E0[menu->m1CC]->mData.m10, "action_name", fn_80116FC0(0, info->mMsg));
     if (type == 6 || type == 7) {
