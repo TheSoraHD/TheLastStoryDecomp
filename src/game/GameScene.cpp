@@ -778,6 +778,12 @@ inline int CheckTime_unk(const int* cond) {
     return ok;
 }
 
+// inferred: the map is showing its default camera (an inline bool: the original reloads mDefaultCamera
+// for the call after the comparison)
+static inline bool IsDefaultCamera_unk(const MapTask* map) {
+    return map->mCamera == map->mDefaultCamera;
+}
+
 void GameScene::fn_803C1CAC() {
     CharaTask* leader = GetLeader_unk();
     if (leader == 0) {
@@ -792,7 +798,7 @@ void GameScene::fn_803C1CAC() {
         if (box->m24 != m64->mCamera) {
             m64->fn_804A04AC(box->m24, box->m28, box->m2C, box);
         }
-    } else if (m64->mDefaultCamera != m64->mCamera) {
+    } else if (!IsDefaultCamera_unk(m64)) {
         m64->fn_804A04AC(m64->mDefaultCamera, -1, -1, 0);
     }
 }
