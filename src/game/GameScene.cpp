@@ -1810,12 +1810,6 @@ T* GameScene::FindPoint_unk(atn::SimpleArray<T>& points, int id) {
     return 0;
 }
 
-// inferred: data pointer of the NPC set-point group array.
-extern "C" gs::CharaGroup<gs::NpcSetPoint>* fn_803C63C8(
-    const atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> >* groups) {
-    return groups->mData;
-}
-
 template <class G, class T>
 void GameScene::fn_803C6FE4(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& points, atn::Csv& csv) {
     unsigned int i = 0;
