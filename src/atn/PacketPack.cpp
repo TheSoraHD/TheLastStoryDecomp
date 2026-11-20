@@ -673,8 +673,9 @@ struct PPPlayer_unk {
     union {
         int mB0;
         int m0B0[6];
+        // inferred: mC8 shares the block of mB0 (the member copy of the swap 0x804E0CE4 copies 0xB0-0xCB as one block)
+        struct { int mB0pad_unk[6]; int mC8; };
     };
-    int mC8;
     unsigned char mAid;               // 0xCC: inferred: network id of the player
     union {
         PPPlayerFlags_unk mFlags;     // 0xD0
