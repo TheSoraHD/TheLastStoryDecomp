@@ -3022,6 +3022,11 @@ void BattleTask::fn_800FCD24(CharaTask* attacker, CharaTask* chara, int index, H
 // on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
 // runs them through fn_800FDF14. Called by CharaTask and Em314Ivy.
 // NONMATCHING: 99.75% - stack slots: `n` and the negated copy are below the other locals in the original
+// inferred: -v component by component (name invented)
+inline atn::Vector3 HitNeg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
 int BattleTask::fn_800FD658(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&m38A5C);
@@ -3050,9 +3055,7 @@ int BattleTask::fn_800FD658(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
             m38A5C.m1C = dir + HitCenter_unk(chara);
         }
     }
-    atn::Vector3 n = dir;
-    PSVECNormalize(&n, &n);
-    m38A5C.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+    atn::VecAssign_unk(m38A5C.m28, HitNeg_unk(dir.GetNormalize()));
     m38A5C.m34 = a;
     m38A5C.m38 = b;
     m38A5C.m44 = 3;

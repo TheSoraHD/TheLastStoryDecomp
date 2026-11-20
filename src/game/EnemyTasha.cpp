@@ -938,9 +938,7 @@ void EnemyTasha::vf108() {
         atn::Vector3 move = mC58.m0C.m58;
         zero = PSVECSquareMag(&move);
         if (zero > 0.0001f) {
-            atn::Vector3 dir = move;
-            PSVECNormalize(&dir, &dir);
-            rot = dir.ToRotation_unk();
+            rot = move.GetNormalize().ToRotation_unk();
         } else {
             rot = mRot;
         }
