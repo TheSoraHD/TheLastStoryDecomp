@@ -1,0 +1,24 @@
+diff --git a/src/Event/Section.cpp b/src/Event/Section.cpp
+index 06a2991..6f280d0 100644
+--- a/src/Event/Section.cpp
++++ b/src/Event/Section.cpp
+@@ -2,6 +2,19 @@
+ #include "atn/Memory.h"
+ #include "std/string_members.h"
+ 
++namespace std {
++// inferred: test
++template <>
++inline void vector<boost::shared_ptr<Event::Channel> >::push_back(const boost::shared_ptr<Event::Channel>& x) {
++    size_type n = this->mSize;
++    if (n < this->mCap) {
++        this->__push_fast_unk(n, x);
++        return;
++    }
++    __push_back_slow_unk(x);
++}
++} // namespace std
++
+ namespace Event {
+ 
+ Section::Section(Cut* cut, int index) : mCut(cut), m0C(0), m10(0), m14(1) {}
