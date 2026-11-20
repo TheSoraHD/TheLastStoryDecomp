@@ -560,7 +560,6 @@ void GameScene::fn_803C0F48(int warp) {
     fn_803CAABC();
 }
 
-// NONMATCHING: 99.4% - f29-f31 allocation (y in f31 in the original)
 atn::Vector3 GameScene::fn_803C11A4(int point) {
     float z;
     if (point <= 0) {

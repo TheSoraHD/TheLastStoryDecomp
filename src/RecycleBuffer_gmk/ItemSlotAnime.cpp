@@ -322,7 +322,6 @@ ItemSlotAnime::~ItemSlotAnime() {
 }
 
 
-// NONMATCHING: X - checked against the asm
 // inferred: creates the shared buffer of slot animations (12 entries with their D2A tasks) and the
 // cache of the treasure tables
 void ItemSlotAnime::fn_8044D9BC(void* owner) {

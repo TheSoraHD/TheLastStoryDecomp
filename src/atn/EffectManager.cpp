@@ -512,7 +512,6 @@ void EffectManager::fn_8023B71C(EffectManager* mgr, int handle) {
     fn_802346AC(handle);
 }
 
-// NONMATCHING: 99.7% - registers of the inlined fn_8023A02C loop
 // Replays a recorded event.
 int EffectManager::fn_8023B724(EffectEvent_unk* event) {
     int result = 0;

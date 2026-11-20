@@ -790,7 +790,6 @@ int ControlDamageLastOne::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 80.0% - the original schedules the loads of m20 and mChara into the prologue.
 bool ControlDamageLastOne::fn_801B0260() const {
     Motion_unk* model = &mChara->mMotion;
     if (m20 == 10 || m20 == 12) {

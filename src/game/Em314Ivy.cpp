@@ -679,8 +679,6 @@ void Em314Ivy::fn_8031319C(CharaTask* target) {
     }
 }
 
-// NONMATCHING: 99.50% - saved registers of money/counter/effect manager (r28/r27/r29 in the original) and the
-// stack slots of the color and the position of the effect loop; ~20 variants
 void Em314Ivy::fn_803132D0() {
     BattleTask* effect;
     if (m14E4 != 0) {

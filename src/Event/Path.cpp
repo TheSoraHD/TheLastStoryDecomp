@@ -313,7 +313,6 @@ void EventCamera_unk::fn_801139E4(const CameraTarget_unk& at, int resetAngles, f
     }
 }
 
-// NONMATCHING: 99.8% - src/dst registers of Vector3 copies swapped (mwcc-blockers q3)
 void EventCamera_unk::fn_80113CD4(const CameraTarget_unk& eye, const CameraTarget_unk& at, int id, int resetAngles,
                                   float roll) {
     fn_801128C4(resetAngles);
@@ -553,7 +552,6 @@ void EventCamera_unk::fn_80114AB4() {
 
 namespace Event {
 
-// NONMATCHING: 99.0% - the original does not fuse fmuls+fadds in the two angle updates
 void EventCamera_unk::fn_801151A4() {
     float stick = -fn_800A56A8(GetPad_unk(), 0, 1, 0);
     if (fn_800A58D0(GetPad_unk(), 0)) {
@@ -623,7 +621,6 @@ void EventCamera_unk::fn_801151A4() {
     m228 = v2;
 }
 
-// NONMATCHING: 99.8% - register of the second fabs
 void EventCamera_unk::fn_80115704() {
     float stick = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
     if (atn::Abs_unk(stick) > 0.2f) {

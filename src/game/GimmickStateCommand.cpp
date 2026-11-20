@@ -398,7 +398,6 @@ void GimmickCommonB0_unk::fn_803F10AC(int arg) {
 }
 
 // inferred: debug menu of the commands
-// NONMATCHING: 99.57% - only the offsets of "Motcmd".."Scale" in the string pool (see fn_803EF780)
 void GimmickCommonB0_unk::fn_803F11F8(void* menu) {
     void* group = fn_8008937C(menu, "Motcmd");
     for (unsigned int i = 0; i < (unsigned int)mCmds.mSize; i++) {
@@ -414,7 +413,6 @@ void GimmickCommonB0_unk::fn_803F11F8(void* menu) {
 }
 
 // inferred: creates the state command task of a gimmick
-// NONMATCHING: 99.78% - only the offset of "" in the string pool (see fn_803EF780)
 extern "C" GimmickStateCommand* fn_803F1310(GimmickCommon* gimmick) {
     if (gimmick != 0) {
         return new ((MemoryTag)0xC, "", "", 0) GimmickStateCommand(gimmick);

@@ -222,7 +222,6 @@ extern "C" void fn_8006945C(const unsigned char* src, int width, int height, uns
 // inferred: byte order test value (0x0100: the first byte is 1 on big endian)
 static const unsigned short sEndian = 0x100;
 
-// NONMATCHING: 99% - only the size of the .sdata2 object (2 here, 8 in the symbol table)
 // inferred: read through a volatile pointer so that the compiler does not fold it (the original
 // loads it with lhz)
 extern "C" int fn_8006969C() {

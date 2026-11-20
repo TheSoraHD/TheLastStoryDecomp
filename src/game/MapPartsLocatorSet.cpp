@@ -257,8 +257,6 @@ atn::AABB_unk MapPartsLocatorSet::vf24(atn::AABBTree* tree) {
     return box;
 }
 
-// NONMATCHING: 97.3% - the original computes i * 4 for the instance slot in each iteration (here it
-// is strength reduced into one more saved register)
 void MapPartsLocatorSet::fn_8049B1F0() {
     if (mLoader.fn_80473EFC() != 3) {
         return;

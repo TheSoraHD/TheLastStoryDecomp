@@ -64,8 +64,6 @@ inline Text::Text(atn::Task* parent) : atn::Task(parent) {
     mLoader.vf0C(sPath);
 }
 
-// NONMATCHING: 99.7% - the empty name of new is a separate 4-byte .rodata object (0x8075B034), not
-// the "" of @stringBase0
 Text* Text::fn_80505DD0(atn::Task* parent) {
     if (lbl_8087F86C == 0) {
         lbl_8087F86C = new ((MemoryTag)1, "", "", 0) Text(parent);
@@ -569,8 +567,6 @@ extern "C" void fn_80507310(MpLevelTable_unk* table, const char* data, int size)
 }
 
 // inferred: level reached with `exp` (the first one above it, else the last)
-// NONMATCHING: 98.2% - r5/r7 of the count (close-units qD: size local, separate assignment, pointer
-// arithmetic, unsigned/int index forms: no change)
 extern "C" MpLevel_unk* fn_805075C4(MpLevelTable_unk* table, int exp) {
     MpLevel_unk* e;
     unsigned int n;

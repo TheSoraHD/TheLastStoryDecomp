@@ -420,8 +420,6 @@ ControlJump::ControlJump(Chara_unk* chara, const atn::Vector3& pos, const atn::V
     mChara->mRot = m08.ToRotation_unk();
 }
 
-// NONMATCHING: 99.7% - operand order of the fmadds of the clamped interpolations and r4-r7 in the
-// copies to/m20 (copy src/dst order); ~8 forms tried.
 bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     Chara_unk* c = mChara;
     float reach = 65.0f;

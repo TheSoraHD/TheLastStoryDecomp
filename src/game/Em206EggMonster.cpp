@@ -1312,7 +1312,6 @@ void Em206EggMonster::fn_802C6878(CharaTask* chara, const atn::Vector3& pos) {
 }
 
 
-// NONMATCHING: 99.43% - r28/r30 of the channels in the inlined Color4f_unk::ToU32
 // inferred: draws the two limits of the arena (debug) and tells whether the egg is between them: mPos
 // and the point (m14BC, m14C0) on different sides of the first line and on the same side of the second
 __declspec(noinline) int Em206EggMonster::fn_802C69BC() {

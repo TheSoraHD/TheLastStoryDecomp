@@ -1476,8 +1476,6 @@ void CharaStatus::fn_80133B30(int level) {
     }
 }
 
-// NONMATCHING: 98.6% - only the first load (mParamB.m78) is scheduled later than in the original, which
-// loads it before saving the arguments. Tried: a field local, a param pointer, other conditions.
 int CharaStatus::fn_80133BD8(int force) const {
     int level = mParamB.m78;
     if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {

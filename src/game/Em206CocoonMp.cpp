@@ -1033,7 +1033,6 @@ void Em206CocoonMp::fn_802BE2A0() {
     }
 }
 
-// NONMATCHING: 99.8% - only the pool offsets (strings and floats of the unwritten functions before it)
 // inferred: state 10 (throws a bullet from the right hand to the hips of the target)
 void Em206CocoonMp::fn_802BE7EC() {
     if (m14DC == 0) {

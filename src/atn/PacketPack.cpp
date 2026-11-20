@@ -4273,7 +4273,6 @@ extern "C" int fn_804DB3B4(const PPManager2_unk* mgr) {
     return (OSGetTime() - mgr->mStartTime) / (*(unsigned int*)0x800000F8 / 4);
 }
 
-// NONMATCHING: 92.59% - the original loads m564 before saving r31
 // inferred: seconds left of the time limit (-1 without one)
 extern "C" int fn_804DB408(const PPManager2_unk* mgr) {
     if (mgr->m564 >= 0) {
@@ -7268,7 +7267,6 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int
 }
 
 // inferred: kind (1 none, 2 player, 3 character of the list) and index of a character, in the high half
-// NONMATCHING: 96.63% - registers of the inlined searches
 extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara);
 union PPCharaId_unk {
     struct {
@@ -11054,8 +11052,6 @@ static inline bool PPIsOver_unk(int value, int limit) {
 static inline int PPIsTooFast_unk(float speed) {
     return speed > 1.5f;
 }
-// NONMATCHING: 99.9% - only the schedule of the prologue: the original loads mgr->mMode before saving r31 (tried
-// the mode in a local, a switch, an early return and the parameter as PlayerTask*)
 // inferred: check of the status of the own character before an online game (values above the limits of the
 // mode, bonuses, flags of the equipment and of the state); nonzero when something is out of range. In mode 2
 // the global flag 0x25 of the game disables the check

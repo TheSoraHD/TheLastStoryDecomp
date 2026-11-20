@@ -74,9 +74,6 @@ extern "C" void fn_8021996C() {
 extern "C" void fn_80219F1C(atn::CsvU* csv, int* a, int* b);
 
 // inferred: loads the texts of the skills (/boot/skill_param_text_xx.u16)
-// NONMATCHING: 91.9% - the original calls fn_80219F1C out of line (here it is inlined: the inline
-// budget is not exceeded, as in db/CharaIdTable_unk) and allocates the zero constant before the
-// data pointer. The atn::CsvU address is in a saved register as in the original (empty ~CsvBase()).
 extern "C" void fn_80219C30() {
     if (sEntries != 0) {
         if (sTexts != 0) {

@@ -1086,9 +1086,6 @@ void CampSaveLoad::fn_8011B570() {
     }
 }
 
-// NONMATCHING: 94.6% - the original keeps L"" (offset 0x90 of @wstringBase0) in a saved register and
-// the wide string pool of the unit is not reproduced yet (the asm functions own most of it); with the
-// empty ~CsvBase() the csv address is now in a saved register as in the original
 void CampSaveLoad::fn_8011B8D4(const wchar_t* text, int length) {
     atn::CsvU csv(text, length);
     int count = 0;

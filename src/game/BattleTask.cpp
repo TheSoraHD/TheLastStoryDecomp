@@ -657,8 +657,6 @@ int BattleTask::fn_800F3490() {
     return loading;
 }
 
-// NONMATCHING: 97.9% - the first string pointer is loaded before the register saves in the original; string pool
-// offsets differ (file not complete)
 // inferred: load requests of the battle resources (called by the constructor): the target lines, the
 // d2anime tasks, the splash and palette effects
 void BattleTask::fn_800F39A4() {
@@ -2494,7 +2492,6 @@ void BattleTask::fn_800FB1BC(CharaTask* chara, HitInfo_unk* data, const atn::Vec
 
 extern "C" bool fn_8021AA48(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
 extern "C" bool fn_8021A9CC(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
-// NONMATCHING: 93.0% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
 
 // inferred: blast of `attacker` with `data` at `pos`: hits every player and enemy in range data->m44 that the
 // hit reaches (fn_800FD658, or CharaTask::fn_80178668 for the kinds of fn_8021A9CC), with the effects when
@@ -3067,7 +3064,6 @@ int BattleTask::fn_800FD658(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
 // a "guard" popup (returns 4); else the attack parameters m38A5C (level of the bullet against the level of
 // `chara`, lowered by some states and by the status 0x43 of the attacker) go through fn_800FDF14, and a hit by
 // a player raises the gauge m38A04. Called by game/Bullet and some enemies.
-// NONMATCHING: 99.95% - register of the word of the bitfield of the damage record (r3/r10)
 int BattleTask::fn_800FDB20(CharaTask* attacker, CharaTask* chara, int arg, HitInfo_unk* data, int id,
                            const atn::Vector3* pos, const atn::Vector3* dir, int arg8, float) {
     if (chara->fn_801533C8(id, data)) {

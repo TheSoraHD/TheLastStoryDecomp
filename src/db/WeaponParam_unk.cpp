@@ -211,8 +211,6 @@ extern "C" void fn_80204E54() {
 inline WeaponParamEntry_unk::~WeaponParamEntry_unk() {}
 
 // inferred: loads the names and texts (UTF-16) of the weapons
-// NONMATCHING: 96.22% - the original keeps the address of the atn::CsvU in a saved register while its
-// inlined constructor runs (same as db/EquipParam_unk.cpp)
 extern "C" void fn_8020689C() {
     if (sEntries == 0) {
         return;

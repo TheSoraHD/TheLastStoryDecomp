@@ -821,8 +821,6 @@ extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b
     sStripCount++;
 }
 
-// NONMATCHING: 99.95% - code identical; the 6.0f constant is at another position in .sdata2 (the
-// draw functions, not decompiled yet, use 0.2f and 1/7 before it)
 // inferred: queues a model with the matrix `mtx`
 extern "C" void fn_80236FFC(const atn::Matrix3x4* mtx, void* model, const float* color, unsigned int flags,
                             const float* uv, const atn::Matrix3x4* view, int arg) {

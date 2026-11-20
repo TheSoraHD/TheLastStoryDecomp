@@ -132,7 +132,6 @@ SpecialEnemyBase::SpecialEnemyBase(atn::Task* parent, EnemyInfo_unk* info)
 
 SpecialEnemyBase::~SpecialEnemyBase() {}
 
-// NONMATCHING: 99.9% - register of the ".csv" literal (r27 instead of the reused r29)
 int SpecialEnemyBase::fn_805A3D68(char* name, const char* params) {
     if (params == 0 || *params == '\0') {
         return 0;
@@ -445,8 +444,6 @@ extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, in
     }
 }
 
-// NONMATCHING: 99.6% - only the offsets of the pool (the original has "" and "basic_string:
-// out_of_range" before "position")
 // inferred: debug menu entries of a special enemy
 void SpecialEnemyBase::fn_805A5220(void* group) {
     fn_80087E9C(group, "position", &mPos, -9999.0f, 9999.0f, 1.0f, 0, 0);

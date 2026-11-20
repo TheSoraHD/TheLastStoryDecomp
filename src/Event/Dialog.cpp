@@ -354,8 +354,6 @@ void Dialog::fn_80228AF8(int slot, Actor* actor, int kind, int arg, int frames, 
     }
 }
 
-// NONMATCHING: 99.78% - only the .sdata2 pool differs: the original has 0.0f right after 1.0f (first
-// used before this function; not found), so every later constant is one slot off
 void Dialog::fn_80228CA0(int slot, const wchar_t* text, int align, int size, int arg, float f1, float f2,
                          unsigned int color, int mode, int offset) {
     float fontSize;

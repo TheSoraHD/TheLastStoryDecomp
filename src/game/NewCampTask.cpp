@@ -409,7 +409,6 @@ extern "C" inline void fn_8052C6C0(atn::RenderManager* rm) {
     rm->m554 = 1;
 }
 // inferred: second camera of the render manager (m558)
-// NONMATCHING: 99.96% - order of the copy of the frustum planes (as fn_80392A04 of game/GameCamera_unk.cpp)
 extern "C" inline void fn_8052C6CC(atn::RenderManager* rm, const atn::Camera* camera) {
     rm->m558 = *camera;
 }

@@ -1768,7 +1768,6 @@ inline BattleTask* fn_8013A194() {
     return lbl_8087F048;
 }
 
-// NONMATCHING: 99.96% - only the order of 8.0f and 7.99999f in .sdata2 (their first use is here in the original)
 // inferred: update of state 11: rises out of place m1600, then rolls (m15D8, "AttackRollingSpeed") between
 // m1608 and m1604 shooting bullets 0x64D from the hips; after three passes it rolls back to its base
 void Em309Ghoul::fn_803041C8() {

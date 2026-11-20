@@ -123,7 +123,6 @@ extern "C" int fn_8006CABC(Font_unk* self, const std::string& dir) {
 }
 
 // inferred: starts reloading the textures and glyph tables of font 1 (sizes 1-3)
-// NONMATCHING: 93% - the original does not keep the address of `name` in a saved register
 extern "C" void fn_8006D0C8(Font_unk* self, int town) {
     if (self->m33298 == 0) {
         return;
@@ -570,7 +569,6 @@ extern "C" int fn_8006F548(Font_unk* self, std::basic_string<wchar_t>& dst, cons
 }
 
 // inferred: wide string to std::string
-// NONMATCHING: 85% - the original computes buf + strlen(buf) through a copy of buf (mr r7,r6)
 extern "C" int fn_8006F5E8(Font_unk* self, std::string& dst, const wchar_t* src) {
     char buf[256];
     int n = fn_8006F420(self, buf, src, 256);

@@ -337,7 +337,6 @@ void NewCampPartsGmk::fn_80512C90(int i) {
 
 // inferred: sets the clear color (`color` 0: the one of the scene, else sColors[color]) and plays
 // the effect on gimmick `i`; models 11 and 12 are shown only with the scene color
-// NONMATCHING: 99.98% - only the call to the state getter (0x805134F4, not matched yet)
 void NewCampPartsGmk::fn_80513020(int color, int i) {
     if (color == 0) {
         NewCampGmkInfo_unk* info = mInfo.mData;

@@ -164,8 +164,6 @@ std::string fn_8046CC90(const std::string& in) {
 
 using namespace atn;
 
-// NONMATCHING: 99.89% - registers only: in the inlined fn_8046CBC0 the original keeps the string
-// pointer in r27 and its length in r26 (swapped here); fn_8046CBC0 itself matches.
 // inferred: full path of a resource: override directory, language suffix and data/<kind>/ prefix
 // from the extension
 extern "C" void fn_8046D1EC(char* out, const char* in) {

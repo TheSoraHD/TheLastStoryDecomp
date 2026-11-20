@@ -2733,7 +2733,6 @@ GimmickCommon* GameTask::fn_8036E098() const {
 }
 
 
-// NONMATCHING: 99.8% - registers of the inlined fn_80370C2C (same swap as that function)
 // inferred: nonzero when the field menu can be opened (field idle or a closing shop, no fade, no event)
 int GameTask::fn_8036E170() {
     if (m54E4 != 0 && m54E4 != 14) {

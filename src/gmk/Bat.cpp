@@ -218,7 +218,6 @@ void Bat::vf14() {
     }
 }
 
-// NONMATCHING: 99.97% - .sdata2 order: 1000 before 40 (the original has 40 first)
 void Bat::fn_80403308() {
     mStarted = 0;
     mTimer = mDelay;

@@ -102,9 +102,6 @@ int EnemyJill::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.87% - inside the inlined std::string copy into the voice array: the original reuses the
-// register of the text (r26) for the destination and swaps the two iterator tag slots (7 variants: named
-// local, push_back, placement new, accessor)
 void EnemyJill::fn_8032E3DC() {
     atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
     do {
