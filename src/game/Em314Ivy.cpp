@@ -451,7 +451,11 @@ void Em314Ivy::vf104() {
     }
 }
 
-// NONMATCHING: 99.4% - registers of the flag word and the stored values, and of the inlined CanAct_unk tests
+// inferred: the effect manager (getter)
+static inline BattleTask* IvyEffect_unk() {
+    return lbl_8087F048;
+}
+
 // inferred: action of the current state (motion speed, the catch and its damage, the turn towards the target)
 void Em314Ivy::vf108() {
     float dist = 0.0f;
@@ -499,8 +503,8 @@ void Em314Ivy::vf108() {
         }
         if (mC58.mC0 != 0 && (m54C & 0x2000) == 0x2000 && m15A8 != 0 && lbl_8087F430 != 0 &&
             lbl_8087F430->fn_80375184() != 0) {
-            m15A4 = 0;
             m54C &= ~0x2000;
+            m15A4 = 0;
             m15A8 = 0;
         }
         return;
@@ -512,8 +516,7 @@ void Em314Ivy::vf108() {
         float frame = mMotion.mTracks[0].m08;
         if (m14E4 == 0 && 22.0f <= frame && frame <= 30.0f) {
             if (mC58.mC4 != 0) {
-                atn::Vector3 d = mC58.mC4->mPos - mPos;
-                m14E0 = PSVECSquareMag(&d);
+                m14E0 = PSVECSquareMag(&(mC58.mC4->mPos - mPos));
             }
             if (m14E0 < m1508 * m1508) {
                 fn_8031319C(mC58.mC4);
@@ -535,7 +538,7 @@ void Em314Ivy::vf108() {
             }
             rot = d.ToRotation_unk();
         } else {
-            rot = m14D4;
+            __VecCopy(&rot.x, &m14D4.x);
         }
         break;
     }
@@ -548,15 +551,13 @@ void Em314Ivy::vf108() {
             m14C0 = 0;
             BattleTask* effect = lbl_8087F048;
             if (effect != 0 && m14EC > 0) {
-                int id = effect->fn_800F8548();
-                effect->fn_800FD658(0, m14E4, fn_80219E6C(m14EC), id, 0, 30);
+                effect->fn_800FD658(0, m14E4, fn_80219E6C(m14EC), effect->fn_800F8548(), 0, 30);
                 if (m14E4 != 0 && lbl_8087F498 != 0 && rand() % 2 == 0) {
                     lbl_8087F498->fn_803EA77C(m14E4, 0x2A, 0, 1.0f, 10.0f);
                 }
                 if (m14E4 != 0 && m14E4->mType == 0 && m15AC != 0 && Inventory::instance_ != 0) {
                     fn_8044D6AC(Inventory::instance_, 10);
-                    effect = lbl_8087F048;
-                    effect->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(),
+                    IvyEffect_unk()->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(),
                                                             &chr::lbl_807C7030, &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f),
                                                             1.0f);
                     lbl_8087F048->fn_801092C8(4, 0, 10, 0);
@@ -578,7 +579,7 @@ void Em314Ivy::vf108() {
             }
             m14C4 = state;
         }
-        rot = m14D4;
+        __VecCopy(&rot.x, &m14D4.x);
         break;
     }
     case 13: {
@@ -590,7 +591,7 @@ void Em314Ivy::vf108() {
         if (frame >= mMotion.fn_80097D7C(0)) {
             mFlag31 = 1;
         }
-        rot = m14D4;
+        __VecCopy(&rot.x, &m14D4.x);
         break;
     }
     }

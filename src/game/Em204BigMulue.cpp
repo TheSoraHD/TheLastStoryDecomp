@@ -162,7 +162,13 @@ Em204BigMulue::Em204BigMulue(atn::Task* parent, EnemyInfo_unk* info)
     m1A78.LoadRequest("/effect/ef_uc011.efp");
 }
 
-// NONMATCHING: 99.37% - registers of the name loops (r27/r28) and of the status flags
+// inferred: disables the collision capsules (name invented)
+inline void CapsulesOff_unk(Em204BigMulue* self) {
+    for (unsigned int i = 0; i < self->m1558.size(); i++) {
+        self->m1564[i].mFlags &= ~1;
+    }
+}
+
 int Em204BigMulue::vf0C() {
     if (fn_8013655C() != 0) {
         return 0;
@@ -184,18 +190,18 @@ int Em204BigMulue::vf0C() {
             sprintf(name, "%s-%s\0", m1558[i].mFrom.data(), m1558[i].mTo.data());
             fn_8008771C(group, name, &m1558[i].mRadius, 0.0f, 9999.0f, 1.0f, 0, 0);
         }
-        group = fn_8008937C(m1A9C, "DamageColli");
+        void* damage = fn_8008937C(m1A9C, "DamageColli");
         for (unsigned int i = 0; i < m1A34.size(); i++) {
             char name[0x100];
             sprintf(name, "%s\0", m1A34[i].mNode.data());
-            fn_8008771C(group, name, &m1A34[i].mScale, 0.0f, 9999.0f, 1.0f, 0, 0);
+            fn_8008771C(damage, name, &m1A34[i].mScale, 0.0f, 9999.0f, 1.0f, 0, 0);
         }
     }
-    mColli.mFlags &= ~0x80000000;
     mStatus.m18 |= 0x1C0;
     mStatus.m18 |= 0x10000;
     mStatus.m18 |= 0xC219;
     mStatus.m18 |= 0x1800000;
+    mColli.mFlags &= ~0x80000000;
     mStatus.m18 |= 4;
     mStatus.m18 &= ~0x2000000;
     vf20();
@@ -213,9 +219,7 @@ int Em204BigMulue::vf0C() {
     }
     vfFC();
     m14E4 = 100;
-    for (unsigned int i = 0; i < m1558.size(); i++) {
-        m1564[i].mFlags &= ~1;
-    }
+    CapsulesOff_unk(this);
     mColli.mFlags &= ~1;
     m540 = atn::Vector3(5.1f, 5.1f, 5.1f);
     return 1;
@@ -597,13 +601,6 @@ void Em204BigMulue::vf100(int state) {
         break;
     }
     m14DC = 0;
-}
-
-// inferred: disables the collision capsules (name invented)
-inline void CapsulesOff_unk(Em204BigMulue* self) {
-    for (unsigned int i = 0; i < self->m1558.size(); i++) {
-        self->m1564[i].mFlags &= ~1;
-    }
 }
 
 void Em204BigMulue::vf104() {
