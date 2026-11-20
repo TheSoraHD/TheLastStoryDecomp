@@ -419,16 +419,19 @@ int ControlThrust::vf0C() {
             }
         }
         bool hint = CanRepeat_unk() && mOther->CanAct_unk();
-        if (hint && m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f && hint && lbl_8087F490) {
-            lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
-        }
-        if (m->mTracks[0].m08 > 55.0f && m->mTracks[0].m08 <= 75.0f && fn_800A555C(lbl_8087EF70, 0, 4)) {
-            m24 = 1;
-            m20++;
-            m->mTracks[0].m0C = -1.5f;
-            fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
-            if (lbl_8087F490) {
-                lbl_8087F490->fn_803E3384();
+        // inferred: with hint false the original also skips the button 4 block (logic fix for the port)
+        if (hint) {
+            if (m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f && hint && lbl_8087F490) {
+                lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
+            }
+            if (m->mTracks[0].m08 > 55.0f && m->mTracks[0].m08 <= 75.0f && fn_800A555C(lbl_8087EF70, 0, 4)) {
+                m24 = 1;
+                m20++;
+                m->mTracks[0].m0C = -1.5f;
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+                if (lbl_8087F490) {
+                    lbl_8087F490->fn_803E3384();
+                }
             }
         }
         if (mOther && (mOther->mStatus.m0C & 0x20) == 0x20) {
