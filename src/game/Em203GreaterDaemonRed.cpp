@@ -647,18 +647,22 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 77.86% - stack slots and scheduling of the capsule vectors
+// inferred: the feet points as temporaries, center/head assigned through VecAssign_unk (copies of the
+// original) and the radius read into a local before the capsule
 void Em203GreaterDaemonRed::vfF8() {
-    m614 = mPos + m5A4;
     m620 = m5B0;
-    m614.y += m5B0;
-    atn::Vector3 right = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk();
-    atn::Vector3 left = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk();
-    atn::Vector3 center(atn::Vector3(left + right) * 0.5f);
-    atn::Vector3 head(((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    atn::Vector3 center;
+    atn::VecAssign_unk(center, (((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftfoot"))->GetTrans_unk() +
+                                ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightfoot"))->GetTrans_unk()) *
+                                   0.5f);
+    atn::Vector3 head;
+    atn::VecAssign_unk(head, ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());
+    float radius = m620;
     mColli.m3C = center;
     mColli.m48 = head;
-    mColli.m54 = m620;
+    mColli.m54 = radius;
 }
 
 // inferred: damage spheres on the body

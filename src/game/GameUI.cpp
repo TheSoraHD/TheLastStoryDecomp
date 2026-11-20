@@ -291,7 +291,7 @@ GameUI::GameUI(atn::Task* parent)
     m3DC[2] = 0;
     m3DC[3] = 0;
     m3EC = 0;
-    m3F0.mCount = 0;
+    m3F0.mSize = 0;
     mDCC = 1;
     mDD0 = 0.0f;
     for (int i = 0; i < 32; i++) {
@@ -335,7 +335,7 @@ GameUI::GameUI(atn::Task* parent)
     }
     mA84 = 0;
     mA88 = 0;
-    m8D0.mCount = 0;
+    m8D0.mSize = 0;
     m73C = 0;
     m740 = 0;
     m744 = 0;
@@ -349,7 +349,7 @@ GameUI::GameUI(atn::Task* parent)
     }
     m834 = 0;
     m844 = 0;
-    m85C.mCount = 0;
+    m85C.mSize = 0;
     m870 = 0;
     for (int i = 0; i < 5; i++) {
         m848[i] = 0;
@@ -4580,13 +4580,13 @@ const wchar_t* GameUI::fn_803DF2DC(SkillEffect* bullet) {
 
 // inferred: the original calls it with bl from fn_803D164C (MWCC would inline it there)
 __declspec(noinline) void GameUI::fn_803DF5B4() {
-    m2F0.mCount = 0;
+    m2F0.mSize = 0;
     for (int i = 0; i < 6; i++) {
         mB0[i].m00 = 0;
         mB0[i].m08 = 0;
     }
     fn_803DF648(0);
-    for (unsigned int i = 0; i < m2F0.mCount; i++) {
+    for (unsigned int i = 0; i < m2F0.mSize; i++) {
         m2F0.mData[i]->m00 = 20;
     }
 }
@@ -4802,23 +4802,23 @@ void GameUI::fn_803DF648(int arg) {
             }
         }
     }
-    for (unsigned int i = 0; i < m2F0.mCount; i++) {
+    for (unsigned int i = 0; i < m2F0.mSize; i++) {
         GameUIElem60_unk* e = m2F0.mData[i];
         e->m04 = 0;
-        for (unsigned int j = 0; j < list.mCount; j++) {
+        for (unsigned int j = 0; j < list.mSize; j++) {
             if (list.mData[j] == (CharaTask*)e->m08) {
                 e->m04 = 1;
             }
         }
     }
-    for (unsigned int j = 0; j < list.mCount; j++) {
+    for (unsigned int j = 0; j < list.mSize; j++) {
         GameUIElem60_unk* e = GameUIFindWindow_unk(mB0, list.mData[j]);
         if (e != 0) {
             e->m08 = (int)list.mData[j];
             e->m04 = 1;
         }
     }
-    m2F0.mCount = 0;
+    m2F0.mSize = 0;
     for (int i = 0; i < 6; i++) {
         if (mB0[i].m08 != 0) {
             m2F0.PushBack_unk(&mB0[i]);
@@ -5193,8 +5193,6 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
 }
 
 // inferred: HUD notice about a character: characters of kind 3 are added to the list m30C
-// NONMATCHING: 99.8% - size and capacity of the inlined push_back fast path in swapped registers (r7/r6 in the
-// original; known residue of std/vector.h, docs/mwcc-blockers.md)
 void GameUI::fn_803E2110(int index, CharaTask* chara) {
     if (chara->mType == 3) {
         GameUIListEntry_unk e = {index, chara};
@@ -5426,7 +5424,7 @@ void GameUI::fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk
     for (GameUIMark24_unk* it = m8D0.begin(); it != m8D0.end(); it++) {
         if (dist < it->mDist) {
             if (m8D0.full()) {
-                m8D0.mCount--;
+                m8D0.mSize--;
             }
             GameUIMark24_unk mark;
             mark.mPos = pos;
@@ -5921,7 +5919,7 @@ void GameUI::fn_803E454C() {
     m2568.m00 = 0;
     fn_803E32EC();
     m30C.clear();
-    m85C.mCount = 0;
+    m85C.mSize = 0;
     m1150 = 0;
     if (m1140 != 0) {
         m1140->mFrame = 0.0f;
@@ -5938,7 +5936,7 @@ void GameUI::fn_803E454C() {
     }
     m2620 = 0;
     m2624 = 0;
-    m3F0.mCount = 0;
+    m3F0.mSize = 0;
     mC38.mCount = 0;
     fn_803CF74C();
     fn_803E4510();
@@ -6569,13 +6567,13 @@ void GameUI::fn_803E6BB4(CharaTask* id) {
 
 // inferred: number of timed entries (name invented)
 static inline unsigned int GameUIEntryCount_unk(const FixedArray_unk<GameUIEntry_unk, 32>* a) {
-    return a->mCount;
+    return a->mSize;
 }
 
 // inferred: the slot is indexed with the count read through a const inline (the original reloads it there
 // and keeps the loop count for the capacity test)
 void GameUI::fn_803E6BF0(unsigned int id, int value) {
-    for (unsigned int i = 0; i < m3F0.mCount; i++) {
+    for (unsigned int i = 0; i < m3F0.mSize; i++) {
         unsigned int v = m3F0.mData[i].m08;
         if (v == id) {
             m3F0.mData[i].mFrames = 0;
@@ -6583,18 +6581,18 @@ void GameUI::fn_803E6BF0(unsigned int id, int value) {
             return;
         }
     }
-    if (m3F0.mCount < 32) {
+    if (m3F0.mSize < 32) {
         GameUIEntry_unk e;
         e.mFrames = 0;
         e.m00 = value;
         e.m08 = id;
         new (&m3F0.mData[GameUIEntryCount_unk(&m3F0)]) GameUIEntry_unk(e);
-        m3F0.mCount++;
+        m3F0.mSize++;
     }
 }
 
 bool GameUI::fn_803E6C88(unsigned int id) {
-    for (unsigned int i = 0; i < m3F0.mCount; i++) {
+    for (unsigned int i = 0; i < m3F0.mSize; i++) {
         unsigned int v = m3F0.mData[i].m08;
         if (v == id) {
             return true;

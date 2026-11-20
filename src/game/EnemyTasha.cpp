@@ -304,7 +304,7 @@ void EnemyTasha::vf10() {
     if (fn_8035AB78()) {
         unsigned int i = 0;
         TashaEvent_unk* e = m1588.mData;
-        for (; i < m1588.mCount; i++) {
+        for (; i < m1588.mSize; i++) {
             if (fn_805A49E4((SpecialFlag_unk*)&e->m00) == 0) {
                 fn_805A4A1C((SpecialFlag_unk*)&e->m00, 1);
                 m162C = i;
@@ -403,7 +403,7 @@ extern "C" SkillEffectManager* fn_80356FFC() {
 // inferred: keeps the hit points above the threshold of the next event (name invented)
 inline void EnemyTasha::ClampHp_unk() {
     int next = m1630 + 1;
-    if (next < (int)m1588.mCount) {
+    if (next < (int)m1588.mSize) {
         float min = (float)mStatus.mParamB.m84 * (m1588.mData[next].m10 - 0.01f);
         if (mStatus.m04 < min) {
             mStatus.m04 = min;
@@ -1237,7 +1237,7 @@ int EnemyTasha::fn_8035AB78() {
         return 0;
     }
     float ratio = mStatus.m04 / (float)mStatus.mParamB.m84;
-    for (int i = m1588.mCount - 1; i >= 0; i--) {
+    for (int i = m1588.mSize - 1; i >= 0; i--) {
         if (fn_805A49E4((SpecialFlag_unk*)&m1588[i].m00) == 0) {
             if (ratio <= m1588[i].m10) {
                 return 1;

@@ -627,7 +627,7 @@ void Em001Necromancer::vf40(HitInfo_unk* hit) {
         }
     } else {
         Em001Necromancer* alter;
-        for (unsigned int i = 0; i < m14E8.mCount; i++) {
+        for (unsigned int i = 0; i < m14E8.mSize; i++) {
             alter = m14E8.mData[i];
             if (alter != 0 && !alter->mStatus.IsState_unk(0x20) && alter->mC58.mC0 != 0) {
                 Die_unk(alter);
@@ -807,7 +807,7 @@ void Em001Necromancer::fn_80246C30(int arg) {
     PlayEffect2_unk(&m1590, &mMotion);
     float rate = mStatus.mParamB.m84 > 0 ? mStatus.m04 / mStatus.mParamB.m84 : 0.0f;
     if (rate < 0.5f) {
-        for (unsigned int i = 0; i < m14E8.mCount; i++) {
+        for (unsigned int i = 0; i < m14E8.mSize; i++) {
             Em001Necromancer* alter = m14E8.mData[i];
             alter->mFlag15 = 0;
             alter->fn_80176ACC();
@@ -837,7 +837,7 @@ void Em001Necromancer::fn_80246E48() {
     PlayMotion_unk(&mMotion, 0x1EA, 0, 0.1f);
     if (m150C == 0) {
         fn_802470CC(&m1558, &m155C, &m1568);
-        for (unsigned int i = 0; i < m14E8.mCount; i++) {
+        for (unsigned int i = 0; i < m14E8.mSize; i++) {
             Em001Necromancer* alter = m14E8.mData[i];
             alter->m1558 = (unsigned int)(alter->m1558 + 1) % m14C4.size();
             alter->m155C = m14C4[alter->m1558]->mPos;

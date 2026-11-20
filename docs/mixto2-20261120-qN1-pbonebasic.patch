@@ -1,0 +1,75 @@
+diff --git a/src/atn/PBoneBasic.cpp b/src/atn/PBoneBasic.cpp
+index ff428a5..55b42ad 100644
+--- a/src/atn/PBoneBasic.cpp
++++ b/src/atn/PBoneBasic.cpp
+@@ -99,6 +99,39 @@ inline void RotateAlways_unk(atn::Matrix3x4& m, char axis, float rad) {
+     __MtxCopy(m.m, t);
+ }
+ 
++// inferred: rotation z, y, x (name invented; as MakeRotZYX_unk of game/HitUtil_unk.h)
++static inline void PBoneRotZYX_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
++    p->SetIdentity();
++    if (0.0f != rot.z) {
++        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
++    }
++    if (0.0f != rot.y) {
++        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
++    }
++    if (0.0f != rot.x) {
++        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
++    }
++}
++
++inline void RotateTR_unk(atn::Matrix3x4& m, char axis, float rad) {
++    Mtx t;
++    Mtx r;
++    PSMTXRotRad(r, axis, rad);
++    PSMTXConcat(m.m, r, t);
++    __MtxCopy(m.m, t);
++}
++
++// inferred: a * b by value (name invented)
++static inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
++    atn::Matrix3x4 t;
++    PSMTXConcat(a.m, b.m, t.m);
++    return t;
++}
++
++static inline void MulRotY_unk(atn::Matrix3x4& m, float rad) {
++    m = MulMtx_unk(m, atn::Matrix3x4::fn_8013A13C(rad));
++}
++
+ namespace atn {
+ 
+ PBoneBasic::PBoneBasic()
+@@ -159,26 +192,16 @@ void PBoneBasic::vf10() {
+         angles.z = m58;
+     }
+     // inferred: never read; the original keeps its three dead stores (local approved 2026-11-20)
+-    Vector3 axis(1.0f, 0.0f, 0.0f);
+     m14 = Vector3(1.0f, 0.0f, 0.0f);
++    Matrix3x4 local;
+     Matrix3x4 m;
+-    m.SetIdentity();
+-    __MtxRotate(m.m, 'z', angles.z);
+-    __MtxRotate(m.m, 'y', angles.y);
+-    __MtxRotate(m.m, 'x', angles.x);
++    PBoneRotZYX_unk(&m, angles);
+     PSMTXMultVec(m.m, &m14, &m14);
+     PSMTXMultVec(rot.m, &m14, &m14);
+     m14 *= m5C;
+-    Matrix3x4 local;
+     local.SetIdentity();
+-    {
+-        Mtx r;
+-        PSMTXRotRad(r, 'y', angles.y);
+-        Mtx t;
+-        PSMTXConcat(local.m, r, t);
+-        __MtxCopy(local.m, t);
+-    }
+-    RotateAlways_unk(local, 'z', angles.z);
++    MulRotY_unk(local, angles.y);
++    RotateTR_unk(local, 'z', angles.z);
+     Matrix3x4 world;
+     PSMTXConcat(root->m, local.m, world.m);
+     *root = world;

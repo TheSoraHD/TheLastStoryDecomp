@@ -260,7 +260,7 @@ void Em312DarkServant::fn_8030E5C8() {
         Em006DarkMaster* master = (Em006DarkMaster*)m14D4;
         if (master != 0) {
             FixedArray_unk<EnemyTask*, 8>* list = &master->m14D8;
-            for (unsigned int i = 0; i < list->mCount; i++) {
+            for (unsigned int i = 0; i < list->mSize; i++) {
                 ((Em312DarkServant*)list->mData[i])->fn_8030E5C8();
             }
         }

@@ -1,3 +1,4 @@
+#include "Event/EventSpVector_unk.h"
 // Event/Sequence.cpp (0x8053D0F4-0x80546000): Event::Sequence, the task that owns the cuts and the data
 // of an event. One TU with the inline virtuals of Event::StringData/DummyData (0x805430E8) and the
 // template instances emitted after them (vector growth, DataList_unk::SetOwner_unk...).
@@ -69,6 +70,19 @@ extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** cont
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: path without its extension
 extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
+
+namespace std {
+// inferred: push_back of the cuts (see Event/EventSpVector_unk.h)
+template <>
+inline void vector<boost::shared_ptr<Event::Cut> >::__push_unk(size_type n, const boost::shared_ptr<Event::Cut>& x) {
+    size_type c = this->mCap;
+    if (n < c) {
+        this->__push_fast_unk(n, x);
+        return;
+    }
+    __vec_sp_unk<boost::shared_ptr<Event::Cut> >::__push_slow_unk(*this, x);
+}
+} // namespace std
 
 namespace Event {
 
@@ -806,7 +820,6 @@ void Sequence::fn_805406BC(int keep) {
     m194 = 4;
 }
 
-// NONMATCHING: same blocker as Event::Cut::fn_8053B030 (inlined std::vector::push_back growth path)
 // inferred: appends a new cut, numbered after the highest index
 Cut* Sequence::fn_80540A08() {
     int index = 0;
@@ -815,9 +828,8 @@ Cut* Sequence::fn_80540A08() {
             index = mB8[i]->mIndex + 1;
         }
     }
-    boost::shared_ptr<Cut> cut(new ((MemoryTag)4, "", "", 0) Cut(this, index));
-    mB8.push_back(cut);
-    return mB8[mB8.size() - 1].get();
+    mB8.push_back(boost::shared_ptr<Cut>(new ((MemoryTag)4, "", "", 0) Cut(this, index)));
+    return mB8.back().get();
 }
 
 // inferred: index of a cut (-1 if missing)

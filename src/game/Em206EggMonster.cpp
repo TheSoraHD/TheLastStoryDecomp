@@ -981,7 +981,6 @@ void Em206EggMonster::fn_802C42D4() {
     }
 }
 
-// NONMATCHING: 99.3% - float registers of the jump vector and r3/r4 of a Vector3 copy
 // inferred: state 4 (jumps forward and lands on the ground)
 void Em206EggMonster::fn_802C4480() {
     float frame = mMotion.mTracks[0].m08;
@@ -989,14 +988,16 @@ void Em206EggMonster::fn_802C4480() {
         EndAction_unk();
     } else if (mMotion.mTracks[0].m08 >= 28.0f && mMotion.mTracks[0].m08 <= 60.0f) {
         int fps = lbl_8087F0A8->m030;
-        atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), 1.5f);
+        float g = -98.1f / (float)(fps * fps);
+        atn::Vector3 move(0.0f, g, 1.5f);
         atn::Matrix3x4 m;
         m.SetRotationY_unk(mRot.y);
         PSMTXMultVec(m.m, &move, &move);
         atn::ColliResult_unk result;
         CharaTask::Sphere_unk sphere = fn_80176548(mPos);
         fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mColli, 0, sphere.mRadius);
-        atn::Vector3 pos = result.m10;
+        const atn::Vector3& hit = result.m10;
+        atn::Vector3 pos = hit;
         pos -= m5A4;
         pos.y -= sphere.mRadius;
         mPos = pos;

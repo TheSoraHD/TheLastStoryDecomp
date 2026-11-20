@@ -843,10 +843,11 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 97.76% - r3/r4 de las copias de Vector3 (__VecCopy) y offset de "tale" en el pool de cadenas
+// inferred: copies through VecAssign_unk, the radius in a local and m620 doubled in place (as QuadrupedTask)
 // inferred: places the collision capsule along the body (own version of CharaTask::vf20)
 void Em403WarLion::vf20() {
-    m620 = 2.0f * m5B0;
+    m620 = m5B0;
+    m620 *= 2.0f;
     atn::Vector3 ofs(0.0f, 0.0f, -10.0f);
     atn::Matrix3x4 m;
     MakeRotationZYX_unk(m, mRot);
@@ -857,17 +858,18 @@ void Em403WarLion::vf20() {
     atn::Vector3 b;
     int tail = mMotion.GetNodeNoByName("tale", 0);
     if (tail > -1) {
-        b = GetNodePos_unk(mMotion.mMtx.mNodes.mData[tail].m);
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.mMtx.mNodes.mData[tail].m));
         b.y -= 1.0f;
     } else {
-        b = a;
+        atn::VecAssign_unk(b, a);
         b.y += m5B4 - 2.0f * m620;
     }
+    float radius = m620;
     mColli.m3C = a;
     mColli.m48 = b;
-    mColli.m54 = m620;
+    mColli.m54 = radius;
     mColli.mFlags &= ~0x80000000;
-    m148C = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    atn::VecAssign_unk(m148C, GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")));
     m1498 = 5.0f;
 }
 
@@ -916,7 +918,7 @@ void Em403WarLion::vf54() {
 }
 
 // inferred: chooses the next action of the walk mode (m14CC)
-// NONMATCHING: 99.93% - f30/f31 de la distancia y del angulo, huecos de pila de los atn::ColliResult_unk
+// NONMATCHING: 99.94% - f30/f31 de la distancia y del angulo (y declarado de varias formas: igual)
 // (el original llama fuera de linea a los helpers de Vector3: supera el presupuesto de inline)
 void Em403WarLion::fn_803267E8() {
     if (m15D4 != 0) {
@@ -947,9 +949,9 @@ void Em403WarLion::fn_803267E8() {
                     from.y += 10.0f;
                     atn::Vector3 to = from + d.GetNormalize() * 500.0f;
                     if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
-                        result.m10 -= d.GetNormalize() * m620;
-                        if ((result.m10 - from).Length_unk() > 80.0f) {
-                            m1500 = result.m10;
+                        result.m04 -= d.GetNormalize() * m620;
+                        if ((result.m04 - from).Length_unk() > 80.0f) {
+                            m1500 = result.m04;
                             m1500.y = mPos.y;
                             m1518.Set_unk(0.0f, d.ToRotation_unk().y, 0.0f);
                             fn_803279D4();
@@ -967,9 +969,9 @@ void Em403WarLion::fn_803267E8() {
                     from.y += 10.0f;
                     atn::Vector3 to = from + d.GetNormalize() * 500.0f;
                     if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
-                        result.m10 -= d.GetNormalize() * m620;
-                        if ((result.m10 - from).Length_unk() > 60.0f) {
-                            m1500 = result.m10;
+                        result.m04 -= d.GetNormalize() * m620;
+                        if ((result.m04 - from).Length_unk() > 60.0f) {
+                            m1500 = result.m04;
                             m1500.y = mPos.y;
                             m1518.Set_unk(0.0f, d.ToRotation_unk().y, 0.0f);
                             fn_803279D4();
@@ -1157,8 +1159,7 @@ inline float AngleDiffDeg_unk(float a, float b) {
 }
 
 // inferred: roar (state 8): turns towards the target, then attacks with bullet 0x672
-// NONMATCHING: 99.96% - operandos de un fmuls del giro maximo (probados constante local, a /= abs, orden de
-// los factores y temporales con nombre: ninguno da f0*f3)
+// inferred: the maximum turn is 2 degrees through DegToRad_unk (a literal goes first in the fmuls)
 void Em403WarLion::fn_80327EF0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1177,8 +1178,8 @@ void Em403WarLion::fn_80327EF0() {
             a += 360.0f;
         }
         float abs = atn::Abs_unk(a);
-        if (abs > 0.034906585f) {
-            a = (a / abs) * 0.034906585f;
+        if (abs > atn::DegToRad_unk(2.0f)) {
+            a = (a / abs) * atn::DegToRad_unk(2.0f);
         }
         mRot.y += a;
     }
@@ -1413,7 +1414,12 @@ void Em403WarLion::fn_8032943C() {
     }
 }
 
-// NONMATCHING: 99.29% - orden de los temporales de Lerp en la pila y stfs 0x2e8 del estado 18
+// inferred: linear interpolation with the step first (fadds of the step and the start; atn::Lerp_unk adds
+// them the other way)
+static inline atn::Vector3 WarLionLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
 void Em403WarLion::fn_80329744() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1439,7 +1445,7 @@ void Em403WarLion::fn_80329744() {
             } else {
                 t = MIN(1.0f, (mMotion.mTracks[0].m08 - 22.0f) / (end - 22.0f));
             }
-            mPos = atn::Lerp_unk(m1574, m1580, t);
+            mPos = WarLionLerp_unk(m1574, m1580, t);
         } else if (m14C4 == 0) {
             m14C4 = 1;
         } else {
@@ -1453,7 +1459,6 @@ void Em403WarLion::fn_80329744() {
                     SetState_unk(18);
                     mMotion.m34C = 1;
                     mMotion.mTracks[0].m20 = 1.0f;
-                    mMotion.mTracks[0].m0C = 1.0f;
                     mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
                     mMotion.mTracks[0].m0C = 0.7f;
                     m1598 = 0;

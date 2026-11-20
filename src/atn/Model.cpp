@@ -167,6 +167,16 @@ int MaterialSet_unk::fn_80089B5C() {
     return 0;
 }
 
+namespace atn {
+// inferred: defined here, not inline in the class: the original emits them right after MaterialSet_unk
+// (0x80089C28/0x80089CE4) and its 0.0f is the first float of .sdata2
+ModelLod_unk::ModelLod_unk() : m08(0), m0C(0.0f) {}
+
+ModelLod_unk::~ModelLod_unk() {
+    mHandle.fn_80473F88();
+}
+} // namespace atn
+
 // inferred: fills a node edit (flags: which parts are not identity); called by atn::Model::fn_80093F1C
 extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, const atn::Vector3& offset,
                             const atn::Vector3& rot, const atn::Vector3& scale, int flags) {
@@ -235,21 +245,13 @@ void NewNodePoses_unk() {
     }
 }
 
+// NONMATCHING: 98.6% - the original stores m50 before the four stores of m40 (bit fields in the init list fix the
+// order of m20C and m210)
 ModelBase::ModelBase(unsigned int flags)
     : mFlags(flags), m40(1.0f, 1.0f, 1.0f, 1.0f), m50(0), m54(1.0f), m58(0), m5C(0), m94(6), m98(0.0f), m134(0),
       m138(0), m14C(1.0f), m150(1.0f), m154(0.0f), m158(1.0f), m15C(0), m160(0), m1DC(0), m1E0(0), m1F0(0), m1F4(0),
-      m1F8(0), m1FC(0), m208(0) {
-    m20C_31_24 = 0;
-    m20C_23_16 = 1;
-    m20C_15_8 = 0;
-    m20C_7 = 0;
-    mFlag6_unk = 1;
-    mFlag5_unk = 0;
-    mFlag4_unk = 0;
-    mFlag3_unk = 0;
-    mFlag2_unk = 0;
-    mFlag1_unk = 0;
-    m20C_0 = 0;
+      m1F8(0), m1FC(0), m208(0), m20C_31_24(0), m20C_23_16(1), m20C_15_8(0), m20C_7(0), mFlag6_unk(1), mFlag5_unk(0),
+      mFlag4_unk(0), mFlag3_unk(0), mFlag2_unk(0), mFlag1_unk(0), m20C_0(0) {
     m9C.x = 0.0f;
     m9C.y = 0.0f;
     m9C.z = 0.0f;
@@ -1707,12 +1709,14 @@ inline void Swap_unk(T& a, T& b) {
     b = t;
 }
 
+// inferred: passed as LessU_unk& (Sort_unk<unsigned int, LessU_unk&>, like LessCache_unk of game/GameTask):
+// the callers pass the address of an uninitialized local and the recursion forwards it
 struct LessU_unk {
     bool operator()(const unsigned int& a, const unsigned int& b) const { return a < b; }
 };
 
 template <class T, class C>
-void Median3_unk(T* a, T* b, T* c, C comp) {
+void Median3_unk(T* a, T* b, T* c, C& comp) {
     bool ca = !comp(*c, *a);
     bool bc = !comp(*b, *c);
     if (ca && bc) {
@@ -1841,13 +1845,11 @@ void Sort_unk(T* first, T* last, Compare comp) {
 
 namespace atn {
 
-// NONMATCHING: 98% - same as fn_800920B8 (inlined)
 void Model::fn_80091CFC(const char* node) {
     fn_800920B8(fn_800DC6B4(node));
 }
 
 // inferred: adds a node to the sorted list of the nodes with the node callback enabled
-// NONMATCHING: 98% - registers of the inlined reserve copy loops
 void Model::fn_800920B8(unsigned int hash) {
     int node = FindNodeRes_unk(GetRes_unk(), hash);
     if (node < 0) {
@@ -1859,7 +1861,8 @@ void Model::fn_800920B8(unsigned int hash) {
         }
     }
     mCC.push_back(node);
-    Sort_unk(mCC.mData, mCC.mData + mCC.mSize, LessU_unk());
+    LessU_unk less;
+    Sort_unk<unsigned int, LessU_unk&>(mCC.mData, mCC.mData + mCC.mSize, less);
 }
 
 // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci
@@ -2194,9 +2197,8 @@ void Model::fn_80094778(const char* name) {
 Model::NodeEdit_unk* Model::fn_800948F0(const char* name) {
     unsigned int hash = fn_800DC6B4(name);
     for (unsigned int i = 0; i < mD8.mSize; i++) {
-        NodeEdit_unk* e = &mD8.mData[i];
-        if (hash == e->m00) {
-            return e;
+        if (hash == mD8[i].m00) {
+            return &mD8.mData[i];
         }
     }
     return 0;

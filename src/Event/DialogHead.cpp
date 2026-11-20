@@ -62,7 +62,7 @@ inline float __MaxScaleT_unk(const atn::Matrix3x4& m) {
 
 // inferred: item `i` of a character, 0 past the end
 inline EquipItemData* GetItem_unk(CharaTask* chara, int i) {
-    return i < (int)chara->m6A4.mCount ? chara->m6A4.mData[i] : 0;
+    return i < (int)chara->m6A4.mSize ? chara->m6A4.mData[i] : 0;
 }
 
 namespace Event {
@@ -112,7 +112,7 @@ void DialogHead::fn_802254B0(float top, float bottom) {
             fn_80095F10(&m680[i]->m024, &m1624);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             fn_80095F10(&m6A4.mData[i]->mModel, &m1624);
         }
@@ -137,7 +137,7 @@ int DialogHead::vf0C() {
         mMotion.mTracks[0].m0C = lbl_8087F0A8->mDialog.mUseWaitMotion ? 1.0f : 0.0f;
         mMotion.fn_80097E80(1);
         mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->mFlags.mFlag = GetItem_unk(m1428, i)->mFlags.mFlag;
         }
         mMotion.fn_80094BD8(4);
@@ -147,7 +147,7 @@ int DialogHead::vf0C() {
                 (*p)->GetModel_unk()->fn_80094BD8(4);
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             if (m6A4.mData[i]->mFlags.mFlag) {
                 m6A4.mData[i]->mModel.fn_80094BD8(4);
             }
@@ -229,7 +229,7 @@ void DialogHead::vf10() {
             (*p)->GetModel_unk()->fn_80094BD8(mode);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             m6A4.mData[i]->mModel.fn_80094BD8(mode);
         }
@@ -253,7 +253,7 @@ void DialogHead::vf18(atn::RenderManager* view) {
             (*p)->GetModel_unk()->vf18(view);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             m6A4.mData[i]->mModel.vf18(view);
         }
@@ -282,7 +282,7 @@ void DialogHead::vf10(atn::RenderManager* view) {
             (*p)->GetModel_unk()->vf10(view);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             m6A4.mData[i]->mModel.vf10(view);
         }

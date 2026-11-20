@@ -51,7 +51,7 @@ public:
     // inferred: number of selected members (inlined three times); name invented
     int CountSelected_unk() {
         int n = 0;
-        for (unsigned int i = 0; i < mMembers.mCount; i++) {
+        for (unsigned int i = 0; i < mMembers.mSize; i++) {
             if (mMembers.mData[i].mSelected != 0) {
                 n++;
             }

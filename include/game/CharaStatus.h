@@ -5,6 +5,7 @@
 #include "game/CharaSub_unk.h"
 
 #include "std/new.h"
+#include "atn/FixedArrayBase_unk.h"
 
 class CharaTask;
 struct HitInfo_unk;
@@ -326,41 +327,39 @@ struct CharaStatusRef_unk {
 // inferred: array with a count and a fixed capacity (erase shifts the elements down, push_back
 // constructs in place); name invented
 template <class T, int N>
-struct FixedArray_unk {
-    FixedArray_unk() : mCount(0) {}
+struct FixedArray_unk : public atn::FixedArrayBase_unk {
+    FixedArray_unk() {}
     T* begin() { return mData; }
-    T* end() { return mData + mCount; }
+    T* end() { return mData + mSize; }
     T& operator[](int i) { return mData[i]; }
     void erase(T* it) {
-        for (unsigned int i = it - mData; i < mCount - 1; i++) {
+        for (unsigned int i = it - mData; i < mSize - 1; i++) {
             mData[i] = mData[i + 1];
         }
-        mCount = mCount - 1;
+        mSize = mSize - 1;
     }
-    bool full() const { return mCount >= N; }
-    bool empty() const { return mCount == 0; } // inferred: weak copy 0x803D6EDC (game/GameUI.cpp)
+    bool full() const { return mSize >= N; }
     // inferred: inserts before `it` (CharaTask::fn_8014F2B4)
     void insert(T* it, const T& x) {
         unsigned int pos = it - mData;
-        for (unsigned int i = mCount; i > pos; i--) {
+        for (unsigned int i = mSize; i > pos; i--) {
             mData[i] = mData[i - 1];
         }
         mData[pos] = x;
-        mCount++;
+        mSize++;
     }
     // inferred: without the capacity check (CharaTask::fn_801371AC); name invented
     void PushBack_unk(const T& x) {
         new (end()) T(x);
-        mCount++;
+        mSize++;
     }
     void push_back(const T& x) {
         if (!full()) {
             new (end()) T(x);
-            mCount++;
+            mSize++;
         }
     }
 
-    unsigned int mCount;
     T mData[N];
 };
 

@@ -1,25 +1,39 @@
+#include "Event/EventSpVector_unk.h"
 #include "Event/Channel.h"
 #include "Event/Action.h"
 #include "atn/Memory.h"
 #include "std/string_members.h"
 
+namespace std {
+// inferred: push_back of the actions (see Event/EventSpVector_unk.h)
+template <>
+inline void vector<boost::shared_ptr<Event::Action> >::__push_unk(size_type n, const boost::shared_ptr<Event::Action>& x) {
+    size_type c = this->mCap;
+    if (n < c) {
+        this->__push_fast_unk(n, x);
+        return;
+    }
+    __vec_sp_unk<boost::shared_ptr<Event::Action> >::__push_slow_unk(*this, x);
+}
+// inferred: the elements are destroyed one inline level below (register order of the destroy loop)
+template <>
+inline void __vec_storage_unk<boost::shared_ptr<Event::Action> >::__shrink_unk(unsigned int newSize) {
+    __vec_sp_unk<boost::shared_ptr<Event::Action> >::__shrink_loop_unk(*this, newSize);
+}
+} // namespace std
+
 namespace Event {
 
 Channel::Channel(Section* section) : mSection(section), m0C(0), m10(1) {}
 
-// NONMATCHING: 40.5% - the boost::shared_ptr counts (lwarx/stwcx. of sp_counted_base_cw_ppc.hpp)
-// now match; what differs is the inlined std::vector::push_back growth path of std/vector.h
-// (the original keeps max_size() in a register and divides it at run time, and keeps an
-// unreachable copy of the fast path after the length check).
+// NONMATCHING: 99.99% - push_back through Event/EventSpVector_unk.h (same source as Sequence::fn_80540A08,
+// at 100%); only the free of the reallocation buffer differs: the original reads its storage through the
+// `this` of the buffer (lwz r3, 0x0(r30)), ours from the stack (lwz r3, 0x30(r1)).
 Action* Channel::fn_8053A510(int index) {
-    boost::shared_ptr<Action> action(new ((MemoryTag)4, "", "", 0) Action(this, index));
-    mActions.push_back(action);
-    return mActions[mActions.size() - 1].get();
+    mActions.push_back(boost::shared_ptr<Action>(new ((MemoryTag)4, "", "", 0) Action(this, index)));
+    return mActions.back().get();
 }
 
-// NONMATCHING: 98.9% - only register numbers: the original gives the vector destroy loop
-// (count, element, &pn, pi) r25-r28 in the opposite order (tried std/vector.h variants: loop
-// variable order, clear() instead of __shrink_unk, extra inline levels for the element destructor).
 Channel::~Channel() {}
 
 // inferred: the reader of the channel attributes was stripped by the linker; only its literals are

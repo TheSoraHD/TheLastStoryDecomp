@@ -229,8 +229,8 @@ EnemyQuarkStand::EnemyQuarkStand(atn::Task* parent, EnemyInfo_unk* info)
     mFlag24 = 0;
 }
 
-// inferred: reads the skill ids of a line of the data file until a zero (names invented)
-inline void ReadIds_unk(IntVector_unk* list, atn::Csv* csv) {
+// inferred: reads the skill ids of a line of the data file until a zero
+extern "C" void fn_803458EC(IntVector_unk* list, atn::Csv* csv) {
     while (true) {
         int id = fn_800DC12C(csv->fn_8005B9CC());
         if (id == 0) {
@@ -238,11 +238,6 @@ inline void ReadIds_unk(IntVector_unk* list, atn::Csv* csv) {
         }
         list->push_back(id);
     }
-}
-// NONMATCHING: 99.73% - inlined vector<int>::push_back (size/capacity loads swapped, known family) and the
-// "Memory allocation failure" literal of another file (lbl_80775A88)
-extern "C" void fn_803458EC(IntVector_unk* list, atn::Csv* csv) {
-    ReadIds_unk(list, csv);
 }
 
 int EnemyQuarkStand::vf0C() {
@@ -2335,16 +2330,13 @@ void EnemyQuarkStand::fn_803526A8() {
 
 
 // inferred: out-of-line turn toward the target (the same body as TurnTo_unk)
-// NONMATCHING: 99.11% - slots de pila de la diferencia y de la copia de ToRotationZ_unk intercambiados
-// (0x50/0x5C); ~8 variantes (inline TurnTo_unk, temporales, bloques)
 void EnemyQuarkStand::fn_80352938(float rate) {
     CharaTask* target = m14B0;
-    atn::Vector3 d(target->mPos - mPos);
-    float y = d.ToRotationZ_unk().y;
+    float y = (target->mPos - mPos).ToRotationZ_unk().y;
     float diff = atn::WrapAngle_unk(y - mRot.y);
     float step = 12.0f * rate;
     float abs = diff < 0.0f ? -diff : diff;
-    step = 0.017453292f * step;
+    step = atn::DegToRad_unk(step);
     if (abs <= step) {
         mMotion.fn_80097CCC(1, 0.0f);
         mRot.y = y;

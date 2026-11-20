@@ -208,7 +208,7 @@ void Popup::vf10() {
         b = 200.0f;
         SetPaneValue_unk(task->mLayout, "pos0001(1)", 0, screen.x);
         SetPaneValue_unk(task->mLayout, "pos0001(1)", 1, screen.y);
-        chr::CharaPartData_unk* own = chara->mParts.mCount != 0 ? chara->mParts[0]->m274 : 0;
+        chr::CharaPartData_unk* own = chara->mParts.mSize != 0 ? chara->mParts[0]->m274 : 0;
         if (chara->m678 != 0) {
             own = chara->m678->m274;
         }

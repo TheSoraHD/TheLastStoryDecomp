@@ -24,6 +24,7 @@ struct U16Table_unk;
 extern "C" void fn_803CD918(U16Table_unk* table);
 
 struct U16Table_unk {
+    U16Table_unk(); // 0x803C94BC (game/GameScene.cpp)
     ~U16Table_unk() { fn_803CD918(this); }
     unsigned short mCount; // inferred: number of values
     unsigned short mRuns;  // inferred: number of runs

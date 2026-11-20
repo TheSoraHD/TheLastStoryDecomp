@@ -419,16 +419,19 @@ int ControlThrust::vf0C() {
             }
         }
         bool hint = CanRepeat_unk() && mOther->CanAct_unk();
-        if (hint && m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f && hint && lbl_8087F490) {
-            lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
-        }
-        if (m->mTracks[0].m08 > 55.0f && m->mTracks[0].m08 <= 75.0f && fn_800A555C(lbl_8087EF70, 0, 4)) {
-            m24 = 1;
-            m20++;
-            m->mTracks[0].m0C = -1.5f;
-            fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
-            if (lbl_8087F490) {
-                lbl_8087F490->fn_803E3384();
+        // inferred: with hint false the original also skips the button 4 block (logic fix for the port)
+        if (hint) {
+            if (m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f && hint && lbl_8087F490) {
+                lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
+            }
+            if (m->mTracks[0].m08 > 55.0f && m->mTracks[0].m08 <= 75.0f && fn_800A555C(lbl_8087EF70, 0, 4)) {
+                m24 = 1;
+                m20++;
+                m->mTracks[0].m0C = -1.5f;
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+                if (lbl_8087F490) {
+                    lbl_8087F490->fn_803E3384();
+                }
             }
         }
         if (mOther && (mOther->mStatus.m0C & 0x20) == 0x20) {
@@ -603,15 +606,16 @@ ControlThrustForQuarkStand::ControlThrustForQuarkStand(Chara_unk* chara, Chara_u
     mFront = Front_unk(mChara);
 }
 
-// inferred: bullet of a thrust with the hit data `hit` (the manager and the rotation are read inside)
-static inline void StandShoot_unk(ControlBase* self, const atn::Vector3& pos, HitInfo_unk* hit) {
+// inferred: bullet of a thrust with the hit data `hit` from the node `node` (the position goes to the caller's
+// `pos`, the manager and the rotation are read inside: stack slot and saved registers of the original)
+static inline void StandShoot_unk(ControlBase* self, atn::Vector3& pos, const atn::Matrix3x4* node,
+                                  HitInfo_unk* hit) {
+    pos.Set_unk(node->m[0][3], node->m[1][3], node->m[2][3]);
     BattleTask* mgr = lbl_8087F048;
     const atn::Vector3* r = &self->mChara->mRot;
     mgr->fn_800FAB80(self->mChara, hit, mgr->fn_800F8548(), &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
-// NONMATCHING: 99.9% - stack slot of the temporary of the bullet position (0x4c in the original, between the
-// first phase and the step back; naming it swaps the saved registers of the bullet call)
 int ControlThrustForQuarkStand::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     float frame = m->mTracks[0].m08;
@@ -642,7 +646,8 @@ int ControlThrustForQuarkStand::vf0C() {
         if (m28 == 0 && m->mTracks[0].m08 > 55.0f) {
             m28 = 1;
             mChara->fn_8016DA4C();
-            StandShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), mChara->m638);
+            atn::Vector3 from;
+            StandShoot_unk(this, from, (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"), mChara->m638);
         }
     } else if (frame > 90.0001f) {
         atn::Vector3 pos = mChara->mPos;
@@ -1773,15 +1778,15 @@ int ControlAbsorbedHP::vf0C() {
 
 inline ControlAbsorbedHPReleased::ControlAbsorbedHPReleased(Chara_unk* chara) : ControlBase(chara) {
     chara->SetControlId_unk(0x83);
-    Motion_unk* m = &mChara->mMotion;
+    // inferred: through the accessor (as the ctors of chr/ControlJumpAt.h); &mChara->mMotion puts the boost
+    // node of vf10 in another register
+    Motion_unk* m = mChara->GetModel_unk();
     m->m34C = 1;
     m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, 0x229, 0, 0, 1, 0.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 99.85% - the boost node of the Released branch gets r29 (r30 in the original, the register of
-// `next`)
 boost::function<void()> ControlAbsorbedHP::vf10() const {
     if (mCount > 0) {
         atn::Vector3 dir(0.0f, 0.0f, -1.0f);

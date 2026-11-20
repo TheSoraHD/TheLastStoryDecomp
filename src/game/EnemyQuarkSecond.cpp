@@ -112,8 +112,6 @@ extern "C" void fn_80338CDC(atn::ColliBase* colli, int upright) {
 }
 
 // inferred: reads a list of ids into `table` until a zero id (not a member: it gets no `this`)
-// NONMATCHING: ~99% - known push_back residue: the inlined fast path loads size/capacity in the other
-// registers (docs: push_back in loops)
 static void fn_80338D14(QuarkTable_unk* table, atn::Csv* csv) {
     for (;;) {
         int id = fn_800DC12C(csv->fn_8005B9CC());
@@ -1308,7 +1306,7 @@ void EnemyQuarkSecond::fn_8033DB8C() {
                     targets.PushBack_unk(p);
                 }
             }
-            unsigned int n = targets.mCount;
+            unsigned int n = targets.mSize;
             if (n < 7) {
                 n = 7;
             }
@@ -1324,9 +1322,9 @@ void EnemyQuarkSecond::fn_8033DB8C() {
                 dir = front;
                 PSMTXMultVec(m, &dir, &dir);
                 dir.y += 0.4f;
-                if (targets.mCount != 0) {
+                if (targets.mSize != 0) {
                     QuarkHoming_unk param;
-                    param.mTarget = targets[i % targets.mCount];
+                    param.mTarget = targets[i % targets.mSize];
                     param.mTurn = 1.2566371f;
                     param.mDelay = 0.0f;
                     param.mCount = id;
@@ -1556,9 +1554,9 @@ void EnemyQuarkSecond::fn_8033EF90() {
                     }
                 }
             }
-            if (targets.mCount != 0) {
+            if (targets.mSize != 0) {
                 for (int i = 0; i < 5; i++) {
-                    CharaTask* target = targets[i % targets.mCount];
+                    CharaTask* target = targets[i % targets.mSize];
                     atn::Vector3 dir(0.0f, 1.0f, 0.0f);
                     atn::Vector3 rot(0.0f, mRot.y, 3.1415927f * (((float)i + 0.5f) / 5.0f) - 1.5707964f);
                     atn::Matrix3x4 m;

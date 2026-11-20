@@ -40,16 +40,18 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 99.93% - the field pointer is kept in r28 and the type read into r9 (here r9/r12); ~8 variants
-// (field/table locals in several orders, type read apart)
+// inferred: route table of the game task (getter; one more inline level for the registers of the ctor)
+static inline GameScene* GargoyleTable_unk() {
+    return lbl_8087F430->m10D8;
+}
+
 Em310Gargoyle::Em310Gargoyle(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14C4(1.0f), m14C8(0), m14CC(0.0f), m14D0(0),
       m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14EC(0), m14F0(0), m14F1(0), m150D(1), m1588(0), m158C(0),
       m15D0(0.0f), m15E0(2), m15F0(0), m15F1(0), m1604(0), m1608(1.3f), m160C(0.5f) {
     int type = *(int*)info - 0x385;
-    GameScene* table = lbl_8087F430->m10D8;
-    m14C0 = type;
-    mData = lbl_80787F68[type];
+    GameScene* table = GargoyleTable_unk();
+    mData = lbl_80787F68[m14C0 = type];
     for (int i = 0; i < 4; i++) {
         mData.mOfs[i] = table->FindPlace_unk(mData.mSeats[i].m04)->mPos - table->FindPlace_unk(mData.mSeats[i].m00)->mPos;
     }

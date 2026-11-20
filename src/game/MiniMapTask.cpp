@@ -106,7 +106,7 @@ extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 // inferred: moves the markers of the marked characters to them (shown while the character can act) and updates
 // the matrices of the minimap model at the identity
 void MiniMapTask::vf10() {
-    for (unsigned int i = 0; i < mCharaMarks.mCount; i++) {
+    for (unsigned int i = 0; i < mCharaMarks.mSize; i++) {
         int marker = mCharaMarks.mData[i].mMarker;
         mMarkers[marker].mPos = mCharaMarks.mData[i].mChara->mPos;
         if (mCharaMarks.mData[i].mChara->CanAct_unk()) {
@@ -225,7 +225,7 @@ void MiniMapTask::vf14() {
     float markerSize = m638;
     float arrowShineSize = m634;
     float pointSize = m63C;
-    for (unsigned int i = 0; i < m1538.mCount; i++) {
+    for (unsigned int i = 0; i < m1538.mSize; i++) {
         if (pos.x > m1538.mData[i].mMin.x && pos.x < m1538.mData[i].mMin.x + m1538.mData[i].mMax.x &&
             pos.z > m1538.mData[i].mMin.y && pos.z < m1538.mData[i].mMin.y + m1538.mData[i].mMax.y) {
             return;
@@ -474,7 +474,7 @@ void MiniMapTask::fn_804AAD68(CharaTask* chara, const atn::Color* color) {
     if (chara == 0) {
         return;
     }
-    for (unsigned int i = 0; i < mCharaMarks.mCount; i++) {
+    for (unsigned int i = 0; i < mCharaMarks.mSize; i++) {
         if (mCharaMarks.mData[i].mChara == chara) {
             return;
         }

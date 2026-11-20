@@ -366,7 +366,7 @@ void Em315Coffin::vf104() {
         float r = m64->m30;
         if (dist > 2.0f * (2.0f * (r * r))) {
             vf100(7);
-        } else if (m15D8.mCount <= 0 && m125C.mCount >= 2) {
+        } else if (m15D8.mCount <= 0 && m125C.mSize >= 2) {
             vf100(9);
         } else if (m15E8.mCount <= 0 && mC58.mC4->mFlag10 && mC58.mC4->mStatus.m0C == 0) {
             CharaTask* target = mC58.mC4;
@@ -377,7 +377,7 @@ void Em315Coffin::vf104() {
             mC58.mC4->fn_8016F530(this);
             vf100(10);
         } else if (m15C8.mCount <= 0) {
-            if ((mC58.mC4->m125C.mCount < 2 || mC58.mC4->mStatus.m0C != 0) && CanLinkTo_unk(this)) {
+            if ((mC58.mC4->m125C.mSize < 2 || mC58.mC4->mStatus.m0C != 0) && CanLinkTo_unk(this)) {
                 mC58.mC4->fn_8016F530(this);
                 vf100(9);
             }

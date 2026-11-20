@@ -20,6 +20,7 @@
 #include "atn/FadeCommon.h"
 #include "game/ResHandle.h"
 #include "atn/CharaLightData_unk.h"
+#include "atn/Vec2_unk.h"
 #include "gmk/SeTable.h"
 #include "Event/DebugInfo_unk.h"
 
@@ -55,7 +56,7 @@ typedef std::vector<CharaTask*> CharaList_unk;
 // inferred: fixed ring of N entries (count, entries, first); iterators hold the ring and an index.
 // Names invented.
 template <class T, int N>
-struct Ring_unk {
+struct Ring_unk : public atn::FixedArrayBase_unk {
     struct iterator {
         iterator(Ring_unk* ring, unsigned int index) : mRing(ring), mIndex(index) {}
         T& operator*() const { return mRing->mData[(mRing->mFirst + mIndex) & (N - 1)]; }
@@ -68,28 +69,25 @@ struct Ring_unk {
         Ring_unk* mRing;
         unsigned int mIndex;
     };
-    Ring_unk() : mCount(0), mFirst(0) {}
-    unsigned int size() const { return mCount; }
+    Ring_unk() : mFirst(0) {}
     iterator begin() { return iterator(this, 0); }
     iterator end() { return iterator(this, size()); }
     T& operator[](unsigned int i) { return mData[(mFirst + i) & (N - 1)]; }
     void erase(iterator it) {
-        for (unsigned int i = it.mIndex; i < mCount - 1; i++) {
+        for (unsigned int i = it.mIndex; i < mSize - 1; i++) {
             (*this)[i] = (*this)[i + 1];
         }
-        mCount--;
+        mSize--;
     }
-    void clear() { mCount = 0; }
-    T& Next_unk() { return mData[(mFirst + mCount) & (N - 1)]; } // inferred: entry after the last one
+    void clear() { mSize = 0; }
+    T& Next_unk() { return mData[(mFirst + mSize) & (N - 1)]; } // inferred: entry after the last one
     // inferred: weak copies 0x80487C08 and 0x80487C1C (called by Manager::vf10)
-    bool empty() const { return mCount == 0; }
     T& front() { return mData[mFirst]; }
     void pop_front() {
         mFirst = (mFirst + 1) & (N - 1);
-        mCount--;
+        mSize--;
     }
 
-    unsigned int mCount;
     T mData[N];
     unsigned int mFirst;
 };
@@ -412,8 +410,8 @@ public:
     float m2418; // inferred: debug menu "AutoLightFix/AmbientIntensity"
     atn::D2A_Task* m241C; // inferred: "ui_seek.d2a"
     int m2420;
-    atn::Vector2_unk m2424;
-    atn::Vector2_unk m242C;
+    atn::Vec2_unk m2424;
+    atn::Vec2_unk m242C;
     float m2434;
     atn::D2A_Task* m2438; // inferred: "ui_seek_arow.d2a"
     atn::Vector3 m243C;

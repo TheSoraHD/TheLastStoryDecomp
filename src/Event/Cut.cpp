@@ -1,7 +1,46 @@
+#include "Event/EventSpVector_unk.h"
 #include "Event/Cut.h"
 #include "Event/Sequence.h"
 #include "atn/Memory.h"
 #include "std/string_members.h"
+
+namespace std {
+// inferred: push_back of the labels (see Event/EventSpVector_unk.h)
+template <>
+inline void vector<boost::shared_ptr<Event::Label> >::__push_unk(size_type n, const boost::shared_ptr<Event::Label>& x) {
+    size_type c = this->mCap;
+    if (n < c) {
+        this->__push_fast_unk(n, x);
+        return;
+    }
+    __vec_sp_unk<boost::shared_ptr<Event::Label> >::__push_slow_unk(*this, x);
+}
+// inferred: push_back of the sections (see Event/EventSpVector_unk.h)
+template <>
+inline void vector<boost::shared_ptr<Event::Section> >::__push_unk(size_type n, const boost::shared_ptr<Event::Section>& x) {
+    size_type c = this->mCap;
+    if (n < c) {
+        this->__push_fast_unk(n, x);
+        return;
+    }
+    __vec_sp_unk<boost::shared_ptr<Event::Section> >::__push_slow_unk(*this, x);
+}
+// inferred: the elements are destroyed one inline level below (register order of the destroy loop)
+template <>
+inline void __vec_storage_unk<boost::shared_ptr<Event::Label> >::__shrink_unk(unsigned int newSize) {
+    __vec_sp_unk<boost::shared_ptr<Event::Label> >::__shrink_loop_unk(*this, newSize);
+}
+// inferred: the elements are destroyed one inline level below (register order of the destroy loop)
+template <>
+inline void __vec_storage_unk<boost::shared_ptr<Event::Section> >::__shrink_unk(unsigned int newSize) {
+    __vec_sp_unk<boost::shared_ptr<Event::Section> >::__shrink_loop_unk(*this, newSize);
+}
+// inferred: the elements are destroyed one inline level below (register order of the destroy loop)
+template <>
+inline void __vec_storage_unk<boost::shared_ptr<Event::Channel> >::__shrink_unk(unsigned int newSize) {
+    __vec_sp_unk<boost::shared_ptr<Event::Channel> >::__shrink_loop_unk(*this, newSize);
+}
+} // namespace std
 
 namespace Event {
 
@@ -15,29 +54,26 @@ int Cut::fn_8053B028() {
     return mNextCut;
 }
 
-// NONMATCHING: 41.5% - the boost::shared_ptr counts (lwarx/stwcx. of sp_counted_base_cw_ppc.hpp)
-// now match; what differs is the inlined std::vector::push_back growth path of std/vector.h
-// (the original keeps max_size() in a register and divides it at run time, and keeps an
-// unreachable copy of the fast path after the length check).
+// NONMATCHING: 99.99% - push_back through Event/EventSpVector_unk.h (same source as Sequence::fn_80540A08,
+// at 100%); only the free of the reallocation buffer differs: the original reads its storage through the
+// `this` of the buffer (lwz r3, 0x0(r30)), ours from the stack (lwz r3, 0x30(r1)).
 Label* Cut::fn_8053B030(int index) {
+    Sequence* sequence = mSequence;
     if (index == -1) {
-        index = ++mSequence->mLabelCount;
-    } else if (index > mSequence->mLabelCount) {
-        mSequence->mLabelCount = index;
+        index = ++sequence->mLabelCount;
+    } else if (index > sequence->mLabelCount) {
+        sequence->mLabelCount = index;
     }
-    boost::shared_ptr<Label> label(new ((MemoryTag)4, "", "", 0) Label(this, index));
-    mLabels.push_back(label);
-    return mLabels[mLabels.size() - 1].get();
+    mLabels.push_back(boost::shared_ptr<Label>(new ((MemoryTag)4, "", "", 0) Label(this, index)));
+    return mLabels.back().get();
 }
 
-// NONMATCHING: 40.5% - the boost::shared_ptr counts (lwarx/stwcx. of sp_counted_base_cw_ppc.hpp)
-// now match; what differs is the inlined std::vector::push_back growth path of std/vector.h
-// (the original keeps max_size() in a register and divides it at run time, and keeps an
-// unreachable copy of the fast path after the length check).
+// NONMATCHING: 99.99% - push_back through Event/EventSpVector_unk.h (same source as Sequence::fn_80540A08,
+// at 100%); only the free of the reallocation buffer differs: the original reads its storage through the
+// `this` of the buffer (lwz r3, 0x0(r30)), ours from the stack (lwz r3, 0x30(r1)).
 Section* Cut::fn_8053B828(int index) {
-    boost::shared_ptr<Section> section(new ((MemoryTag)4, "", "", 0) Section(this, index));
-    mSections.push_back(section);
-    return mSections[mSections.size() - 1].get();
+    mSections.push_back(boost::shared_ptr<Section>(new ((MemoryTag)4, "", "", 0) Section(this, index)));
+    return mSections.back().get();
 }
 
 const char* Cut::fn_8053C124(int skip) {
@@ -57,10 +93,6 @@ const char* Cut::fn_8053C124(int skip) {
     }
 }
 
-// NONMATCHING: 98.7% - only register numbers: the original gives the vector destroy loop
-// (count, element, &pn, pi) r25-r28 in the opposite order (tried std/vector.h variants: loop
-// variable order, clear() instead of __shrink_unk, extra inline levels for the element destructor).
-// The weak ~Section emitted here (0x8053BF80, 98.9%) has the same difference.
 Cut::~Cut() {}
 
 // inferred: the reader of the cut attributes was stripped by the linker; only the basic_string

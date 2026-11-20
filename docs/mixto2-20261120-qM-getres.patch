@@ -1,0 +1,30 @@
+diff --git a/src/atn/Model.cpp b/src/atn/Model.cpp
+index 0c79635..d06046e 100644
+--- a/src/atn/Model.cpp
++++ b/src/atn/Model.cpp
+@@ -2050,7 +2050,7 @@ void Model::fn_8009385C(unsigned int hash, bool show, int children, int siblings
+ // NONMATCHING: 95.8% - same as fn_8009385C (the recursion is inlined twice, as in the original)
+ void Model::fn_80093A1C(int node, bool show, int children, int siblings) {
+     while (node >= 0) {
+-        ModelJoint_unk* joint = ((Res_unk*)mLods[0].m08)->m48[node];
++        ModelJoint_unk* joint = GetRes_unk()->m48[node];
+         fn_800937E8(joint->m14, show);
+         if (children && joint->m20 >= 0) {
+             fn_80093A1C(joint->m20, show, 1, 1);
+@@ -3305,13 +3305,12 @@ extern "C" void fn_8009A2C0(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
+ }
+ 
+ extern "C" void fn_8009A490(Mtx* out, const Mtx* a, const Mtx* b, int n, const Mtx root) {
+-    while (n != 0) {
++    for (; n != 0; n--) {
+         PSMTXConcat(*b, *a, *out);
+         PSMTXConcat(root, *out, *out);
+-        out++;
+-        n--;
+-        a++;
+         b++;
++        a++;
++        out++;
+     }
+ }
+ 

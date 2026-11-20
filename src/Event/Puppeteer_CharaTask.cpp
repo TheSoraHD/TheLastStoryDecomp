@@ -1492,7 +1492,7 @@ int Actor::fn_800127CC(int id, int b) {
         return 0;
     }
     FixedArray_unk<chr::CharaPart_unk*, 8>& parts = GetChara_unk()->mParts;
-    for (int i = 0; i < (int)parts.mCount; i++) {
+    for (int i = 0; i < (int)parts.mSize; i++) {
         if (id == parts.mData[(unsigned int)i]->m04) {
             return 1;
         }
@@ -1512,7 +1512,7 @@ void Actor::fn_8001282C(int id, int b) {
             CharaTask* chara = GetChara_unk();
             int i;
             FixedArray_unk<chr::CharaPart_unk*, 8>& parts = chara->mParts;
-            for (i = 0; i < (int)parts.mCount; i++) {
+            for (i = 0; i < (int)parts.mSize; i++) {
                 if (id == parts.mData[(unsigned int)i]->m04) {
                     chara->fn_8014DEE4(i, 0, 0);
                     return;

@@ -392,10 +392,10 @@ CharaTask::~CharaTask() {
     if (lbl_8087F498 != 0) {
         lbl_8087F498->fn_803EBBCC(this);
     }
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         delete mParts.mData[i];
     }
-    mParts.mCount = 0;
+    mParts.mSize = 0;
     if (m678 != 0) {
         delete m678;
         m678 = 0;
@@ -413,10 +413,10 @@ CharaTask::~CharaTask() {
             delete m680[i];
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         delete m6A4.mData[i];
     }
-    m6A4.mCount = 0;
+    m6A4.mSize = 0;
     delete m480;
     delete m1394;
 }
@@ -540,7 +540,7 @@ int CharaTask::fn_8013655C() {
                 equipLoading = true;
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             if (m6A4.mData[i]->fn_8036354C()) {
                 equipLoading = true;
             }
@@ -605,7 +605,7 @@ int CharaTask::fn_8013655C() {
         mLook.fn_801298EC(this);
         m1188.Initialize(&mMotion);
         m1220.fn_80121114(this);
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->fn_80363960(&mMotion);
         }
         mMotion.fn_80097C08(0, m484[0], 1, 0, 1, 1.0f, 0.1f);
@@ -3706,20 +3706,15 @@ void atn::Matrix3x4::fn_80144ED4(float rad) {
     __MtxCopy(m, t);
 }
 
-// NONMATCHING: ~25% (155 vs 250 instructions; the code before and after the copy matches) - the copy
-// of the camera (implicit operator=) cannot match: the original copies
-// members with paired singles (Vector3, Matrix3x4, a 4x4 matrix at 0x88 and the frustum at 0x100);
-// the 4x4 matrix copy needs a paired-single helper that Vec.h does not have, so the layout is kept opaque.
 // Layout seen in the copy: 0x00 two ints, 0x08/0x14/0x20/0x2C Vector3, 0x38-0x54 floats, 0x58 Matrix3x4,
 // 0x88 4x4 matrix, 0xC8/0xCC floats, 0xD0 Matrix3x4, 0x100 frustum (Matrix3x4, int, 2 floats,
 // 4 x {Vector3, float}, 2 Vector3, 6 x {Vector3, float})
 // inferred: sets an orthographic camera spanning y0..y1 on the model and the equipment
 void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     Camera_unk camera(0, 1);
-    float center = 0.5f * (y1 + y0);
     camera.mUp.Set_unk(0.0f, 1.0f, 0.0f);
-    camera.mPos.Set_unk(0.0f, center, -100.0f);
-    camera.mTarget.Set_unk(0.0f, center, 0.0f);
+    camera.mPos.Set_unk(0.0f, 0.5f * (y1 + y0), -100.0f);
+    camera.mTarget.Set_unk(0.0f, 0.5f * (y1 + y0), 0.0f);
     camera.mTop = y0 - y1;
     camera.mBottom = 0.0f;
     camera.mLeft = -10.0f;
@@ -3727,8 +3722,8 @@ void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     camera.fn_8004B378();
     ModelCameraParam_unk param;
     param.mCamera = camera;
-    param.m00 = a;
     param.m04 = b;
+    param.m00 = a;
     fn_80095F10(&mMotion, &param);
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
@@ -4392,7 +4387,7 @@ void CharaTask::fn_80147A18(int value) {
             (*p)->m024.fn_80094E2C(value);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             m6A4.mData[i]->mModel.fn_80094E2C(value);
         }
@@ -4621,7 +4616,7 @@ void CharaTask::fn_80148B38(float distSq) {
             (*p)->fn_80565B98();
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             m6A4.mData[i]->vf08();
         }
@@ -4974,9 +4969,9 @@ void CharaTask::fn_80149A30() {
             if (lbl_8087F430 != 0 && lbl_8087F430->mCamera.m7FC != 6) {
                 atn::Vector3 pos;
                 if (m520 >= 0) {
-                    pos = GetNodePos_unk(mMotion.GetNodeMtx_unk(m520));
+                    atn::VecAssign_unk(pos, GetNodePos_unk(mMotion.GetNodeMtx_unk(m520)));
                 } else if (m524 >= 0) {
-                    pos = GetNodePos_unk(mMotion.GetNodeMtx_unk(m524));
+                    atn::VecAssign_unk(pos, GetNodePos_unk(mMotion.GetNodeMtx_unk(m524)));
                 } else {
                     pos = mPos;
                 }
@@ -5009,7 +5004,7 @@ void CharaTask::fn_80149A30() {
                         if (head != 0 && neck != 0 && hips != 0 && rshoulder != 0 && rupleg != 0 &&
                             lshoulder != 0 && lupleg != 0) {
                             Sphere_unk sphere;
-                            sphere.mCenter = GetNodePos_unk(head);
+                            atn::VecAssign_unk(sphere.mCenter, GetNodePos_unk(head));
                             sphere.mCenter.y += 0.7f;
                             sphere.mRadius = 2.3f;
                             if (LengthSq_unk(cam - sphere.mCenter) < sphere.mRadius * sphere.mRadius) {
@@ -5083,7 +5078,7 @@ void CharaTask::fn_80149A30() {
                         equip->m024.mFlags |= 0x400;
                     }
                 }
-                for (unsigned int i = 0; i < m6A4.mCount; i++) {
+                for (unsigned int i = 0; i < m6A4.mSize; i++) {
                     if (m6A4.mData[i]->mFlags.mFlag) {
                         m6A4.mData[i]->mModel.mFlags |= 0x400;
                     }
@@ -5103,7 +5098,7 @@ void CharaTask::fn_80149A30() {
                         equip->m024.mFlags &= ~0x400;
                     }
                 }
-                for (unsigned int i = 0; i < m6A4.mCount; i++) {
+                for (unsigned int i = 0; i < m6A4.mSize; i++) {
                     if (m6A4.mData[i]->mFlags.mFlag) {
                         m6A4.mData[i]->mModel.mFlags &= ~0x400;
                     }
@@ -5195,7 +5190,7 @@ void CharaTask::fn_80149A30() {
                 }
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             if (m6A4.mData[i]->mFlags.mFlag) {
                 m6A4.mData[i]->vf0C();
             }
@@ -5297,7 +5292,7 @@ void CharaTask::fn_80149A30() {
             lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
                                       0xFF000000);
             y += 12.0f;
-            for (unsigned int i = 0; i < m12D0.mCount; i++) {
+            for (unsigned int i = 0; i < m12D0.mSize; i++) {
                 CharaHit_unk* hit = &m12D0.mData[i];
                 if (hit->mHit != 0 && hit->m04 == 0) {
                     fn_800DD3FC(text, L"CIRCLE [%d:%s] count=%d\0", hit->mHit->m04, hit->mHit->m08, hit->m08);
@@ -5306,7 +5301,7 @@ void CharaTask::fn_80149A30() {
                     y += 12.0f;
                 }
             }
-            for (unsigned int i = 0; i < mStatus.mRefs.mCount; i++) {
+            for (unsigned int i = 0; i < mStatus.mRefs.mSize; i++) {
                 CharaStatusRef_unk* ref = &mStatus.mRefs.mData[i];
                 if (fn_8021BE98(name, ref->mEntry) != 0) {
                     fn_800DD3FC(text, L"SP [%s] count=%d\0", name, ref->m0C);
@@ -5686,7 +5681,7 @@ inline bool CharaTask::IsLedgeLocked_unk() {
 // inferred: bullet of a hit with flags 0x440000
 inline HitInfo_unk* CharaTask::FindHitBullet_unk() {
     CharaHit_unk* hits = m12D0.mData;
-    for (unsigned int i = 0; i < m12D0.mCount; i++) {
+    for (unsigned int i = 0; i < m12D0.mSize; i++) {
         HitInfo_unk* hit = hits[i].mHit;
         if ((hit->mAC & 0x440000) == 0x440000 && hit->m04 > 0) {
             return fn_80219E6C(hit->m04);
@@ -5961,8 +5956,8 @@ static inline void AttachWeapons_unk(CharaTask* chara) {
 // inferred: selects the weapon part `index` and its motion set (keep: only the part; noMotion:
 // keep the motion ids)
 void CharaTask::fn_8014DEE4(int index, int keep, int noMotion) {
-    if (mParts.mCount != 0 && index < (int)mParts.mCount) {
-    if (lbl_8087F610 != 0 && m5C->m11C == 2 && mParts.mCount > 2) {
+    if (mParts.mSize != 0 && index < (int)mParts.mSize) {
+    if (lbl_8087F610 != 0 && m5C->m11C == 2 && mParts.mSize > 2) {
         if ((index == 1 && mParts[1]->m04 == 0) || (index == 0 && mParts[2]->m04 == 0)) {
             chr::CharaPart_unk* part = mParts[1];
             mParts[1] = mParts[2];
@@ -6176,7 +6171,7 @@ void CharaTask::fn_8014DEE4(int index, int keep, int noMotion) {
 }
 
 void CharaTask::fn_8014EE48() {
-    if (m5C->m11C == 2 && mParts.mCount >= 2) {
+    if (m5C->m11C == 2 && mParts.mSize >= 2) {
         m64C = mParts.mData[1];
         if (m67C != 0 && m67C->vf0C() == 0) {
             m64C = m67C;
@@ -6216,7 +6211,7 @@ extern "C" chr::CharaPart_unk* fn_800457A4(int kind, int id, int arg, CharaTask*
 void CharaTask::fn_8014F2B4(int a, int b, int index) {
     if (lbl_8087F610 != 0) {
         int kind = fn_80219558(m50);
-        if (kind >= 0 && 7 > kind && mParts.mCount < 2 && a == 0) {
+        if (kind >= 0 && 7 > kind && mParts.mSize < 2 && a == 0) {
             int id = fn_804EB750(lbl_8087F610, this, index);
             if (id >= 0) {
                 if (id >= 1000 && fn_80206B14(0, id) == 0) {
@@ -6242,7 +6237,7 @@ void CharaTask::fn_8014F2B4(int a, int b, int index) {
 }
 
 void CharaTask::fn_8014F4FC(int a, int b) {
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         if (a == mParts.mData[i]->m04 && b == mParts.mData[i]->m08) {
             delete mParts[i];
             mParts.erase(&mParts.mData[i]);
@@ -6324,7 +6319,7 @@ void CharaTask::fn_8014F960(int notify) {
 
 bool CharaTask::fn_8014FAD0() {
     bool result = false;
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         if (mParts.mData[i] != 0 && mParts.mData[i]->vf0C()) {
             result = true;
         }
@@ -6491,12 +6486,20 @@ inline int CharaTask::ControlVf30_unk() {
     return mControl ? mControl->vf30() : 0;
 }
 
-// NONMATCHING: ~92% - in the two inlined hit loops the original keeps the array pointer in r4
-// (reusing the register of `other`) and the hit in r5, ours the other way round; the rest are the
-// .data offsets of the scoped_ptr bool ptmf. tried: index/pointer/iterator loops, a free inline
-// function, the ternary written inline. (The same loop inlined in fn_80151448 matches.)
+// inferred: CharaTask::GetFlaggedHitBullet_unk written over m12D0.mData[i] (vf5C, fn_80150460); name
+// invented
+static inline HitInfo_unk* FlaggedHitBullet_unk(CharaTask* chara) {
+    CharaHit_unk* it = chara->m12D0.mData;
+    for (unsigned int i = 0; i < chara->m12D0.mSize; i++, it++) {
+        if ((it->mHit->mAC & 0x04000000) == 0x04000000 && it->mHit->m04 > 0) {
+            return fn_80219E6C(it->mHit->m04);
+        }
+    }
+    return 0;
+}
+
 void CharaTask::vf5C(CharaTask* other) {
-    if (other->GetFlaggedHitBullet_unk() == 0 && other != 0) {
+    if (FlaggedHitBullet_unk(other) == 0 && other != 0) {
         if (other->ControlVf30_unk() != 0) {
             return;
         }
@@ -6515,7 +6518,7 @@ void CharaTask::vf5C(CharaTask* other) {
                 combo = true;
             }
         }
-        if (other->GetFlaggedHitBullet_unk() != 0) {
+        if (FlaggedHitBullet_unk(other) != 0) {
             combo = true;
         }
     }
@@ -6532,8 +6535,6 @@ inline bool HasPartParam_unk(chr::CharaPart_unk* part, int kind, int value, int 
 }
 
 // inferred: starts the combo window against `other` (mFE0: frames, mFDC: last opponent?)
-// NONMATCHING: 91% - same r4/r5 swap as vf5C in the two inlined GetFlaggedHitBullet_unk loops;
-// tried index, pointer, iterator and break forms of the loop.
 void CharaTask::fn_80150460(CharaTask* other, int combo) {
     CharaTask* prev = mFDC;
     mFE4 = combo;
@@ -6546,7 +6547,7 @@ void CharaTask::fn_80150460(CharaTask* other, int combo) {
         } else if (prev != 0 && prev->m648 != 0 && HasPartParam_unk(prev->m648, 8, 0, 10, -1)) {
             mFE0 += ((Arms*)prev->m648)->fn_80045694(8, 0, 10, -1)->m04 * 30;
         }
-        if (other->GetFlaggedHitBullet_unk() != 0 || (prev != 0 && prev->GetFlaggedHitBullet_unk() != 0)) {
+        if (FlaggedHitBullet_unk(other) != 0 || (prev != 0 && FlaggedHitBullet_unk(prev) != 0)) {
             mFE0 += 150;
         }
     }
@@ -7706,10 +7707,10 @@ int CharaTask::fn_8015487C() {
         break;
     case 2:
         result = 2;
-        if (mStatus.m2CC.mCount != 0) {
+        if (mStatus.m2CC.mSize != 0) {
             if (mStatus.m2CC[0].m[0] > 0 && fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2CC[0].m[0]))) {
                 result = 5;
-            } else if (mStatus.m2CC.mCount >= 2 && mStatus.m2CC[1].m[0] > 0 &&
+            } else if (mStatus.m2CC.mSize >= 2 && mStatus.m2CC[1].m[0] > 0 &&
                        fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2CC[1].m[0]))) {
                 result = 5;
             }
@@ -10820,7 +10821,7 @@ void CharaTask::fn_80176E30() {
     if (slots == 0) {
         return;
     }
-    m125C.mCount = 0;
+    m125C.mSize = 0;
     for (int i = 0; i < 0x48; i++) {
         if (m125C.full()) {
             break;
@@ -10860,7 +10861,7 @@ void CharaTask::fn_80176E30() {
         m125C.PushBack_unk(CharaPair_unk(atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y), chara));
     }
     Sort_unk<CharaPair_unk, FloatLess_unk>(m125C.begin(), m125C.end(), fn_80135384);
-    if (m125C.mCount <= 1) {
+    if (m125C.mSize <= 1) {
         mFlag10 = 0;
         return;
     }
@@ -10918,7 +10919,7 @@ void CharaTask::fn_80176E30() {
             count++;
         }
     }
-    if (count >= m125C.mCount) {
+    if (count >= m125C.mSize) {
         if (!mFlag10) {
             mFlag10 = 1;
             if (mType == 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80375184()) {
@@ -11095,7 +11096,7 @@ void CharaTask::fn_80178A6C() {
         lbl_8087F9E8->fn_8059D168(this);
     }
     m1374 = 0;
-    m12D0.mCount = 0;
+    m12D0.mSize = 0;
     m1410 = 0.0f;
     fn_800CB5C8(&m1414, 0, 0);
 }
@@ -11130,14 +11131,12 @@ void CharaTask::fn_80178BFC() {
     unsigned int flags = 0;
     bool timer = false;
     bool guard = false;
-    CharaHit_unk* end = m12D0.end();
-    for (CharaHit_unk* it = m12D0.begin(); it != end; it++) {
-        HitInfo_unk* hit = it->mHit;
+    for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
         flags |= it->m0C;
-        if (hit->m6C == 2 || hit->m6C == 5) {
+        if (it->mHit->m6C == 2 || it->mHit->m6C == 5) {
             guard = true;
         }
-        if ((hit->mAC & 0x2000) == 0x2000) {
+        if ((it->mHit->mAC & 0x2000) == 0x2000) {
             timer = true;
         }
     }
@@ -11359,9 +11358,6 @@ int CharaTask::fn_80179AB4() {
     return m60 != 0 ? fn_80208748(m60->m10) : 0;
 }
 
-// NONMATCHING: ~16% by line (132/157, same instructions) - the original unrolls the equipment loop with
-// one pointer to m680[1] (offsets 4..0x18), ours advances a base by 8; tried int/unsigned index, a
-// local copy, a pointer loop (not unrolled), peeling element 0.
 // inferred: sets or clears model flags on the model, the weapons, the equipment and the items
 void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
     if (clear) {
@@ -11372,12 +11368,13 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
                 m64C->m014 &= ~mask;
             }
         }
-        for (int i = 0; i < 8; i++) {
-            if (m680[i] != 0) {
-                m680[i]->m024.mFlags &= ~mask;
+        chr::CharaEquip_unk** equip = m680;
+        for (int i = 0; i < 8; i++, equip++) {
+            if (*equip != 0) {
+                (*equip)->m024.mFlags &= ~mask;
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->mModel.mFlags &= ~mask;
         }
     } else {
@@ -11388,12 +11385,13 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
                 m64C->m014 |= mask;
             }
         }
-        for (int i = 0; i < 8; i++) {
-            if (m680[i] != 0) {
-                m680[i]->m024.mFlags |= mask;
+        chr::CharaEquip_unk** equip = m680;
+        for (int i = 0; i < 8; i++, equip++) {
+            if (*equip != 0) {
+                (*equip)->m024.mFlags |= mask;
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->mModel.mFlags |= mask;
         }
     }
@@ -11679,7 +11677,7 @@ int CharaTask::fn_8017A9A8() {
             bool same = mC58.mB4 == player->mC58.mB4;
             if (kind == 1) {
                 bool ok = false;
-                if (mParts.mCount > 1 && mParts.mData[1]->m274->mParam.m78 == 0) {
+                if (mParts.mSize > 1 && mParts.mData[1]->m274->mParam.m78 == 0) {
                     ok = true;
                 }
                 if (same && ok) {
@@ -11741,7 +11739,7 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 // inferred: collects the resources of the character (models, parts, equipment, motion set)
 void CharaTask::fn_8017AD44(atn::SimpleVector<unsigned int>* list, void* arg) {
     mMotion.fn_80096218(list, arg);
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         ((atn::Model*)mParts.mData[i]->m010)->fn_80096218(list, arg);
     }
     chr::CharaEquip_unk** equips = m680;
@@ -11750,7 +11748,7 @@ void CharaTask::fn_8017AD44(atn::SimpleVector<unsigned int>* list, void* arg) {
             equips[i]->fn_80563A60(list, arg);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         m6A4.mData[i]->mModel.fn_80096218(list, arg);
     }
     list->push_back(m98.fn_80473F34());
@@ -11918,9 +11916,12 @@ atn::Vector3 CharaTask::vfD0(float angle) {
 }
 
 
-// NONMATCHING: 88% - only registers: the original keeps &d in r30 and &dir in r29, &from in r28 and
-// &base in r27 (ours swapped); tried: copy/assignment forms of d and from, declarations outside the
-// loop.
+// inferred: v rotated by m (vfD8; name invented)
+static inline void MultVec_unk(const Mtx m, const atn::Vector3& src, atn::Vector3& dst) {
+    atn::VecAssign_unk(dst, src);
+    PSMTXMultVec(m, &dst, &dst);
+}
+
 atn::Vector3 CharaTask::vfD8(CharaTask* target) {
     atn::Vector3 base = vf64(1);
     atn::Vector3 dir = mPos - target->mPos;
@@ -11936,9 +11937,10 @@ atn::Vector3 CharaTask::vfD8(CharaTask* target) {
     Mtx rot;
     for (unsigned int i = 0; i < 8; i++) {
         PSMTXRotRad(rot, 'y', 3.1415927f * (float)i / 4.0f);
-        atn::Vector3 d = dir;
-        PSMTXMultVec(rot, &d, &d);
-        atn::Vector3 from = base;
+        atn::Vector3 d;
+        MultVec_unk(rot, dir, d);
+        atn::Vector3 from;
+        atn::VecAssign_unk(from, base);
         from.y += 5.0f;
         atn::Vector3 to = from - d * 20.0f;
         if (fn_8004ED34(lbl_8087EE98, &coll, &from, &to, 0x80000000, 0, 0) == 0) {
@@ -11957,7 +11959,7 @@ void CharaTask::fn_8017C7F8(unsigned int on) {
             mode = 4;
         }
         mMotion.fn_80094BD8(mode);
-        for (unsigned int i = 0; i < mParts.mCount; i++) {
+        for (unsigned int i = 0; i < mParts.mSize; i++) {
             if (mParts.mData[i] != 0) {
                 ((atn::Model*)mParts.mData[i]->m010)->fn_80094BD8(mode);
             }
@@ -11968,7 +11970,7 @@ void CharaTask::fn_8017C7F8(unsigned int on) {
                 equips[i]->GetModel_unk()->fn_80094BD8(mode);
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->mModel.fn_80094BD8(mode);
         }
     }
@@ -11991,9 +11993,11 @@ int CharaTask::fn_8017C9A0() {
 }
 
 // inferred: point of the camera ray (eye -> target) closest to the character, moved 5 units further
-// NONMATCHING: 81% - only the stack slots of the four Vector3 temporaries are in reverse order
-// (target: target-eye lowest, then dir*5, dir*800, eye+dir*800); tried: named far/eye, +=,
-// Assign_unk, Segment_unk constructor, declaration orders.
+// inferred: out = a - b (fn_8017C9AC; name invented)
+static inline void SubVec_unk(atn::Vector3& out, const atn::Vector3& a, const atn::Vector3& b) {
+    out = a - b;
+}
+
 atn::Vector3 fn_8017C9AC(CharaTask* chara) {
     atn::Camera* view;
     if (lbl_8087F430 != 0) {
@@ -12003,11 +12007,11 @@ atn::Vector3 fn_8017C9AC(CharaTask* chara) {
     }
     Segment_unk seg;
     atn::Vector3 dir;
-    dir = view->mTarget - view->mPos;
+    SubVec_unk(dir, view->mTarget, view->mPos);
     PSVECNormalize(&dir, &dir);
     atn::Vector3 eye = view->mPos;
     seg.mStart = eye;
-    seg.mEnd = eye + dir * 800.0f;
+    atn::VecAssign_unk(seg.mEnd, eye + dir * 800.0f);
     atn::Vector3 result;
     fn_80050A1C(&chara->mPos, &seg, &result);
     result += dir * 5.0f;

@@ -163,13 +163,13 @@ void FinishCamera_unk::fn_8037865C(CharaTask* chara, const atn::Vector3& a, cons
     entry.m04 = a;
     entry.m10 = b;
     entry.m1C = arg;
-    if (mEntries.mCount < 7) {
+    if (mEntries.mSize < 7) {
         mEntries.PushBack_unk(entry);
     }
 }
 
 void FinishCamera_unk::fn_803786F0() {
-    mEntries.mCount = 0;
+    mEntries.mSize = 0;
 }
 
 
@@ -734,7 +734,7 @@ void FinishCamera_unk::fn_803792F0() {
                 lbl_8087F498->fn_803EA77C(m3A8, 40, 15, 1.0f, 10.0f);
             }
             if (m358 > frames) {
-                if (++m2F8 >= (int)mEntries.mCount) {
+                if (++m2F8 >= (int)mEntries.mSize) {
                     fn_80378CCC();
                 } else {
                     m358 = 0;
@@ -827,7 +827,7 @@ void FinishCamera_unk::fn_803792F0() {
                     lbl_8087F490->fn_803E41AC(mChara);
                 }
             }
-            for (unsigned int i = 0; i < mEntries.mCount; i++) {
+            for (unsigned int i = 0; i < mEntries.mSize; i++) {
                 CharaTask* chara = mEntries.mData[i].mChara;
                 float frame = chara->mMotion.mTracks[0].m08;
                 if (frame >= chara->mMotion.fn_80097D7C(0)) {
@@ -872,7 +872,7 @@ void FinishCamera_unk::fn_8037C69C() {
         m3A8->fn_80149A30();
     }
     if (m04 == 6) {
-        for (unsigned int i = 0; i < mEntries.mCount; i++) {
+        for (unsigned int i = 0; i < mEntries.mSize; i++) {
             mEntries.mData[i].mChara->fn_80149A30();
         }
     }

@@ -7,6 +7,7 @@
 #include "game/HitInfo_unk.h"
 #include "atn/Memory.h"
 #include "macros.h"
+#include "math/VecAssign_unk.h"
 #include <boost/bind.hpp>
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
@@ -68,6 +69,11 @@ inline atn::Vector3 Front_unk(const atn::Vector3& rot) {
 
 // inferred: linear interpolation with the product first (as in chr/ControlWallUp.cpp); name invented
 inline atn::Vector3 LerpMountle_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: scalar linear interpolation with the difference first (operands of the fmadds); name invented
+inline float LerpJ_unk(const float& a, const float& b, float t) {
     return (b - a) * t + a;
 }
 
@@ -430,16 +436,17 @@ bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     to.y -= 3.0f;
     if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0)) {
         if ((res.m3C & 0x400) == 0x400 || lbl_8087F0A8->mWallMountleTest != 0) {
-            to = res.m04 - res.m28 * 5.0f;
+            atn::VecAssign_unk(to, res.m04 - res.m28 * 5.0f);
             float dist = (to - from).Length_unk();
-            out.y = (sDownHeight1 - sDownHeight0) * MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)) + sDownHeight0;
-            m2C = (sDownSpeed1 - sDownSpeed0) * MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)) + sDownSpeed0;
+            out.y = LerpJ_unk(sDownHeight0, sDownHeight1, MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)));
+            m2C = LerpJ_unk(sDownSpeed0, sDownSpeed1, MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)));
             m20 = to;
-            m20.y = mChara->mPos.y;
+            Chara_unk* chara = mChara;
+            m20.y = chara->mPos.y;
             m08 = to - from;
             m08.y = 0.0f;
             PSVECNormalize(&m08, &m08);
-            m38 = (sDownTime1 - sDownTime0) * MIN(1.0f, MAX(0.0f, (dist - 30.0f) / 40.0f)) + sDownTime0;
+            m38 = LerpJ_unk(sDownTime0, sDownTime1, MIN(1.0f, MAX(0.0f, (dist - 30.0f) / 40.0f)));
             m->mTracks[0].m0C = 15.0f / m38;
             m38 = m->fn_80097D7C(0);
             ret = true;
@@ -452,14 +459,15 @@ bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0)) {
         if ((res.m3C & 0x400) == 0x400 || lbl_8087F0A8->mWallMountleTest != 0) {
             float dist = (res.m04 - from).Length_unk();
-            out.y = (sUpHeight1 - sUpHeight0) * MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)) + sUpHeight0;
-            m2C = (sUpSpeed1 - sUpSpeed0) * MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)) + sUpSpeed0;
+            out.y = LerpJ_unk(sUpHeight0, sUpHeight1, MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)));
+            m2C = LerpJ_unk(sUpSpeed0, sUpSpeed1, MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)));
             m20 = res.m04;
-            m20.y = mChara->mPos.y + 10.0f;
+            Chara_unk* chara = mChara;
+            m20.y = chara->mPos.y + 10.0f;
             m08 = to - from;
             m08.y = 0.0f;
             PSVECNormalize(&m08, &m08);
-            m38 = (sUpTime1 - sUpTime0) * MIN(1.0f, MAX(0.0f, (dist - 30.0f) / 50.0f)) + sUpTime0;
+            m38 = LerpJ_unk(sUpTime0, sUpTime1, MIN(1.0f, MAX(0.0f, (dist - 30.0f) / 50.0f)));
             m->mTracks[0].m0C = 15.0f / m38;
             m38 = m->fn_80097D7C(0);
             ret = true;

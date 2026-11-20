@@ -14,6 +14,7 @@
 #include "std/string_members.h"
 #include "std/string.h"
 #include "macros.h"
+#include "math/VecAssign_unk.h"
 #include "atn/DrawHelper.h"
 #include "gmk/Lemon.h"
 #include "atn/Camera_unk.h"
@@ -586,8 +587,14 @@ int LastCocoonImago::vfBC(atn::ColliBase* target) {
     return target != &m18FC;
 }
 
-// NONMATCHING: 98% - stack slots of the temporaries (the zero vector of the Item14_unk constructor)
-// inferred: damage spheres: the three attack nodes (between the two nodes when both exist) and m1948
+// inferred: a + (b - a) * t with the points by value (their copies are the temporaries below the item in the
+// original stack; name invented)
+static inline atn::Vector3 ImagoLerpV_unk(atn::Vector3 pa, atn::Vector3 pb, float t) {
+    return (pb - pa) * t + pa;
+}
+
+// inferred: damage spheres: the three attack nodes (between the two nodes when both exist) and m1948;
+// the original clears mFlagB29 at the end (it was missing)
 void LastCocoonImago::vf50() {
     Item14_unk item;
     for (int i = 0; i < 3; i++) {
@@ -595,9 +602,8 @@ void LastCocoonImago::vf50() {
         MtxPtr b = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode1);
         if (a != 0) {
             if (b != 0) {
-                atn::Vector3 pb = ((atn::Matrix3x4*)b)->GetTrans_unk();
-                atn::Vector3 pa = ((atn::Matrix3x4*)a)->GetTrans_unk();
-                item.m04.mCenter = (pb - pa) * 0.6f + pa;
+                item.m04.mCenter = ImagoLerpV_unk(((atn::Matrix3x4*)a)->GetTrans_unk(),
+                                                  ((atn::Matrix3x4*)b)->GetTrans_unk(), 0.6f);
             } else {
                 item.m04.mCenter = ((atn::Matrix3x4*)a)->GetTrans_unk();
             }
@@ -608,6 +614,7 @@ void LastCocoonImago::vf50() {
     item.m04.mCenter = m1948;
     item.m04.mRadius = m1954;
     m624.push_back(item);
+    mFlagB29 = 0;
 }
 
 // inferred: a + (b - a) * t (name invented)
@@ -749,11 +756,19 @@ void LastCocoonImago::vf24() {
     }
 }
 
-// NONMATCHING: 98.8% - stack slots of the two points and the register of m614.z
+// inferred: sets the segment and radius of a capsule (as in Em204BigMulue; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
+// inferred: m620 set first, the sphere filled through a local declared after the loop, the copies of the
+// capsules through SetCapsule_unk and the head through VecAssign_unk
 // inferred: places the collision capsule, the hit capsules of the body and the sphere
 void LastCocoonImago::vf20() {
-    m614 = mPos + m5A4;
     m620 = m5B0;
+    m614 = mPos + m5A4;
     m614.y += m620;
     atn::Vector3 a = m614;
     atn::Vector3 b = a;
@@ -765,12 +780,13 @@ void LastCocoonImago::vf20() {
         float r = sImagoCapsules_unk[i].mRadius;
         a = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sImagoCapsules_unk[i].mFrom))->GetTrans_unk();
         b = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sImagoCapsules_unk[i].mTo))->GetTrans_unk();
-        mCapsules[i].m3C = a;
-        mCapsules[i].m48 = b;
-        mCapsules[i].m54 = r;
+        SetCapsule_unk(mCapsules[i], a, b, r);
     }
-    m18FC.mSphere = atn::ColliSphereShape_unk(m1948, m1954);
-    m148C = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    atn::ColliSphereShape_unk sphere;
+    sphere.mCenter = m1948;
+    sphere.mRadius = m1954;
+    m18FC.mSphere = sphere;
+    atn::VecAssign_unk(m148C, ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk());
     m1498 = 13.0f;
 }
 
