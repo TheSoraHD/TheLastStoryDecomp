@@ -445,7 +445,6 @@ static inline bool* GetSets_unk(int level, int letter, int slot) {
 }
 
 // inferred: sets the level of the option parts from the name of a costume model
-// NONMATCHING: 99.79% - the original increments the level pointer before the loop counter
 // ("pcXXXX_YY<slot>_<letter>..._<level>")
 extern "C" void fn_8020DE0C(OptionParts_unk* parts, const char* name) {
     int length = strlen(name);

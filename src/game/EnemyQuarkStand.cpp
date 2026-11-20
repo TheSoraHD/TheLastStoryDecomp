@@ -2045,7 +2045,7 @@ void EnemyQuarkStand::fn_8035083C() {
 
 // inferred: state 12 (motion 0x14A): Quark grabs the character stuck by the sword; the side of the jump
 // (m17F0) is random, reversed when the wall blocks it
-// NONMATCHING: 99.66% - stack slots of the cross product and of the sum in the first branch (the
+// NONMATCHING: 99.86% - stack slots of the cross product and of the sum in the first branch (the
 // original puts them above the other branch, 0x8C/0xA4); ~3 forms (inline, shared temporaries)
 void EnemyQuarkStand::fn_80350BF0() {
     fn_8034F384();
@@ -2062,15 +2062,13 @@ void EnemyQuarkStand::fn_80350BF0() {
     from.y += 5.0f;
     atn::Vector3 to = from;
     if (m17F0 == 0) {
-        atn::Vector3 dir = m15DC.mDir;
-        PSVECNormalize(&dir, &dir);
+        atn::Vector3 dir = m15DC.mDir.GetNormalize();
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 side;
         PSVECCrossProduct(&dir, &up, &side);
         to = from + side * 20.0f;
     } else {
-        atn::Vector3 dir = m15DC.mDir;
-        PSVECNormalize(&dir, &dir);
+        atn::Vector3 dir = m15DC.mDir.GetNormalize();
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 side;
         PSVECCrossProduct(&dir, &up, &side);

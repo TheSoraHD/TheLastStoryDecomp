@@ -354,8 +354,6 @@ void Dialog::fn_80228AF8(int slot, Actor* actor, int kind, int arg, int frames, 
     }
 }
 
-// NONMATCHING: 99.78% - only the .sdata2 pool differs: the original has 0.0f right after 1.0f (first
-// used before this function; not found), so every later constant is one slot off
 void Dialog::fn_80228CA0(int slot, const wchar_t* text, int align, int size, int arg, float f1, float f2,
                          unsigned int color, int mode, int offset) {
     float fontSize;
@@ -596,10 +594,8 @@ void Dialog::fn_802297AC() {
     }
     if (lbl_8087F0A8 != 0) {
         ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
-        ButtonUv_unk uv0 = uv;
-        m10C->SetParam2_unk("btnUv", &uv0.x);
-        ButtonUv_unk uv1 = uv;
-        m10C->SetParam2_unk("btnUvMask", &uv1.x);
+        m10C->SetParam2_unk("btnUv", uv);
+        m10C->SetParam2_unk("btnUvMask", uv);
     }
     fn_80229414();
     fn_800D9560(lbl_8087F008);

@@ -1001,8 +1001,6 @@ void Em316LaserSphere::fn_8031958C() {
     }
 }
 
-// NONMATCHING: 99.90% - only the offset of "spine1" in @stringBase0 and of 0.35f in .sdata2 (functions of the
-// unit not written yet)
 void Em316LaserSphere::fn_803199A4() {
     if (atn::Abs_unk(m1534 - m1538) <= 0.01f) {
         fn_80319C10();

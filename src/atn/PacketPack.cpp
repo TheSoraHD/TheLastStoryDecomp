@@ -4273,7 +4273,6 @@ extern "C" int fn_804DB3B4(const PPManager2_unk* mgr) {
     return (OSGetTime() - mgr->mStartTime) / (*(unsigned int*)0x800000F8 / 4);
 }
 
-// NONMATCHING: 92.59% - the original loads m564 before saving r31
 // inferred: seconds left of the time limit (-1 without one)
 extern "C" int fn_804DB408(const PPManager2_unk* mgr) {
     if (mgr->m564 >= 0) {
@@ -7268,7 +7267,6 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int
 }
 
 // inferred: kind (1 none, 2 player, 3 character of the list) and index of a character, in the high half
-// NONMATCHING: 96.63% - registers of the inlined searches
 extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara);
 union PPCharaId_unk {
     struct {
@@ -8955,7 +8953,12 @@ extern "C" int fn_8021A77C(HitInfo_unk* data);
 extern "C" bool fn_8021A8D0(HitInfo_unk* data);
 extern "C" __declspec(noinline) int fn_804F1060();
 #include "game/HitUtil_unk.h"
-// NONMATCHING: 99.08% - stack slots of the matrices and vectors, the status effects added through the status
+// inferred: -v component by component (as HitNeg_unk of BattleTask; name invented)
+static inline atn::Vector3 PPNeg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// NONMATCHING: 99.37% - stack slots of the matrices and vectors, the status effects added through the status
 // (base 0x7D4 in the original) and reloads of lbl_8087F610 in the inlined searches
 // inferred: messages 10 and 11 (only in the game, state 30): a hit of a character on another one. The hate of the
 // target is updated, the status effects of the attacker are replaced by the ones of the message and the listeners
@@ -9060,9 +9063,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
                         PSMTXMultVec(m.m, &dir, &dir);
                     }
                     calc.m1C = dir + HitCenter_unk(target);
-                    atn::Vector3 n = dir;
-                    PSVECNormalize(&n, &n);
-                    calc.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+                    atn::VecAssign_unk(calc.m28, PPNeg_unk(dir.GetNormalize()));
                     calc.m00 = attacker;
                     calc.m04 = target;
                     calc.m08 = hit;
@@ -9517,14 +9518,15 @@ struct PPMsgSpecialHit_unk {
     };
 };
 
-// NONMATCHING: 98.07% - registers of the inlined searches: the original reloads lbl_8087F610 for the second one
+// NONMATCHING: 99.42% - only the reload of lbl_8087F610 before the second search (fn_800F7F90 there gives the
+// reload but other registers, 99.44%)
 // inferred: a hit on a special enemy dealt by another player (only in the game, state 30): the hit is rebuilt in
 // a BattleCalcParam_unk and given to vf40 of the enemy (SpecialEnemyBase ids, unless its flag 2 is set)
 extern "C" void fn_804F2994() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         const PPMsgSpecialHit_unk* data = (const PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
-        CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mAttacker);
-        CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mTarget);
+        CharaTask* attacker = GetHitAttacker_unk(PPManager2Ref_unk(), &data->mRefs.mAttacker);
+        CharaTask* target = GetHitAttacker_unk(PPManager2Ref_unk(), &data->mRefs.mTarget);
         if (target != 0 && !target->IsFlag2_unk()) {
             switch (((BattleCharaTask*)target)->m146C) {
             case 19:
@@ -9769,15 +9771,15 @@ extern "C" void fn_804F3AF0() {
 
 extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int a, int b);
 
-// NONMATCHING: 96.78% - here the manager pointer is kept in r29 across the loop (the original loads it again
-// in every iteration)
+// NONMATCHING: 99.27% - saved registers of the counter, the offset and the manager of GetMyPlayer_unk
+// (r29/r28/r30 in the original), registers of the team test
 // inferred: message 0x31: fn_804EAA84 on the characters of the players marked m30 and of the own team
 extern "C" void fn_804F3BAC() {
-    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+    if (PPManager2Ref_unk()->mState != 30) {
         return;
     }
-    for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
-        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
+    for (int i = 0; i < (int)PPManager2Ref_unk()->mPlayers.size(); i++) {
+        PPPlayer_unk* player = fn_804D5F0C(PPManager2Ref_unk(), i);
         if (player->mFlags.mActive && player->mRef.mChara != 0) {
             if (player->mFlags.m30 == 1 || IsSameTeam_unk(player, GetMyPlayer_unk())) {
                 fn_804EAA84((PPManager2_unk*)lbl_8087F610, player->mRef.mChara, 1, 0);
@@ -11054,8 +11056,6 @@ static inline bool PPIsOver_unk(int value, int limit) {
 static inline int PPIsTooFast_unk(float speed) {
     return speed > 1.5f;
 }
-// NONMATCHING: 99.9% - only the schedule of the prologue: the original loads mgr->mMode before saving r31 (tried
-// the mode in a local, a switch, an early return and the parameter as PlayerTask*)
 // inferred: check of the status of the own character before an online game (values above the limits of the
 // mode, bonuses, flags of the equipment and of the state); nonzero when something is out of range. In mode 2
 // the global flag 0x25 of the game disables the check

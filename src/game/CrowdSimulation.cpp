@@ -5,6 +5,7 @@
 #include "atn/Memory.h"
 #include <boost/function.hpp>
 #include "game/GameSceneFind_unk.h"
+#include "game/AiTarget.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -16,9 +17,7 @@ inline float LengthSq_unk(const atn::Vector3& v) {
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 
 extern "C" GameTask* lbl_8087F430;
-// inferred: route manager of the town walkers (lbl_8087EE68)
-extern "C" void* lbl_8087EE68;
-extern "C" int fn_80016C10(void* mgr, int route, boost::function<void()>* callback);
+// inferred: the route manager of the town walkers is the AI manager (lbl_8087EE68, game/AiTarget.h)
 extern "C" int fn_80019254(void* mgr, int point, const atn::Vector3* pos, int route, int arg4, int arg5, float rot,
                            float angle, float min, float max);
 
@@ -63,11 +62,7 @@ CrowdSimulation::CrowdSimulation(atn::Task* parent, CrowdDesc_unk* data)
             }
         }
         for (unsigned int j = 0; j < mDesc->mGroups[i].mCount; j++) {
-            int point;
-            {
-                boost::function<void()> callback;
-                point = fn_80016C10(lbl_8087EE68, mDesc->mGroups[i].mRoute, &callback);
-            }
+            int point = lbl_8087EE68->fn_80016C10(mDesc->mGroups[i].mRoute, boost::function<int(gs::MovePoint*)>());
             mWalkers[index].mGroup = i;
             mWalkers[index].mPoint = point;
             mWalkers[index].mDest = point;

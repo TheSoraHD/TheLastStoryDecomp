@@ -2754,7 +2754,6 @@ void BattleCharaTask::fn_800EBA5C() {
     mF1C = 0;
 }
 
-// NONMATCHING: 99.7% - code matches; string and float pool offsets wait for earlier pool users
 void BattleCharaTask::fn_800EBD00(int mode, int prev) {
     if (mode != prev) {
         if (mode == 1) {

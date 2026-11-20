@@ -1,28 +1,22 @@
-# Siguiente sesion (tras mixto2-20261120)
+# Siguiente sesion (tras codigo-20261120)
 
-> Sesion `mixto2-20261120` (hasta 4 agentes, 33 colas) del 2026-11-20 01:30 al ~13:40. Notas: `docs/mixto2-20261120.md` y `docs/mixto2-20261120-q*.md`;
-> para el port: `claude/port-mixto2-20261120.md` (proyecto).
+> Sesion `codigo-20261120` (secuencial, sin agentes) del 2026-11-20 13:58 al ~23:50. Notas: `docs/codigo-20261120.md`;
+> para el port: `claude/port-codigo-20261120.md` (proyecto). Anterior: `mixto2-20261120` (`docs/mixto2-20261120.md`).
 
-Estado: **16318 / 18113**, lost 0, rep100 9, labelcheck 10 lineas, `main.dol: OK`. Codigo 65,13 %, datos **76,77 %**
-(1099358 B), **754** unidades completas. DRAFT 0. Funciones al 0 %: 45 (20 sin iostream/auto_03).
+Estado: **16347 / 18113**, lost 0, rep100 6, labelcheck 10 lineas, `main.dol: OK`. Codigo **65,50 %**, datos 76,77 %,
+**755** unidades completas (enlaza atn/D2A_Data).
 
 ## Decisiones pendientes del usuario
 
-- `D2AMpMenu::fn_804B3494` llega al 100 % con una relectura sin efecto al final (`if (D2ACommonDialog::sInstance->m4C != 0) { return; }`; el original relee y no usa): regla 2. Parche `docs/mixto2-20261120-qA3-d2ampmenu-3494.patch`.
-- Bajadas aceptadas en la sesion: 42 de fuzzy por el push_back nuevo (regla de V; lista en `docs/mixto2-20261120-qV.md`, mas MenuCommonTask fn_804A3C24 94,41 -> 94,13 de V2) y GameTask vf10 95,62 -> 95,55 (cola M, alineamiento del diff; cualquier alternativa baja).
-- `goto` anterior al lote en game/Em303KrakenFootMp vf104 (no esta en las excepciones aprobadas).
-- `atn::D2A_Task::SetParam2_unk` quiza recibe el rectangulo UV por valor y no `const float*` (GameUI fn_803D2A6C, `docs/mixto2-20261120-qG1c.md`): cabecera muy compartida.
-- `GameVoice::fn_803EB394` devuelve `void` (cola D3: arreglo de firma que solo sube fuzzy; integrado).
+- Ninguna nueva. Las de mixto2 quedaron resueltas: qA3 de D2AMpMenu y el `goto` de Em303KrakenFootMp aprobados (regla 2), `SetParam2_unk` por valor integrada.
 
 ## Siguiente (decomp)
 
-- A una funcion de enlazar con avance esta sesion: Event/Section (fn_8053C788 99,99: solo el `delete` del buffer, que el original lee a traves del `this` del buffer; Channel/Cut igual), Event/Label (`__sinit` 93,9: `lwz r31` del epilogo entre los dos ultimos stores; ~46 formas). PBoneBasic vf10 99,974 (solo el tamano del marco, parche qN1).
-- push_back de `vector<std::string>`: parche `docs/mixto2-20261120-qG5b-vecstring.patch` (fn_803AB96C 99,90, PrintLog_unk 99,86, MapLift vf20 99,89): falta el registro del almacen nuevo tras `__nw` (qV3).
-- push_back dentro de otra inline: NewCampPartsHint vf20/vf30, Np131LivingArmor vf10, ShaderManager_unk, ArrowSet_unk, GameConfig_unk AddLight_unk (qV2).
-- "Cero copiado del contador" de GameEventScript (~8 funciones): lo causa cualquier `asm` dentro del bucle (la copia paired-single de Vec.h); el original carga `li` (qG5b).
-- Unidades grandes: GameEventScript 46 que faltan, PacketPack 46, CharaTask 38 (objdiff), GameUI 18 (parches qG1c), BattleTask 32, GameTask 15, ControlStickByQuark 6, AI_archer_attack01 4 (fn_8001C088 al 0 % por desenrollado + datos extern).
-- Muchos parches de solo fuzzy en `docs/mixto2-20261120-q*-*.patch`: utiles como punto de partida.
-- Trucos que mas rindieron (seccion mixto2-20261120 de `docs/trucos-mwcc.md`): forma de QuadrupedTask vf20 en las gemelas, getter `static inline` para la segunda lectura de un miembro/global, enum para if/else 0/1, puntero a la copia local para forzar relecturas, local sin inicializar rellenado por la inline, objetos ptmf `lbl_` partidos en `@N`, `__sinit` con `@N` de `.bss` que faltaban, ctor/dtor inline sacados de la cabecera para el orden de `.sdata2`.
+- Seguir la idea que mas rindio al final: valores de un solo uso como expresion (`x.GetNormalize().ToRotation_unk()`, `VecAssign_unk(m, Neg(dir.GetNormalize()))`) en funciones al 98-99,9 % con huecos de pila; a veces baja (el original tenia el local): probar y revertir.
+- Relecturas de globales que faltan (`tools`: odiff2 con `DIFF_DELETE lwz rX, lbl_...@sda21`; lista de la sesion en las notas): Event/Manager fn_8047FCC0/fn_80482ED8, GameEventScript fn_803A11D8/fn_803A8470, ModelInstance fn_8009E6EC, MapTask vf0C, BattleTask fn_80106878, PostFxGodRay fn_800AEF68, PacketPack fn_804E4EB0/fn_804EB934.
+- Gemelas de familia por similitud de opcodes (twins): EnemyQuarkStand/First/Second, Em202Spider*, Em203GreaterDaemon*, Em101*Zesya*.
+- Casi cerradas con pocas lineas de diff (ver `docs/mwcc-blockers.md` seccion codigo-20261120 para lo ya probado): em005 vf3C (un `b` inalcanzable), DrawHelper fn_800602E8 (`mr` frente a `li 0`), WaitObject vf40 y GameEventScript fn_803A26F4 (una instruccion movida), PPDATAU fn_8050DC58, atn_colli fn_80059264.
+- Lo de mixto2 sigue valido: Event/Section/Channel/Cut (delete del buffer), Event/Label `__sinit`, push_back de `vector<std::string>` (qV3) y push_back dentro de otra inline (qV2).
 
 ## Herramientas
 
@@ -31,7 +25,7 @@ Estado: **16318 / 18113**, lost 0, rep100 9, labelcheck 10 lineas, `main.dol: OK
 - Re-emparejado: `MAINREF=<build de referencia> python3 tools/decomp/refmap2.py <unidades>` (por direccion). Una `static inline` nueva renumera los `@N` de la unidad; una inline de clase no plantilla en una cabecera consume 4 `@N` en cada unidad que la incluye.
 - Agentes que piden permiso de Bash se quedan parados: pararlos y reanudarlos con un prompt de continuacion.
 
-## Candidatas por datos (report.json de mixto2-20261120)
+## Candidatas por datos (report.json de mixto2-20261120; sin cambios en codigo-20261120)
 
 Datos totales 1432078 B; enlazados 1099358 (76.77 %); 1 % = 14320 B.
 

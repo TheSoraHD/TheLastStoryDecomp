@@ -691,13 +691,18 @@ inline void TownFreeNode_unk(TownNode_unk* node) {
     ::operator delete(node);
 }
 
-// NONMATCHING: 9% - MWCC inlines the recursion one level deeper here (31 calls instead of 15)
-// inferred: frees a subtree (inlined into itself)
+// inferred: empty assert of the debug build (counts against the inlining budget, as AUDIOMAP_ASSERT of
+// atn/AudioDevice.cpp)
+#define TOWNTREE_ASSERT(x) ((void)(x))
+
+// inferred: frees a subtree (inlined into itself; same code as AudioMap_unk::Destroy of atn/AudioDevice)
 extern "C" void fn_805B99A8(TownTree_unk* tree, TownNode_unk* node) {
     if (node->mLeft != 0) {
+        TOWNTREE_ASSERT(node->mLeft->mParent == node);
         fn_805B99A8(tree, node->mLeft);
     }
     if (node->mRight != 0) {
+        TOWNTREE_ASSERT(node->mRight->mParent == node);
         fn_805B99A8(tree, node->mRight);
     }
     delete node;

@@ -167,8 +167,6 @@ extern "C" void fn_80210ACC() {
 }
 
 // inferred: loads the texts of the items (/boot/item_param_text_xx.u16)
-// NONMATCHING: 94.95% - the original keeps the address of the atn::CsvU in a saved register while
-// its inlined constructor runs (known, as in db/SkillParam_unk.cpp)
 extern "C" void fn_80211244() {
     if (sEntries != 0) {
         if (sTexts != 0) {

@@ -1316,8 +1316,6 @@ int ActionActorNode::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-// NONMATCHING: offsets of the strings in @stringBase0 ("eye_R", "reference" and "neck" come first in the
-// original: used by the functions of ActionActorEyes/Pose/Heading/Node not written yet)
 // inferred: the node `name` is a hair node of the hair kind `kind` (the cases fall through: each kind also
 // moves the nodes of the following ones)
 int ActionActorSetting::fn_80557E00(int kind, const char* name) {

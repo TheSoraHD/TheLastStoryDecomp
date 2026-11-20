@@ -1109,7 +1109,6 @@ void Em403WarLion::fn_803279D4() {
     mMotion.mTracks[0].m0C = 1.5f;
 }
 
-// NONMATCHING: 99.95% - offset de "" en @stringBase0 (cadenas de funciones sin escribir)
 // inferred: jumps on the target and holds it (state 16)
 void Em403WarLion::fn_80327A64() {
     SetState_unk(16);
@@ -1721,7 +1720,6 @@ atn::Vector3 Em403WarLion::fn_8032A894(int id, int* next) {
 extern "C" void fn_8032AF90(WarLionPath_unk* path, std::vector<atn::Vector3>* pts); // inferred: builds the path
 // NONMATCHING: 87.22% - register allocation of the unrolled back substitution and of the three vectors
 extern "C" void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out); // inferred: solve
-// NONMATCHING: 99.83% - r27/r28 of the two points swapped
 extern "C" float fn_8032C1EC(WarLionPath_unk* path, int i);                 // inferred: segment length
 
 // inferred: instantiated here (weak copies 0x8032AB90 and 0x8032ABA4, right after their first use)

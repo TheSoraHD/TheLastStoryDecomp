@@ -1223,14 +1223,10 @@ void NewTitleTask::vf10() {
     }
     mPushOp->FreezeTask();
     mPushLoop->FreezeTask();
-    ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    mPushOp->SetParam2_unk("btnUv", &uv.x);
-    ButtonUv_unk mask = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    mPushOp->SetParam2_unk("btnUvMask", &mask.x);
-    ButtonUv_unk uv2 = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    mPushLoop->SetParam2_unk("btnUv", &uv2.x);
-    ButtonUv_unk mask2 = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    mPushLoop->SetParam2_unk("btnUvMask", &mask2.x);
+    mPushOp->SetParam2_unk("btnUv", lbl_8087F0A8->mInput.fn_80124C6C(0));
+    mPushOp->SetParam2_unk("btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(0));
+    mPushLoop->SetParam2_unk("btnUv", lbl_8087F0A8->mInput.fn_80124C6C(0));
+    mPushLoop->SetParam2_unk("btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(0));
     if (push != 0) {
         if (mPushOp->IsEnd_unk()) {
             mPushLoop->MeltTask();

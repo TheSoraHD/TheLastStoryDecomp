@@ -3,6 +3,7 @@
 #include "atn/Texture_unk.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "atn/Vector4_unk.h"
 #include "std/vector.h"
 #include "std/string_members.h"
 #include "atn/D2A_MessageTable_unk.h"
@@ -52,12 +53,7 @@ struct D2A_IconDef_unk {
 };
 
 // inferred: texture rectangle and mask of an icon (u0, v0, u1, v1), passed by value to the setters
-struct D2A_IconUV_unk {
-    D2A_IconUV_unk() {}
-    D2A_IconUV_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
-    D2A_IconUV_unk(const D2A_IconUV_unk& o) { __Vec4Copy(&u0, &o.u0); }
-    float u0, v0, u1, v1;
-};
+typedef atn::Vector4_unk D2A_IconUV_unk;
 
 // inferred: piece of a line of text: a string or an icon (mIcon >= 0), as in atn/D2A_Message.cpp
 // The empty asserts (debug build only) of the constructor count against the inline budget of
@@ -368,8 +364,8 @@ inline void SetIconParamC_unk(void* layout, const char* name, int index, float v
 inline void SetIconFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
-inline void SetIconUV_unk(atn::D2A_Task* task, const char* name, D2A_IconUV_unk uv) {
-    task->SetParam2_unk(name, &uv.u0);
+inline void SetIconUV_unk(atn::D2A_Task* task, const char* name, const D2A_IconUV_unk& uv) {
+    task->SetParam2_unk(name, uv);
 }
 
 // NONMATCHING: 96.41% - register allocation: the original keeps the address of the layout (task +
@@ -391,15 +387,11 @@ extern "C" void fn_801F10E0(atn::D2A_Manager* manager, int icon, const D2A_IconR
         SetIconParamC_unk(&manager->mIcons[task]->mData.m10, "BaseCol", 0, alpha);
         SetIconFloat_unk(&manager->mIcons[task]->mData.m10, "BaseRot", sIconDefs[icon].mRot);
         if (fn_800A58D0(lbl_8087EF70, 0) == 0) {
-            D2A_IconUV_unk uv = sIconUVs[sIconDefs[icon].mUv].mUv;
-            manager->mIcons[task]->SetParam2_unk("iconUv", &uv.u0);
-            D2A_IconUV_unk mask = sIconUVs[sIconDefs[icon].mUv].mMask;
-            manager->mIcons[task]->SetParam2_unk("iconUvMask", &mask.u0);
+            manager->mIcons[task]->SetParam2_unk("iconUv", sIconUVs[sIconDefs[icon].mUv].mUv);
+            manager->mIcons[task]->SetParam2_unk("iconUvMask", sIconUVs[sIconDefs[icon].mUv].mMask);
         } else {
-            D2A_IconUV_unk uv = sIconUVs[sIconDefs[icon].mUvClassic].mUv;
-            manager->mIcons[task]->SetParam2_unk("iconUv", &uv.u0);
-            D2A_IconUV_unk mask = sIconUVs[sIconDefs[icon].mUvClassic].mMask;
-            manager->mIcons[task]->SetParam2_unk("iconUvMask", &mask.u0);
+            manager->mIcons[task]->SetParam2_unk("iconUv", sIconUVs[sIconDefs[icon].mUvClassic].mUv);
+            manager->mIcons[task]->SetParam2_unk("iconUvMask", sIconUVs[sIconDefs[icon].mUvClassic].mMask);
         }
         fn_801F465C(manager->mIcons[task], 0);
     }

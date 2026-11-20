@@ -198,13 +198,18 @@ struct D2A_TrackKey_unk {
 };
 
 // inferred: animated value of the layout (0x10 bytes); the table has an empty inline buffer of keys
+// inferred: table of keys of a track (pointer and count, as D2A_ParamTable); built in an array of one
+// element (the constructor loop of the array runs past the first, peeled, element)
+struct D2A_TrackTable_unk {
+    D2A_TrackTable_unk(); // inferred: defined inline in atn/D2A_Data.cpp
+    D2A_TrackKey_unk* mEntries; // 0x00
+    int mCount;                 // 0x04
+};
 struct D2A_Track_unk {
     D2A_Track_unk();
     unsigned int m00;
-    D2A_TrackKey_unk* mEntries; // 0x04: inferred: same layout as D2A_ParamTable
-    int mCount;                 // 0x08
-    D2A_TrackKey_unk mBuf[0];   // 0x0C
-    float mValue;               // 0x0C
+    D2A_TrackTable_unk mTables[1]; // 0x04
+    float mValue;                  // 0x0C
 };
 
 // inferred: animation data of a d2anime file (0xA8 bytes)

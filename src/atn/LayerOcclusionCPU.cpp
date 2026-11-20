@@ -635,18 +635,32 @@ void fn_800B5528(LayerOcclusionCPU* layer, const float* verts, int count) {
 
 // inferred: limits of the screen box and of the cells tested by fn_800B6218
 // inferred: limits used by the code at 0x800B5994 (not written)
+// inferred: the original keeps the zeros in .sdata, which MWCC only does with explicit_zero_data (approved
+// exception, only around the zero definitions; without it they go to .sbss)
 extern "C" {
+#pragma push
+#pragma explicit_zero_data on
 float lbl_8087D898 = 0.0f;
 float lbl_8087D89C = 0.0f;
 float lbl_8087D8A0 = 0.0f;
 float lbl_8087D8A4 = 0.0f;
 int lbl_8087D8A8 = 0;
+#pragma pop
 int lbl_8087D8AC = 31;
+#pragma push
+#pragma explicit_zero_data on
 int lbl_8087D8B0 = 0;
+#pragma pop
 int lbl_8087D8B4 = 31;
+#pragma push
+#pragma explicit_zero_data on
 int lbl_8087D8B8 = 0;
+#pragma pop
 int lbl_8087D8BC = 31;
+#pragma push
+#pragma explicit_zero_data on
 int lbl_8087D8C0 = 0;
+#pragma pop
 int lbl_8087D8C4 = 31;
 }
 
@@ -691,8 +705,6 @@ inline AABB_unk ViewBox_unk(const Mtx m, const AABB_unk* box) {
     return AABB_unk(min, max);
 }
 
-// NONMATCHING: 99.9% - only the data: the zero limits lbl_8087D898-lbl_8087D8A4 go to .sbss here (the
-// original keeps them in .sdata, see fn_800B6218); the code is the same
 // inferred: the box (world coordinates) is hidden by the occlusion buffer: bounds of its corners in view
 // space, outside the near/far range -> visible; screen rectangle, too small -> hidden, too large ->
 // visible, else tested against the buffer pyramid from its smallest level (fn_800B64DC)
@@ -755,25 +767,36 @@ extern "C" int fn_800B5994(atn::LayerOcclusionCPU* layer, const atn::AABB_unk* b
     return 0;
 }
 
+// inferred: zeros kept in .sdata as above (explicit_zero_data, approved exception)
 extern "C" {
+#pragma push
+#pragma explicit_zero_data on
 float lbl_8087D8C8 = 0.0f;
 float lbl_8087D8CC = 0.0f;
 float lbl_8087D8D0 = 0.0f;
 float lbl_8087D8D4 = 0.0f;
 int lbl_8087D8D8 = 0;
+#pragma pop
 int lbl_8087D8DC = 31;
+#pragma push
+#pragma explicit_zero_data on
 int lbl_8087D8E0 = 0;
+#pragma pop
 int lbl_8087D8E4 = 31;
+#pragma push
+#pragma explicit_zero_data on
 int lbl_8087D8E8 = 0;
+#pragma pop
 int lbl_8087D8EC = 31;
+#pragma push
+#pragma explicit_zero_data on
 int lbl_8087D8F0 = 0;
+#pragma pop
 int lbl_8087D8F4 = 31;
 }
 
 float fn_800B65B4(LayerOcclusionCPU* layer, int x0, int y0, int x1, int y1, float depth);
 
-// NONMATCHING: 99.6% - only the data: the zero limits go to .sbss here (the original keeps them in .sdata, as
-// with explicit_zero_data, which is only approved for atn/PostFxColorMatrix)
 // inferred: part of the box (world coordinates) that is hidden: projects it, takes the cells of the 32x32
 // buffer it covers and tests them at its nearest depth
 float fn_800B6218(LayerOcclusionCPU* layer, const AABB_unk* box) {

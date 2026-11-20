@@ -272,7 +272,6 @@ inline atn::Vector3* CharaTask::GetScale_unk() {
 void Scale_unk(atn::Matrix3x4& mtx, const atn::Vector3& s); // inferred: scales the matrix (game/GameTask.cpp)
 extern "C" void fn_80316E38(atn::Model* model, const atn::Matrix3x4* m); // inferred: sets the model matrix
 extern "C" void fn_8037F688(Camera_unk* camera, float fovy);
-extern "C" void fn_80392A04(Camera_unk* a, Camera_unk* b);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r,
                             float t);
@@ -452,7 +451,7 @@ void TutorialTask::vf10() {
     case 2:
         m84 += 1.0f;
         if (m84 >= 15.0f) {
-            fn_80392A04(&mCamera, &mCamera2);
+            mCamera = mCamera2;
             mPos = mPos2;
             mRot = mRot2;
             fn_805BA934();

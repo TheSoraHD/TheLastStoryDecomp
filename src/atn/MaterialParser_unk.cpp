@@ -220,7 +220,6 @@ static inline bool TexReady_unk(atn::Texture_unk* tex) {
     return tex->mImage != 0 || (((GimmickUvOwner_unk*)tex)->fn_800D59B8() == 0 && tex->m20.fn_80473EFC() == 3);
 }
 
-// NONMATCHING: 99.4% - obj and minFilter swap r30/r31 (tried declaration orders, a local texture pointer)
 void TexStage_unk::fn_8007B100() {
     int minFilter;
     if (mTexture != 0 && TexReady_unk(mTexture)) {
@@ -1142,7 +1141,6 @@ int Material_unk::fn_800804D0(int id) {
     return -1;
 }
 
-// NONMATCHING: 98.5% - r6/r7 swapped (stage base and offset)
 TexStage_unk* Material_unk::fn_80080528(int id) const {
     for (int i = 0; i < m4A; i++) {
         int stageId = m0C[i].mId;
@@ -1241,7 +1239,6 @@ void Material_unk::fn_80080B34(atn::ShaderDesc_unk* desc) {
 }
 
 // inferred: textures of the stages: from `getter`, or loaded from `dir`
-// NONMATCHING: 99.8% - r15/r24 swapped between the name pointer and its length in the string constructor
 void Material_unk::fn_80080C20(const std::string& dir, TexGetter_unk& getter) {
     for (int i = 0; i < m4A; i++) {
         std::string name(m0C[i].mName.c_str());

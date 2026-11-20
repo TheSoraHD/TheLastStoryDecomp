@@ -833,7 +833,7 @@ void Em206EggMonster::fn_802C3154() {
     }
 }
 
-// NONMATCHING: 99.9% - stack slots of the locals (rotation, ray ends) and the frsp before atan2
+// inferred: next attack of the egg monster (the facing angle is computed and dropped, as in the original)
 int Em206EggMonster::fn_802C38E4() {
     int next = -1;
     if (m15B8 != 0 && m15BC < 0 && m1594 != 2 && m15C0 < 2) {
@@ -844,10 +844,7 @@ int Em206EggMonster::fn_802C38E4() {
             atn::Vector3 tp = target->mPos;
             atn::Vector3 d = tp - mPos;
             float dist = PSVECMag(&d);
-            atn::Vector3 n = d;
-            PSVECNormalize(&n, &n);
-            atn::Vector3 rot = n.ToRotation_unk();
-            WrapDeg_unk(57.295776f * (rot.y - mRot.y));
+            WrapDeg_unk(57.295776f * (d.GetNormalize().ToRotation_unk().y - mRot.y));
             atn::Vector3 from = mPos;
             atn::Vector3 to = m1584->mPos;
             from.y += 20.0f;
@@ -1312,7 +1309,6 @@ void Em206EggMonster::fn_802C6878(CharaTask* chara, const atn::Vector3& pos) {
 }
 
 
-// NONMATCHING: 99.43% - r28/r30 of the channels in the inlined Color4f_unk::ToU32
 // inferred: draws the two limits of the arena (debug) and tells whether the egg is between them: mPos
 // and the point (m14BC, m14C0) on different sides of the first line and on the same side of the second
 __declspec(noinline) int Em206EggMonster::fn_802C69BC() {

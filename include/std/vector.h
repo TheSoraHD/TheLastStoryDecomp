@@ -409,9 +409,10 @@ struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
 template <>
 struct __vec_imp_unk<float> : public __vec_storage_unk<float> {
     ~__vec_imp_unk() {}
+    // inferred: the element is copied as a raw word too (lwz/stw in vector<float>::push_back 0x800DB3EC)
     void __push_fast_unk(unsigned int n, const float& x) {
         this->mSize = n + 1;
-        this->mData[this->mSize - 1] = x;
+        ((unsigned int*)this->mData)[this->mSize - 1] = *(const unsigned int*)&x;
     }
     void __append_n_unk(unsigned int n) {
         memset(this->mData + this->mSize, 0, n * sizeof(float));
@@ -425,7 +426,7 @@ struct __vec_split_unk<float> : public __vec_split_base_unk<float> {
     enum { __clear_src_unk = 1 };
     float* begin() { return this->mData + mStart; }
     void push_back(const float& x) {
-        begin()[this->mSize] = x;
+        ((unsigned int*)begin())[this->mSize] = *(const unsigned int*)&x;
         this->mSize++;
     }
     void __append_copies_unk(unsigned int n, const float& x) {

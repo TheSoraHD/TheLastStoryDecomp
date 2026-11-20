@@ -438,7 +438,6 @@ extern "C" void fn_8007192C(GraphicsDevice_unk* device) {
 }
 
 // inferred: end of the frame: queues the copy to the XFB and waits while two frames are in flight
-// NONMATCHING: 99.31% - one instruction of the vertical filter sum
 extern "C" void fn_80071AFC(GraphicsDevice_unk* device) {
     GXSetZMode(1, 3, 1);
     GXSetColorUpdate(1);
@@ -1718,7 +1717,6 @@ extern "C" void fn_80076174(GraphicsDevice_unk* device, int enabled) {
 }
 
 // inferred: sends the dirty groups of mState to GX
-// NONMATCHING: 99.70% - the tables are addressed from the start of .rodata (section symbol) in our object
 extern "C" void fn_800761A8(GraphicsDevice_unk* device) {
     for (int i = 0; i < 12; i++) {
         if (!(device->mDirty.mMask & (1 << i))) {

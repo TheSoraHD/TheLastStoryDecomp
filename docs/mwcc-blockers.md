@@ -797,3 +797,14 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - push_back inline donde el original relee la capacidad en el camino lento (Event/Manager fn_80485028, ~2 % de los sitios): la forma nueva no relee; una relectura (CSE) rompe los demas. (mixto2-20261120 qV)
 - push_back<T> no trivial fuera de linea (AddLight_unk, atn::Light): los huecos de pila de los dos calculos de crecimiento (muerto en `__expand_by_cap_unk`, vivo en `__grow_cap_unk`) salen en bloques y orden interno al reves; un nivel mas en el muerto solo invierte su orden interno. (mixto2-20261120 qV2)
 - vector<string> push_back inline (GameEventScript fn_803AB96C/PrintLog_unk/fn_8039BF04, MapLift vf20): el registro del almacen nuevo tras `__nw` y del inicio de `clear()` no se mueve con ~30 variantes locales; solo leer `mCap` en la variable de la capacidad lo mueve, a costa de juntar capacidad vieja y nueva (bien en MapLift, mal en fn_803AB96C). Banco minimo descrito arriba. (mixto2-20261120 qV3)
+
+## codigo-20261120
+
+- GameScene `FindPlace_unk` (copia inline): registros de indice/desplazamiento (~17 variantes) (ChaserNpc fn_80181D94 y otros).
+- Em203GreaterDaemonRed/RedMp fn_8029C564/fn_802A4194: contador y desplazamiento del bucle del mas cercano (r29/r30); declaraciones, `int`, helper `fn_801C3910` de la gemela Em203GreaterDaemon: igual.
+- D2AMpMenuLobby `FindMember_unk`: registros volatiles de la busqueda (vf0C, fn_804BEDB8); formas por indice, `found` o `m5E4 + j` bajan todas las funciones de la unidad.
+- PacketPack fn_804F2994: falta la relectura de lbl_8087F610 antes de la segunda busqueda; con `fn_800F7F90()` en la segunda sale pero cambian los registros.
+- EnemyQuarkStand fn_80350BF0 (99,86): huecos de pila de las dos ramas del salto lateral; Cross inline, `+=`, `-20.0f`: igual o peor.
+- BattleTask fn_800F8574 (99,6): `rot` y el vector del bucle intercambiados en la pila; sin `rot`, `v` fuera del bucle o por campos: igual o peor.
+- Em101LittleZesya fn_8025D90C, ChaserNpc fn_80181D94, GameScene fn_803CB820: la expresion `GetNormalize().ToRotation_unk()` baja (95 %); ahi el original si tiene el local.
+- em005 vf3C: `b` inalcanzable tras el retorno de la prueba de id (5 formas, ya anotadas).

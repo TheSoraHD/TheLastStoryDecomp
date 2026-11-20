@@ -246,8 +246,6 @@ extern "C" void fn_8021F47C() {
     }
 }
 
-// NONMATCHING: 99.7% - the string object and its length swap r30/r31 (with `inline` ParseId_unk the registers
-// match but its "_" goes to a @STRING@ object instead of the string pool)
 extern "C" VoiceEntry_unk* fn_8021FC00(const char* name) {
     int id = ParseId_unk(name);
     for (int i = 0; i < lbl_8087F354; i++) {

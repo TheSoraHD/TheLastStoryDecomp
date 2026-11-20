@@ -3234,7 +3234,6 @@ static inline CharaTask* FirstOf_unk(CharaTask* a, CharaTask* b, CharaTask* c, C
     return d;
 }
 
-// NONMATCHING: 99.2% - only the @stringBase0 offset (0xE2): the earlier strings belong to unwritten functions
 // inferred: makes a character use a gimmick (m10, m14); the party member 3 with id <= 0 is the
 // first archer, then the first of kind 6, then 1/9/10, then the one with data m122 == 2
 void GameEventScript::fn_803A064C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -3551,7 +3550,6 @@ static inline void HoldLeader_unk(int& saved, EventIdEntry_unk* entry, CharaTask
     }
 }
 
-// NONMATCHING: 99.9% - only the @stringBase0 offset (the earlier strings belong to unwritten functions)
 // inferred: starts the event m08 (flag 2: queued, flag 0x40000000: stops it instead); the result
 // is 1 while it runs
 void GameEventScript::fn_803A1B20(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -3729,7 +3727,6 @@ void GameEventScript::fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk*
 
 // inferred: opens the gauge of the UI (the leader keeps flag 0x10 and its value in mC0); without the
 // gauge, in the map (2, 0x36, 1) it goes back to the title
-// NONMATCHING: 98.9% - "Title" is in the other string pool of the file (lbl_8074F8CC + 0x13E)
 void GameEventScript::fn_803A24A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
         if (lbl_8087F490 != 0) {
@@ -4393,7 +4390,6 @@ void GameEventScript::fn_803A450C(ScriptResult_unk& result, const ScriptCmd_unk*
     result.mWait = 0;
 }
 
-// NONMATCHING: 99.9% - only the offsets of the two strings in the pool (other strings of the file not written yet)
 // inferred: shows (m30 0) or hides a node of the model of a character; "@eqN" names the equipped
 // item N (its flag is set instead)
 void GameEventScript::fn_803A4568(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -4429,7 +4425,6 @@ void GameEventScript::fn_803A4568(ScriptResult_unk& result, const ScriptCmd_unk*
 
 // inferred: plays the sound named in the command for the field (bit 0 of m2C: stops the sounds of
 // the field instead; "SE_VOTWN_041" stops them first)
-// NONMATCHING: 99.9% - only the offset of "SE_VOTWN_041" in the string pool (other strings of the file not written yet)
 void GameEventScript::fn_803A47A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptSoundArgs_unk* args = static_cast<const ScriptSoundArgs_unk*>(cmd);
     char name[0x20];
@@ -6318,7 +6313,6 @@ struct ScriptConstrainArgs_unk : public ScriptCmd_unk {
     atn::Vector3 mOffset; // 0x38
 };
 
-// NONMATCHING: 99.9% - only the @stringBase0 offsets (the earlier strings belong to unwritten functions)
 // inferred: attaches the constrained model mModel of the field scene to the node mNode of the
 // character m08/m0C (mRelease: detaches it)
 void GameEventScript::fn_803AA5E4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -6415,7 +6409,6 @@ void GameEventScript::fn_803AAAE4(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 // inferred: switches the current map to the area list m08 (modulo the count) with the blend m0C over
 // m10 frames
 void GameEventScript::fn_803AAC60(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {

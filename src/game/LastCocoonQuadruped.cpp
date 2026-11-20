@@ -874,8 +874,6 @@ void* fn_801404F8();                     // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: line check
 
-// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls the Vector3 copies,
-// operators and the angle helpers; this one inlines them
 void LastCocoonQuadruped::fn_80463174() {
     if (m14B8 == 0) {
         return;
@@ -1183,8 +1181,6 @@ void LastCocoonQuadruped::fn_80464CF0() {
     }
 }
 
-// NONMATCHING: 99.8% - the bitfield word of the damage record is loaded into r7 (r3 in the original),
-// as in Em204Mulue::fn_802A91D0
 void LastCocoonQuadruped::fn_80465294() {
     if (m1574 == 0 || m1574->m560 != 0x6E) {
         SetMode_unk(14);
@@ -1219,7 +1215,6 @@ void LastCocoonQuadruped::fn_804654F0() {
     }
 }
 
-// NONMATCHING: 99.6% - r3/r4 of the step copy and the float registers of the sum to mPos
 // inferred: mode 15: the jump of fn_80467C18 (m15BC per frame), then turns towards the place 600
 void LastCocoonQuadruped::fn_804655AC() {
     float frame = mMotion.mTracks[0].m08;
@@ -1237,14 +1232,16 @@ void LastCocoonQuadruped::fn_804655AC() {
     }
     frame = mMotion.mTracks[0].m08;
     if (frame <= 30.0f) {
-        atn::Vector3 step = m15BC;
+        const atn::Vector3& jump = m15BC;
+        atn::Vector3 step = jump;
         bool start = frame <= 5.0f;
         if (!start) {
             step.z = 0.0f;
             step.x = 0.0f;
         }
         mPos += step;
-        if (mMotion.mTracks[0].m08 > 20.0f) {
+        frame = mMotion.mTracks[0].m08;
+        if (frame > 20.0f) {
             gs::WarpPoint* place = FindQuadPlace_unk(600);
             if (place != 0) {
                 atn::Vector3 d = place->mPos - mPos;
@@ -1439,7 +1436,6 @@ void LastCocoonQuadruped::fn_80466974() {
     }
 }
 
-// NONMATCHING: 91.7% - "SE_EM206_001" is at @stringBase0+0xC9 (needs the earlier strings of the ctor)
 void LastCocoonQuadruped::fn_80466A04() {
     SetMode_unk(6);
     mMotion.m34C = 1;
@@ -1632,8 +1628,6 @@ void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn
     *angle = yaw;
 }
 
-// NONMATCHING: 99.8% - the two compares with the table are emitted as cmpw arg, entry (entry, arg in
-// the original). Tried: both operand orders, != with continue, a reference to the entry, locals.
 atn::Vector3 LastCocoonQuadruped::fn_804687B0(int* id, int kind8, int kind4) {
     atn::Vector3 result = lbl_807C7030;
     atn::Vector3 center = lbl_807C7030;

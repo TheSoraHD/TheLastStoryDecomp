@@ -32,8 +32,8 @@ inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
 // inferred: texture rectangle (as MenuUV_unk in game/MenuCommonTask.cpp)
 typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
 // inferred: sets a texture rectangle (the rectangle is passed by value)
-inline void SetUV_unk(atn::D2A_Task* anime, const char* name, ShopUV_unk uv) {
-    anime->SetParam2_unk(name, &uv.x);
+inline void SetUV_unk(atn::D2A_Task* anime, const char* name, const ShopUV_unk& uv) {
+    anime->SetParam2_unk(name, uv);
 }
 inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
     fn_801FEE08(layout, fn_800DC6B4(name), text);

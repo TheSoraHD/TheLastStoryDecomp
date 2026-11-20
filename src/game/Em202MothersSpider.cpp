@@ -481,14 +481,15 @@ void Em202MothersSpider::vfF8() {
     mC58.mC4 = m14D4;
 }
 
-// NONMATCHING: 95% - stack slots of the rotation temporaries
+// NONMATCHING: 95.8% - stack slots of the rotation temporaries
 void Em202MothersSpider::vfFC() {
+    float mag = 0.0f;
     float speed = 1.0f;
     atn::Vector3 rot = mRot;
     if (m55C == 7) {
         mRoute.fn_80126214();
         atn::Vector3 dir = mRoute.m58;
-        float mag = PSVECMag(&dir);
+        mag = PSVECMag(&dir);
         if (mag > 0.0001f) {
             atn::Vector3 n = dir;
             PSVECNormalize(&n, &n);
@@ -513,7 +514,7 @@ void Em202MothersSpider::vfFC() {
     if (m55C == 6) {
         fn_8013A258();
     }
-    fn_8013CB68(rot, 0, 0.0f, m568 * speed);
+    fn_8013CB68(rot, 0, mag, m568 * speed);
 }
 
 void Em202MothersSpider::vf100() {

@@ -896,9 +896,14 @@ static inline bool StartGame_unk() {
     return true;
 }
 
+// inferred: lbl_8087F610 through a reference (the original reloads the global after the time check)
+static inline MpLobbySession_unk*& SessionRef_unk() {
+    return *(MpLobbySession_unk**)&lbl_8087F610;
+}
+
 // inferred: update of state 6 (waiting for the other players): the host starts the game once everybody is
 // ready (or the time runs out); the guests are warned when the time runs out
-// NONMATCHING: the original reloads lbl_8087F610 after the check of the time; volatile registers of the member
+// NONMATCHING: 99.87% - volatile registers of the member
 // search (as vf0C)
 void D2AMpMenuLobby::fn_804BEDB8() {
     void* pad = lbl_8087EF70;
@@ -927,7 +932,7 @@ void D2AMpMenuLobby::fn_804BEDB8() {
     if (lbl_8087F610->m508 == 0) {
         decide = 1;
     }
-    if (fn_804FC010(lbl_8087F610) != 0 && decide == 1) {
+    if (fn_804FC010(SessionRef_unk()) != 0 && decide == 1) {
         decide = 0;
     }
     if (fn_804EB1AC(lbl_8087F610) == 0) {

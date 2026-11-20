@@ -46,19 +46,10 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
 }
 // inferred: the wide literals of this file (L"", L"???", four U+2015 bars) go to .sdata (@wstringBase0)
 // inferred: texture rectangle (as ShopUV_unk in game/ShopIdentify.cpp)
-struct CosEditUV_unk {
-    CosEditUV_unk() {}
-    CosEditUV_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
-    CosEditUV_unk(const CosEditUV_unk& o) { __Vec4Copy(&u0, &o.u0); }
-    CosEditUV_unk& operator=(const CosEditUV_unk& o) {
-        __Vec4Copy(&u0, &o.u0);
-        return *this;
-    }
-    float u0, v0, u1, v1;
-};
+typedef atn::Vector4_unk CosEditUV_unk;
 extern "C" CosEditUV_unk fn_80444C50(Inventory* inv, int icon);
-inline void SetUV_unk(atn::D2A_Task* task, const char* name, CosEditUV_unk uv) {
-    task->SetParam2_unk(name, &uv.u0);
+inline void SetUV_unk(atn::D2A_Task* task, const char* name, const CosEditUV_unk& uv) {
+    task->SetParam2_unk(name, uv);
 }
 extern "C" const char* fn_8020BD78(int index); // inferred: name of a colour
 extern "C" int fn_8020BDE0(int index);         // inferred: palette id of a colour cell

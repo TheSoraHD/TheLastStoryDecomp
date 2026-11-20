@@ -1135,7 +1135,6 @@ void Em203GreaterDaemonRedMp::fn_802A17CC() {
     }
 }
 
-// NONMATCHING: 99.08% - r5/r6 of the inlined owner checks and the Vector3 copy crossing of fn_802A35B0
 // inferred: state 13 (on the ground): flies up after GrandTime seconds unless the owner daemon is
 // flying, otherwise attacks
 void Em203GreaterDaemonRedMp::fn_802A19B0() {
@@ -1511,8 +1510,6 @@ template EnemyTask*& std::vector<EnemyTask*>::operator[](size_type i);
 // that can act (names invented)
 // inferred: over the inline budget in the original (R3 of docs/inlining.md: every helper, push_back,
 // CanAct_unk, GetTrans_unk, DegToRad_unk... is called with bl): the asserts of fn_802A4120 put it there
-// NONMATCHING: 99.9% - only the name of the destructor relocation of the list (the original calls the copy
-// named __dt__18NecroPlaceList_unkFv in symbols.txt, emitted by Em001Necromancer; as Em206CocoonMp::vf104)
 void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
     if (m14E8 == 0) {
         return;
@@ -1561,7 +1558,6 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
     }
 }
 
-// NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)
 // inferred: the route point nearest to the daemon among the high hover points (m156C)
 // inferred: current count in the character manager.
 extern "C" int fn_802A4168(CharaManager<EnemyTask>* manager) {

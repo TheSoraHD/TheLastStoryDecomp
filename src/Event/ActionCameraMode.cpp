@@ -358,7 +358,6 @@ int ActionCameraSetting::vf08(Action* arg) {
     return 0;
 }
 
-// NONMATCHING: 78.6% - scheduling: the original loads the next parameter count before each store
 // (tried locals and a const accessor); the color part matches
 void ActionCameraEffect::fn_8055BB08(MapArea* area, const void* data) {
     Action* arg = (Action*)data;

@@ -279,7 +279,6 @@ inline typename basic_string<T, Tr, A>::size_type basic_string<T, Tr, A>::find(c
 
 } // namespace std
 
-// NONMATCHING: 98.6% - saved registers of the "." literal and of the size (r28/r29 swapped)
 // inferred: copy of a path without the language suffixes ("_jp." -> ".") of the file language, of the text
 // language and "_xx"
 extern "C" std::string fn_8006B594(const std::string& path) {

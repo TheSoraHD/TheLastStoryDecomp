@@ -508,7 +508,6 @@ void Em202SpiderBase::vf7C(int arg) {
     mMotion.fn_80097C08(0, 0x1DD, 0, 0, 1, 0.0f, 0.05f);
 }
 
-// NONMATCHING: 99.80% - only the .sdata2 offsets (constants of the unwritten functions)
 void Em202SpiderBase::fn_802847CC() {
     float speed = 0.0f;
     float rate = 1.0f;
@@ -538,7 +537,6 @@ void Em202SpiderBase::fn_802847CC() {
     }
 }
 
-// NONMATCHING: 99.91% - only the .sdata2 offsets (constants of the unwritten functions)
 void Em202SpiderBase::fn_80284CC8() {
     m1594--;
     if (m1554 >= m1558 && !m1570.empty()) {
@@ -669,7 +667,6 @@ void Em202SpiderBase::fn_80285064() {
     }
 }
 
-// NONMATCHING: 99.17% - only the .rodata/.sdata2 offsets (constants of the unwritten functions)
 void Em202SpiderBase::fn_802857B4() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -724,7 +721,6 @@ void Em202SpiderBase::fn_802857B4() {
     }
 }
 
-// NONMATCHING: 99.85% - only the .sdata2 offsets (constants of the unwritten functions)
 // inferred: the direction to the target is turned into a rotation that is not used; the test of the
 // turn is repeated (as in the original)
 void Em202SpiderBase::fn_80285B7C() {
@@ -833,7 +829,6 @@ void Em202SpiderBase::fn_80285FA0() {
     m1590--;
 }
 
-// NONMATCHING: 99.81% - only the .sdata2 offsets (constants of the unwritten functions)
 // inferred: the direction to the point is turned into a rotation that is not used
 void Em202SpiderBase::fn_802868A0() {
     atn::Vector3 rot;
@@ -892,7 +887,6 @@ void Em202SpiderBase::vfEC() {
     }
 }
 
-// NONMATCHING: 99.84% - only the .sdata2 offsets (constants of the unwritten functions)
 void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
     if ((m157C & 2) != 2) {
         if (fn_80287400(target, 8) == 0) {
@@ -917,7 +911,6 @@ void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
     }
 }
 
-// NONMATCHING: 99.86% - only the .sdata2 offsets (constants of the unwritten functions)
 void Em202SpiderBase::fn_8028702C(CharaTask* target) {
     if ((m157C & 4) != 4) {
         if (fn_80287400(target, 6) == 0) {
@@ -943,7 +936,6 @@ void Em202SpiderBase::fn_8028702C(CharaTask* target) {
     }
 }
 
-// NONMATCHING: 99.67% - only the .rodata/.sdata2 offsets (constants of the unwritten functions)
 int Em202SpiderBase::fn_80287400(CharaTask* target, int arg) {
     if (m58C == 9) {
         return 0;
@@ -992,9 +984,12 @@ void Em202SpiderBase::fn_80287788() {
     fn_800EB7A0();
 }
 
-// NONMATCHING: 99.78% - stack slots of the two differences inside the loop (d at 0x68 instead of 0x50); 8
-// variants
 // inferred: runs to the farthest base point (the points behind the spider count double)
+// inferred: length in the xz plane (as CrabLengthXZ_unk of game/Em308ParmCrab.cpp; name invented)
+inline float SpiderLengthXZ_unk(atn::Vector3 d) {
+    return sqrt(d.x * d.x + d.z * d.z);
+}
+
 void Em202SpiderBase::fn_802878EC(CharaTask* target) {
     if (fn_80287400(target, 12) != 0) {
         return;
@@ -1011,11 +1006,9 @@ void Em202SpiderBase::fn_802878EC(CharaTask* target) {
     float best = 0.0f;
     int place = -1;
     for (unsigned int i = 0; i < m1570.size(); i++) {
-        atn::Vector3 d = m1570[i]->mPos - mPos;
-        float dist = sqrt(d.x * d.x + d.z * d.z);
-        atn::Vector3 dir = (m1570[i]->mPos - mPos).GetNormalize();
-        atn::Vector3 rot = dir.ToRotation_unk();
-        float diff = atn::WrapAngle_unk(rot.y - mRot.y);
+        float dist = SpiderLengthXZ_unk(m1570[i]->mPos - mPos);
+        atn::Vector3 dir = m1570[i]->mPos - mPos;
+        float diff = atn::WrapAngle_unk(dir.GetNormalize().ToRotation_unk().y - mRot.y);
         if (diff > 1.5707964f || diff < -1.5707964f) {
             dist *= 2.0f;
         }

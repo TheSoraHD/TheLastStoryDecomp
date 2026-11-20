@@ -99,17 +99,19 @@ inline void ControlAttackBase::LoadTable_unk() {
     mTable = fn_802097C4(motion->fn_80097D40(motion->mTracks[0].m00)->fn_80473F18());
 }
 
-// NONMATCHING: 97.4% - chara gets r3 instead of r5 (the original keeps it out of the return register).
+// inferred: same form as vf28 (type declared first, the frame read once for the table loop)
 int ControlAttackBase::vf24() {
+    int type;
     Chara_unk* chara = mChara;
     if (mTable != 0) {
+        float frame = chara->mMotion.mTracks[0].m08;
         for (int i = 0; i < mTable->mCount; i++) {
-            if (mTable->mStart[i] <= chara->mMotion.mTracks[0].m08 && chara->mMotion.mTracks[0].m08 <= mTable->mEnd[i]) {
+            if (mTable->mStart[i] <= frame && frame <= mTable->mEnd[i]) {
                 return 1;
             }
         }
     } else {
-    int type = chara->m560;
+    type = chara->m560;
     if (type == 4 || type == 5) {
         return chara->mMotion.mTracks[0].m08 >= 9.0f && chara->mMotion.mTracks[0].m08 <= 11.0f;
     }
@@ -149,7 +151,6 @@ float ControlAttackBase::vf20() {
     return 18.0f;
 }
 
-// NONMATCHING: 97.3% - same register choice as vf24.
 int ControlAttackBase::vf28() {
     int type;
     Chara_unk* chara = mChara;
@@ -977,19 +978,22 @@ ControlAttackLastOne::ControlAttackLastOne(Chara_unk* chara, const atn::Vector3&
     c->m638 = hit;
 }
 
-// NONMATCHING: 98.0% - stack slots of the direction temporaries.
+// inferred: lbl_8087EFA8 through a reference (the original reloads it for the store; name invented)
+static inline RenderSetting_unk*& RenderSettingRef_unk() { return *(RenderSetting_unk**)&lbl_8087EFA8; }
+
+// NONMATCHING: 99.86% - registers of 0.2f + m3A4 (f0/f3) and of the target/chara pointers of the direction
 int ControlAttackLastOne::vf0C() {
     float speed = 0.0f;
     float rate = 1.0f;
-    int result = 0;
     Motion_unk* motion = &mChara->mMotion;
+    int result = 0;
     float frame = mChara->mMotion.mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
         result = 1;
     }
     if (frame >= 28.0f) {
         if (mChara->mType == 0 && lbl_8087F610 == 0) {
-            lbl_8087EFA8->m3A4 = MIN(1.0f, 0.2f + lbl_8087EFA8->m3A4);
+            RenderSettingRef_unk()->m3A4 = MIN(1.0f, 0.2f + lbl_8087EFA8->m3A4);
         }
         if (mSlow && !mSlowEnd) {
             mSlowEnd = true;
@@ -999,7 +1003,7 @@ int ControlAttackLastOne::vf0C() {
         }
     } else if (frame >= 23.0f) {
         if (mChara->mType == 0 && lbl_8087F610 == 0) {
-            lbl_8087EFA8->m3A4 = MAX(0.2f, lbl_8087EFA8->m3A4 - 0.2f);
+            RenderSettingRef_unk()->m3A4 = MAX(0.2f, lbl_8087EFA8->m3A4 - 0.2f);
         }
         if (!mSlow) {
             mSlow = true;
@@ -1025,9 +1029,7 @@ int ControlAttackLastOne::vf0C() {
             mHitCount++;
         }
     } else if (mHit != 0) {
-        Chara_unk* c = mChara;
-        c->m63C = c->m638;
-        c->m638 = mSkill;
+        mChara->SetHit_unk(mSkill);
         mHit = 0;
         if (mHitCount == 1 && lbl_8087F498 != 0) {
             lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);

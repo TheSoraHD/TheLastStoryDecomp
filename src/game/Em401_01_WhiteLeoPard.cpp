@@ -836,7 +836,6 @@ inline float LeoMax_unk(float a, float b) {
     return a > b ? a : b;
 }
 
-// NONMATCHING: 97.9% - the original stores m1588 = 1.5f after the fabs of z in the inlined ToRotation_unk
 // (scheduling window) and the offsets of .sdata2; ~11 variants
 // inferred: starts the jump towards m1574 (or straight ahead), 20 frames
 void Em401_01_WhiteLeoPard::fn_803227A0() {

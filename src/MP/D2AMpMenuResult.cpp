@@ -95,9 +95,7 @@ struct MpItem_unk {
     unsigned char m00[0x8];
     const wchar_t* mName;
 };
-struct MpUV_unk {
-    float m[4];
-};
+typedef atn::Vector4_unk MpUV_unk; // inferred: texture rectangle
 extern "C" MpItem_unk* fn_80211480(int id);
 extern "C" int fn_80444BE8(void* mgr, MpItem_unk* item);
 extern "C" MpUV_unk fn_80444C50(void* mgr, int icon);
@@ -862,10 +860,8 @@ void D2AMpMenuResult::fn_804C822C() {
                         SetPaneText_unk(&mA0[i]->mData.m10, "string0029(1)", text);
                         if (player->mHost == 1) {
                             SetPaneText_unk(&mC4->mData.m10, "string0013(1)", text);
-                            MpUV_unk uv = fn_80444C50(Inventory::instance_, icon);
-                            mC4->SetParam2_unk("uv0021(1)(1)(1)", uv.m);
-                            MpUV_unk uv2 = fn_80444C50(Inventory::instance_, icon);
-                            mC4->SetParam2_unk("uv0001(1)(1)", uv2.m);
+                            mC4->SetParam2_unk("uv0021(1)(1)(1)", fn_80444C50(Inventory::instance_, icon));
+                            mC4->SetParam2_unk("uv0001(1)(1)", fn_80444C50(Inventory::instance_, icon));
                         }
                     }
                 }

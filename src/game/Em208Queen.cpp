@@ -791,7 +791,6 @@ void Em208Queen::fn_802CA8C0() {
     }
 }
 
-// NONMATCHING: 99.92% - r0/r5 of the bit field of the damage record (kind/value set through SetDamage_unk)
 void Em208Queen::fn_802CAFB8() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {

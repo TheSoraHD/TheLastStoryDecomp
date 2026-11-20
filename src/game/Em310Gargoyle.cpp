@@ -504,7 +504,6 @@ void Em310Gargoyle::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.88% - only .sdata2 offsets (the pool keeps the constants of the weak copies, see vf3C)
 // inferred: moves along the spline of the four route points `points` (t: progress 0..1) and banks with the
 // change of direction (as Em203GreaterDaemon::fn_8028AA38)
 void Em310Gargoyle::fn_8030B74C(const atn::Vector3* points, float t) {
@@ -599,8 +598,6 @@ inline unsigned int IsFlag25_unk(const CharaTask* chara) {
     return chara->mFlag25;
 }
 
-// NONMATCHING: 99.81% - only .sdata2 offsets: the pool here keeps the constants of the weak copies (ToU32 255,
-// fn_8028AC70 -3/3/5, WrapAngle_unk pi/2pi) that the original linker stripped with them
 // inferred: a rider leaves the seat: back on its own (m570 2.0), facing `dir`
 void Em310Gargoyle::fn_8030C1A4(EnemyTask* rider, const atn::Vector3* dir) {
     rider->mF1C = 0;
@@ -621,8 +618,6 @@ void Em310Gargoyle::fn_8030C1A4(EnemyTask* rider, const atn::Vector3* dir) {
     rider->vf8C(lbl_807C7030);
 }
 
-// NONMATCHING: 99.92% - only .sdata2 offsets: the pool here keeps the constants of the weak copies (ToU32 255,
-// fn_8028AC70 -3/3/5, WrapAngle_unk pi/2pi) that the original linker stripped with them
 // inferred: state 7 (flying the route): once defeated it picks the nearest seat in front of it and lands;
 // otherwise the riders shoot from the seats, are dropped near the place mData.m20 and the route ends at m18
 void Em310Gargoyle::fn_8030C490() {

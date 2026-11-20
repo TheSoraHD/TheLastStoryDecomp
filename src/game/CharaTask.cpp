@@ -895,8 +895,6 @@ void CharaTask::fn_80137FC0() {
     }
 }
 
-// NONMATCHING: ~77% (52/228 lines) - register allocation only: r28 and r29 are swapped for the
-// appended name and the CSV data; tried: append(), a named extension string, string forms.
 void CharaTask::fn_80138528() {
     if (m60 != 0 && strcmp(m60->m18, "") != 0) {
         std::string path("/database/chara/motion/");
@@ -1250,8 +1248,6 @@ void BattleTask::fn_8013A19C(int value) {
     m3E39C = value;
 }
 
-// NONMATCHING: 99.9% - same instructions; only the .data offsets of its two member-pointer
-// constants differ until the functions before it are written.
 void CharaTask::fn_8013A258() {
     if (mControl) {
         if (mControl->vf0C()) {
@@ -4625,8 +4621,6 @@ void CharaTask::fn_80148B38(float distSq) {
 
 // inferred: node matrix hook (bound as a pointer to member at 0x8077A72C). It calls all its inline
 // helpers out of line (too many to inline), so they are emitted after it as weak copies.
-// NONMATCHING: 91% - r27/r28 swapped (node/name), string offsets (earlier functions missing) and
-// the names of the out-of-line Quaternion_unk constructor/operator= (fn_80149884/fn_80149888).
 // inferred: the node chunk is read as a ModelNodeDesc_unk; the context is not used
 void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
                             const atn::ModelNodeCallbackContext& context) {

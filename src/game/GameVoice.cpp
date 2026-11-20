@@ -543,10 +543,13 @@ CharaTask* GameVoice::fn_803EAC20() {
     return lbl_8087F490 != 0 ? lbl_8087F490->m2658 : 0;
 }
 
-// NONMATCHING: 99.3% - lbl_8087F490 is not reloaded for the store; r3/r4 of Stop_unk
+// inferred: typed reference to the UI (the store reloads it)
+static inline GameUI*& UIRef_unk() { return *(GameUI**)&lbl_8087F490; }
+
+// NONMATCHING: 99.3% - r3/r4 of Stop_unk
 void GameVoice::fn_803EAC3C(CharaTask* chara) {
     if (lbl_8087F490 != 0 && (lbl_8087F490->m2658 == chara || chara == 0)) {
-        lbl_8087F490->m2658 = 0;
+        UIRef_unk()->m2658 = 0;
     }
     for (GameVoiceRequest_unk* request = mRequests.begin(); request != mRequests.end();) {
         if (request->mChara == chara) {

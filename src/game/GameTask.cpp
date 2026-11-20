@@ -2338,11 +2338,10 @@ void GameTask::fn_8036CA60(int warp) {
 inline void SetDof_unk(RenderSetting_unk* r, const DofParam_unk& d) {
     r->mDof = d;
 }
+// inferred: typed reference to the render settings (the original reloads the global for the setter)
+static inline RenderSetting_unk*& RenderSettingRef_unk() { return *(RenderSetting_unk**)&lbl_8087EFA8; }
 
 // inferred: update of the field in state 0 (camera, leader input, depth of field, skip of the tutorial)
-// NONMATCHING: 99.97% - the first store of the depth of field still goes through the old copy of lbl_8087EFA8
-// (r8) instead of the reloaded one (r3); tried a value or non-const parameter, a local pointer, a reference
-// local, the setter in both branches (same helper in fn_80371334 drops it 98.9 -> 98.3)
 void GameTask::fn_8036CC90() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
     mCamera.fn_8038F52C(leader);
@@ -2361,7 +2360,7 @@ void GameTask::fn_8036CC90() {
             dist /= 25.0f;
             dof.mNearEnd = dist * (GetCurrentMap()->mF0 - lbl_8087DCD4) + lbl_8087DCD4;
         }
-        SetDof_unk(lbl_8087EFA8, dof);
+        SetDof_unk(RenderSettingRef_unk(), dof);
     }
     if (lbl_8087F610 != 0) {
         lbl_8087EFA8->mDof.mEnabled = 0;
@@ -2734,7 +2733,6 @@ GimmickCommon* GameTask::fn_8036E098() const {
 }
 
 
-// NONMATCHING: 99.8% - registers of the inlined fn_80370C2C (same swap as that function)
 // inferred: nonzero when the field menu can be opened (field idle or a closing shop, no fade, no event)
 int GameTask::fn_8036E170() {
     if (m54E4 != 0 && m54E4 != 14) {

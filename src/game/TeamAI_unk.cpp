@@ -628,7 +628,6 @@ void TeamAI_unk::fn_805AED74(TeamMove_unk* move) {
     }
 }
 
-// NONMATCHING: 99.85% - the original loads m0A into r7 (r5 here), as in fn_805AED74
 void TeamAI_unk::fn_805B1918(TeamMove_unk* move) {
     if (!(m23E & 1)) {
         if (move->m0A == 3 || move->m0A == 4) {

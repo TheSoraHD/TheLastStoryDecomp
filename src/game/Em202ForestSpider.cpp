@@ -547,19 +547,18 @@ void Em202ForestSpider::vfF8() {
     mC58.mC4 = m14D4;
 }
 
-// NONMATCHING: 98.9% - float registers, the 0.0f of the last branch loaded at the start and the stack
+// NONMATCHING: 99.12% - float registers (speed/mag/dist: f30/f31/f29 in the original), the 0.0f of the last branch loaded at the start and the stack
 // slots of the normalized route direction and its rotation
 void Em202ForestSpider::vfFC() {
+    float mag = 0.0f;
     float speed = 1.5f;
     atn::Vector3 rot = mRot;
     if (m55C == 7) {
         mRoute.fn_80126214();
         atn::Vector3 dir = mRoute.m58;
-        float mag = PSVECMag(&dir);
+        mag = PSVECMag(&dir);
         if (mag > 0.0001f) {
-            atn::Vector3 n = dir;
-            PSVECNormalize(&n, &n);
-            rot = n.ToRotation_unk();
+            rot = dir.GetNormalize().ToRotation_unk();
         }
         dir = m14D4->mPos - mPos;
         dir.y = 0.0f;
@@ -576,7 +575,7 @@ void Em202ForestSpider::vfFC() {
     } else if (m55C == 6) {
         fn_8013A258();
     } else {
-        fn_8013CB68(rot, 0, 0.0f, m568 * speed);
+        fn_8013CB68(rot, 0, mag, m568 * speed);
     }
 }
 
@@ -771,7 +770,12 @@ void Em202ForestSpider::vf110() {
     }
 }
 
-// NONMATCHING: 99.5% - stack slots: the original places the locals of state 0x75 above those of state 0x74
+// inferred: -v component by component (name invented)
+inline atn::Vector3 SpiderNeg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// NONMATCHING: 99.58% - stack slots: the original places the locals of state 0x75 above those of state 0x74
 // (state 10, pulls the caught character; flow, calls and constants checked against the original)
 void Em202ForestSpider::vf114() {
     int ok = 0;
@@ -782,8 +786,7 @@ void Em202ForestSpider::vf114() {
             m14DC = 0;
             float target = 1.5707964f + c->mRot.y;
             atn::Vector3 d(c->mPos.x - mPos.x, 0.0f, c->mPos.z - mPos.z);
-            atn::Vector3 r = d.ToRotationZ_unk();
-            m18F8 = atn::WrapAngle_unk(r.y - target) / 10.0f;
+            m18F8 = atn::WrapAngle_unk(d.ToRotationZ_unk().y - target) / 10.0f;
             ok = 1;
         } else if (state == 0x75) {
             atn::Vector3 d(c->mPos.x - mPos.x, 0.0f, c->mPos.z - mPos.z);
@@ -793,10 +796,7 @@ void Em202ForestSpider::vf114() {
                 atn::Vector3 pos = m18EC->mPos;
                 step = MIN(step, 1.5f);
                 step = MAX(step, -1.5f);
-                atn::Vector3 back;
-                back = atn::Vector3(-d.x, -d.y, -d.z);
-                PSVECNormalize(&back, &back);
-                m18EC->mPos = back * step + pos;
+                m18EC->mPos = SpiderNeg_unk(d).GetNormalize() * step + pos;
                 atn::Vector3 rot = m18EC->mRot;
                 rot.y += m18F8;
                 m18EC->mRot = rot;
@@ -808,10 +808,7 @@ void Em202ForestSpider::vf114() {
                 float step = dist - 40.0f;
                 atn::Vector3 pos = m18EC->mPos;
                 step = MIN(step, m18FC);
-                atn::Vector3 back;
-                back = atn::Vector3(-d.x, -d.y, -d.z);
-                PSVECNormalize(&back, &back);
-                m18EC->mPos = back * step + pos;
+                m18EC->mPos = SpiderNeg_unk(d).GetNormalize() * step + pos;
             }
             ok = 1;
         }

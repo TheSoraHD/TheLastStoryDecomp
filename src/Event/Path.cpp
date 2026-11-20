@@ -313,7 +313,6 @@ void EventCamera_unk::fn_801139E4(const CameraTarget_unk& at, int resetAngles, f
     }
 }
 
-// NONMATCHING: 99.8% - src/dst registers of Vector3 copies swapped (mwcc-blockers q3)
 void EventCamera_unk::fn_80113CD4(const CameraTarget_unk& eye, const CameraTarget_unk& at, int id, int resetAngles,
                                   float roll) {
     fn_801128C4(resetAngles);
@@ -331,7 +330,7 @@ void EventCamera_unk::fn_80113CD4(const CameraTarget_unk& eye, const CameraTarge
     }
 }
 
-// NONMATCHING: 99.6% - fmr instead of frsp for the float argument; src/dst copy registers swapped
+// inferred: the start time goes through a double local (the original rounds it with frsp for the call)
 void EventCamera_unk::fn_801140A0(Path* path, const CameraTarget_unk& at, int id, int resetAngles, float speed, float t,
                                   float roll) {
     fn_801128C4(resetAngles);
@@ -339,7 +338,8 @@ void EventCamera_unk::fn_801140A0(Path* path, const CameraTarget_unk& at, int id
     m1F4 = 5;
     m298 = speed;
     m294 = t;
-    float time = lbl_8087F540->fn_8048BCA4(m290, t);
+    double start = t;
+    float time = lbl_8087F540->fn_8048BCA4(m290, start);
     m210.mPath = path;
     m204 = fn_80112A00(m210, time);
     m240 = at;
@@ -552,7 +552,6 @@ void EventCamera_unk::fn_80114AB4() {
 
 namespace Event {
 
-// NONMATCHING: 99.0% - the original does not fuse fmuls+fadds in the two angle updates
 void EventCamera_unk::fn_801151A4() {
     float stick = -fn_800A56A8(GetPad_unk(), 0, 1, 0);
     if (fn_800A58D0(GetPad_unk(), 0)) {
@@ -622,7 +621,6 @@ void EventCamera_unk::fn_801151A4() {
     m228 = v2;
 }
 
-// NONMATCHING: 99.8% - register of the second fabs
 void EventCamera_unk::fn_80115704() {
     float stick = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
     if (atn::Abs_unk(stick) > 0.2f) {

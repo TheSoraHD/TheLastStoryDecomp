@@ -1241,7 +1241,6 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
     }
 }
 
-// NONMATCHING: 99.93% - the original evaluates MenuCommonTask::sInstance before the text (member call?), r30 vs r29
 void NewCampPartsOption::fn_80525F08() {
     MenuCommonTask* menu;
     int classic = fn_800A58D0(lbl_8087EF70, 0);

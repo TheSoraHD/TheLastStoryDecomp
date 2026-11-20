@@ -109,7 +109,6 @@ EffectSlot_unk::EffectSlot_unk()
 
 EffectFade_unk::EffectFade_unk() : m00(0.0f), m04(0.0f), m08(0.0f), m0C(0.0f), m10(1.0f) {}
 
-// NONMATCHING: 99.4% - registers and stack slots of the inlined growth of the bitmap vector
 // inferred: sets up the fade pool
 void EffectSystem_unk::fn_8022BEAC(unsigned int count) {
     InitPool_unk(m2C, count);

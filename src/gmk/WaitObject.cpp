@@ -540,18 +540,21 @@ void WaitObject::vf70(int state) {
     }
 }
 
-// NONMATCHING: 93.33% - the original reloads m54 in the loop and uses other registers.
-int WaitObject::vf60() {
-    if (m54 == 0) {
-        return 0;
-    }
-    for (unsigned int i = 0; i < mNumTriggers; i++) {
-        WaitTrigger_unk& t = mTriggers[i];
-        if (t.mState == m54 && t.mType == 4) {
+// inferred: a trigger of the state waits for type 4 (the state is read through a reference)
+inline int HasTrigger4_unk(WaitObject* obj, const int& state) {
+    for (unsigned int i = 0; i < obj->mNumTriggers; i++) {
+        WaitTrigger_unk& t = obj->mTriggers[i];
+        if (t.mState == state && t.mType == 4) {
             return 1;
         }
     }
     return 0;
+}
+int WaitObject::vf60() {
+    if (m54 == 0) {
+        return 0;
+    }
+    return HasTrigger4_unk(this, m54);
 }
 
 // NONMATCHING: 99.94% - only .sdata2 order (vf10 and others are not decompiled yet).

@@ -844,12 +844,43 @@ inline void SetCapsule_unk(atn::ColliCapsule* colli, const atn::ColliCapsuleShap
     colli->m48 = c.mEnd;
 }
 
-// NONMATCHING: ~97% - scheduling of the copy of the capsule against the rotation (8 variants)
+// inferred: capsule of the body collision (as in game/EnemyQuarkStand.cpp; names invented)
+inline atn::ColliCapsuleShape_unk QuarkGetCapsule_unk(atn::ColliCapsule& c) {
+    atn::ColliCapsuleShape_unk cap;
+    cap.mStart = c.m3C;
+    cap.mEnd = c.m48;
+    cap.mRadius = c.m54;
+    return cap;
+}
+// inferred: front direction of the character, copying the rotation first (as in game/EnemyQuarkStand.cpp)
+inline atn::Vector3 QuarkFrontY_unk(CharaTask* c) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    float rotY = c->mRot.y;
+    PSMTXRotRad(m, 'y', rotY);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+// inferred: front direction of the character (reads the rotation inside; as in game/EnemyQuarkStand.cpp)
+inline atn::Vector3 QuarkFrontOf_unk(CharaTask* c) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.SetRotationY_unk(c->mRot.y);
+    PSMTXMultVec(m.m, &dir, &dir);
+    return dir;
+}
+inline void QuarkSetCapsule_unk(atn::ColliCapsule& c, const atn::ColliCapsuleShape_unk& cap) {
+    c.m3C = cap.mStart;
+    c.m48 = cap.mEnd;
+    c.m54 = cap.mRadius;
+}
+
+// inferred: moves the collision capsule start in front of the body (same code as EnemyQuarkStand::fn_803470F0)
 void EnemyQuarkSecond::fn_8033AB88() {
-    atn::ColliCapsuleShape_unk capsule(mColli.m3C, mColli.m48, mColli.m54);
-    capsule.mStart = m614 + Front_unk(mRot.y, 10.0f);
-    capsule.mStart.y -= 10.0f;
-    SetCapsule_unk(&mColli, capsule);
+    atn::ColliCapsuleShape_unk cap = QuarkGetCapsule_unk(mColli);
+    cap.mStart = m614 + QuarkFrontY_unk(this) * 10.0f;
+    cap.mStart.y -= 10.0f;
+    QuarkSetCapsule_unk(mColli, cap);
 }
 
 // inferred: position of a node (as in game/Em301LShade.cpp); name invented
@@ -857,11 +888,10 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: ~95% - stack slots of the temporaries (rotated front, node positions) against the
-// Item14_unk constructor temporary; 7 variants
+// inferred: damage spheres (same code as EnemyQuarkStand::vf50)
 void EnemyQuarkSecond::vf50() {
     Item14_unk item;
-    item.m04.mCenter = m614 + Front_unk(mRot.y, 10.0f);
+    item.m04.mCenter = m614 + QuarkFrontOf_unk(this) * 10.0f;
     item.m04.mRadius = m620;
     item.m04.mCenter.y -= 10.0f;
     m624.push_back(item);
@@ -913,12 +943,12 @@ void EnemyQuarkSecond::fn_8033C000() {
         atn::Vector3 move = mRoute.m58;
         speed *= 0.2f;
         atn::Vector3 d = m14B0->mPos - mPos;
-        dist = PSVECMag(&d) < 0.7f * m177C ? 0.0f : PSVECMag(&move);
+        dist = 0.0f;
+        if (!(PSVECMag(&d) < 0.7f * m177C)) {
+            dist = PSVECMag(&move);
+        }
         if (dist > 0.0001f) {
-            atn::Vector3 dir = move;
-            PSVECNormalize(&dir, &dir);
-            rot = dir.ToRotation_unk();
-            rot.x = 0.0f;
+            rot = move.GetNormalize().ToRotation_unk();
         } else {
             rot = mRot;
         }
@@ -1346,16 +1376,7 @@ void EnemyQuarkSecond::fn_8033DB8C() {
 }
 
 
-// inferred: the frame of track 0 is `frames` or less from the end / has reached `frame` (names invented)
-inline bool IsNearEnd_unk(atn::Model* model, float frames) {
-    float end = model->fn_80097D7C(0);
-    end -= frames;
-    bool r = false;
-    if (model->mTracks[0].m08 >= end) {
-        r = true;
-    }
-    return r;
-}
+// inferred: the frame of track 0 has reached `frame` (name invented)
 inline bool IsFrameReached_unk(atn::Model* model, float frame) {
     bool r = false;
     if (model->mTracks[0].m08 >= frame) {
@@ -1378,12 +1399,55 @@ inline void QuarkSetJumpZ_unk(EnemyQuarkSecond* self, const atn::Vector3& target
     self->m570 = 0.0f;
 }
 
+// inferred: the motion of track 0 is within `frames` of its end (as EnemyQuarkStand; name invented)
+inline bool QuarkNearEnd_unk(atn::Model* model, float frames) {
+    float end = model->fn_80097D7C(0);
+    bool ok = false;
+    if (model->mTracks[0].m08 >= end - frames) {
+        ok = true;
+    }
+    return ok;
+}
+
+// inferred: turns toward `target` by at most 12 degrees (as EnemyQuarkStand::TurnTo_unk; name invented)
+inline void QuarkTurnTo_unk(EnemyQuarkSecond* self, const atn::Vector3* target) {
+    float rot = (*target - self->mPos).ToRotationZ_unk().y;
+    float d = atn::WrapAngle_unk(rot - self->mRot.y);
+    if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+        self->mRot.y = rot;
+    } else if (d <= 0.0f) {
+        self->mRot.y -= 0.20943952f;
+    } else {
+        self->mRot.y += 0.20943952f;
+    }
+}
+
+// inferred: horizontal and full distance between two points (as EnemyQuarkStand; names invented)
+inline float QuarkDistXZ_unk(const atn::Vector3& to, const atn::Vector3& from) {
+    atn::Vector3 d(to.x - from.x, to.y - from.y, to.z - from.z);
+    return sqrt(d.x * d.x + d.z * d.z);
+}
+inline float QuarkDist_unk(const atn::Vector3& to, const atn::Vector3& from) {
+    atn::Vector3 d = to - from;
+    return PSVECMag(&d);
+}
+
+// inferred: (b - a) * t + a (as EnemyQuarkStand; name invented)
+inline atn::Vector3 QuarkLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: playing rate of the effects of `efp` (name invented)
+inline void QuarkEffectRate_unk(atn::EfpFile* efp, float rate) {
+    ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)efp, 0, rate);
+}
+
 // inferred: jump attack (state 10): slows the motion around the landing, moves from the start of the jump to its
 // target, follows the target until frame 49 and hits on landing
 // NONMATCHING: 95.6% - stack slots and float registers (the turn target in f31, the copies of the jump target and
 // the order of the loads of the lerp); 6 variants
 void EnemyQuarkSecond::fn_8033E058() {
-    if (IsNearEnd_unk(&mMotion, 5.0f)) {
+    if (QuarkNearEnd_unk(&mMotion, 5.0f)) {
         ResetState_unk();
         fn_8016E970(3);
         m58C = 0;
@@ -1399,9 +1463,9 @@ void EnemyQuarkSecond::fn_8033E058() {
     } else {
         mMotion.mTracks[0].m0C = 2.0f;
     }
-    ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m1698, 0, mMotion.mTracks[0].m0C);
+    QuarkEffectRate_unk(&m1698, mMotion.mTracks[0].m0C);
     float t = MAX(0.0f, MIN(1.0f, (mMotion.mTracks[0].m08 - 58.0f) / 3.0f));
-    mPos = (m1568.mTarget - m1568.mStart) * t + m1568.mStart;
+    mPos = QuarkLerp_unk(m1568.mStart, m1568.mTarget, t);
     if (mMotion.mTracks[0].m08 <= 49.0f) {
         CharaTask* c = m14B0;
         float target = (c->mPos - mPos).ToRotationZ_unk().y;
@@ -1426,46 +1490,39 @@ void EnemyQuarkSecond::fn_8033E058() {
     }
 }
 
+
 // inferred: jump step of the stick attack and of the jumps (motions 0x13F rise, 0x140 flight, 0x141 landing): moves
 // along the direction of the jump (m1568) at m570, turns towards `target` and rises `height` over the motion;
 // `flat`: distance in the xz plane. Not a member: a function of the file with the enemy as first argument (name
 // keeps the address)
-// NONMATCHING: 98% - stack slots of the distance vectors and of the landing direction, float registers of the
-// landing; 4 variants
 static void fn_8033E8D4(EnemyQuarkSecond* self, int flat, const atn::Vector3* target, float height) {
-    float dist;
-    if (flat) {
-        dist = fn_801C3910(self->m1568.mTarget - self->mPos);
-    } else {
-        atn::Vector3 d = self->m1568.mTarget - self->mPos;
-        dist = PSVECMag(&d);
-    }
+    float dist = flat != 0 ? QuarkDistXZ_unk(self->m1568.mTarget, self->mPos) : QuarkDist_unk(self->m1568.mTarget, self->mPos);
     float step = QuarkMin_unk(10.0f, dist);
     int motion = self->mMotion.mTracks[0].m00;
     if (motion == 0x13F) {
         self->mMotion.mTracks[0].m0C = 2.0f;
-        if (IsNearEnd_unk(&self->mMotion, 5.0f)) {
+        if (QuarkNearEnd_unk(&self->mMotion, 5.0f)) {
             self->mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 0.0f, 0.1f);
         }
         if (IsFrameReached_unk(&self->mMotion, 15.0f)) {
-            self->m570 = QuarkMin_unk(step, self->m570 + 0.5f);
+            self->m570 = QuarkMin_unk(step, 0.5f + self->m570);
         }
     } else if (motion == 0x140) {
         self->mMotion.mTracks[0].m0C = 1.0f;
         if (dist < 20.0f) {
             self->mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
         }
-        self->m570 = QuarkMin_unk(step, self->m570 + 0.5f);
+        self->m570 = QuarkMin_unk(step, 0.5f + self->m570);
     } else if (motion == 0x141) {
-        float slow = 0.2f * dist;
         self->mMotion.mTracks[0].m0C = 2.0f;
-        atn::Vector3 dir(self->m1568.mTarget.x - self->mPos.x, 0.0f, self->m1568.mTarget.z - self->mPos.z);
-        self->m570 = QuarkMin_unk(step, slow);
+        atn::Vector3 dir = self->m1568.mTarget - self->mPos;
+        dir.y = 0.0f;
+        self->m570 = QuarkMin_unk(step, 0.2f * dist);
         PSVECNormalize(&dir, &dir);
         if (PSVECDotProduct(&dir, &self->m1568.mDir) < 0.0f) {
             self->m570 = 0.0f;
         }
-        if (IsNearEnd_unk(&self->mMotion, 8.0f)) {
+        if (QuarkNearEnd_unk(&self->mMotion, 8.0f)) {
             self->ResetState_unk();
             self->fn_8016E970(3);
             self->m58C = 0;
@@ -1474,15 +1531,7 @@ static void fn_8033E8D4(EnemyQuarkSecond* self, int flat, const atn::Vector3* ta
         }
     }
     if (self->m570 > 0.5f) {
-        float rot = (*target - self->mPos).ToRotationZ_unk().y;
-        float d = atn::WrapAngle_unk(rot - self->mRot.y);
-        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
-            self->mRot.y = rot;
-        } else if (d <= 0.0f) {
-            self->mRot.y -= 0.20943952f;
-        } else {
-            self->mRot.y += 0.20943952f;
-        }
+        QuarkTurnTo_unk(self, target);
     }
     self->mPos += self->m1568.mDir * self->m570;
     self->mPos.y += height / self->mMotion.fn_80097D7C(0);
@@ -2099,24 +2148,29 @@ void EnemyQuarkSecond::fn_80341EE4() {
     PlayMotion_unk(2, 1, 1.0f);
 }
 
-// NONMATCHING: ~80% - the original frame is 0x10 bytes bigger (the node positions and the
-// difference live in other slots); 6 variants
+// inferred: plays an effect on the model at the origin (as EnemyQuarkStand; name invented)
+inline void QuarkPlayEffectAt_unk(atn::EfpFile* efp, atn::Model* model) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    atn::EffectManager* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: starts attack 5 (state 6, motion 0x147): laser from the "spine" of the target toward the "head" (as
+// EnemyQuarkStand::fn_8034F53C)
 void EnemyQuarkSecond::fn_80342004() {
     ResetState_unk();
     fn_8016E970(3);
     m58C = 6;
     fn_80232B7C(this, 0x3E8);
     PlayMotion_unk(0x147, 0, 2.0f);
-    atn::Vector3 target;
-    atn::Vector3 dir;
-    Color4f_unk color;
-    color.r = 1.0f;
-    color.g = 1.0f;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &m15B0, &mMotion, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
-    target = GetNodePos_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
-    m15D4 = target - GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    QuarkPlayEffectAt_unk(&m15B0, &mMotion);
+    atn::Vector3 spine = GetNodePos_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
+    atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    m15D4 = spine - head;
     PSVECNormalize(&m15D4, &m15D4);
     fn_800C31F4("SE_EM211_009_1", 0, -1, 1.0f);
 }

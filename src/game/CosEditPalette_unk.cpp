@@ -55,8 +55,8 @@ extern "C" CosEditUV_unk fn_80444C50(Inventory* inv, int icon); // inferred: tex
 inline void SetUV_unk(const char* name, atn::D2A_TaskInstanceBase<32, 8>* inst, const CosEditUV_unk& uv) {
     inst->SetValues2_unk(name, uv);
 }
-inline void SetUV_unk(const char* name, atn::D2A_Task* task, CosEditUV_unk uv) {
-    task->SetParam2_unk(name, &uv.x);
+inline void SetUV_unk(const char* name, atn::D2A_Task* task, const CosEditUV_unk& uv) {
+    task->SetParam2_unk(name, uv);
 }
 
 // inferred: the rectangle is passed by reference (a returned rectangle binds to it); name invented
@@ -824,8 +824,8 @@ void CosEditProtector::fn_801D7AC0(int* ids, atn::D3AnimeInstance** items, NewCa
             uv = CosEditUV_unk(0.25f * x, 0.5f * y, 0.25f * (x + 1), 0.5f * (y + 1));
         }
     }
-    SetUV_unk("uv0001", (atn::D2A_Task*)base->GetTask(), uv);
-    SetUV_unk("mask_uv0001", (atn::D2A_Task*)base->GetTask(), uv);
+    ((atn::D2A_Task*)base->GetTask())->SetParam2_unk("uv0001", uv);
+    ((atn::D2A_Task*)base->GetTask())->SetParam2_unk("mask_uv0001", uv);
     for (int i = 0; i < 8; i++) {
         atn::D3AnimeInstance* mark = items[i];
         mark->mVisible = 1;

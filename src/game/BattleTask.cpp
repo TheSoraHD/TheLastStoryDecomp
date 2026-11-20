@@ -657,8 +657,6 @@ int BattleTask::fn_800F3490() {
     return loading;
 }
 
-// NONMATCHING: 97.9% - the first string pointer is loaded before the register saves in the original; string pool
-// offsets differ (file not complete)
 // inferred: load requests of the battle resources (called by the constructor): the target lines, the
 // d2anime tasks, the splash and palette effects
 void BattleTask::fn_800F39A4() {
@@ -2494,7 +2492,6 @@ void BattleTask::fn_800FB1BC(CharaTask* chara, HitInfo_unk* data, const atn::Vec
 
 extern "C" bool fn_8021AA48(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
 extern "C" bool fn_8021A9CC(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
-// NONMATCHING: 93.0% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
 
 // inferred: blast of `attacker` with `data` at `pos`: hits every player and enemy in range data->m44 that the
 // hit reaches (fn_800FD658, or CharaTask::fn_80178668 for the kinds of fn_8021A9CC), with the effects when
@@ -3025,6 +3022,11 @@ void BattleTask::fn_800FCD24(CharaTask* attacker, CharaTask* chara, int index, H
 // on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
 // runs them through fn_800FDF14. Called by CharaTask and Em314Ivy.
 // NONMATCHING: 99.75% - stack slots: `n` and the negated copy are below the other locals in the original
+// inferred: -v component by component (name invented)
+inline atn::Vector3 HitNeg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
 int BattleTask::fn_800FD658(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&m38A5C);
@@ -3053,9 +3055,7 @@ int BattleTask::fn_800FD658(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
             m38A5C.m1C = dir + HitCenter_unk(chara);
         }
     }
-    atn::Vector3 n = dir;
-    PSVECNormalize(&n, &n);
-    m38A5C.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+    atn::VecAssign_unk(m38A5C.m28, HitNeg_unk(dir.GetNormalize()));
     m38A5C.m34 = a;
     m38A5C.m38 = b;
     m38A5C.m44 = 3;
@@ -3067,7 +3067,6 @@ int BattleTask::fn_800FD658(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
 // a "guard" popup (returns 4); else the attack parameters m38A5C (level of the bullet against the level of
 // `chara`, lowered by some states and by the status 0x43 of the attacker) go through fn_800FDF14, and a hit by
 // a player raises the gauge m38A04. Called by game/Bullet and some enemies.
-// NONMATCHING: 99.95% - register of the word of the bitfield of the damage record (r3/r10)
 int BattleTask::fn_800FDB20(CharaTask* attacker, CharaTask* chara, int arg, HitInfo_unk* data, int id,
                            const atn::Vector3* pos, const atn::Vector3* dir, int arg8, float) {
     if (chara->fn_801533C8(id, data)) {
@@ -5805,16 +5804,14 @@ inline bool IsPopupKind_unk(int kind) {
     return kind == 1 || kind == 4 || kind == 5;
 }
 
-// NONMATCHING: 97.8% - the early return for an empty damage is a bne/b pair in the original; lbl_8087F610 is reloaded
-// before its mode test; the format string is in the wide string table of the file (not complete)
+// inferred: typed reference to the multiplayer manager (the original reloads lbl_8087F610 before its mode test)
+static inline Arena_unk*& ArenaRef_unk() { return *(Arena_unk**)&lbl_8087F610; }
+
 // inferred: shows the damage popup of `damage` dealt by `attacker` to `chara` at `pos`, unless the options hide the
 // popups of that side. called by other files
 void BattleTask::fn_80108C10(DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker, CharaTask* chara,
                              unsigned int flags, int skipEmpty) {
-    if (!IsPopupKind_unk(damage->mType)) {
-        return;
-    }
-    if (skipEmpty != 0 && damage->mDamage == 0 && damage->m0C == 0) {
+    if (!IsPopupKind_unk(damage->mType) || (skipEmpty != 0 && damage->mDamage == 0 && damage->m0C == 0)) {
         return;
     }
     if (lbl_8087F610 == 0) {
@@ -5827,7 +5824,7 @@ void BattleTask::fn_80108C10(DamageResult_unk* damage, const atn::Vector3& pos, 
     } else {
         PlayerTask* head = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if (attacker != 0 && !attacker->mFlag2) {
-            if (lbl_8087F610->m540 != 2) {
+            if (ArenaRef_unk()->m540 != 2) {
                 if (head != 0) {
                     if (chara != 0 && chara->fn_8016F3D0(head, 1) && SetConfig::sInstance->mDrawFriendPopup == 0) {
                         return;

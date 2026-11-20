@@ -707,7 +707,6 @@ void SoundManager::fn_800D0974(int category, int frames) {
     fn_800D0F34(boost::bind(&fn_800CB788, _1, frames), category);
 }
 
-// NONMATCHING: 99.5% - orden de registros.
 SoundCore* SoundManager::fn_800D0AB0(unsigned int id) {
     SoundCore* sound;
     if (lbl_8087EE90->m04 == 0 || mEnabled == 0) {

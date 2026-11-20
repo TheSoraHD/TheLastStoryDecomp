@@ -333,8 +333,6 @@ void DialogHead::fn_80227434(int kind, int arg, int right) {
     fn_80225C80(right);
 }
 
-// NONMATCHING: 99.7% - registers of the inlined std::string(const char*) of the model name (r24-r26
-// rotated)
 int DialogHead::fn_80227A94(char* path, int kind, int arg, int right) {
     std::string name("");
     if (m1428 != 0 && m1428->GetModel_unk()->GetRes_unk() != 0) {
