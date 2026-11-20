@@ -249,8 +249,8 @@ extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" inline PlayerManager* fn_8000D9E8() {
     return lbl_8087F8A0;
 }
-extern "C" inline CharaTask* fn_8000DCF4(PlayerManager* mgr) {
-    return mgr->mHead;
+inline PlayerTask* PlayerManager::GetHead_unk() {
+    return mHead;
 }
 BattleTask* fn_8013A194();
 
@@ -276,7 +276,7 @@ void EnemyJill::vf10() {
         m15A0++;
         fn_8032F6A8();
         if (mC58.mC4 == 0) {
-            mC58.mC4 = fn_8000DCF4(fn_8000D9E8());
+            mC58.mC4 = fn_8000D9E8()->GetHead_unk();
         }
         if (fn_8032F608()) {
             fn_80332F78();

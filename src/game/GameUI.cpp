@@ -1749,7 +1749,7 @@ void GameUI::fn_803D2A6C() {
         GameCamera* input = fn_80122550(fn_80121F00());
         if (resultShown) {
             fn_803E4100();
-            for (unsigned int i = 0; i < fn_80372574(&m8D0); i++) {
+            for (unsigned int i = 0; i < m8D0.size(); i++) {
                 m8A0[i]->MeltTask();
                 m8A0[i]->SetValue1_unk("base_point", 0, m8D0[i].mScreen.x);
                 m8A0[i]->SetValue1_unk("base_point", 1, m8D0[i].mScreen.y);
@@ -1822,11 +1822,11 @@ void GameUI::fn_803D2A6C() {
                             if (dist < 60.0f) {
                                 if (nearest > dist) {
                                     nearest = dist;
-                                    nearestIndex = fn_80372574(&m85C);
+                                    nearestIndex = m85C.size();
                                 }
                                 if (c == m764.m0C) {
                                     nearest = 0.0f;
-                                    nearestIndex = fn_80372574(&m85C);
+                                    nearestIndex = m85C.size();
                                 }
                                 if (dist < best) {
                                     best = dist;
@@ -1948,7 +1948,7 @@ void GameUI::fn_803D2A6C() {
                 if (leader->fn_8013C3A8() && fn_8038B648(leader) == 0 && !leader->fn_80139ED0() &&
                     leader->fn_8013C458() != 0 && !leader->fn_8013C458()->fn_8013C43C() &&
                     fn_80121F00()->fn_803761A4()) {
-                    for (unsigned int i = 0; i < fn_80372574(&m85C); i++) {
+                    for (unsigned int i = 0; i < m85C.size(); i++) {
                         if (m85C[i] != m764.m0C) {
                             MtxPtr mtx = m85C[i]->GetModel_unk()->GetNodeMtx_unk("head");
                             atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk()
@@ -1983,7 +1983,7 @@ void GameUI::fn_803D2A6C() {
                     }
                     float best = 900.0f;
                     int bestIndex = -1;
-                    for (unsigned int i = 0; i < fn_80372574(&targets); i++) {
+                    for (unsigned int i = 0; i < targets.size(); i++) {
                         atn::Vector3 pos(targets[i].mPos);
                         float d = (base - pos).LengthSqXZ_unk();
                         float dy = base.y - pos.y;
@@ -2001,7 +2001,7 @@ void GameUI::fn_803D2A6C() {
                         aim->SetTarget_unk(targets[bestIndex].mChara);
                     }
                     int count = 0;
-                    for (unsigned int i = 0; i < fn_80372574(&targets); i++) {
+                    for (unsigned int i = 0; i < targets.size(); i++) {
                         if (bestIndex != i) {
                             GameUIInst_unk* mark = static_cast<GameUIInst_unk*>(m874[count + 1]);
                             mark->MeltTask();
@@ -2096,7 +2096,7 @@ void GameUI::fn_803D2A6C() {
                 if (fn_80121F00() != 0 && !fn_80121F00()->GetRoute_unk()->HasState_unk()) {
                     fn_803DF648(1);
                 }
-                for (unsigned int i = 0; i < fn_80372574(&m2F0); i++) {
+                for (unsigned int i = 0; i < m2F0.size(); i++) {
                     GameUIElem60_unk* e = m2F0[i];
                     CharaTask* c = (CharaTask*)e->m08;
                     fn_803E0E10(c, m2F0[i], i);
@@ -2223,7 +2223,7 @@ void GameUI::fn_803D2A6C() {
             if (!m8D0.empty() && fn_8013A194() != 0) {
                 fn_8013A194()->fn_8010D320(atn::Vector3(m8D0[0].mPos));
             }
-            for (unsigned int i = 0; i < fn_80372574(&m8D0); i++) {
+            for (unsigned int i = 0; i < m8D0.size(); i++) {
                 if (m8D0[i].mScreen.x >= -200.0f && 1000.0f >= m8D0[i].mScreen.x && m8D0[i].mScreen.y >= -200.0f &&
                     1000.0f >= m8D0[i].mScreen.y && m8D0[i].mScreen.z >= 0.0f && 1.0f >= m8D0[i].mScreen.z) {
                     m8A0[i]->MeltTask();
@@ -2553,7 +2553,7 @@ void GameUI::fn_803D2A6C() {
             fn_80121F00()->GetState_unk() == 14) {
             // inferred: damage numbers
             if (m3EC != 0) {
-                for (unsigned int i = 0; i < fn_80372574(&m3F0); i++) {
+                for (unsigned int i = 0; i < m3F0.size(); i++) {
                     GameUIEntry_unk* e = &m3F0[i];
                     CharaTask* c = (CharaTask*)e->m08;
                     MtxPtr mtx = c->GetModel_unk()->GetNodeMtx_unk("head");
