@@ -209,7 +209,8 @@ extern "C" int fn_803B3D2C(std::basic_string<wchar_t>* text) {
         } else {
             value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 1, close).c_str());
         }
-        std::basic_string<wchar_t> repl(L"");
+        // inferred: L"\0" (two wide zeros): the original wide pool has 4 bytes of zeros before L"\xFF1F..."
+        std::basic_string<wchar_t> repl(L"\0");
         switch (text->data()[start + 1]) {
         case L'V': {
             wchar_t buf[0x20];
@@ -439,8 +440,8 @@ inline void std::__vec_split_unk<std::basic_string<wchar_t> >::__push_front_unk(
 
 // inferred: splits the text of the message into the (up to four) choices, one per line, and sets their
 // texts; the empty choices are disabled (all of them empty: the first one stays enabled)
-// NONMATCHING: 99.9% - r18/r19 swap (the reallocation buffer and the moved count) and the wide literal pool
-// (L"" at +0 of lbl_8087DD88 in the original, see fn_803B5974); tried an unsigned count, the size in a local
+// NONMATCHING: 99.93% - r18/r19 swap (the reallocation buffer and the moved count) and stack slots of the two
+// char temporaries; tried an unsigned count, the size in a local
 void GameChoiceWindow::fn_803B4C38() {
     mChoice = -1;
     mCount = 1;
@@ -450,7 +451,7 @@ void GameChoiceWindow::fn_803B4C38() {
     fn_800E0000(&lines, text.c_str(), 100000.0f, 13.0f, 0.0f, 1, 1, 0);
     mCount = lines.size();
     while (lines.size() < 4) {
-        lines.push_back(std::basic_string<wchar_t>(L""));
+        lines.push_back(std::basic_string<wchar_t>(L"\0"));
     }
     bool none = true;
     for (int i = 0; i < 4; i++) {
@@ -591,8 +592,6 @@ int GameMessageWindow::fn_803B5950() {
 
 // inferred: sets the talker name and the three lines of the message mMessage, wrapped to the width and
 // font size of the layout (as GameTextMessageWindow::fn_803B710C, and shows the message)
-// NONMATCHING: 99.99% - L"\xFF1F\xFF1F\xFF1F" is at +2 of our wide string pool and at +4 of lbl_8087DD88 in
-// the original (.sdata layout of the wide literals)
 void GameMessageWindow::fn_803B5974() {
     float width = 640.0f;
     float size = 20.0f;
@@ -890,8 +889,6 @@ void GameTextMessageWindow::fn_803B6E04(GameMessage* msg, int arg, float time) {
 
 // inferred: sets the talker name and the three lines of the message mMessage, wrapped to the width and
 // font size of the layout
-// NONMATCHING: 99.99% - L"\xFF1F\xFF1F\xFF1F" is at +2 of our wide string pool and at +4 of lbl_8087DD88 in
-// the original (.sdata layout of the wide literals)
 void GameTextMessageWindow::fn_803B710C() {
     float width = 640.0f;
     float size = 20.0f;
