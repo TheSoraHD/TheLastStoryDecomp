@@ -3706,20 +3706,15 @@ void atn::Matrix3x4::fn_80144ED4(float rad) {
     __MtxCopy(m, t);
 }
 
-// NONMATCHING: ~25% (155 vs 250 instructions; the code before and after the copy matches) - the copy
-// of the camera (implicit operator=) cannot match: the original copies
-// members with paired singles (Vector3, Matrix3x4, a 4x4 matrix at 0x88 and the frustum at 0x100);
-// the 4x4 matrix copy needs a paired-single helper that Vec.h does not have, so the layout is kept opaque.
 // Layout seen in the copy: 0x00 two ints, 0x08/0x14/0x20/0x2C Vector3, 0x38-0x54 floats, 0x58 Matrix3x4,
 // 0x88 4x4 matrix, 0xC8/0xCC floats, 0xD0 Matrix3x4, 0x100 frustum (Matrix3x4, int, 2 floats,
 // 4 x {Vector3, float}, 2 Vector3, 6 x {Vector3, float})
 // inferred: sets an orthographic camera spanning y0..y1 on the model and the equipment
 void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     Camera_unk camera(0, 1);
-    float center = 0.5f * (y1 + y0);
     camera.mUp.Set_unk(0.0f, 1.0f, 0.0f);
-    camera.mPos.Set_unk(0.0f, center, -100.0f);
-    camera.mTarget.Set_unk(0.0f, center, 0.0f);
+    camera.mPos.Set_unk(0.0f, 0.5f * (y1 + y0), -100.0f);
+    camera.mTarget.Set_unk(0.0f, 0.5f * (y1 + y0), 0.0f);
     camera.mTop = y0 - y1;
     camera.mBottom = 0.0f;
     camera.mLeft = -10.0f;
@@ -3727,8 +3722,8 @@ void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     camera.fn_8004B378();
     ModelCameraParam_unk param;
     param.mCamera = camera;
-    param.m00 = a;
     param.m04 = b;
+    param.m00 = a;
     fn_80095F10(&mMotion, &param);
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
