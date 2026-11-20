@@ -4974,9 +4974,9 @@ void CharaTask::fn_80149A30() {
             if (lbl_8087F430 != 0 && lbl_8087F430->mCamera.m7FC != 6) {
                 atn::Vector3 pos;
                 if (m520 >= 0) {
-                    pos = GetNodePos_unk(mMotion.GetNodeMtx_unk(m520));
+                    atn::VecAssign_unk(pos, GetNodePos_unk(mMotion.GetNodeMtx_unk(m520)));
                 } else if (m524 >= 0) {
-                    pos = GetNodePos_unk(mMotion.GetNodeMtx_unk(m524));
+                    atn::VecAssign_unk(pos, GetNodePos_unk(mMotion.GetNodeMtx_unk(m524)));
                 } else {
                     pos = mPos;
                 }
@@ -5009,7 +5009,7 @@ void CharaTask::fn_80149A30() {
                         if (head != 0 && neck != 0 && hips != 0 && rshoulder != 0 && rupleg != 0 &&
                             lshoulder != 0 && lupleg != 0) {
                             Sphere_unk sphere;
-                            sphere.mCenter = GetNodePos_unk(head);
+                            atn::VecAssign_unk(sphere.mCenter, GetNodePos_unk(head));
                             sphere.mCenter.y += 0.7f;
                             sphere.mRadius = 2.3f;
                             if (LengthSq_unk(cam - sphere.mCenter) < sphere.mRadius * sphere.mRadius) {
@@ -11130,14 +11130,12 @@ void CharaTask::fn_80178BFC() {
     unsigned int flags = 0;
     bool timer = false;
     bool guard = false;
-    CharaHit_unk* end = m12D0.end();
-    for (CharaHit_unk* it = m12D0.begin(); it != end; it++) {
-        HitInfo_unk* hit = it->mHit;
+    for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
         flags |= it->m0C;
-        if (hit->m6C == 2 || hit->m6C == 5) {
+        if (it->mHit->m6C == 2 || it->mHit->m6C == 5) {
             guard = true;
         }
-        if ((hit->mAC & 0x2000) == 0x2000) {
+        if ((it->mHit->mAC & 0x2000) == 0x2000) {
             timer = true;
         }
     }
@@ -11917,9 +11915,12 @@ atn::Vector3 CharaTask::vfD0(float angle) {
 }
 
 
-// NONMATCHING: 88% - only registers: the original keeps &d in r30 and &dir in r29, &from in r28 and
-// &base in r27 (ours swapped); tried: copy/assignment forms of d and from, declarations outside the
-// loop.
+// inferred: v rotated by m (vfD8; name invented)
+static inline void MultVec_unk(const Mtx m, const atn::Vector3& src, atn::Vector3& dst) {
+    atn::VecAssign_unk(dst, src);
+    PSMTXMultVec(m, &dst, &dst);
+}
+
 atn::Vector3 CharaTask::vfD8(CharaTask* target) {
     atn::Vector3 base = vf64(1);
     atn::Vector3 dir = mPos - target->mPos;
@@ -11935,9 +11936,10 @@ atn::Vector3 CharaTask::vfD8(CharaTask* target) {
     Mtx rot;
     for (unsigned int i = 0; i < 8; i++) {
         PSMTXRotRad(rot, 'y', 3.1415927f * (float)i / 4.0f);
-        atn::Vector3 d = dir;
-        PSMTXMultVec(rot, &d, &d);
-        atn::Vector3 from = base;
+        atn::Vector3 d;
+        MultVec_unk(rot, dir, d);
+        atn::Vector3 from;
+        atn::VecAssign_unk(from, base);
         from.y += 5.0f;
         atn::Vector3 to = from - d * 20.0f;
         if (fn_8004ED34(lbl_8087EE98, &coll, &from, &to, 0x80000000, 0, 0) == 0) {
