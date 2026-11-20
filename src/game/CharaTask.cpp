@@ -11992,9 +11992,11 @@ int CharaTask::fn_8017C9A0() {
 }
 
 // inferred: point of the camera ray (eye -> target) closest to the character, moved 5 units further
-// NONMATCHING: 81% - only the stack slots of the four Vector3 temporaries are in reverse order
-// (target: target-eye lowest, then dir*5, dir*800, eye+dir*800); tried: named far/eye, +=,
-// Assign_unk, Segment_unk constructor, declaration orders.
+// inferred: out = a - b (fn_8017C9AC; name invented)
+static inline void SubVec_unk(atn::Vector3& out, const atn::Vector3& a, const atn::Vector3& b) {
+    out = a - b;
+}
+
 atn::Vector3 fn_8017C9AC(CharaTask* chara) {
     atn::Camera* view;
     if (lbl_8087F430 != 0) {
@@ -12004,11 +12006,11 @@ atn::Vector3 fn_8017C9AC(CharaTask* chara) {
     }
     Segment_unk seg;
     atn::Vector3 dir;
-    dir = view->mTarget - view->mPos;
+    SubVec_unk(dir, view->mTarget, view->mPos);
     PSVECNormalize(&dir, &dir);
     atn::Vector3 eye = view->mPos;
     seg.mStart = eye;
-    seg.mEnd = eye + dir * 800.0f;
+    atn::VecAssign_unk(seg.mEnd, eye + dir * 800.0f);
     atn::Vector3 result;
     fn_80050A1C(&chara->mPos, &seg, &result);
     result += dir * 5.0f;
