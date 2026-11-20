@@ -1,7 +1,6 @@
 #include "atn/EffectManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/WaitObject.h"
-#include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
 #include "atn/Memory.h"
 #include "atn/Csv.h"
@@ -252,9 +251,8 @@ int WaitObject::vf1C() {
 
 // inferred: reads the gimmick file (MODEL, MODEL_LOD, MOTION, COLLI_OBJECT, EFP, STATE blocks ended by
 // an empty field, TRIGGER, ROTATION, SCALE)
-// NONMATCHING: 99.98% - the addresses of the COLLI position and sphere (kept in r25/r26 for the whole
-// function) are computed in the other order. The sphere centre is copied through VecAssign_unk (the
-// registers of the original) and the TRIGGER values are an array of the trigger (addressed from +8).
+// The sphere centre is copied with a direct __VecCopy (the order of the hoisted addresses of the COLLI
+// position and sphere) and the TRIGGER values are an array of the trigger (addressed from +8).
 void WaitObject::vf20() {
     char path[0x100];
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
@@ -302,7 +300,7 @@ void WaitObject::vf20() {
                     PSMTXMultVec(rot.m, &pos, &pos);
                     pos += m6C;
                     atn::ColliSphere::Sphere_unk sphere;
-                    atn::VecAssign_unk(sphere.mCenter, pos);
+                    __VecCopy(&sphere.mCenter.x, &pos.x);
                     sphere.mRadius = fn_800DC288(csv.fn_8005B9CC());
                     if (sphere.mRadius > 0.0f) {
                         atn::ColliSphere* colli = new ((MemoryTag)12, "", "", 0) atn::ColliSphere();

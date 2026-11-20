@@ -1,0 +1,74 @@
+diff --git a/src/db/SpText_unk.cpp b/src/db/SpText_unk.cpp
+index 667bd4a..b6cbfe0 100644
+--- a/src/db/SpText_unk.cpp
++++ b/src/db/SpText_unk.cpp
+@@ -318,6 +318,25 @@ static inline const wchar_t* FindValue_unk(atn::SimpleArray<SpTextEntry_unk>& va
+     return 0;
+ }
+ 
++// inferred: chara with an id made of the numbers of its model name (name invented)
++static inline SpCharaId_unk* FindChara_unk(int value) {
++    unsigned int i;
++    SpCharaId_unk* chara = 0;
++    for (i = 0; i < fn_802092F8(); i++) {
++        chara = fn_80209294(i);
++        const char* model = chara->m10;
++        if (strlen(model) >= 13) {
++            int b = atoi(model + 8) * 100;
++            int a = atoi(chara->m10 + 2) * 10000;
++            int id = atoi(chara->m10 + 11) + (a + b);
++            if (id == value) {
++                break;
++            }
++        }
++    }
++    return chara;
++}
++
+ // inferred: text of a condition and its value
+ // NONMATCHING: 86.23% - the original reloads the data of the buffer when the value is found and
+ // numbers the registers of the chara search differently
+@@ -346,7 +365,7 @@ extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
+         } else {
+             WeaponParamEntry_unk* weapon = fn_80206B14(0, value + 300);
+             if (weapon == 0) {
+-                return false;
++                break;
+             }
+             wchar_t name[0x100];
+             fn_800DD3FC(name, text, weapon->mName);
+@@ -358,30 +377,20 @@ extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
+         fn_800DD3FC(buf, format, FindValue_unk(sCondValues6, value));
+         return true;
+     case 20: {
+-        SpCharaId_unk* chara = 0;
+-        for (unsigned int i = 0; i < fn_802092F8(); i++) {
+-            chara = fn_80209294(i);
+-            const char* model = chara->m10;
+-            if (strlen(model) >= 13) {
+-                int b = atoi(model + 8) * 100;
+-                int a = atoi(chara->m10 + 2) * 10000;
+-                if (value == atoi(chara->m10 + 11) + (a + b)) {
+-                    break;
+-                }
+-            }
+-        }
++        SpCharaId_unk* chara = FindChara_unk(value);
+         if (chara != 0) {
+             fn_800DD3FC(buf, format, chara->mName);
+             return true;
+         }
+-        return false;
++        break;
+     }
+     default:
+         fn_800DD3FC(buf, format);
+         return true;
+     case 0:
+-        return false;
++        break;
+     }
++    return false;
+ }
+ 
+ // inferred: loads /boot/sp_text_xx.u16 (texts of whole effects)
