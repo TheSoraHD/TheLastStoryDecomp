@@ -3974,7 +3974,7 @@ void CharaTask::fn_80145334() {
         height *= MAX(1.0f - (float)mF9C / (float)mFA0, 0.01f);
         fn_80144F4C(3, 0, mPos.y, mPos.y + height);
     } else if (mFlagB1) {
-        fn_80144F4C(1, (char*)lbl_8087EEB0 + 0x70, 20.0f + mPos.y, 20.0f + mPos.y + 60.0f);
+        fn_80144F4C(1, &lbl_8087EEB0->m70, 20.0f + mPos.y, 20.0f + mPos.y + 60.0f);
     } else {
         mMotion.mFlags &= ~0x80000;
         for (int i = 0; i < 8; i++) {
