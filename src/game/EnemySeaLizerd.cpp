@@ -156,11 +156,21 @@ inline float Gravity_unk() {
     return -98.1f / (lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
 }
 
-// NONMATCHING: 98.4% - store order of the first direction, scheduling of dir.y += 8, f0/f5 at the end
+// inferred: speed of the bullet, read again for the final scale (name invented)
+static inline float BulletSpeed_unk(HitInfo_unk* bullet) {
+    return bullet->m4C;
+}
+
+// inferred: fires the bullet at the target once the motion reaches frame 21
 void EnemySeaLizerd::fn_80354EE4() {
     mFlag5 = 0;
     if (m14D0 == 0) {
-        atn::Vector3 dir(m14C0->mPos.x - mPos.x, 0.0f, m14C0->mPos.z - mPos.z);
+        float dz = m14C0->mPos.z - mPos.z;
+        float dx = m14C0->mPos.x - mPos.x;
+        atn::Vector3 dir;
+        dir.x = dx;
+        dir.z = dz;
+        dir.y = 0.0f;
         dir.fn_80139F60();
         float turn = atn::WrapAngle_unk(dir.y - mRot.y);
         turn *= 0.3f;
@@ -172,7 +182,7 @@ void EnemySeaLizerd::fn_80354EE4() {
             CharaTask* target = m14C0;
             dir = target->mPos - head;
             dir.y += 8.0f;
-            float dist = sqrt(dir.x * dir.x + dir.z * dir.z);
+            float dist = sqrt(dir.LengthSqXZ_unk());
             float time = dist / bullet->m4C;
             float vy = dir.y / time + -0.5f * time * Gravity_unk();
             dir.y = 0.0f;
@@ -181,7 +191,7 @@ void EnemySeaLizerd::fn_80354EE4() {
             dir.x *= speed;
             dir.y = vy;
             dir.z *= speed;
-            dir *= 1.0f / bullet->m4C;
+            dir *= 1.0f / BulletSpeed_unk(bullet);
             lbl_8087F048->fn_800F8574(this, bullet, &head, &dir, 0, 0, 0, 0.0f, 1.0f);
         }
     }
@@ -203,8 +213,6 @@ inline atn::Vector3 GetFrontPos_unk(CharaTask* const& chara) {
     return chara->mPos + offset;
 }
 
-// NONMATCHING: 99.9% - f4/f6 of the frsp of the inlined fn_80139F60 (the character pointer copy in
-// GetFrontPos_unk gives its early load)
 void EnemySeaLizerd::fn_80355390() {
     atn::Vector3 from;
     atn::Vector3 to;
