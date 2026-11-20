@@ -1014,8 +1014,17 @@ void CampSaveLoad::fn_8011B018(int index, SaveSlot_unk* slot) {
     }
 }
 
+// inferred: either of two buttons repeated (name invented)
+static inline bool IsRepeated2_unk(int a, int b) {
+    bool r = IsRepeated_unk(a);
+    if (!r) {
+        r = IsRepeated_unk(b);
+    }
+    return r;
+}
+
 void CampSaveLoad::fn_8011B3D8(int wrap) {
-    if (IsRepeated_unk(0) || IsRepeated_unk(0x1A)) {
+    if (IsRepeated2_unk(0, 0x1A)) {
         if (--m154 < 0) {
             if (wrap) {
                 m154 = m158 - 1;
@@ -1024,7 +1033,7 @@ void CampSaveLoad::fn_8011B3D8(int wrap) {
             }
         }
         fn_80117228(3);
-    } else if (IsRepeated_unk(1) || IsRepeated_unk(0x19)) {
+    } else if (IsRepeated2_unk(1, 0x19)) {
         m154++;
         if (m154 >= m158) {
             if (wrap) {
@@ -1042,29 +1051,31 @@ static inline bool IsSinglePage_unk(CampSaveLoad* menu) {
     return menu->mMode == 1 && menu->m134 == 2;
 }
 
-// NONMATCHING: 80.52% - the pad tests are materialized as bools (neg/or/srwi.) in the original, as in
-// fn_8011B3D8
+// NONMATCHING: 93.3% - the pad tests now match (IsRepeated2_unk); left: the scheduling of mMode/m134 in the
+// page blocks and the ternary of the previous page
 // inferred: moves the cursor on the slot grid: two columns (m130), four rows (m12C) per page (m134); the load
 // menu has a third page with one row
 void CampSaveLoad::fn_8011B570() {
-    if (IsRepeated_unk(0) || IsRepeated_unk(0x1A)) {
+    if (IsRepeated2_unk(0, 0x1A)) {
         if (--m130 < 0) {
             m130 += 2;
         }
         fn_80117228(3);
-    } else if (IsRepeated_unk(1) || IsRepeated_unk(0x19)) {
+    } else if (IsRepeated2_unk(1, 0x19)) {
         if (++m130 >= 2) {
             m130 -= 2;
         }
         fn_80117228(3);
-    } else if (IsRepeated_unk(3) || IsRepeated_unk(0x18)) {
+    } else if (IsRepeated2_unk(3, 0x18)) {
+        int mode = mMode;
         m12C++;
-        if ((IsSinglePage_unk(this) ? 1 : 4) <= m12C) {
+        bool single = mode == 1 && m134 == 2;
+        if ((single ? 1 : 4) <= m12C) {
             m12C = 0;
-            m134 = (m134 + 1) % ((mMode == 1) + 2);
+            m134 = (m134 + 1) % ((mode == 1) + 2);
         }
         fn_80117228(3);
-    } else if (IsRepeated_unk(2) || IsRepeated_unk(0x17)) {
+    } else if (IsRepeated2_unk(2, 0x17)) {
         if (--m12C < 0) {
             m134 = m134 > 0 ? m134 - 1 : (mMode == 1) + 1;
             m12C = IsSinglePage_unk(this) ? 0 : 3;

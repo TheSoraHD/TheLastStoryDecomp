@@ -918,7 +918,6 @@ void Em005DoppelGanger::fn_802531F4() {
     }
 }
 
-// NONMATCHING: 98% - li r4 / mr r3 of the last call swapped (4 variants)
 void Em005DoppelGanger::vfF0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -943,7 +942,7 @@ void Em005DoppelGanger::vfF0() {
     }
     if ((float)__fabs(mMotion.mTracks[0].m08 - 50.0f) < 1.1920929e-7f) {
         m14BC = 3;
-        fn_8016E4C4(1);
+        fn_8016E4C4(IsHiddenPhase_unk());
     }
 }
 

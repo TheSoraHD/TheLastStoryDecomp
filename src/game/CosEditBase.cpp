@@ -1,4 +1,5 @@
 #include "game/ChaseManager.h"
+#include "math/VecAssign_unk.h"
 #include "game/CosEditBase.h"
 #include "game/CostumeEditChara.h"
 #include "game/CharaTask.h"
@@ -123,8 +124,12 @@ chr::CharaEquip_unk* NewCharaEquip_unk(int slot, int item, int index, CharaTask*
     return new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, chara, (unsigned int*)data, 0, c, 1, 0);
 }
 
-// NONMATCHING: 96.1% - the original zeroes mAA0 in the body (its handle class has a destructor but no
-// zeroing constructor, unlike ResHandle)
+ResHandleRaw_unk::~ResHandleRaw_unk() {
+    if (mRes != 0 && lbl_8087EF10 != 0) {
+        fn_800897D8(lbl_8087EF10, mRes);
+    }
+}
+
 CosEditBase::CosEditBase(atn::Task* parent)
     : NewCampPartsBase(parent), mChara(), mE0(0.0f), mE4(0.0f), mE8(0), mEC(0), mF0(0), mF4(0), mF8(0.0f), mFC(0), m100(0),
       m104(0), m1E0(0), m1E4(0), m1E8(0), m1EC(0), m1F0(0), m1F4(0), m220(0, 0) {
@@ -151,10 +156,11 @@ CosEditBase::CosEditBase(atn::Task* parent)
     mA8C = -1;
     mA98 = 0;
     mA9C = 0.0f;
+    mAA0.mRes = 0;
     mAA4 = 0.4f;
     mCharaUpperOfs = sUpperOfs;
     mCharaLowerOfs = sLowerOfs;
-    mCharaZoomOfs = sZoomOfs;
+    atn::VecAssign_unk(mCharaZoomOfs, sZoomOfs);
     mLoadCount = 0;
     mA88 = 0;
     mA90 = 0;

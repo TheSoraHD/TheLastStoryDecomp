@@ -107,6 +107,11 @@ static const char* const sSeGroup_unk = "GROUP_DG001";
 // inferred: color of the spiders when they are down (game/Em202SpiderBase.cpp)
 extern "C" SpiderBaseColor_unk lbl_807C8398;
 
+// inferred: name invented
+static inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+
 // inferred: front direction of the character (name invented)
 static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
@@ -444,10 +449,8 @@ void Em202ForestSpider::vf3C(HitInfo_unk* hit, int) {
         }
         if (msg->mData->m01 != 1) {
             int guard = 0;
-            atn::Vector3 fwd = FrontDir_unk(mRot);
-            atn::Vector3 d(msg->m1C - mPos);
-            float dot = PSVECDotProduct(&d, &fwd);
-            if (dot > (float)cos(m1514 * 0.5f)) {
+            float dot = Dot_unk(msg->m1C - mPos, FrontDir_unk(mRot));
+            if (dot > (float)cos(m1514 / 2.0f)) {
                 guard = 1;
             }
             if (guard) {

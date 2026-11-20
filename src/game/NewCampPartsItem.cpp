@@ -383,10 +383,20 @@ extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" unsigned long wcslen(const wchar_t* s);
 
+// inferred: copies a name without its "+n" suffix (name invented; inlined by -ipa file, the linker drops it:
+// its L"%s\0" goes into @wstringBase0 like in the original, an inline member would give it its own @STRING@)
+static void CopyBaseName_unk(wchar_t* dst, const wchar_t* name) {
+    fn_800DD3FC(dst, L"%s\0", name);
+    wchar_t* plus = wcschr(dst, L'+');
+    if (plus != 0) {
+        *plus = 0;
+    }
+}
+
 // inferred: order of the list by category: category, kind, then (weapons and armour) the items to identify
 // last, the weapon order and the name without the "+n" suffix (the shorter name first); the other kinds by
 // their order in the item table. Names invented
-// NONMATCHING: 98.1% (out-of-line copy 0x80519948) - registers
+// NONMATCHING: 99.85% (out-of-line copy 0x80519948) - r29/r30 of the two names of the last compare
 struct NewCampCategoryLess_unk {
     bool operator()(const NewCampItemEntry_unk& a, const NewCampItemEntry_unk& b) const {
         NewCampItemData_unk* da = (NewCampItemData_unk*)a.m10;
@@ -430,17 +440,9 @@ struct NewCampCategoryLess_unk {
             nb = lbl_8087F1E4->GetPair_unk(wb->mKind + 0xEB);
         }
         wchar_t sa[64];
-        fn_800DD3FC(sa, L"%s", na);
-        wchar_t* plus = wcschr(sa, L'+');
-        if (plus != 0) {
-            *plus = 0;
-        }
+        CopyBaseName_unk(sa, na);
         wchar_t sb[64];
-        fn_800DD3FC(sb, L"%s", nb);
-        plus = wcschr(sb, L'+');
-        if (plus != 0) {
-            *plus = 0;
-        }
+        CopyBaseName_unk(sb, nb);
         if (wcscmp(sa, sb) == 0) {
             if (a.m08 == 0 && b.m08 == 0) {
                 const wchar_t* mb = db->mName;
@@ -557,8 +559,6 @@ extern "C" int fn_80444BE8(Inventory* party, NewCampItemData_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" NewCampItemUV_unk fn_80444C50(Inventory* party, int icon);
 
-// NONMATCHING: 98% - L"--" is the first wide literal here (L"%s" of fn_80517B3C, not written yet, goes before
-// it in the original), so the pool address takes one more register; same offsets of @stringBase0
 void NewCampPartsItem::fn_8051B164() {
     for (int i = 0; i < 10; i++) {
         D2A_TaskInstance32_unk* task = mItems[i]->GetTask();
