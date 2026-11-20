@@ -5475,14 +5475,12 @@ extern "C" void fn_804DF11C(PPManager2_unk* mgr, unsigned int reset) {
     fn_800C3124("GROUP_MP_EM003");
 }
 
-// NONMATCHING: 90.49% - the original reloads lbl_8087F610 in every iteration and keeps the zero of the index in
-// two more registers
 // inferred: resets the player slots (and the aid tables m9984/m998C)
 extern "C" void fn_804DF310(PPManager2_unk* mgr) {
     memset(mgr->m9984, 0, 8);
     memset(mgr->m998C, 0xFF, 8);
     for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
-        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
+        PPPlayer_unk* player = fn_804D5F0C(PPManager2Ref_unk(), i);
         player->mB0 = 0;
         player->mAid = 0xFF;
         player->mFlags.mActive = 0;
