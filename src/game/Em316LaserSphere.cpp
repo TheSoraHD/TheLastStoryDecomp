@@ -683,18 +683,23 @@ void Em316LaserSphere::fn_80317EF8() {
     }
 }
 
-// NONMATCHING: 88.7% - order of the copies to the capsule (the original stores m3C.z through a frsp and the
-// radius m620 last) and the stack slots of top/bottom; ~16 variants
+// inferred: sets the segment and radius of a capsule (as in Em204BigMulue; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
+// inferred: bottom declared first and copied from top; the capsule set through SetCapsule_unk
 void Em316LaserSphere::fn_80318594() {
     m620 = m5B0;
     m614 = mPos + m5A4;
     m614.y += m620;
-    atn::Vector3 bottom(mPos);
+    atn::Vector3 bottom;
     atn::Vector3 top(mPos);
+    bottom = top;
     top.y += 0.1f;
-    mColli.m3C = bottom;
-    mColli.m48 = top;
-    mColli.m54 = m620;
+    SetCapsule_unk(mColli, bottom, top, m620);
 }
 
 atn::Vector3 Em316LaserSphere::fn_80318648(CharaTask* chara) {
