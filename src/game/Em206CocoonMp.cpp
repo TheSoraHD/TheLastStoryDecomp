@@ -537,7 +537,7 @@ void Em206CocoonMp::vf104() {
 
 void Em206CocoonMp::vf108() {}
 
-// NONMATCHING: 99.9% - stack slots of the front vector and of the center
+// inferred: matches with the by-value lerp (LerpR_unk) and the final mFlagB29 = 0
 // inferred: creates the damage spheres of the table sSpheres_unk
 void Em206CocoonMp::vf50() {
     Item14_unk item;
