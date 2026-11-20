@@ -922,11 +922,16 @@ struct PPThreadRequest_unk {
 
 #include "atn/FadeCommon.h"
 // inferred: entries of MP::Manager2 built by its ctor (only the cleared members are known); names invented
-struct PPSlot18_unk {
-    PPSlot18_unk() : m04(0) {}
-    int m00;
+// inferred: request of this machine waiting for its answer (0x18 bytes, 32 of them at +0x48 of MP::Manager2)
+struct PPRequest_unk {
+    PPRequest_unk() : m04(0) {}
+    int mUsed;
     int m04;
-    unsigned char m08[0x18 - 0x8];
+    int m08;
+    unsigned int m0C[2]; // inferred: OSGetTime when the request was sent (long long, 4-byte aligned)
+    unsigned char m14;
+    unsigned char m15;
+    unsigned char m16[0x18 - 0x16];
 };
 struct PPEntry104_unk {
     PPEntry104_unk() { memset(this, 0, sizeof(*this)); }
@@ -977,7 +982,7 @@ struct Manager2 : public atn::Task {
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    PPSlot18_unk m0048[32];           // inferred: 32 entries of 0x18 bytes (m00 cleared at the end of the ctor)
+    PPRequest_unk mRequests[32];      // 0x48: inferred: mUsed cleared at the end of the ctor
     int m348;                         // inferred: room of the next game (fn_804D9BF4)
     int m34C;
     int m350;
@@ -2275,7 +2280,7 @@ MP::Manager2::Manager2(atn::Task* parent)
     fn_80239DAC(lbl_8087F3C0, (unsigned int)this, 0, 0);
     m9968.LoadRequest("be010_008.efp");
     for (int i = 0; i < 32; i++) {
-        m0048[i].m00 = 0;
+        mRequests[i].mUsed = 0;
     }
     lbl_8087F628->mThread.fn_8050CDD0(atn::net::fn_8050CFC8, 17);
     lbl_8087F420->m0C = 1;
@@ -6420,7 +6425,7 @@ extern "C" void fn_804E6DD0(PPManager2_unk* mgr) {
         NetMsgI_unk<PPPlayerInfo_unk, 10> msg(0x1015);
         PPPlayerInfo_unk* data = &msg.mData;
         data->mAid = lbl_8087F628->GetMyAid_unk();
-        data->m00 = ((PPChara_unk*)head)->m7D8;
+        data->m00 = head->mStatus.m04;
         data->mChara = own->mDCScore;
         data->m06 = own->mE0;
         data->m07 = own->mE4;
@@ -6444,7 +6449,7 @@ extern "C" void fn_804E6DD0(PPManager2_unk* mgr) {
         NetMsgI_unk<PPPlayerInfo_unk, 10> msg(0x101C);
         PPPlayerInfo_unk* data = &msg.mData;
         data->mAid = player->mAid;
-        data->m00 = ((PPChara_unk*)player->mRef.mChara)->m7D8;
+        data->m00 = player->mRef.mChara->mStatus.m04;
         data->mChara = player->mDCScore;
         data->m06 = player->mE0;
         data->m07 = player->mE4;
@@ -6467,7 +6472,7 @@ extern "C" void fn_804E6DD0(PPManager2_unk* mgr) {
         NetMsgI_unk<PPPlayerInfo_unk, 10> msg(0x101C);
         PPPlayerInfo_unk* data = &msg.mData;
         data->mAid = i;
-        data->m00 = ((PPChara_unk*)chara)->m7D8;
+        data->m00 = chara->mStatus.m04;
         data->m08_0 = !chara->mStatus.IsState_unk(0x20);
         data->mIsEntry = 1;
         fn_804AE3BC()->fn_8050E094(-1, 0x101C, data, 0);
@@ -8561,7 +8566,7 @@ extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
         const PPPlayerInfo_unk* data = (const PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data->mAid != lbl_8087F628->GetMyAid_unk()) {
             if (player->mRef.mChara != 0) {
-                ((PPChara_unk*)player->mRef.mChara)->m7D8 = data->m00;
+                player->mRef.mChara->mStatus.m04 = data->m00;
             }
             player->mDC.fn_80501288((CharaTask*)data->mChara);
             player->mE0 = data->m06;
@@ -9375,7 +9380,7 @@ extern "C" void fn_804F2258() {
             PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data->mAid);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_sync\n");
             if (player->mRef.mChara != 0) {
-                ((PPChara_unk*)player->mRef.mChara)->m7D8 = data->m00;
+                player->mRef.mChara->mStatus.m04 = data->m00;
             }
             player->mDC.fn_80501288((CharaTask*)data->mChara);
             player->mE0 = data->m06;
@@ -9394,7 +9399,7 @@ extern "C" void fn_804F2258() {
                     entry->mRef.fn_805010C0();
                 }
                 ((PPManager2_unk*)lbl_8087F610)->m99BC = 0;
-                ((PPChara_unk*)chara)->m7D8 = data->m00;
+                chara->mStatus.m04 = data->m00;
             }
         }
     }
@@ -9609,15 +9614,6 @@ extern "C" void fn_804F3170() {
 }
 
 // inferred: queue of 32 requests at 0x48 (0x18 bytes each); names invented
-struct PPRequest_unk {
-    int mUsed;
-    int m04;
-    int m08;
-    unsigned int m0C[2]; // inferred: OSGetTime when the request was sent (long long, 4-byte aligned)
-    unsigned char m14;
-    unsigned char m15;
-    unsigned char m16[0x18 - 0x16];
-};
 struct PPRequests_unk {
     unsigned char m00[0x48];
     PPRequest_unk mRequests[32];
@@ -9632,15 +9628,23 @@ static inline PPRequest_unk* FindRequest_unk(PPRequests_unk* queue, unsigned int
     return 0;
 }
 
-// NONMATCHING: 99.57% - the work buffer and the queue swap r6/r7
+// inferred: FindRequest_unk on the requests of the MP::Manager2 instance, read through the getter at each use
+// (fn_804F3258 at 100 % only this way)
+static inline PPRequest_unk* FindRequestM_unk(unsigned int id) {
+    for (int i = 0; i < 32; i++) {
+        if (fn_800F7F90()->mRequests[i].mUsed != 0 && id == fn_800F7F90()->mRequests[i].m15) {
+            return &fn_800F7F90()->mRequests[i];
+        }
+    }
+    return 0;
+}
 // inferred: message 0x29: answer of a request of this machine (its 8 bytes are kept in the request)
 extern "C" void fn_804F3258() {
     if (PP_NO_DATA_UNK) {
         return;
     }
     const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
-    PPRequests_unk* queue = (PPRequests_unk*)lbl_8087F610;
-    PPRequest_unk* req = FindRequest_unk(queue, data[0]);
+    PPRequest_unk* req = FindRequestM_unk(data[0]);
     if (req != 0) {
         req->m04 = 1;
         req->m08 = 300;
