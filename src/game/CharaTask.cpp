@@ -3706,20 +3706,15 @@ void atn::Matrix3x4::fn_80144ED4(float rad) {
     __MtxCopy(m, t);
 }
 
-// NONMATCHING: ~25% (155 vs 250 instructions; the code before and after the copy matches) - the copy
-// of the camera (implicit operator=) cannot match: the original copies
-// members with paired singles (Vector3, Matrix3x4, a 4x4 matrix at 0x88 and the frustum at 0x100);
-// the 4x4 matrix copy needs a paired-single helper that Vec.h does not have, so the layout is kept opaque.
 // Layout seen in the copy: 0x00 two ints, 0x08/0x14/0x20/0x2C Vector3, 0x38-0x54 floats, 0x58 Matrix3x4,
 // 0x88 4x4 matrix, 0xC8/0xCC floats, 0xD0 Matrix3x4, 0x100 frustum (Matrix3x4, int, 2 floats,
 // 4 x {Vector3, float}, 2 Vector3, 6 x {Vector3, float})
 // inferred: sets an orthographic camera spanning y0..y1 on the model and the equipment
 void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     Camera_unk camera(0, 1);
-    float center = 0.5f * (y1 + y0);
     camera.mUp.Set_unk(0.0f, 1.0f, 0.0f);
-    camera.mPos.Set_unk(0.0f, center, -100.0f);
-    camera.mTarget.Set_unk(0.0f, center, 0.0f);
+    camera.mPos.Set_unk(0.0f, 0.5f * (y1 + y0), -100.0f);
+    camera.mTarget.Set_unk(0.0f, 0.5f * (y1 + y0), 0.0f);
     camera.mTop = y0 - y1;
     camera.mBottom = 0.0f;
     camera.mLeft = -10.0f;
@@ -3727,8 +3722,8 @@ void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     camera.fn_8004B378();
     ModelCameraParam_unk param;
     param.mCamera = camera;
-    param.m00 = a;
     param.m04 = b;
+    param.m00 = a;
     fn_80095F10(&mMotion, &param);
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
@@ -4974,9 +4969,9 @@ void CharaTask::fn_80149A30() {
             if (lbl_8087F430 != 0 && lbl_8087F430->mCamera.m7FC != 6) {
                 atn::Vector3 pos;
                 if (m520 >= 0) {
-                    pos = GetNodePos_unk(mMotion.GetNodeMtx_unk(m520));
+                    atn::VecAssign_unk(pos, GetNodePos_unk(mMotion.GetNodeMtx_unk(m520)));
                 } else if (m524 >= 0) {
-                    pos = GetNodePos_unk(mMotion.GetNodeMtx_unk(m524));
+                    atn::VecAssign_unk(pos, GetNodePos_unk(mMotion.GetNodeMtx_unk(m524)));
                 } else {
                     pos = mPos;
                 }
@@ -5009,7 +5004,7 @@ void CharaTask::fn_80149A30() {
                         if (head != 0 && neck != 0 && hips != 0 && rshoulder != 0 && rupleg != 0 &&
                             lshoulder != 0 && lupleg != 0) {
                             Sphere_unk sphere;
-                            sphere.mCenter = GetNodePos_unk(head);
+                            atn::VecAssign_unk(sphere.mCenter, GetNodePos_unk(head));
                             sphere.mCenter.y += 0.7f;
                             sphere.mRadius = 2.3f;
                             if (LengthSq_unk(cam - sphere.mCenter) < sphere.mRadius * sphere.mRadius) {
@@ -6491,12 +6486,20 @@ inline int CharaTask::ControlVf30_unk() {
     return mControl ? mControl->vf30() : 0;
 }
 
-// NONMATCHING: ~92% - in the two inlined hit loops the original keeps the array pointer in r4
-// (reusing the register of `other`) and the hit in r5, ours the other way round; the rest are the
-// .data offsets of the scoped_ptr bool ptmf. tried: index/pointer/iterator loops, a free inline
-// function, the ternary written inline. (The same loop inlined in fn_80151448 matches.)
+// inferred: CharaTask::GetFlaggedHitBullet_unk written over m12D0.mData[i] (vf5C, fn_80150460); name
+// invented
+static inline HitInfo_unk* FlaggedHitBullet_unk(CharaTask* chara) {
+    CharaHit_unk* it = chara->m12D0.mData;
+    for (unsigned int i = 0; i < chara->m12D0.mSize; i++, it++) {
+        if ((it->mHit->mAC & 0x04000000) == 0x04000000 && it->mHit->m04 > 0) {
+            return fn_80219E6C(it->mHit->m04);
+        }
+    }
+    return 0;
+}
+
 void CharaTask::vf5C(CharaTask* other) {
-    if (other->GetFlaggedHitBullet_unk() == 0 && other != 0) {
+    if (FlaggedHitBullet_unk(other) == 0 && other != 0) {
         if (other->ControlVf30_unk() != 0) {
             return;
         }
@@ -6515,7 +6518,7 @@ void CharaTask::vf5C(CharaTask* other) {
                 combo = true;
             }
         }
-        if (other->GetFlaggedHitBullet_unk() != 0) {
+        if (FlaggedHitBullet_unk(other) != 0) {
             combo = true;
         }
     }
@@ -6532,8 +6535,6 @@ inline bool HasPartParam_unk(chr::CharaPart_unk* part, int kind, int value, int 
 }
 
 // inferred: starts the combo window against `other` (mFE0: frames, mFDC: last opponent?)
-// NONMATCHING: 91% - same r4/r5 swap as vf5C in the two inlined GetFlaggedHitBullet_unk loops;
-// tried index, pointer, iterator and break forms of the loop.
 void CharaTask::fn_80150460(CharaTask* other, int combo) {
     CharaTask* prev = mFDC;
     mFE4 = combo;
@@ -6546,7 +6547,7 @@ void CharaTask::fn_80150460(CharaTask* other, int combo) {
         } else if (prev != 0 && prev->m648 != 0 && HasPartParam_unk(prev->m648, 8, 0, 10, -1)) {
             mFE0 += ((Arms*)prev->m648)->fn_80045694(8, 0, 10, -1)->m04 * 30;
         }
-        if (other->GetFlaggedHitBullet_unk() != 0 || (prev != 0 && prev->GetFlaggedHitBullet_unk() != 0)) {
+        if (FlaggedHitBullet_unk(other) != 0 || (prev != 0 && FlaggedHitBullet_unk(prev) != 0)) {
             mFE0 += 150;
         }
     }
@@ -11130,14 +11131,12 @@ void CharaTask::fn_80178BFC() {
     unsigned int flags = 0;
     bool timer = false;
     bool guard = false;
-    CharaHit_unk* end = m12D0.end();
-    for (CharaHit_unk* it = m12D0.begin(); it != end; it++) {
-        HitInfo_unk* hit = it->mHit;
+    for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
         flags |= it->m0C;
-        if (hit->m6C == 2 || hit->m6C == 5) {
+        if (it->mHit->m6C == 2 || it->mHit->m6C == 5) {
             guard = true;
         }
-        if ((hit->mAC & 0x2000) == 0x2000) {
+        if ((it->mHit->mAC & 0x2000) == 0x2000) {
             timer = true;
         }
     }
@@ -11917,9 +11916,12 @@ atn::Vector3 CharaTask::vfD0(float angle) {
 }
 
 
-// NONMATCHING: 88% - only registers: the original keeps &d in r30 and &dir in r29, &from in r28 and
-// &base in r27 (ours swapped); tried: copy/assignment forms of d and from, declarations outside the
-// loop.
+// inferred: v rotated by m (vfD8; name invented)
+static inline void MultVec_unk(const Mtx m, const atn::Vector3& src, atn::Vector3& dst) {
+    atn::VecAssign_unk(dst, src);
+    PSMTXMultVec(m, &dst, &dst);
+}
+
 atn::Vector3 CharaTask::vfD8(CharaTask* target) {
     atn::Vector3 base = vf64(1);
     atn::Vector3 dir = mPos - target->mPos;
@@ -11935,9 +11937,10 @@ atn::Vector3 CharaTask::vfD8(CharaTask* target) {
     Mtx rot;
     for (unsigned int i = 0; i < 8; i++) {
         PSMTXRotRad(rot, 'y', 3.1415927f * (float)i / 4.0f);
-        atn::Vector3 d = dir;
-        PSMTXMultVec(rot, &d, &d);
-        atn::Vector3 from = base;
+        atn::Vector3 d;
+        MultVec_unk(rot, dir, d);
+        atn::Vector3 from;
+        atn::VecAssign_unk(from, base);
         from.y += 5.0f;
         atn::Vector3 to = from - d * 20.0f;
         if (fn_8004ED34(lbl_8087EE98, &coll, &from, &to, 0x80000000, 0, 0) == 0) {
@@ -11990,9 +11993,11 @@ int CharaTask::fn_8017C9A0() {
 }
 
 // inferred: point of the camera ray (eye -> target) closest to the character, moved 5 units further
-// NONMATCHING: 81% - only the stack slots of the four Vector3 temporaries are in reverse order
-// (target: target-eye lowest, then dir*5, dir*800, eye+dir*800); tried: named far/eye, +=,
-// Assign_unk, Segment_unk constructor, declaration orders.
+// inferred: out = a - b (fn_8017C9AC; name invented)
+static inline void SubVec_unk(atn::Vector3& out, const atn::Vector3& a, const atn::Vector3& b) {
+    out = a - b;
+}
+
 atn::Vector3 fn_8017C9AC(CharaTask* chara) {
     atn::Camera* view;
     if (lbl_8087F430 != 0) {
@@ -12002,11 +12007,11 @@ atn::Vector3 fn_8017C9AC(CharaTask* chara) {
     }
     Segment_unk seg;
     atn::Vector3 dir;
-    dir = view->mTarget - view->mPos;
+    SubVec_unk(dir, view->mTarget, view->mPos);
     PSVECNormalize(&dir, &dir);
     atn::Vector3 eye = view->mPos;
     seg.mStart = eye;
-    seg.mEnd = eye + dir * 800.0f;
+    atn::VecAssign_unk(seg.mEnd, eye + dir * 800.0f);
     atn::Vector3 result;
     fn_80050A1C(&chara->mPos, &seg, &result);
     result += dir * 5.0f;
