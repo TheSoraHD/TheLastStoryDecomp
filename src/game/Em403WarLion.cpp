@@ -918,7 +918,7 @@ void Em403WarLion::vf54() {
 }
 
 // inferred: chooses the next action of the walk mode (m14CC)
-// NONMATCHING: 99.93% - f30/f31 de la distancia y del angulo, huecos de pila de los atn::ColliResult_unk
+// NONMATCHING: 99.94% - f30/f31 de la distancia y del angulo (y declarado de varias formas: igual)
 // (el original llama fuera de linea a los helpers de Vector3: supera el presupuesto de inline)
 void Em403WarLion::fn_803267E8() {
     if (m15D4 != 0) {
@@ -949,9 +949,9 @@ void Em403WarLion::fn_803267E8() {
                     from.y += 10.0f;
                     atn::Vector3 to = from + d.GetNormalize() * 500.0f;
                     if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
-                        result.m10 -= d.GetNormalize() * m620;
-                        if ((result.m10 - from).Length_unk() > 80.0f) {
-                            m1500 = result.m10;
+                        result.m04 -= d.GetNormalize() * m620;
+                        if ((result.m04 - from).Length_unk() > 80.0f) {
+                            m1500 = result.m04;
                             m1500.y = mPos.y;
                             m1518.Set_unk(0.0f, d.ToRotation_unk().y, 0.0f);
                             fn_803279D4();
@@ -969,9 +969,9 @@ void Em403WarLion::fn_803267E8() {
                     from.y += 10.0f;
                     atn::Vector3 to = from + d.GetNormalize() * 500.0f;
                     if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
-                        result.m10 -= d.GetNormalize() * m620;
-                        if ((result.m10 - from).Length_unk() > 60.0f) {
-                            m1500 = result.m10;
+                        result.m04 -= d.GetNormalize() * m620;
+                        if ((result.m04 - from).Length_unk() > 60.0f) {
+                            m1500 = result.m04;
                             m1500.y = mPos.y;
                             m1518.Set_unk(0.0f, d.ToRotation_unk().y, 0.0f);
                             fn_803279D4();

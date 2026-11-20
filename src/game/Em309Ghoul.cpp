@@ -1867,8 +1867,17 @@ void Em309Ghoul::fn_803041C8() {
     }
 }
 
-// NONMATCHING: 99.79% - registers of the inlined FindPlace_unk loop (index/offset swapped) and the offset of
-// "em_dg010Boss" in the pool (strings of functions not written yet); ~10 variants (id/table locals, own loops)
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em202_01_BSpider.cpp)
+static inline gs::WarpPoint* GhoulFindPlace_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < (unsigned int)table->m78.mSize; i++) {
+        gs::WarpPoint* data = table->m78.mData;
+        if (data[i].mId == id) {
+            return &data[i];
+        }
+    }
+    return 0;
+}
+
 void Em309Ghoul::fn_80304718() {
     if (m14F0 == 0) {
         if (mMotion.mTracks[0].m00 == 0x14D) {
@@ -1924,7 +1933,7 @@ void Em309Ghoul::fn_80304718() {
         mRot.y += 6.2831855f / (1.0f + mMotion.fn_80097D7C(0));
         GameScene* table = lbl_8087F430->m10D8;
         atn::Vector3 step(0.0f, 0.0f, 50.0f / mMotion.fn_80097D7C(0));
-        gs::WarpPoint* place = table->FindPlace_unk(0x385);
+        gs::WarpPoint* place = GhoulFindPlace_unk(table, 0x385);
         Mtx m;
         PSMTXRotRad(m, 'y', place->m14);
         PSMTXMultVec(m, &step, &step);
