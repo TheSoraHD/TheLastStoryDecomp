@@ -1226,18 +1226,26 @@ static inline bool TalkAllowed_unk(const GameEventScript* script) {
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
-// NONMATCHING: 98.7% (each copy) - registers (leader and counters)
+// inferred: the leader and its front direction (name invented)
+static inline PlayerTask* LeaderFront_unk(atn::Vector3& front) {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    front.x = 0.0f;
+    front.y = 0.0f;
+    front.z = 1.0f;
+    Mtx m;
+    PSMTXRotRad(m, 'y', leader->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    return leader;
+}
+
 // inferred: marks the talk events of the character points (flag 0x20) whose character is in front of the
 // leader and within 20 units; the nearest goes to mF4 (as fn_8039AF50 for the spheres)
 template <class Manager>
 void GameEventScript::TalkCharas_unk(Manager* manager, atn::SimpleArray<gs::NpcSetPoint>& points,
                                      atn::SimpleArray<ScriptNpcFlag_unk>& flags, int kind) {
     typedef typename PointChara_unk<Manager>::Chara Chara;
-    PlayerTask* leader = lbl_8087F8A0->mHead;
-    atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', leader->mRot.y);
-    PSMTXMultVec(m, &front, &front);
+    atn::Vector3 front;
+    PlayerTask* leader = LeaderFront_unk(front);
     for (unsigned int i = 0; i < points.size(); i++) {
         gs::NpcSetPoint& point = points[i];
         if (flags[i].m00 < 0) {
@@ -1740,7 +1748,7 @@ void GameEventScript::fn_80399734() {
     }
 }
 
-// NONMATCHING: 98.5% - as fn_8039AF50
+// NONMATCHING: 99.96% - the comparison of the facing test goes to r0 before r23 (mfcr)
 // inferred: same as fn_8039AF50 for the talk event boxes (with m40, the leader must also face the box)
 void GameEventScript::fn_8039AB10() {
     atn::Sphere sphere;
@@ -1780,7 +1788,6 @@ void GameEventScript::fn_8039AB10() {
     }
 }
 
-// NONMATCHING: 98.3% - stack slots of the ray test vectors and registers of the loop
 // inferred: marks the talk event spheres the leader stands in (flag 0x20) and keeps the nearest in mF4;
 // while hanging (control 6, state 11) the leader is projected on the ground below
 void GameEventScript::fn_8039AF50() {
@@ -1908,11 +1915,8 @@ void GameEventScript::ApproachCharas_unk(Manager* manager, atn::SimpleArray<gs::
     typedef typename PointChara_unk<Manager>::Chara Chara;
     m98 = 0;
     m9C = kind;
-    PlayerTask* leader = lbl_8087F8A0->mHead;
-    atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', leader->mRot.y);
-    PSMTXMultVec(m, &front, &front);
+    atn::Vector3 front;
+    PlayerTask* leader = LeaderFront_unk(front);
     GameUIElem1C_unk hint;
     if (mF8 <= 0) {
         atn::FixedArray_unk<ApproachEntry_unk, 8> list;
