@@ -645,7 +645,7 @@ inline void EnemyTrista::ClampHp_unk() {
 }
 
 // inferred: the guard breaks only with the skills of m151C
-inline bool HasHit_unk(FixedArray_unk<HitInfo_unk*, 8>& hits, HitInfo_unk* hit) {
+inline bool HasHit_unk(const FixedArray_unk<HitInfo_unk*, 8>& hits, HitInfo_unk* hit) {
     for (unsigned int i = 0; i < hits.mSize; i++) {
         if (hits.mData[i] == hit) {
             return true;
