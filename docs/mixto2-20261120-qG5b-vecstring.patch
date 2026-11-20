@@ -1,0 +1,78 @@
+diff --git a/include/std/vector_string.h b/include/std/vector_string.h
+index d61e5cf..a206583 100644
+--- a/include/std/vector_string.h
++++ b/include/std/vector_string.h
+@@ -43,6 +43,7 @@ template <>
+ struct __vec_split_unk<string> : public __vec_split_base_unk<string> {
+     enum { __clear_src_unk = 1 }; // inferred: see std/vector.h
+     __vec_split_unk(void* alloc) : __vec_split_base_unk<string>(alloc), mStart(0) {}
++    ~__vec_split_unk() { clear(); }
+     string* begin() { return this->mData + mStart; }
+     void push_back(const string& x) {
+         new (begin() + this->mSize) string(x);
+@@ -50,12 +51,15 @@ struct __vec_split_unk<string> : public __vec_split_base_unk<string> {
+     }
+     void __append_copies_unk(unsigned int n, const string& x) {
+         for (; n != 0; n--) {
+-            push_back(x);
++            __push_copy_unk(x);
+         }
+     }
++    void __push_copy_unk(const string& x) {
++        push_back(x);
++    }
+     // inferred: moves [first, last) in front of the stored elements as raw bytes
+     void __push_front_unk(string* first, string* last) {
+-        int n = last - first;
++        int n = (const string*)last - first;
+         mStart -= n;
+         memcpy(this->mData + mStart, first, n * sizeof(string));
+         memset(first, 0, n * sizeof(string));
+@@ -79,7 +83,26 @@ inline void vector<string>::__swap_out_unk(__vec_split_unk<string>& buf) {
+     __vec_swap_unk(this->mCap, buf.mCap);
+     __vec_swap_unk(this->mData, buf.mData);
+     __vec_swap_unk(this->mSize, buf.mSize);
+-    buf.clear();
++}
++
++template <>
++struct __vec_grow_sel_unk<string> {
++    static void __alloc_split_unk(vector<string>& v, __vec_split_unk<string>& buf, unsigned int n) {
++        v.__alloc_split_unk(buf, n);
++    }
++};
++inline void __vec_push_string_unk(vector<string>& v, unsigned int n, const string& x) {
++    unsigned int c = v.mCap;
++    if (n < c) {
++        v.__push_fast_unk(n, x);
++        return;
++    }
++    v.__expand_by_cap_unk(1, c);
++    v.__insert_realloc_unk(1, x);
++}
++template <>
++inline void vector<string>::__push_unk(size_type n, const string& x) {
++    __vec_push_string_unk(*this, n, x);
+ }
+ 
+ } // namespace std
+diff --git a/src/game/GameEventScript.cpp b/src/game/GameEventScript.cpp
+index c6b264f..c433759 100644
+--- a/src/game/GameEventScript.cpp
++++ b/src/game/GameEventScript.cpp
+@@ -6555,6 +6555,7 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
+         if (entry.m10 == entry.m14) {
+             continue;
+         }
++        char line[256];
+         char pages[256];
+         if (entry.m10 == -1) {
+             sprintf(pages, "START Page%d\0", entry.m14 + 1);
+@@ -6563,7 +6564,6 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
+         } else {
+             sprintf(pages, "Page%d -> %d", entry.m10 + 1, entry.m14 + 1);
+         }
+-        char line[256];
+         sprintf(line, "%d,%s,%d,\x83y\x81[\x83W\x90\xD8\x82\xE8\x91\xD6\x82\xA6,%s,\0", mB0, lbl_8074EFC8[entry.m04],
+                 entry.m08, pages);
+         m384.push_back(std::string(line));
