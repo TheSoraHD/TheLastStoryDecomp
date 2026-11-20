@@ -1374,7 +1374,6 @@ void CosEditProtector::vf2C() {
     }
 }
 
-// NONMATCHING: case 8 stores mFC before computing the cell (scheduling of the % / / pair)
 void CosEditProtector::vf34(int state) {
     int prev = m7C;
     m7C = state;
@@ -1460,9 +1459,9 @@ void CosEditProtector::vf34(int state) {
         int member = fn_801CF334()->mFace;
         int* ids = (int*)&Inventory::instance_->mEquipShown[member];
         int cell = fn_8020BE40(ids[fn_80117214(m1BB8)]);
-        mFC = 1;
         m1F8 = cell % 8;
         m1FC = cell / 8;
+        mFC = 1;
         m88 = 0;
         fn_801D70EC(mColorPalette);
         break;
