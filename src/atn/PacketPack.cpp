@@ -8512,9 +8512,10 @@ struct PPMsgCharaState_unk {
     float mTurn;        // 0x28
 };
 
-// inferred: dot product; name invented
-static inline float PPDot_unk(const atn::Vector3& a, const atn::Vector3& b) {
-    return PSVECDotProduct(&a, &b);
+// inferred: direction of a character as a pointer (an inline call: the second argument of PSVECDotProduct is
+// computed first, as in fn_804EE4F0 and fn_804F2450); name invented
+static inline const atn::Vector3* PPDir_unk(const CharaTask* chara) {
+    return &chara->mFA4;
 }
 // inferred: vector of three half floats; name invented
 static inline atn::Vector3 PPUnpackVec_unk(const short* h) {
@@ -8524,8 +8525,6 @@ static inline atn::Vector3 PPUnpackVec_unk(const short* h) {
 static inline atn::Vector3 PPHalfway_unk(const atn::Vector3& from, const atn::Vector3& to) {
     return (to - from) * 0.5f + from;
 }
-// NONMATCHING: 99.89% - order of the two address arguments of PSVECDotProduct (the original computes the second
-// address first)
 // inferred: applies the state of the character of another player (only in the game, state 30, ready character
 // driven by the network: mFlag2): position, velocity (none above 30 per frame), rotation, node and direction (the
 // direction turns halfway when it is within 45 degrees); 1 if applied
@@ -8558,7 +8557,7 @@ extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* buf) {
     chara->m13E4 = data->mTurn;
     chara->m13E8.Assign_unk(PPUnpackVec_unk(data->mNode));
     atn::Vector3 dir = PPUnpackVec_unk(data->mDir);
-    if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
+    if (PSVECDotProduct(&dir, PPDir_unk(chara)) > 0.70710677f) {
         atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
     }
     chara->mFA4 = dir;
@@ -9475,7 +9474,7 @@ extern "C" void fn_804F2450(unsigned int type) {
                 chara->m13E4 = data->mState.mTurn;
                 chara->m13E8.Assign_unk(PPUnpackVec_unk(data->mState.mNode));
                 atn::Vector3 dir = PPUnpackVec_unk(data->mState.mDir);
-                if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
+                if (PSVECDotProduct(&dir, PPDir_unk(chara)) > 0.70710677f) {
                     atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
                 }
                 chara->mFA4 = dir;
