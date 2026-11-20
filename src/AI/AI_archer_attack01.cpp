@@ -35,13 +35,6 @@ extern CharaManager<PlayerTask>* lbl_8087F8A0;
 AiScriptInput_unk lbl_807C68C0;
 AiScriptOutput_unk lbl_807C6A40;
 AiTargets_unk lbl_807C6B30;
-extern unsigned char lbl_807307A0[];
-extern float lbl_80880798;
-extern float lbl_808807AC;
-extern float lbl_8088079C;
-extern float lbl_808807A0;
-extern float lbl_808807A4;
-extern float lbl_808807A8;
 int fn_8001B5B4(atn::Vector3 pos, int arg);
 int fn_8001BA88(CharaTask* chara, int point, int a, int b, float c, float d, float e); // inferred: route point search
 extern double lbl_8072FF68;
@@ -65,7 +58,7 @@ int fn_8003D298(int a, int b);
 float fn_8001BD14(CharaTask* chara); // inferred: attack range of the character
 float fn_8001AD80(CharaTask* a, CharaTask* b);
 int fn_8001BEB0(CharaTask* chara);
-void fn_8001C068(CharaTask* chara, const char* name); // inferred: sets the debug state text
+void fn_8001C068(CharaTask* chara, const char* name);
 int fn_8001C01C(CharaTask* chara);
 int fn_8001A444(int index);
 int fn_8001B984(CharaTask* chara); // inferred: item to use (as fn_8001B634)
@@ -3568,6 +3561,15 @@ int AI::Script::AI_em_scout::vf40() {
     return -1;
 }
 
+// inferred: reports that no hiding point was found (shared by the vf24 of em_scout, em_type106 and
+// fr_runaway). Not inline: MWCC inlines it into them and the linker removes its own copy; compiled
+// here, its message comes after the script names and before the one of em_scout::vf2C in the string
+// pool, as in the original (name invented)
+void NoHidePoint_unk() {
+    const char* msg = "隠れるポイント未発見";
+    fn_8001C068(lbl_807C68C0.mChara, msg);
+}
+
 int AI::Script::AI_em_scout::vf2C() {
     if (lbl_807C68C0.mDone != 0) {
         Command_unk(6, 1, 0, 0, 0);
@@ -3575,12 +3577,11 @@ int AI::Script::AI_em_scout::vf2C() {
         lbl_807C6A40.m18[3] = 2;
         return 1;
     }
-    fn_8001C068(lbl_807C68C0.mChara, (const char*)(lbl_807307A0 + 0x3F5)); // "まだ隠れられていない"
+    fn_8001C068(lbl_807C68C0.mChara, "まだ隠れられていない");
     lbl_807C6A40.mValid = 1;
     return -1;
 }
 
-// NONMATCHING: 99.72% - pending the string pool (the literal is loaded before in.m00).
 int AI::Script::AI_em_scout::vf24() {
     if (CanUseItem2_unk()) {
         Command_unk(2, lbl_807C68C0.m60[1], 0, 0, 0);
@@ -3588,7 +3589,7 @@ int AI::Script::AI_em_scout::vf24() {
         lbl_807C6A40.m18[3] = 1;
         return 9;
     }
-    fn_8001C068(lbl_807C68C0.mChara, (const char*)(lbl_807307A0 + 0x3E0)); // "隠れるポイント未発見"
+    NoHidePoint_unk();
     lbl_807C6A40.mValid = 1;
     Command_unk(6, 1, 0, 0, 0);
     lbl_807C6A40.m18[3] = 3;
@@ -3598,7 +3599,7 @@ int AI::Script::AI_em_scout::vf24() {
 // NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
 int AI::Script::AI_em_scout::vf28() {
     int args[4];
-    args[0] = (int)(lbl_807307A0 + 0x40A);
+    args[0] = (int)"CH_PSN_MEET04C";
     args[1] = 0;
     args[2] = 0;
     args[3] = 0;
@@ -4895,7 +4896,7 @@ int AI::Script::AI_em_type106::vf2C() {
         lbl_807C6A40.m18[3] = 2;
         return 1;
     }
-    fn_8001C068(lbl_807C68C0.mChara, (const char*)(lbl_807307A0 + 0x3F5)); // "まだ隠れられていない"
+    fn_8001C068(lbl_807C68C0.mChara, "まだ隠れられていない");
     lbl_807C6A40.mValid = 1;
     return -1;
 }
@@ -4907,7 +4908,7 @@ int AI::Script::AI_em_type106::vf24() {
         lbl_807C6A40.m18[3] = 1;
         return 9;
     }
-    fn_8001C068(lbl_807C68C0.mChara, (const char*)(lbl_807307A0 + 0x3E0)); // "隠れるポイント未発見"
+    NoHidePoint_unk();
     lbl_807C6A40.mValid = 1;
     Command_unk(6, 2, 0, 0, 0);
     lbl_807C6A40.m18[3] = 3;
@@ -4917,7 +4918,7 @@ int AI::Script::AI_em_type106::vf24() {
 // NONMATCHING: 99.32% - MWCC schedules local stores and address setup differently.
 int AI::Script::AI_em_type106::vf28() {
     int args[4];
-    args[0] = (int)(lbl_807307A0 + 0x40A);
+    args[0] = (int)"CH_PSN_MEET04C";
     args[1] = 0;
     args[2] = 0;
     args[3] = 0;
@@ -5888,14 +5889,13 @@ int AI::Script::AI_fr_runaway::vf40() {
     return -1;
 }
 
-// NONMATCHING: 99.64% - pending the string pool (the literal is loaded before in.m00).
 int AI::Script::AI_fr_runaway::vf24() {
     if (CanUseItem_unk()) {
         Command_unk(2, lbl_807C68C0.m60[1], 0, 0, 0);
         lbl_807C6A40.mValid = 1;
         return 4;
     }
-    fn_8001C068(lbl_807C68C0.mChara, (const char*)(lbl_807307A0 + 0x3E0)); // "hiding point not found"
+    NoHidePoint_unk();
     lbl_807C6A40.mValid = 1;
     return 1;
 }
@@ -6587,18 +6587,18 @@ int AI::Script::AI_fr_warppointescape::vf24() {
     if (CanUseItem2_unk()) {
         Command_unk(2, lbl_807C68C0.m60[1], 0, 0, 0);
         lbl_807C6A40.mValid = 1;
-        fn_8001C068(lbl_807C68C0.mChara, (const char*)(lbl_807307A0 + 0x419));
+        fn_8001C068(lbl_807C68C0.mChara, "どこかに隠れる");
         return 4;
     }
     return -1;
 }
 
-// NONMATCHING: 99.62% - pending the string pool (the literal is loaded before in.m00).
 int AI::Script::AI_fr_warppointescape::vf18() {
     if (lbl_807C68C0.mDone != 0) {
         Command_unk(0, WaitDelay_unk(), 0, 0, 0);
         lbl_807C6A40.mValid = 1;
-        fn_8001C068(lbl_807C68C0.mChara, (const char*)(lbl_807307A0 + 0x428));
+        const char* msg = "隠れて待機";
+        fn_8001C068(lbl_807C68C0.mChara, msg);
         return 1;
     }
     return -1;
@@ -8106,7 +8106,7 @@ int AI::Script::AI_np_approach::vf20() {
         lbl_807C6A40.m18[0]++;
         if (lbl_807C68C0.mDone != 0) {
             Command_unk(0, 1, 0, 0, 0);
-            fn_8001B508((const char*)(lbl_807307A0 + 0x433), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI03", lbl_807C6B30.m00);
             lbl_807C6A40.mValid = 1;
             result = 11;
         }
@@ -8181,7 +8181,7 @@ int AI::Script::AI_np_approach_plus::vf20() {
         lbl_807C6A40.m18[0]++;
         if (lbl_807C68C0.mDone != 0) {
             Command_unk(0, 1, 0, 0, 0);
-            fn_8001B508((const char*)(lbl_807307A0 + 0x433), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI03", lbl_807C6B30.m00);
             lbl_807C6A40.mValid = 1;
             result = 11;
         }
@@ -8275,8 +8275,8 @@ int AI::Script::AI_np_tagger_random::vf14() {
 int AI::Script::AI_np_type001::vf08() {
     int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
     int a;
-    if ((a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
-        (a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
+    if ((a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, 120.0f, 100.0f, 9999.0f)) <= 0 &&
+        (a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, -1.0f, 0.0f, 9999.0f)) <= 0) {
         a = base;
     }
     CommandR_unk(1, a, 0, 0, 0);
@@ -8359,7 +8359,7 @@ int AI::Script::AI_np_type002::vf14() {
 // NONMATCHING: 99.06% - pending the string pool (register choice for the literal address).
 int AI::Script::AI_np_type002::vf20() {
     if (lbl_807C68C0.mDone != 0) {
-        Command_unk(20, (int)(lbl_807307A0 + 0x43B), 0, 0, 0);
+        Command_unk(20, (int)"CH_ITA01", 0, 0, 0);
         lbl_807C6A40.mValid = 1;
         return 1;
     }
@@ -8491,10 +8491,10 @@ int AI::Script::AI_np_wait_reaction::vf0C() {
             lbl_807C6A40.m18[0] = 0;
             Command_unk(0, 2, 0, 0, 0);
             if (lbl_807C6A40.m18[3] == 0) {
-                fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+                fn_8001B508("CH_AI01", lbl_807C6B30.m00);
                 lbl_807C6A40.m18[3] = 1;
             } else {
-                fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+                fn_8001B508("CH_AI02", lbl_807C6B30.m00);
                 lbl_807C6A40.m18[3] = 0;
             }
             lbl_807C6A40.mValid = 1;
@@ -8508,10 +8508,10 @@ int AI::Script::AI_np_wait_reaction::vf34() {
     if (Distance_unk(lbl_807C68C0.mChara, lbl_807C6B30.m00) < lbl_807C6A40.m18[2] && fn_8001A444(2) >= lbl_807C6A40.m18[4]) {
         Command_unk(0, 2, 0, 0, 0);
         if (lbl_807C6A40.m18[3] == 0) {
-            fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI01", lbl_807C6B30.m00);
             lbl_807C6A40.m18[3] = 1;
         } else {
-            fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI02", lbl_807C6B30.m00);
             lbl_807C6A40.m18[3] = 0;
         }
         lbl_807C6A40.mValid = 1;
@@ -8541,7 +8541,7 @@ int AI::Script::AI_np_wait_reaction_minus::vf0C() {
     } else if (fn_8001A444(2) <= lbl_807C6A40.m18[4]) {
         if (Distance_unk(lbl_807C68C0.mChara, lbl_807C6B30.m00) < lbl_807C6A40.m18[2]) {
             lbl_807C6A40.m18[0] = 0;
-            Command_unk(20, (int)(lbl_807307A0 + 0x444), 0, 0, 0);
+            Command_unk(20, (int)"CH_AI01", 0, 0, 0);
             lbl_807C6A40.mValid = 1;
             result = 11;
         }
@@ -8552,7 +8552,7 @@ int AI::Script::AI_np_wait_reaction_minus::vf0C() {
 // NONMATCHING: 99.55% - register choice for the motion name/zero args of command 20 (as AI_np_type002::vf20).
 int AI::Script::AI_np_wait_reaction_minus::vf34() {
     if (Distance_unk(lbl_807C68C0.mChara, lbl_807C6B30.m00) < lbl_807C6A40.m18[2] && fn_8001A444(2) <= lbl_807C6A40.m18[4]) {
-        Command_unk(20, (int)(lbl_807307A0 + 0x444), 0, 0, 0);
+        Command_unk(20, (int)"CH_AI01", 0, 0, 0);
         lbl_807C6A40.mValid = 1;
         return 11;
     }
@@ -8581,10 +8581,10 @@ int AI::Script::AI_np_wait_reaction_minus2::vf0C() {
             lbl_807C6A40.m18[0] = 0;
             Command_unk(0, 2, 0, 0, 0);
             if (lbl_807C6A40.m18[3] == 0) {
-                fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+                fn_8001B508("CH_AI01", lbl_807C6B30.m00);
                 lbl_807C6A40.m18[3] = 1;
             } else {
-                fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+                fn_8001B508("CH_AI02", lbl_807C6B30.m00);
                 lbl_807C6A40.m18[3] = 0;
             }
             lbl_807C6A40.mValid = 1;
@@ -8598,10 +8598,10 @@ int AI::Script::AI_np_wait_reaction_minus2::vf34() {
     if (Distance_unk(lbl_807C68C0.mChara, lbl_807C6B30.m00) < lbl_807C6A40.m18[2] && fn_8001A444(2) <= lbl_807C6A40.m18[4]) {
         Command_unk(0, 2, 0, 0, 0);
         if (lbl_807C6A40.m18[3] == 0) {
-            fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI01", lbl_807C6B30.m00);
             lbl_807C6A40.m18[3] = 1;
         } else {
-            fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI02", lbl_807C6B30.m00);
             lbl_807C6A40.m18[3] = 0;
         }
         lbl_807C6A40.mValid = 1;
@@ -8633,10 +8633,10 @@ int AI::Script::AI_np_wait_reaction_plus::vf0C() {
             lbl_807C6A40.m18[0] = 0;
             Command_unk(0, 2, 0, 0, 0);
             if (lbl_807C6A40.m18[3] == 0) {
-                fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+                fn_8001B508("CH_AI01", lbl_807C6B30.m00);
                 lbl_807C6A40.m18[3] = 1;
             } else {
-                fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+                fn_8001B508("CH_AI02", lbl_807C6B30.m00);
                 lbl_807C6A40.m18[3] = 0;
             }
             lbl_807C6A40.mValid = 1;
@@ -8649,10 +8649,10 @@ int AI::Script::AI_np_wait_reaction_plus::vf0C() {
 int AI::Script::AI_np_wait_reaction_plus::vf34() {
     if (Distance_unk(lbl_807C68C0.mChara, lbl_807C6B30.m00) < lbl_807C6A40.m18[2] && fn_8001A444(2) >= lbl_807C6A40.m18[4]) {
         if (lbl_807C6A40.m18[3] == 0) {
-            fn_8001B508((const char*)(lbl_807307A0 + 0x444), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI01", lbl_807C6B30.m00);
             lbl_807C6A40.m18[3] = 1;
         } else {
-            fn_8001B508((const char*)(lbl_807307A0 + 0x44C), lbl_807C6B30.m00);
+            fn_8001B508("CH_AI02", lbl_807C6B30.m00);
             lbl_807C6A40.m18[3] = 0;
         }
         lbl_807C6A40.mValid = 1;
@@ -10226,7 +10226,7 @@ extern "C" __declspec(noinline) int fn_8003DBA4() {
 AIScriptMapNode_unk* AIScriptMap_unk::InsertNode_unk(AIScriptMapNode_unk* parent, bool left, bool leftmost,
                                                      const AIScriptMapValue_unk& value) {
     if (mSize == 0xFFFFFFFF) {
-        __msl_error((const char*)(lbl_807307A0 + 0x454)); // "tree::insert length error"
+        __msl_error("tree::insert length error");
     }
     NodeHolder_unk holder(&mRoot, Allocate_unk());
     ::new (&holder.mNode->mValue) AIScriptMapValue_unk(value);
