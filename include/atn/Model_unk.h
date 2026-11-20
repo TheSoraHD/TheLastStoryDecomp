@@ -67,10 +67,11 @@ struct MaterialSet_unk {
 namespace atn {
 
 // inferred: one level of detail of a model (0x18 bytes; constructor 0x80089C28 and destructor
-// 0x80089CE4 are weak copies of atn/Model.cpp). Names invented.
+// 0x80089CE4 defined in atn/Model.cpp after MaterialSet_unk: their position puts the 0.0f first in .sdata2).
+// Names invented.
 struct ModelLod_unk {
-    ModelLod_unk() : m08(0), m0C(0.0f) {}
-    ~ModelLod_unk() { mHandle.fn_80473F88(); }
+    ModelLod_unk();
+    ~ModelLod_unk();
 
     LH_Model mHandle; // 0x00
     void* m08;        // inferred: loaded data (atn::ModelBase::Res_unk)
