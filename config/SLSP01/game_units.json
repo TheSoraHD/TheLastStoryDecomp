@@ -1061,7 +1061,7 @@
   "classes": [
    "atn::D2A_Data"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D2A_Frame.cpp",

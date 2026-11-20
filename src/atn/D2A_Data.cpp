@@ -25,7 +25,7 @@ D2A_Name_unk::~D2A_Name_unk() {}
 
 // inferred: evaluates a track at frame 0 (inline helper, name invented)
 inline void UpdateTrack_unk(D2A_Track_unk* track) {
-    track->mValue = fn_801F0544(&track->mEntries, 0);
+    track->mValue = fn_801F0544(&track->mTables[0], 0);
 }
 
 // inferred: releases the animation tracks (inline helper, name invented)
@@ -149,14 +149,9 @@ D2A_Common* D2A_Data::fn_801EFA78(unsigned int id) {
     return 0;
 }
 
-// NONMATCHING: 87.22% - the original computes the begin and the end of the empty buffer in two
-// registers (not folded); a template with N = 0 or a member array with constructor drops the loop
-D2A_Track_unk::D2A_Track_unk() : m00(0), mEntries(0), mCount(0) {
-    for (D2A_TrackKey_unk* p = mBuf; p < mBuf + 0; p++) {
-        p->mKey = 0;
-        p->mValue = 0;
-    }
-}
+inline D2A_TrackTable_unk::D2A_TrackTable_unk() : mEntries(0), mCount(0) {}
+
+D2A_Track_unk::D2A_Track_unk() : m00(0) {}
 
 void D2A_Data::fn_801EFB00() {
     float end = 1.0f;
