@@ -228,7 +228,7 @@ void CostumeEditChara::vf14() {
                 }
             }
             for (unsigned int i = 0; i < 4; i++) {
-                EquipItemData* item = (int)i < (int)mChara->m6A4.mCount ? mChara->m6A4.mData[i] : 0;
+                EquipItemData* item = (int)i < (int)mChara->m6A4.mSize ? mChara->m6A4.mData[i] : 0;
                 if (item != 0 && item->mFlags.mFlag) {
                     item->vf0C();
                 }

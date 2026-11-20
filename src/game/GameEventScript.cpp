@@ -3074,7 +3074,7 @@ void GameEventScript::fn_8039FBFC(CharaTask* chara, const ScriptArgs_unk* args) 
         }
         break;
     case 6:
-        if (value != 0 && chara->mParts.mCount != 0) {
+        if (value != 0 && chara->mParts.mSize != 0) {
             chara->fn_8014DEE4(0, 0, 0);
         } else {
             chara->fn_8014EEC4(0);
@@ -4406,7 +4406,7 @@ void GameEventScript::fn_803A4568(ScriptResult_unk& result, const ScriptCmd_unk*
         if (name[0] == '@') {
             if (strncmp(name, "@eq", 3) == 0) {
                 int i = atoi(name + 3);
-                EquipItemData* item = i < (int)chara->m6A4.mCount ? chara->m6A4.mData[i] : 0;
+                EquipItemData* item = i < (int)chara->m6A4.mSize ? chara->m6A4.mData[i] : 0;
                 if (item != 0) {
                     item->mFlags.mFlag = args->m30 == 0;
                 } else {
@@ -5053,7 +5053,7 @@ void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk*
             arena->mVoice = value;
             break;
         case 8:
-            arena->mVoices[0].mCount = 0;
+            arena->mVoices[0].mSize = 0;
             break;
         case 9: {
             ArenaTask::Voice_unk voice;
@@ -5063,7 +5063,7 @@ void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk*
             break;
         }
         case 10:
-            arena->mVoices[1].mCount = 0;
+            arena->mVoices[1].mSize = 0;
             break;
         case 11: {
             ArenaTask::Voice_unk voice;
@@ -5073,7 +5073,7 @@ void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk*
             break;
         }
         case 12:
-            arena->mVoices[2].mCount = 0;
+            arena->mVoices[2].mSize = 0;
             break;
         case 13: {
             ArenaTask::Voice_unk voice;
@@ -5083,7 +5083,7 @@ void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk*
             break;
         }
         case 14:
-            arena->mVoices[3].mCount = 0;
+            arena->mVoices[3].mSize = 0;
             break;
         case 15: {
             ArenaTask::Voice_unk voice;

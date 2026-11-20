@@ -392,10 +392,10 @@ CharaTask::~CharaTask() {
     if (lbl_8087F498 != 0) {
         lbl_8087F498->fn_803EBBCC(this);
     }
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         delete mParts.mData[i];
     }
-    mParts.mCount = 0;
+    mParts.mSize = 0;
     if (m678 != 0) {
         delete m678;
         m678 = 0;
@@ -413,10 +413,10 @@ CharaTask::~CharaTask() {
             delete m680[i];
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         delete m6A4.mData[i];
     }
-    m6A4.mCount = 0;
+    m6A4.mSize = 0;
     delete m480;
     delete m1394;
 }
@@ -540,7 +540,7 @@ int CharaTask::fn_8013655C() {
                 equipLoading = true;
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             if (m6A4.mData[i]->fn_8036354C()) {
                 equipLoading = true;
             }
@@ -605,7 +605,7 @@ int CharaTask::fn_8013655C() {
         mLook.fn_801298EC(this);
         m1188.Initialize(&mMotion);
         m1220.fn_80121114(this);
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->fn_80363960(&mMotion);
         }
         mMotion.fn_80097C08(0, m484[0], 1, 0, 1, 1.0f, 0.1f);
@@ -4392,7 +4392,7 @@ void CharaTask::fn_80147A18(int value) {
             (*p)->m024.fn_80094E2C(value);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             m6A4.mData[i]->mModel.fn_80094E2C(value);
         }
@@ -4621,7 +4621,7 @@ void CharaTask::fn_80148B38(float distSq) {
             (*p)->fn_80565B98();
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
             m6A4.mData[i]->vf08();
         }
@@ -5083,7 +5083,7 @@ void CharaTask::fn_80149A30() {
                         equip->m024.mFlags |= 0x400;
                     }
                 }
-                for (unsigned int i = 0; i < m6A4.mCount; i++) {
+                for (unsigned int i = 0; i < m6A4.mSize; i++) {
                     if (m6A4.mData[i]->mFlags.mFlag) {
                         m6A4.mData[i]->mModel.mFlags |= 0x400;
                     }
@@ -5103,7 +5103,7 @@ void CharaTask::fn_80149A30() {
                         equip->m024.mFlags &= ~0x400;
                     }
                 }
-                for (unsigned int i = 0; i < m6A4.mCount; i++) {
+                for (unsigned int i = 0; i < m6A4.mSize; i++) {
                     if (m6A4.mData[i]->mFlags.mFlag) {
                         m6A4.mData[i]->mModel.mFlags &= ~0x400;
                     }
@@ -5195,7 +5195,7 @@ void CharaTask::fn_80149A30() {
                 }
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             if (m6A4.mData[i]->mFlags.mFlag) {
                 m6A4.mData[i]->vf0C();
             }
@@ -5297,7 +5297,7 @@ void CharaTask::fn_80149A30() {
             lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
                                       0xFF000000);
             y += 12.0f;
-            for (unsigned int i = 0; i < m12D0.mCount; i++) {
+            for (unsigned int i = 0; i < m12D0.mSize; i++) {
                 CharaHit_unk* hit = &m12D0.mData[i];
                 if (hit->mHit != 0 && hit->m04 == 0) {
                     fn_800DD3FC(text, L"CIRCLE [%d:%s] count=%d\0", hit->mHit->m04, hit->mHit->m08, hit->m08);
@@ -5306,7 +5306,7 @@ void CharaTask::fn_80149A30() {
                     y += 12.0f;
                 }
             }
-            for (unsigned int i = 0; i < mStatus.mRefs.mCount; i++) {
+            for (unsigned int i = 0; i < mStatus.mRefs.mSize; i++) {
                 CharaStatusRef_unk* ref = &mStatus.mRefs.mData[i];
                 if (fn_8021BE98(name, ref->mEntry) != 0) {
                     fn_800DD3FC(text, L"SP [%s] count=%d\0", name, ref->m0C);
@@ -5686,7 +5686,7 @@ inline bool CharaTask::IsLedgeLocked_unk() {
 // inferred: bullet of a hit with flags 0x440000
 inline HitInfo_unk* CharaTask::FindHitBullet_unk() {
     CharaHit_unk* hits = m12D0.mData;
-    for (unsigned int i = 0; i < m12D0.mCount; i++) {
+    for (unsigned int i = 0; i < m12D0.mSize; i++) {
         HitInfo_unk* hit = hits[i].mHit;
         if ((hit->mAC & 0x440000) == 0x440000 && hit->m04 > 0) {
             return fn_80219E6C(hit->m04);
@@ -5961,8 +5961,8 @@ static inline void AttachWeapons_unk(CharaTask* chara) {
 // inferred: selects the weapon part `index` and its motion set (keep: only the part; noMotion:
 // keep the motion ids)
 void CharaTask::fn_8014DEE4(int index, int keep, int noMotion) {
-    if (mParts.mCount != 0 && index < (int)mParts.mCount) {
-    if (lbl_8087F610 != 0 && m5C->m11C == 2 && mParts.mCount > 2) {
+    if (mParts.mSize != 0 && index < (int)mParts.mSize) {
+    if (lbl_8087F610 != 0 && m5C->m11C == 2 && mParts.mSize > 2) {
         if ((index == 1 && mParts[1]->m04 == 0) || (index == 0 && mParts[2]->m04 == 0)) {
             chr::CharaPart_unk* part = mParts[1];
             mParts[1] = mParts[2];
@@ -6176,7 +6176,7 @@ void CharaTask::fn_8014DEE4(int index, int keep, int noMotion) {
 }
 
 void CharaTask::fn_8014EE48() {
-    if (m5C->m11C == 2 && mParts.mCount >= 2) {
+    if (m5C->m11C == 2 && mParts.mSize >= 2) {
         m64C = mParts.mData[1];
         if (m67C != 0 && m67C->vf0C() == 0) {
             m64C = m67C;
@@ -6216,7 +6216,7 @@ extern "C" chr::CharaPart_unk* fn_800457A4(int kind, int id, int arg, CharaTask*
 void CharaTask::fn_8014F2B4(int a, int b, int index) {
     if (lbl_8087F610 != 0) {
         int kind = fn_80219558(m50);
-        if (kind >= 0 && 7 > kind && mParts.mCount < 2 && a == 0) {
+        if (kind >= 0 && 7 > kind && mParts.mSize < 2 && a == 0) {
             int id = fn_804EB750(lbl_8087F610, this, index);
             if (id >= 0) {
                 if (id >= 1000 && fn_80206B14(0, id) == 0) {
@@ -6242,7 +6242,7 @@ void CharaTask::fn_8014F2B4(int a, int b, int index) {
 }
 
 void CharaTask::fn_8014F4FC(int a, int b) {
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         if (a == mParts.mData[i]->m04 && b == mParts.mData[i]->m08) {
             delete mParts[i];
             mParts.erase(&mParts.mData[i]);
@@ -6324,7 +6324,7 @@ void CharaTask::fn_8014F960(int notify) {
 
 bool CharaTask::fn_8014FAD0() {
     bool result = false;
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         if (mParts.mData[i] != 0 && mParts.mData[i]->vf0C()) {
             result = true;
         }
@@ -7706,10 +7706,10 @@ int CharaTask::fn_8015487C() {
         break;
     case 2:
         result = 2;
-        if (mStatus.m2CC.mCount != 0) {
+        if (mStatus.m2CC.mSize != 0) {
             if (mStatus.m2CC[0].m[0] > 0 && fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2CC[0].m[0]))) {
                 result = 5;
-            } else if (mStatus.m2CC.mCount >= 2 && mStatus.m2CC[1].m[0] > 0 &&
+            } else if (mStatus.m2CC.mSize >= 2 && mStatus.m2CC[1].m[0] > 0 &&
                        fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2CC[1].m[0]))) {
                 result = 5;
             }
@@ -10820,7 +10820,7 @@ void CharaTask::fn_80176E30() {
     if (slots == 0) {
         return;
     }
-    m125C.mCount = 0;
+    m125C.mSize = 0;
     for (int i = 0; i < 0x48; i++) {
         if (m125C.full()) {
             break;
@@ -10860,7 +10860,7 @@ void CharaTask::fn_80176E30() {
         m125C.PushBack_unk(CharaPair_unk(atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y), chara));
     }
     Sort_unk<CharaPair_unk, FloatLess_unk>(m125C.begin(), m125C.end(), fn_80135384);
-    if (m125C.mCount <= 1) {
+    if (m125C.mSize <= 1) {
         mFlag10 = 0;
         return;
     }
@@ -10918,7 +10918,7 @@ void CharaTask::fn_80176E30() {
             count++;
         }
     }
-    if (count >= m125C.mCount) {
+    if (count >= m125C.mSize) {
         if (!mFlag10) {
             mFlag10 = 1;
             if (mType == 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80375184()) {
@@ -11095,7 +11095,7 @@ void CharaTask::fn_80178A6C() {
         lbl_8087F9E8->fn_8059D168(this);
     }
     m1374 = 0;
-    m12D0.mCount = 0;
+    m12D0.mSize = 0;
     m1410 = 0.0f;
     fn_800CB5C8(&m1414, 0, 0);
 }
@@ -11375,7 +11375,7 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
                 (*equip)->m024.mFlags &= ~mask;
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->mModel.mFlags &= ~mask;
         }
     } else {
@@ -11392,7 +11392,7 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
                 (*equip)->m024.mFlags |= mask;
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->mModel.mFlags |= mask;
         }
     }
@@ -11678,7 +11678,7 @@ int CharaTask::fn_8017A9A8() {
             bool same = mC58.mB4 == player->mC58.mB4;
             if (kind == 1) {
                 bool ok = false;
-                if (mParts.mCount > 1 && mParts.mData[1]->m274->mParam.m78 == 0) {
+                if (mParts.mSize > 1 && mParts.mData[1]->m274->mParam.m78 == 0) {
                     ok = true;
                 }
                 if (same && ok) {
@@ -11740,7 +11740,7 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 // inferred: collects the resources of the character (models, parts, equipment, motion set)
 void CharaTask::fn_8017AD44(atn::SimpleVector<unsigned int>* list, void* arg) {
     mMotion.fn_80096218(list, arg);
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         ((atn::Model*)mParts.mData[i]->m010)->fn_80096218(list, arg);
     }
     chr::CharaEquip_unk** equips = m680;
@@ -11749,7 +11749,7 @@ void CharaTask::fn_8017AD44(atn::SimpleVector<unsigned int>* list, void* arg) {
             equips[i]->fn_80563A60(list, arg);
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         m6A4.mData[i]->mModel.fn_80096218(list, arg);
     }
     list->push_back(m98.fn_80473F34());
@@ -11956,7 +11956,7 @@ void CharaTask::fn_8017C7F8(unsigned int on) {
             mode = 4;
         }
         mMotion.fn_80094BD8(mode);
-        for (unsigned int i = 0; i < mParts.mCount; i++) {
+        for (unsigned int i = 0; i < mParts.mSize; i++) {
             if (mParts.mData[i] != 0) {
                 ((atn::Model*)mParts.mData[i]->m010)->fn_80094BD8(mode);
             }
@@ -11967,7 +11967,7 @@ void CharaTask::fn_8017C7F8(unsigned int on) {
                 equips[i]->GetModel_unk()->fn_80094BD8(mode);
             }
         }
-        for (unsigned int i = 0; i < m6A4.mCount; i++) {
+        for (unsigned int i = 0; i < m6A4.mSize; i++) {
             m6A4.mData[i]->mModel.fn_80094BD8(mode);
         }
     }

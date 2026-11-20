@@ -731,7 +731,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit, int) {
                 bool pierce = false;
                 if (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80133EE8(0x3F) != 0) {
                     CharaStatusEntry_unk* e = msg->mAttacker->mStatus.mEntries.mData;
-                    for (unsigned int i = 0; i < msg->mAttacker->mStatus.mEntries.mCount; i++, e++) {
+                    for (unsigned int i = 0; i < msg->mAttacker->mStatus.mEntries.mSize; i++, e++) {
                         if (e->mId == 0x3F && e->mValue == 7) {
                             pierce = true;
                         }

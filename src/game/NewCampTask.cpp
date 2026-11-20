@@ -390,7 +390,7 @@ extern "C" inline void fn_8052C66C(CharaStatus* status, CharaTask* chara) {
     status->mChara = chara;
 }
 extern "C" inline void fn_8052C674(CharaStatus* status) {
-    status->mRefs.mCount = 0;
+    status->mRefs.mSize = 0;
 }
 extern "C" inline NpcTask* fn_8052C990(NpcManager* mgr) {
     return mgr->mHead;

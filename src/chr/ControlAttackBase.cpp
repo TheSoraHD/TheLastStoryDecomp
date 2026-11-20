@@ -838,7 +838,7 @@ int ControlHitBackBullet::vf0C() {
         atn::Matrix3x4 m;
         m.SetRotationY_unk(mChara->mRot.y);
         PSMTXMultVec(m.m, &front, &front);
-        for (unsigned int i = 0; i < mBullets.mCount; i++) {
+        for (unsigned int i = 0; i < mBullets.mSize; i++) {
             HomingBullet* bullet = mBullets.mData[i];
             CharaTask* target = bullet->m88;
             atn::Vector3 center = (target->mColli.m3C + target->mColli.m48) * 0.5f;
@@ -853,7 +853,7 @@ int ControlHitBackBullet::vf0C() {
                 }
             }
         }
-        mBullets.mCount = 0;
+        mBullets.mSize = 0;
         if (mHit == 0) {
             mHit = 1;
         }
@@ -866,7 +866,7 @@ int ControlHitBackBullet::vf0C() {
 }
 
 void ControlHitBackBullet::vf1C() {
-    for (unsigned int i = 0; i < mBullets.mCount; i++) {
+    for (unsigned int i = 0; i < mBullets.mSize; i++) {
         mBullets.mData[i]->vf0C(1, 0);
     }
 }

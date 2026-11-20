@@ -1428,8 +1428,8 @@ void Em301LShade::fn_802D5D18(int kind) {
             count = rand() % 100 < 60;
         }
         for (int i = 0; i < count; i++) {
-            if (list.mCount != 0) {
-                unsigned int index = ShadeRand_unk(list.mCount);
+            if (list.mSize != 0) {
+                unsigned int index = ShadeRand_unk(list.mSize);
                 list.mData[index]->mStatus.fn_8013310C(0x100, 0);
                 list.mData[index]->fn_80166D3C(1);
                 list.erase(&list.mData[index]);

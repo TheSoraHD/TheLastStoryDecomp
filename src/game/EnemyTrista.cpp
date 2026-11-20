@@ -237,7 +237,7 @@ inline void EnemyTrista::FireEvent_unk() {
 inline void EnemyTrista::StartEvent_unk() {
     unsigned int i = 0;
     TristaEvent_unk* e = m1540.mData;
-    for (; i < m1540.mCount; i++) {
+    for (; i < m1540.mSize; i++) {
         if (lbl_8087F430->fn_80370A78(e->m00) == 0) {
             lbl_8087F430->fn_80370AE4(e->m00, 1);
             m14D0 = i;
@@ -636,7 +636,7 @@ int EnemyTrista::vfA8(int kind) {
 // inferred: keeps the hit points above the ratio of the next event (name invented)
 inline void EnemyTrista::ClampHp_unk() {
     int next = m14D4 + 1;
-    if (next < (int)m1540.mCount) {
+    if (next < (int)m1540.mSize) {
         float min = mStatus.mParamB.m84 * (m1540.mData[next].m08 - 0.01f);
         if (mStatus.m04 < min) {
             mStatus.m04 = min;
@@ -646,7 +646,7 @@ inline void EnemyTrista::ClampHp_unk() {
 
 // inferred: the guard breaks only with the skills of m151C
 inline bool HasHit_unk(FixedArray_unk<HitInfo_unk*, 8>& hits, HitInfo_unk* hit) {
-    for (unsigned int i = 0; i < hits.mCount; i++) {
+    for (unsigned int i = 0; i < hits.mSize; i++) {
         if (hits.mData[i] == hit) {
             return true;
         }
@@ -723,7 +723,7 @@ int EnemyTrista::fn_8035DA94() {
     }
     float ratio = mStatus.m04 / mStatus.mParamB.m84;
     TristaEvent_unk* e = m1540.mData;
-    for (unsigned int i = 0; i < m1540.mCount; i++) {
+    for (unsigned int i = 0; i < m1540.mSize; i++) {
         if (lbl_8087F430->fn_80370A78(e->m00) == 0 && ratio <= e->m08) {
             return 1;
         }

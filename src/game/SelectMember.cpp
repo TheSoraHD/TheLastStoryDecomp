@@ -174,7 +174,7 @@ void SelectMember::vf14() {
     case 2: {
         fn_80572450();
         char name[64];
-        if (mCursor >= (int)mMembers.mCount) {
+        if (mCursor >= (int)mMembers.mSize) {
             sprintf(name, "end_cursor");
         } else {
             sprintf(name, "cursur_point%d", mCursor);
@@ -231,7 +231,7 @@ void SelectMember::fn_80571C64(int state) {
 
 void SelectMember::fn_80571DB8() {
     void* pad = lbl_8087EF70;
-    fn_804A436C(&mCursor, mMembers.mCount + 1, mMembers.mCount + 1, 1, 3);
+    fn_804A436C(&mCursor, mMembers.mSize + 1, mMembers.mSize + 1, 1, 3);
     if (fn_800A555C(pad, 0, 5) != 0) {
         fn_80571C64(1);
         fn_80117228(2);
@@ -241,8 +241,8 @@ void SelectMember::fn_80571DB8() {
         return;
     }
     int n = CountSelected_unk();
-    if (mCursor >= (int)mMembers.mCount) {
-        if (mMax <= n || (int)mMembers.mCount <= n) {
+    if (mCursor >= (int)mMembers.mSize) {
+        if (mMax <= n || (int)mMembers.mSize <= n) {
             fn_80571C64(3);
             fn_80117228(1);
             mAnims[8]->m104 = 1.0f;
@@ -255,14 +255,14 @@ void SelectMember::fn_80571DB8() {
     if (member.mFixed != 0) {
         fn_80117228(11);
     } else if (member.mSelected == 0) {
-        if (mMax <= n || (int)mMembers.mCount <= n) {
+        if (mMax <= n || (int)mMembers.mSize <= n) {
             fn_80117228(11);
         } else {
             member.mSelected = 1;
             fn_80117228(1);
-            if (mMax <= n + 1 || (int)mMembers.mCount <= n + 1) {
-                mCursor = mMembers.mCount;
-                mCursor2 = mMembers.mCount;
+            if (mMax <= n + 1 || (int)mMembers.mSize <= n + 1) {
+                mCursor = mMembers.mSize;
+                mCursor2 = mMembers.mSize;
             }
         }
     } else {
@@ -288,7 +288,7 @@ void SelectMember::fn_80571FD8() {
         int back = 6;
         for (unsigned int i = 0; i < 7; i++) {
             bool selected = false;
-            for (unsigned int j = 0; j < mMembers.mCount; j++) {
+            for (unsigned int j = 0; j < mMembers.mSize; j++) {
                 if (mMembers.mData[j].mId == i && mMembers.mData[j].mSelected != 0) {
                     selected = true;
                     break;
@@ -337,7 +337,7 @@ void SelectMember::fn_80572194() {
 }
 
 void SelectMember::fn_80572290() {
-    mMembers.mCount = 0;
+    mMembers.mSize = 0;
     mMax = 1;
     int progress = 0;
     int value = 0;
@@ -368,7 +368,7 @@ void SelectMember::fn_80572290() {
 void SelectMember::fn_80572450() {
     mAnims[0]->mFlags &= ~4;
     int n = 0;
-    for (unsigned int k = 0; k < mMembers.mCount; k++) {
+    for (unsigned int k = 0; k < mMembers.mSize; k++) {
         if (mMembers.mData[k].mSelected != 0) {
             n++;
         }
@@ -389,7 +389,7 @@ void SelectMember::fn_80572450() {
     pos.m0C = 0.0f;
     pos.m10 = 0.0f;
     for (int i = 0; i < 7; i++) {
-        if (i >= (int)mMembers.mCount) {
+        if (i >= (int)mMembers.mSize) {
             continue;
         }
         char name[64];

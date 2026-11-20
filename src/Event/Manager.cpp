@@ -79,7 +79,7 @@ float lbl_8087E088 = 0.05f;
 float lbl_8087E08C = -0.6f;
 extern "C" GameConfig_unk* lbl_8087F0A8;     // inferred: game settings
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
-extern "C" atn::Vector2_unk lbl_807C7028;    // inferred: zero 2D vector
+extern "C" atn::Vec2_unk lbl_807C7028;    // inferred: zero 2D vector
 extern "C" void fn_8054E574();               // inferred: creates the action processors (Event/ActionActorBehavior.cpp)
 extern "C" void fn_8054F380();               // inferred: deletes the action processors (Event/ActionActorBehavior.cpp)
 extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen capture fade
@@ -107,7 +107,7 @@ extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* na
 extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
-extern "C" atn::Vector2_unk fn_800F84D8(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t);
+extern "C" atn::Vec2_unk fn_800F84D8(const atn::Vec2_unk& a, const atn::Vec2_unk& b, float t);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" float fn_802A7964(float rad);
 extern "C" void* fn_802F0990();         // inferred: returns lbl_8087EFA8
@@ -591,7 +591,7 @@ int Manager::fn_8047E964(int id, int queue) {
         QueuedSequence_unk& entry = m23B8.Next_unk();
         entry.mId = id;
         entry.m04 = 0;
-        m23B8.mCount++;
+        m23B8.mSize++;
     } else {
         Sequence* seq = FindSequence_unk(id);
         if (seq == 0) {
@@ -1726,6 +1726,10 @@ void Manager::fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float ra
 inline atn::Vector2_unk Scale_unk(const atn::Vector2_unk& v, float s) {
     return atn::Vector2_unk(v.x * s, v.y * s);
 }
+// inferred: the same for the 2D vectors of the manager (Manager::vf10)
+inline atn::Vec2_unk Scale_unk(const atn::Vec2_unk& v, float s) {
+    return atn::Vec2_unk(v.x * s, v.y * s);
+}
 
 // inferred: moves the light and grows it towards `scale` (cloud map shown) or shrinks it
 void Manager::fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos) {
@@ -1968,7 +1972,7 @@ void Manager::vf10() {
         m241C->MeltTask();
         m2438->MeltTask();
         m1EAC++;
-        atn::Vector2_unk stick(lbl_807C7028);
+        atn::Vec2_unk stick(lbl_807C7028);
         if (GetPad_unk() != 0) {
             stick.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);
             stick.y = fn_800A56A8(GetPad_unk(), 0, 1, 0);

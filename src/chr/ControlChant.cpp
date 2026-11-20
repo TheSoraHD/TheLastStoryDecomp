@@ -607,10 +607,10 @@ int ControlMagic::vf0C() {
                 for (int i = 0; i < count; i++) {
                     MagicHoming_unk param;
                     CharaTask* target;
-                    if (enemies.mCount == 0) {
+                    if (enemies.mSize == 0) {
                         target = lbl_8087F8A0->mHead;
                     } else {
-                        target = enemies[rand() % enemies.mCount];
+                        target = enemies[rand() % enemies.mSize];
                     }
                     param.mTarget = target;
                     float t = (i - 0.5f * (count - 1)) / (0.5f * (count - 1));
