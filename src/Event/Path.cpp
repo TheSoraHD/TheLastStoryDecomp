@@ -331,7 +331,7 @@ void EventCamera_unk::fn_80113CD4(const CameraTarget_unk& eye, const CameraTarge
     }
 }
 
-// NONMATCHING: 99.6% - fmr instead of frsp for the float argument; src/dst copy registers swapped
+// inferred: the start time goes through a double local (the original rounds it with frsp for the call)
 void EventCamera_unk::fn_801140A0(Path* path, const CameraTarget_unk& at, int id, int resetAngles, float speed, float t,
                                   float roll) {
     fn_801128C4(resetAngles);
@@ -339,7 +339,8 @@ void EventCamera_unk::fn_801140A0(Path* path, const CameraTarget_unk& at, int id
     m1F4 = 5;
     m298 = speed;
     m294 = t;
-    float time = lbl_8087F540->fn_8048BCA4(m290, t);
+    double start = t;
+    float time = lbl_8087F540->fn_8048BCA4(m290, start);
     m210.mPath = path;
     m204 = fn_80112A00(m210, time);
     m240 = at;
