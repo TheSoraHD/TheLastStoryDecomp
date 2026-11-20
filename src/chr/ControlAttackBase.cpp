@@ -99,17 +99,19 @@ inline void ControlAttackBase::LoadTable_unk() {
     mTable = fn_802097C4(motion->fn_80097D40(motion->mTracks[0].m00)->fn_80473F18());
 }
 
-// NONMATCHING: 97.4% - chara gets r3 instead of r5 (the original keeps it out of the return register).
+// inferred: same form as vf28 (type declared first, the frame read once for the table loop)
 int ControlAttackBase::vf24() {
+    int type;
     Chara_unk* chara = mChara;
     if (mTable != 0) {
+        float frame = chara->mMotion.mTracks[0].m08;
         for (int i = 0; i < mTable->mCount; i++) {
-            if (mTable->mStart[i] <= chara->mMotion.mTracks[0].m08 && chara->mMotion.mTracks[0].m08 <= mTable->mEnd[i]) {
+            if (mTable->mStart[i] <= frame && frame <= mTable->mEnd[i]) {
                 return 1;
             }
         }
     } else {
-    int type = chara->m560;
+    type = chara->m560;
     if (type == 4 || type == 5) {
         return chara->mMotion.mTracks[0].m08 >= 9.0f && chara->mMotion.mTracks[0].m08 <= 11.0f;
     }
@@ -149,7 +151,6 @@ float ControlAttackBase::vf20() {
     return 18.0f;
 }
 
-// NONMATCHING: 97.3% - same register choice as vf24.
 int ControlAttackBase::vf28() {
     int type;
     Chara_unk* chara = mChara;
