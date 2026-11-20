@@ -1,0 +1,31 @@
+diff --git a/src/game/BattleTask.cpp b/src/game/BattleTask.cpp
+index e07c789..2878e70 100644
+--- a/src/game/BattleTask.cpp
++++ b/src/game/BattleTask.cpp
+@@ -1814,12 +1814,13 @@ int BattleTask::fn_800F8574(CharaTask* owner, HitInfo_unk* data, const atn::Vect
+         }
+         fn_800C344C(sound, pos, 0, -1, volume);
+     }
+-    atn::Vector3 rot = dir->ToRotation_unk();
+     atn::Matrix3x4 m;
+-    MakeRotZYX_unk(&m, rot);
++    MakeRotZYX_unk(&m, dir->ToRotation_unk());
+     for (int i = 0; i < data->m48; i++) {
+         atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-        float spread = 0.017453292f * (owner->mStatus.mParamB.m2C * (1.0f - owner->m12CC));
++        float rate = 1.0f - owner->m12CC;
++        float base = owner->mStatus.mParamB.m2C;
++        float spread = 0.017453292f * (base * rate);
+         Mtx ry;
+         PSMTXRotRad(ry, 'y', spread * ((float)(rand() % 1001) / 1000.0f));
+         PSMTXMultVec(ry, &v, &v);
+@@ -1855,7 +1856,8 @@ int BattleTask::fn_800F8574(CharaTask* owner, HitInfo_unk* data, const atn::Vect
+             bullet->vf28(&shot, pos, &v, owner, homing, flags);
+         }
+     }
+-    float t = owner->m12CC + 0.33f;
++    float cur = owner->m12CC;
++    float t = cur + 0.33f;
+     if (t > 1.0f) {
+         t = 1.0f;
+     }
