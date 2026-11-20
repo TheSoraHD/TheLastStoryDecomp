@@ -255,7 +255,7 @@ extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
         chara->mFlag31 = in->m12_5 == 1;
         chara->mFlag10 = in->m12_4 == 1;
         chara->mFlagB8 = in->m12_3 == 1;
-        if (in->m12_2 == 1) {
+        if (in->m12_2 != 1) {
             chara->mColli.mFlags |= 1;
         } else {
             chara->mColli.mFlags &= ~1;
