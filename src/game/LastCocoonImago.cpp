@@ -587,8 +587,14 @@ int LastCocoonImago::vfBC(atn::ColliBase* target) {
     return target != &m18FC;
 }
 
-// NONMATCHING: 98% - stack slots of the temporaries (the zero vector of the Item14_unk constructor)
-// inferred: damage spheres: the three attack nodes (between the two nodes when both exist) and m1948
+// inferred: a + (b - a) * t with the points by value (their copies are the temporaries below the item in the
+// original stack; name invented)
+static inline atn::Vector3 ImagoLerpV_unk(atn::Vector3 pa, atn::Vector3 pb, float t) {
+    return (pb - pa) * t + pa;
+}
+
+// inferred: damage spheres: the three attack nodes (between the two nodes when both exist) and m1948;
+// the original clears mFlagB29 at the end (it was missing)
 void LastCocoonImago::vf50() {
     Item14_unk item;
     for (int i = 0; i < 3; i++) {
@@ -596,9 +602,8 @@ void LastCocoonImago::vf50() {
         MtxPtr b = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode1);
         if (a != 0) {
             if (b != 0) {
-                atn::Vector3 pb = ((atn::Matrix3x4*)b)->GetTrans_unk();
-                atn::Vector3 pa = ((atn::Matrix3x4*)a)->GetTrans_unk();
-                item.m04.mCenter = (pb - pa) * 0.6f + pa;
+                item.m04.mCenter = ImagoLerpV_unk(((atn::Matrix3x4*)a)->GetTrans_unk(),
+                                                  ((atn::Matrix3x4*)b)->GetTrans_unk(), 0.6f);
             } else {
                 item.m04.mCenter = ((atn::Matrix3x4*)a)->GetTrans_unk();
             }
@@ -609,6 +614,7 @@ void LastCocoonImago::vf50() {
     item.m04.mCenter = m1948;
     item.m04.mRadius = m1954;
     m624.push_back(item);
+    mFlagB29 = 0;
 }
 
 // inferred: a + (b - a) * t (name invented)
