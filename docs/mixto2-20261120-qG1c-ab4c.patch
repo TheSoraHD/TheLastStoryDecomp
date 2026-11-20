@@ -1,0 +1,93 @@
+diff --git a/src/game/GameUI.cpp b/src/game/GameUI.cpp
+index b4d0519..719da3b 100644
+--- a/src/game/GameUI.cpp
++++ b/src/game/GameUI.cpp
+@@ -3529,6 +3529,15 @@ inline float WrapAngleF_unk(float a) {
+     return a;
+ }
+ 
++// inferred: the view is giving an order (name invented)
++static inline bool IsTacBusy_unk(TacView* t) {
++    bool r = false;
++    if (t->m1598 != 0 || t->mAim.mA != 0) {
++        r = true;
++    }
++    return r;
++}
++
+ // inferred: icons of the tactical view (called by game/GameTask): the cursor ring on the ground spins and is
+ // drawn with the colours of the effect under it, the order prompt window follows the state of the view;
+ // `show` 0 hides the overlook windows, `keep` 0 also updates them (fn_803DBD44)
+@@ -3567,9 +3576,10 @@ void GameUI::fn_803DAB4C(int show, int keep) {
+                 } else {
+                     mDD0 = 0.0f;
+                 }
+-                atn::Vector3 rot(-1.5707964f, mDD0, 0.0f);
+                 float radius = 20.0f;
+-                atn::Vector3 scale(radius * 3.5f, radius * 3.5f, radius * 3.5f);
++                atn::Vector3 scale(radius, radius, radius);
++                scale *= 3.5f;
++                atn::Vector3 rot(-1.5707964f, mDD0, 0.0f);
+                 center.y += 1.0f;
+                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(center);
+                 if (lbl_8087F9F8->m48.mState != 0 && lbl_8087F9F8->mAim.mMode == 0) {
+@@ -3591,8 +3601,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
+                             if (e->m08 != 0) {
+                                 atn::Sphere s(e->m10, e->m5C * e->m28);
+                                 float limit = 6.0f + s.mRadius;
+-                                atn::Vector3 d = s.mCenter - pos;
+-                                float dist = PSVECSquareMag(&d);
++                                float dist = (s.mCenter - pos).LengthSq_unk();
+                                 if (e->m5C * e->m28 > 15.0f && dist < limit * limit && dist < bestDist &&
+                                     (e->m04->mAC & 0x100000) != 0x100000) {
+                                     best = e;
+@@ -3611,26 +3620,29 @@ void GameUI::fn_803DAB4C(int show, int keep) {
+                     } else {
+                         colored = false;
+                     }
+-                    bool busy = false;
+-                    if (lbl_8087F9F8->m1598 != 0 || lbl_8087F9F8->mAim.mA != 0) {
+-                        busy = true;
+-                    }
++                    bool busy = IsTacBusy_unk(lbl_8087F9F8);
++                    GameUIColor_unk mulC;
++                    GameUIColor_unk addC;
+                     if (!busy) {
+-                        atn::Color mul = *(const atn::Color*)&m2678;
+-                        atn::Color add = *(const atn::Color*)&m2688;
++                        mulC = m2678;
++                        addC = m2688;
++                        const atn::Color& mul = *(const atn::Color*)&mulC;
++                        const atn::Color& add = *(const atn::Color*)&addC;
+                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, add.ToU32(), 0, (int)&mE04, 0, -12.0f);
+                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, mul.ToU32(), 0, (int)&mDD4, 0, -13.0f);
+                         lbl_8087F9F8->fn_805AE034(0);
+                     } else if (colored) {
+-                        atn::Color mul;
+-                        atn::Color add;
+-                        fn_803DEE24(best, (GameUIColor_unk*)&mul, (GameUIColor_unk*)&add);
++                        fn_803DEE24(best, &mulC, &addC);
++                        const atn::Color& mul = *(const atn::Color*)&mulC;
++                        const atn::Color& add = *(const atn::Color*)&addC;
+                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, add.ToU32(), 0, (int)&mE04, 0, -12.0f);
+                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, mul.ToU32(), 0, (int)&mDD4, 0, -13.0f);
+                         lbl_8087F9F8->fn_805AE034((TacViewTarget_unk*)best);
+                     } else {
+-                        atn::Color mul = *(const atn::Color*)&m2698;
+-                        atn::Color add = *(const atn::Color*)&m26A8;
++                        mulC = m2698;
++                        addC = m26A8;
++                        const atn::Color& mul = *(const atn::Color*)&mulC;
++                        const atn::Color& add = *(const atn::Color*)&addC;
+                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, add.ToU32(), 0, (int)&mE04, 0, -12.0f);
+                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, mul.ToU32(), 0, (int)&mDD4, 0, -13.0f);
+                         lbl_8087F9F8->fn_805AE034(0);
+@@ -3671,7 +3683,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
+                 break;
+             case 3:
+                 m2544->MeltTask();
+-                if (m2544->IsEnd_unk()) {
++                if (m2544->mFrame >= m2544->mData.mEndFrame) {
+                     m2540 = 0;
+                 }
+                 break;
