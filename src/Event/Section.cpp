@@ -1,19 +1,36 @@
+#include "Event/EventSpVector_unk.h"
 #include "Event/Section.h"
 #include "atn/Memory.h"
 #include "std/string_members.h"
+
+namespace std {
+// inferred: push_back of the channels (see Event/EventSpVector_unk.h)
+template <>
+inline void vector<boost::shared_ptr<Event::Channel> >::__push_unk(size_type n, const boost::shared_ptr<Event::Channel>& x) {
+    size_type c = this->mCap;
+    if (n < c) {
+        this->__push_fast_unk(n, x);
+        return;
+    }
+    __vec_sp_unk<boost::shared_ptr<Event::Channel> >::__push_slow_unk(*this, x);
+}
+// inferred: the elements are destroyed one inline level below (register order of the destroy loop)
+template <>
+inline void __vec_storage_unk<boost::shared_ptr<Event::Channel> >::__shrink_unk(unsigned int newSize) {
+    __vec_sp_unk<boost::shared_ptr<Event::Channel> >::__shrink_loop_unk(*this, newSize);
+}
+} // namespace std
 
 namespace Event {
 
 Section::Section(Cut* cut, int index) : mCut(cut), m0C(0), m10(0), m14(1) {}
 
-// NONMATCHING: 41.2% - the boost::shared_ptr counts (lwarx/stwcx. of sp_counted_base_cw_ppc.hpp)
-// now match; what differs is the inlined std::vector::push_back growth path of std/vector.h
-// (the original keeps max_size() in a register and divides it at run time, and keeps an
-// unreachable copy of the fast path after the length check).
+// NONMATCHING: 99.99% - push_back through Event/EventSpVector_unk.h (same source as Sequence::fn_80540A08,
+// at 100%); only the free of the reallocation buffer differs: the original reads its storage through the
+// `this` of the buffer (lwz r3, 0x0(r30)), ours from the stack (lwz r3, 0x30(r1)).
 Channel* Section::fn_8053C788() {
-    boost::shared_ptr<Channel> channel(new ((MemoryTag)4, "", "", 0) Channel(this));
-    mChannels.push_back(channel);
-    return mChannels[mChannels.size() - 1].get();
+    mChannels.push_back(boost::shared_ptr<Channel>(new ((MemoryTag)4, "", "", 0) Channel(this)));
+    return mChannels.back().get();
 }
 
 // inferred: the reader of the section attributes was stripped by the linker; only its literals are

@@ -54,9 +54,9 @@ int Cut::fn_8053B028() {
     return mNextCut;
 }
 
-// NONMATCHING: 99.7% - push_back through Event/EventSpVector_unk.h; only register numbers left: the
-// shared_count (&pn, pi) registers of the two destroy loops of the reallocation buffer are swapped and the
-// original frees the buffer storage through its `this` (lwz r3, 0x0(r30)).
+// NONMATCHING: 99.99% - push_back through Event/EventSpVector_unk.h (same source as Sequence::fn_80540A08,
+// at 100%); only the free of the reallocation buffer differs: the original reads its storage through the
+// `this` of the buffer (lwz r3, 0x0(r30)), ours from the stack (lwz r3, 0x30(r1)).
 Label* Cut::fn_8053B030(int index) {
     Sequence* sequence = mSequence;
     if (index == -1) {
@@ -68,9 +68,9 @@ Label* Cut::fn_8053B030(int index) {
     return mLabels.back().get();
 }
 
-// NONMATCHING: 99.7% - push_back through Event/EventSpVector_unk.h; only register numbers left: the
-// shared_count (&pn, pi) registers of the two destroy loops of the reallocation buffer are swapped and the
-// original frees the buffer storage through its `this` (lwz r3, 0x0(r30)).
+// NONMATCHING: 99.99% - push_back through Event/EventSpVector_unk.h (same source as Sequence::fn_80540A08,
+// at 100%); only the free of the reallocation buffer differs: the original reads its storage through the
+// `this` of the buffer (lwz r3, 0x0(r30)), ours from the stack (lwz r3, 0x30(r1)).
 Section* Cut::fn_8053B828(int index) {
     mSections.push_back(boost::shared_ptr<Section>(new ((MemoryTag)4, "", "", 0) Section(this, index)));
     return mSections.back().get();
