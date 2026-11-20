@@ -8953,7 +8953,12 @@ extern "C" int fn_8021A77C(HitInfo_unk* data);
 extern "C" bool fn_8021A8D0(HitInfo_unk* data);
 extern "C" __declspec(noinline) int fn_804F1060();
 #include "game/HitUtil_unk.h"
-// NONMATCHING: 99.08% - stack slots of the matrices and vectors, the status effects added through the status
+// inferred: -v component by component (as HitNeg_unk of BattleTask; name invented)
+static inline atn::Vector3 PPNeg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// NONMATCHING: 99.37% - stack slots of the matrices and vectors, the status effects added through the status
 // (base 0x7D4 in the original) and reloads of lbl_8087F610 in the inlined searches
 // inferred: messages 10 and 11 (only in the game, state 30): a hit of a character on another one. The hate of the
 // target is updated, the status effects of the attacker are replaced by the ones of the message and the listeners
@@ -9058,9 +9063,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
                         PSMTXMultVec(m.m, &dir, &dir);
                     }
                     calc.m1C = dir + HitCenter_unk(target);
-                    atn::Vector3 n = dir;
-                    PSVECNormalize(&n, &n);
-                    calc.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+                    atn::VecAssign_unk(calc.m28, PPNeg_unk(dir.GetNormalize()));
                     calc.m00 = attacker;
                     calc.m04 = target;
                     calc.m08 = hit;
