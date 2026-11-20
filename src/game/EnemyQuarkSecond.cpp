@@ -943,12 +943,12 @@ void EnemyQuarkSecond::fn_8033C000() {
         atn::Vector3 move = mRoute.m58;
         speed *= 0.2f;
         atn::Vector3 d = m14B0->mPos - mPos;
-        dist = PSVECMag(&d) < 0.7f * m177C ? 0.0f : PSVECMag(&move);
+        dist = 0.0f;
+        if (!(PSVECMag(&d) < 0.7f * m177C)) {
+            dist = PSVECMag(&move);
+        }
         if (dist > 0.0001f) {
-            atn::Vector3 dir = move;
-            PSVECNormalize(&dir, &dir);
-            rot = dir.ToRotation_unk();
-            rot.x = 0.0f;
+            rot = move.GetNormalize().ToRotation_unk();
         } else {
             rot = mRot;
         }
