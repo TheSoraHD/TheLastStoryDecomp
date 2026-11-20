@@ -1,0 +1,84 @@
+diff --git a/src/game/BattleTask.cpp b/src/game/BattleTask.cpp
+index 74fd51b..d270005 100644
+--- a/src/game/BattleTask.cpp
++++ b/src/game/BattleTask.cpp
+@@ -6244,21 +6244,16 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
+                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
+ 
+ // inferred: the character is in one of the busy controls (6: 4..11, 29, 30); inlined, name invented
+-inline bool IsBusy_unk(CharaTask* chara) {
+-    if (chara->m55C == 6) {
+-        bool busy = false;
+-        if (chara->m560 >= 4 && chara->m560 < 12) {
+-            busy = true;
+-        }
+-        if (busy || (unsigned int)(chara->m560 - 29) <= 1) {
+-            return true;
+-        }
++inline bool IsControlIn_unk(CharaTask* chara, int control, int lo, int hi) {
++    bool in = false;
++    if (chara->m55C == control && lo <= chara->m560 && chara->m560 < hi) {
++        in = true;
+     }
+-    return false;
++    return in;
+ }
+ // inferred: the character lost hit points; inlined, name invented
+-inline bool IsHurt_unk(CharaTask* chara) {
+-    return (float)chara->mStatus.mParamB.m84 - chara->mStatus.m04 > 0.01f;
++inline float LostHp_unk(CharaTask* chara) {
++    return (float)chara->mStatus.mParamB.m84 - chara->mStatus.m04;
+ }
+ // inferred: guard kinds that can be woken up; inlined, name invented
+ inline bool IsWakeKind_unk(int kind) {
+@@ -6284,19 +6279,32 @@ void BattleTask::fn_80109F7C() {
+     if (head == 0) {
+         return;
+     }
++    CharaRes_unk* res;
+     for (int i = 0; i < mCharaCount; i++) {
+         CharaTask* chara = mCharas[i].mChara;
+-        CharaRes_unk* res = chara->m64;
++        res = chara->m64;
+         if (!chara->CanAct_unk() || chara->mType != 2 || chara->mC58.mC0 > 0 || res == 0 ||
+-            chara->mC58.m11C.fn_8011D1FC() != 0 || !IsWakeKind_unk(((BattleCharaTask*)chara)->m146C)) {
++            chara->mC58.m11C.fn_8011D1FC() != 0) {
+             continue;
+         }
++        int kind = ((BattleCharaTask*)chara)->m146C;
++        if (kind >= 1) {
++            switch (kind) {
++            case 2:
++            case 0x17:
++            case 0x45:
++            case 0x48:
++                break;
++            default:
++                continue;
++            }
++        }
+         int wake = 0;
+         atn::Vector3 d = head->mPos - chara->mPos;
+         if (PSVECSquareMag(&d) < res->m2C * res->m2C) {
+             wake = 1;
+         }
+-        if (IsHurt_unk(chara)) {
++        if (LostHp_unk(chara) > 0.01f) {
+             wake = 1;
+         }
+         if (wake <= 0) {
+@@ -6309,11 +6317,12 @@ void BattleTask::fn_80109F7C() {
+                 if (!(PSVECSquareMag(&d2) < res->m28 * res->m28)) {
+                     continue;
+                 }
+-                if (IsBusy_unk(other)) {
++                int sub = other->m560;
++                if (other->m55C == 6 && (IsControlIn_unk(other, 6, 4, 12) || sub == 29 || sub == 30)) {
+                     wake = 1;
+                     break;
+                 }
+-                if (chara->fn_8016F3D0(other, 1) && IsHurt_unk(other)) {
++                if (chara->fn_8016F3D0(other, 1) && LostHp_unk(other) > 0.01f) {
+                     wake = other->mC58.mC0;
+                     break;
+                 }
