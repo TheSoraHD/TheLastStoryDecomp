@@ -1,0 +1,51 @@
+diff --git a/src/game/Em309Ghoul.cpp b/src/game/Em309Ghoul.cpp
+index 13a50c3..b720323 100644
+--- a/src/game/Em309Ghoul.cpp
++++ b/src/game/Em309Ghoul.cpp
+@@ -761,7 +761,7 @@ void Em309Ghoul::fn_802FFFF8() {
+         if (m14F4 > m1698 && homeXZ < 20.0f) {
+             if (tgtXZ < 0.7f * fn_80219E6C(0x64A)->m58) {
+                 attack = 1;
+-            } else if (atn::Abs_unk(tgtAngle) != 0.0f) {
++            } else if (atn::Abs_unk(tgtAngle)) {
+                 attack = 3;
+             }
+         }
+@@ -1295,7 +1295,7 @@ void Em309Ghoul::fn_80301DDC() {
+                 __MtxCopy(pa->m, txa);
+             }
+             PSMTXMultVec(ma.m, &a, &a);
+-            PSMTXRotRad(ra, 'y', 0.017453292f * (-m16A4 * 0.5f));
++            PSMTXRotRad(ra, 'y', 0.017453292f * (-m16A4 / 2.0f));
+             PSMTXMultVec(ra, &a, &a);
+             atn::Vector3 b(0.0f, 0.0f, m16AC);
+             atn::Matrix3x4* pb = &mb;
+@@ -1316,7 +1316,7 @@ void Em309Ghoul::fn_80301DDC() {
+                 __MtxCopy(pb->m, txb);
+             }
+             PSMTXMultVec(mb.m, &b, &b);
+-            PSMTXRotRad(rb, 'y', 0.017453292f * (m16A4 * 0.5f));
++            PSMTXRotRad(rb, 'y', 0.017453292f * (m16A4 / 2.0f));
+             PSMTXMultVec(rb, &b, &b);
+             lbl_8087EEB0->fn_80063764(mPos, a + mPos, 100.0f, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32());
+             lbl_8087EEB0->fn_80063764(mPos, b + mPos, 100.0f, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32());
+diff --git a/src/game/Em316LaserSphere.cpp b/src/game/Em316LaserSphere.cpp
+index c1746ac..ef5dff6 100644
+--- a/src/game/Em316LaserSphere.cpp
++++ b/src/game/Em316LaserSphere.cpp
+@@ -765,12 +765,12 @@ int Em316LaserSphere::fn_80318AA4(CharaTask* chara) {
+                     return 1;
+                 }
+             } else {
+-                if (lbl_8087F048->fn_800FBA9C(chara, this, chara->m638, -1, 0.0f) >= 0) {
++                HitInfo_unk* skill = chara->m638;
++                if (lbl_8087F048->fn_800FBA9C(chara, this, skill, -1, 0.0f) >= 0) {
+                     return 1;
+                 }
+-                float rot = chara->fn_80158E1C().ToRotation_unk().y;
+                 if (lbl_8087F048->fn_800FBA9C(chara, this, chara->m638, -1,
+-                                atn::WrapAngle_unk(rot - chara->mRot.y)) >= 0) {
++                                atn::WrapAngle_unk(chara->fn_80158E1C().ToRotation_unk().y - chara->mRot.y)) >= 0) {
+                     return 1;
+                 }
+             }
