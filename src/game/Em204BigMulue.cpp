@@ -404,12 +404,9 @@ void Em204BigMulue::vfFC() {
     vf100(6);
 }
 
-// NONMATCHING: 96.82% - order of the item copies into the sphere vector (stack layout of the item)
+// inferred: the item as built by its constructor (no extra stores)
 void Em204BigMulue::vf50() {
     Item14_unk item;
-    item.m00 = 0;
-    item.m04.mCenter = atn::Vector3(0.0f, 0.0f, 0.0f);
-    item.m04.mRadius = 5.0f;
     for (unsigned int i = 0; i < m1A34.size(); i++) {
         item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk(m1A34[i].mNode.data()));
         item.m04.mRadius = m5B0 * m1A34[i].mScale;
