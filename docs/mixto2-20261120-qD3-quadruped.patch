@@ -1,5 +1,5 @@
 diff --git a/src/game/QuadrupedTask.cpp b/src/game/QuadrupedTask.cpp
-index 3590357..779d6e8 100644
+index 3590357..cc9dd21 100644
 --- a/src/game/QuadrupedTask.cpp
 +++ b/src/game/QuadrupedTask.cpp
 @@ -503,6 +503,12 @@ void QuadrupedTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
@@ -15,16 +15,17 @@ index 3590357..779d6e8 100644
  void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed, float rate) {
      atn::Vector3 pos(mPos);
      atn::Vector3 rot(mRot);
-@@ -511,7 +517,7 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+@@ -511,7 +517,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
      float cur = rot.y;
      float turn = m56C;
      rate *= dt;
 -    float k = 0.75f * atn::Abs_unk(diff / 3.1415927f);
-+    float k = atn::Abs_unk(diff / 3.1415927f) * 0.75f;
++    float k = atn::Abs_unk(diff / 3.1415927f);
++    k *= 0.75f;
      turn *= 1.0f + k;
      float step = diff * turn;
      cur += step;
-@@ -534,7 +540,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+@@ -534,7 +541,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
          if (angle < 0.0f) {
              angle = 0.0f;
          }
@@ -34,7 +35,7 @@ index 3590357..779d6e8 100644
          if (speed < 0.0f) {
              speed = 0.0f;
          }
-@@ -563,14 +570,14 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+@@ -563,14 +571,14 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
      }
      // inferred: the original tests a default-constructed status here (temporary built and destroyed
      // around the test), not mStatus
@@ -51,7 +52,7 @@ index 3590357..779d6e8 100644
      if (m6B8.Length_unk() < 0.1f) {
          m6B8.Set_unk(0.0f, 0.0f, 0.0f);
      }
-@@ -605,7 +612,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+@@ -605,7 +613,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
          move.y = 0.0f;
      }
      bool landed = false;
@@ -61,7 +62,7 @@ index 3590357..779d6e8 100644
          landed = true;
      }
      mFlag3 = landed;
-@@ -615,7 +623,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+@@ -615,7 +624,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
          lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
      }
      lean *= 2.0f;
@@ -71,7 +72,7 @@ index 3590357..779d6e8 100644
      if ((m54C & 2) == 2 && pos.y < 0.0f) {
          pos.y = 0.0f;
      }
-@@ -624,8 +633,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
+@@ -624,8 +634,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
          mRot = rot;
      }
      m574 = move;
@@ -81,7 +82,7 @@ index 3590357..779d6e8 100644
  }
  
  extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
-@@ -724,21 +733,22 @@ inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
+@@ -724,21 +734,22 @@ inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
  
  // inferred: turns the neck and the spine with the lean (node pose callback; as in Em403WarLion)
  // NONMATCHING: 97.62% - same as Em403WarLion::fn_803256F8 (one more saved GPR and order of the quaternions)
