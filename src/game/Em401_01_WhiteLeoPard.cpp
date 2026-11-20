@@ -1,6 +1,7 @@
 #include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "macros.h"
+#include "math/VecAssign_unk.h"
 #include "game/Em401_01_WhiteLeoPard.h"
 #include "chr/ControlBase.h"
 #include "game/CharaManager.h"
@@ -767,38 +768,42 @@ void Em401_01_WhiteLeoPard::fn_80321900(atn::Matrix3x4* mtx, const atn::NodeChun
     }
 }
 
-// NONMATCHING: 91.4% - the original reloads the flag word 0x12A4 for mFlag31, schedules the sums of m614
-// differently and swaps r3/r4 in the Vector3 copies; ~14 variants
+// inferred: mFlag31 read through an int accessor: the original reloads the flag word 0x12A4 for it
+// (a bool accessor adds two cntlzw); name invented (as QuadrupedTask)
+static inline int OnLedge_unk(const CharaTask* chara) {
+    return chara->mFlag31;
+}
+
 // inferred: places the collision capsule along the body (own version of CharaTask::vf20; as Em403WarLion)
 void Em401_01_WhiteLeoPard::vf20() {
     m620 = m5B0;
     if (mFlag13) {
         if (m648 != 0) {
-            if (!mFlag31) {
+            if (!OnLedge_unk(this)) {
                 m620 += 2.0f;
             }
         } else if (m570 > 2.0f * m500 && m508 > 2.005f * m500) {
             m620 = 2.0f * ((m570 - 2.0f * m500) / (m508 - 2.0f * m500)) + m5B0;
         }
     }
-    float r = m620 * 1.5f;
+    m620 *= 1.5f;
     m614 = mPos + m5A4;
-    m620 = r;
-    m614.y += r;
-    atn::Vector3 a(mPos.x, mPos.y + r, mPos.z);
+    m614.y += m620;
+    atn::Vector3 a(mPos.x, mPos.y + m620, mPos.z);
     atn::Vector3 b;
     int tail = mMotion.GetNodeNoByName("tale", 0);
     if (tail > -1) {
-        b = GetNodePos_unk(mMotion.mMtx.mNodes.mData[tail].m);
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.mMtx.mNodes.mData[tail].m));
         b.y -= 1.0f;
     } else {
-        b = a;
+        atn::VecAssign_unk(b, a);
         b.y += m5B4 - 2.0f * m620;
     }
+    float radius = m620;
     mColli.m3C = a;
     mColli.m48 = b;
-    mColli.m54 = m620;
-    m148C = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    mColli.m54 = radius;
+    atn::VecAssign_unk(m148C, GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")));
     m1498 = 3.0f;
 }
 
