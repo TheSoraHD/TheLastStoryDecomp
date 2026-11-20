@@ -34,6 +34,7 @@
 #include "std/locale_facets_unk.h"
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
+#include "game/AiTarget.h"
 
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 
@@ -48,8 +49,6 @@ extern "C" int fn_8004ED34(void* world, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" double sin(double x);
 extern "C" double cos(double x);
-extern "C" void fn_80016888(void* arg);
-extern "C" void* lbl_8087EE68;
 struct GameTask;
 extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
 extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gmk/WindyItem.cpp)
@@ -539,7 +538,7 @@ void GameScene::fn_803C0F48(int warp) {
     lbl_8087F048->fn_800D246C(0);
     EnemyManager::sInstance->vf1C();
     NpcManager::sInstance->vf1C();
-    fn_80016888(lbl_8087EE68);
+    lbl_8087EE68->fn_80016888();
     lbl_8087F8A0->vf1C();
     GimmickManager::instance_->fn_803EE374(0);
     m134->fn_800D246C(0);
