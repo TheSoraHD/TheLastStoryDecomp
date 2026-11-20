@@ -1,0 +1,57 @@
+--- a/include/std/vector_string.h
++++ b/include/std/vector_string.h
+@@ -86,11 +86,54 @@
+ }
+ 
+ template <>
++inline string* vector<string>::__allocate(size_type n) {
++    string* p = (string*)::operator new(n * sizeof(string));
++    if (!p) {
++        __msl_error("Memory allocation failure");
++    }
++    return p;
++}
++
++template <class T>
++void __vec_grow_ref_unk(vector<T>& v, unsigned int& cap, unsigned int n) {
++    if (n > v.max_size() - cap) {
++        __msl_error("vector length error");
++    }
++    if (cap < v.max_size() / 3) {
++        cap += __vec_max_unk((unsigned int)((cap + 1) * 3 / 5), n);
++    } else if (cap < v.max_size() / 3 * 2) {
++        cap += __vec_max_unk((unsigned int)((cap + 1) / 2), n);
++    } else {
++        cap = v.max_size();
++    }
++    if (cap > v.max_size()) {
++        __msl_error("vector length error");
++    }
++}
++
++template <>
++inline void vector<string>::__alloc_split_unk(__vec_split_unk<string>& buf, size_type n) {
++    size_type cap = this->mCap;
++    __vec_grow_ref_unk(*this, cap, this->mSize + n - cap);
++    buf.mData = __allocate(cap);
++    buf.mCap = cap;
++    buf.mStart = this->mSize;
++}
++
++template <>
+ struct __vec_grow_sel_unk<string> {
+     static void __alloc_split_unk(vector<string>& v, __vec_split_unk<string>& buf, unsigned int n) {
+         v.__alloc_split_unk(buf, n);
+     }
+ };
++template <>
++inline void vector<string>::__insert_realloc_unk(size_type n, const string& x) {
++    __vec_split_unk<string> buf(&this->mCap);
++    __vec_grow_sel_unk<string>::__alloc_split_unk(*this, buf, n);
++    buf.__append_copies_unk(n, x);
++    __swap_out_unk(buf);
++}
++
+ inline void __vec_push_string_unk(vector<string>& v, unsigned int n, const string& x) {
+     unsigned int c = v.mCap;
+     if (n < c) {
