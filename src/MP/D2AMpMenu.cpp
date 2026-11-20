@@ -1139,8 +1139,6 @@ void D2AMpMenu::vf14() {
     }
 }
 
-// NONMATCHING: 98.4% - the original reads D2ACommonDialog::sInstance->m4C at the end without using it (tried
-// an empty if and an empty loop: removed)
 // inferred: shows the main page of the menu
 void D2AMpMenu::fn_804B3494() {
     if (D2ACommonDialog::sInstance->m4C != 0 && mBC != 8) {
@@ -1170,6 +1168,10 @@ void D2AMpMenu::fn_804B3494() {
     MpRect_unk rect = GetPaneRect_unk(m64, "rank_null");
     D2AMpMenuRankMark::sInstance->fn_804B49C0(rect, 0);
     D2AMpMenuRankMark::sInstance->fn_804B49E0(data->m430.m7F8, 0);
+    // inferred: the original reads the dialog flag again at the end without using it (approved 2026-11-20)
+    if (D2ACommonDialog::sInstance->m4C != 0) {
+        return;
+    }
 }
 
 // inferred: shows the windows of the ranking

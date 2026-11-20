@@ -250,7 +250,7 @@ void Em303KrakenFootMp::vf100(int state) {
     }
 }
 
-// inferred: state machine of the foot
+// inferred: state machine of the foot (the two goto are an exception to rule 2 approved 2026-11-20)
 // NONMATCHING: 99.82% - stack slots of the temporaries of the two inlined movement blocks (written out with a
 // goto; with the helper Move_unk they get other FPRs, 99.0%)
 void Em303KrakenFootMp::vf104() {
