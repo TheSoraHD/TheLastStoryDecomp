@@ -1986,11 +1986,12 @@ extern "C" gs::NpcSetPoint* fn_803C795C(const atn::SimpleArray<gs::NpcSetPoint>*
     return points->mData;
 }
 
-// inferred: clears the run counts and data pointer of a U16Table_unk.
-extern "C" void fn_803C94BC(U16Table_unk* table) {
-    table->mCount = 0;
-    table->mRuns = 0;
-    table->mData = 0;
+// inferred: clears the run counts and data pointer (the constructor passed to the array new of
+// SimpleArray<U16Table_unk>::Resize_unk)
+U16Table_unk::U16Table_unk() {
+    mCount = 0;
+    mRuns = 0;
+    mData = 0;
 }
 
 
