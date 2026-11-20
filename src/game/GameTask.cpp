@@ -3868,8 +3868,8 @@ void GameTask::fn_80371320(PlayerTask* player) {
 }
 
 
-// inferred: starts an event of the field (field state 8; called by game/GameEventScript)
-// NONMATCHING: 98.9% - the original reloads lbl_8087EFA8 before storing the depth of field (as fn_8036CC90)
+// inferred: starts an event of the field (field state 8; called by game/GameEventScript); the depth of field is
+// edited through a pointer to the copy (an address-taken local: the original reloads lbl_8087EFA8 for the store)
 void GameTask::fn_80371334() {
     m54E4 = 8;
     lbl_8087F490->m263C->fn_803B57B0(1);
@@ -3901,8 +3901,9 @@ void GameTask::fn_80371334() {
     damage.mEnabled = 0;
     lbl_8087EFA8->SetDamage_unk(damage);
     DofParam_unk dof = lbl_8087EFA8->mDof;
-    dof.mNearEnd = GetCurrentMap()->mF0;
-    lbl_8087EFA8->mDof = dof;
+    DofParam_unk* p = &dof;
+    p->mNearEnd = GetCurrentMap()->mF0;
+    lbl_8087EFA8->mDof = *p;
     if (lbl_8087F498 != 0) {
         lbl_8087F498->fn_803EB4A8(0, 0);
         lbl_8087F498->fn_803EAC3C(0);

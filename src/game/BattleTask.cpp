@@ -6326,20 +6326,28 @@ void BattleTask::fn_80109F7C() {
     }
 }
 
-// NONMATCHING: 97.1% - the original picks the kind with a branch per value (li 0; b / li 1); every form
-// tried gives a preset 1 or mfcr (if/else, ternary, inline, switch); `else if (size >= 6.0f)` adds a compare
+// inferred: index of the splash effect in mSplashEfp; an enum, since MWCC turns the 0/1 of an int into mfcr
+// and the original branches (li 0; b; li 1); names invented
+enum SplashKind_unk {
+    SPLASH_SMALL_unk,
+    SPLASH_LARGE_unk,
+    SPLASH_TYPE1_unk // inferred: map of type 1
+};
+
 // inferred: splash when the segment from..to crosses water (attribute 0x1B); `size` picks the effect and
 // its scale. called by other files
 void BattleTask::fn_8010A308(const atn::Vector3* from, const atn::Vector3* to, float size) {
     atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, from, to, 0x80000000, 0, 0) != 0 && result.m34 != 0 &&
         *(unsigned int*)result.m34 == 0x1B) {
-        int kind = 1;
+        SplashKind_unk kind;
         if (size < 6.0f) {
-            kind = 0;
+            kind = SPLASH_SMALL_unk;
+        } else {
+            kind = SPLASH_LARGE_unk;
         }
         if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mType == 1) {
-            kind = 2;
+            kind = SPLASH_TYPE1_unk;
         }
         float scale = 1.0f;
         if (size > 8.0f) {
