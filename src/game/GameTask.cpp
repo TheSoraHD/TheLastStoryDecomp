@@ -954,7 +954,7 @@ struct LessCache_unk {
     bool operator()(unsigned int a, unsigned int b) const { return a < b; }
 };
 // inferred: comparison of the sorted resource hashes (atn/Model.cpp instantiates Sort_unk<unsigned int,
-// LessU_unk> at 0x8009246C)
+// LessU_unk&> at 0x8009246C; passed by reference like LessCache_unk: no copy of the comparator)
 struct LessU_unk {
     bool operator()(unsigned int a, unsigned int b) const { return a < b; }
 };
@@ -1096,7 +1096,7 @@ void Sort_unk(T* first, T* last, Compare comp) {
 
 // atn/Model.cpp instantiates this one
 template <>
-void Sort_unk<unsigned int, LessU_unk>(unsigned int* first, unsigned int* last, LessU_unk comp);
+void Sort_unk<unsigned int, LessU_unk&>(unsigned int* first, unsigned int* last, LessU_unk& comp);
 
 // inferred: removes the repeated values of a sorted vector (std::unique and erase, inlined)
 static inline void Unique_unk(atn::SimpleVector<unsigned int>& v) {
@@ -1241,7 +1241,8 @@ void GameTask::vf10() {
                             }
                         }
                     }
-                    Sort_unk(m550C.m38.mData, m550C.m38.mData + m550C.m38.mSize, LessU_unk());
+                    LessU_unk lessU;
+                    Sort_unk<unsigned int, LessU_unk&>(m550C.m38.mData, m550C.m38.mData + m550C.m38.mSize, lessU);
                     Unique_unk(m550C.m38);
                     LessCache_unk less;
                     Sort_unk<unsigned int, LessCache_unk&>(m550C.m44.mData, m550C.m44.mData + m550C.m44.mSize, less);
