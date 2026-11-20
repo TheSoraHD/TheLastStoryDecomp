@@ -799,7 +799,7 @@ int AIManager::fn_80017128(CharaTask* chara) {
         ai->m00 = out->mState;
         if (out->mPart != chara->m674) {
             if (out->mPart >= 0) {
-                if (out->mPart < (int)chara->mParts.mCount) {
+                if (out->mPart < (int)chara->mParts.mSize) {
                     chara->fn_8014DEE4(out->mPart, 0, 0);
                 }
             } else {

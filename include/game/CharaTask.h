@@ -1018,7 +1018,7 @@ public:
     // inferred: bullet of the first hit with flag 0x04000000 (name invented)
     HitInfo_unk* GetFlaggedHitBullet_unk() {
         CharaHit_unk* hits = m12D0.mData;
-        for (unsigned int i = 0; i < m12D0.mCount; i++) {
+        for (unsigned int i = 0; i < m12D0.mSize; i++) {
             HitInfo_unk* hit = hits[i].mHit;
             if ((hit->mAC & 0x04000000) == 0x04000000 && hit->m04 > 0) {
                 return fn_80219E6C(hit->m04);
@@ -1028,7 +1028,7 @@ public:
     }
     void* HasHitBullet_unk(int id) {
         CharaHit_unk* hits = m12D0.mData;
-        for (unsigned int i = 0; i < m12D0.mCount; i++) {
+        for (unsigned int i = 0; i < m12D0.mSize; i++) {
             HitInfo_unk* hit = hits[i].mHit;
             if (hit->m04 == id) {
                 return fn_80219E6C(hit->m04);
@@ -1040,7 +1040,7 @@ public:
     // if 0); name invented
     HitInfo_unk* FindHit_unk(int id, unsigned int flags) {
         CharaHit_unk* hit = m12D0.mData;
-        for (unsigned int i = 0; i < m12D0.mCount; i++) {
+        for (unsigned int i = 0; i < m12D0.mSize; i++) {
             if ((id <= 0 || hit->mHit->m04 == id) && (flags == 0 || flags == (flags & hit->mHit->mAC))) {
                 int bullet = hit->mHit->m04;
                 if (bullet > 0) {

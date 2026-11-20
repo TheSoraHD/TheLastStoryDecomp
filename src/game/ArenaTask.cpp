@@ -80,7 +80,7 @@ void ArenaTask::vf10() {
         mScore0 = 0;
         mScore1 = 0;
         Entry_unk* e = mEntries.mData;
-        for (unsigned int i = 0; i < mEntries.mCount; i++) {
+        for (unsigned int i = 0; i < mEntries.mSize; i++) {
             if (e->mChara->mType == 2) {
                 mScore0 += e->mScore;
             } else {
@@ -93,10 +93,10 @@ void ArenaTask::vf10() {
         mTimer--;
     }
     if (mMode == 0) {
-        for (unsigned int i = 0; i < mEntries.mCount; i++) {
+        for (unsigned int i = 0; i < mEntries.mSize; i++) {
             Entry_unk& e = mEntries[i];
             if ((e.mFlags & 1) == 1 && e.mChara->IsGrappled_unk()) {
-                unsigned int n = mSpawns.mCount;
+                unsigned int n = mSpawns.mSize;
                 if (n != 0) {
                     int index = rand() % n;
                     atn::Vector3 rot;
@@ -200,7 +200,7 @@ void ArenaTask::fn_80043A24() {
         AddEntry_unk(this, slot);
         slot++;
     }
-    mSpawns.mCount = 0;
+    mSpawns.mSize = 0;
     AddSpawns_unk(this, mTable, i);
 }
 
@@ -210,14 +210,14 @@ void ArenaTask::fn_80043B34() {
     }
     mState = 1;
     if (mMode == 0) {
-        for (unsigned int i = 0; i < mEntries.mCount; i++) {
+        for (unsigned int i = 0; i < mEntries.mSize; i++) {
             Entry_unk* e = &mEntries.mData[i];
             if (e->mChara->mType == 2) {
                 e->mChara->mFlag16 = 1;
             }
         }
     } else if (mMode == 1) {
-        for (unsigned int i = 0; i < mEntries.mCount; i++) {
+        for (unsigned int i = 0; i < mEntries.mSize; i++) {
             Entry_unk* e = &mEntries.mData[i];
             if (e->mChara->mType == 2) {
                 e->mChara->mFlag16 = 0;
@@ -276,10 +276,10 @@ void ArenaTask::fn_80043D58(int side) {
         return;
     }
     FixedArray_unk<Voice_unk, 8>& voices = mVoices[side];
-    if (voices.mCount == 0) {
+    if (voices.mSize == 0) {
         return;
     }
-    unsigned int n = voices.mCount;
+    unsigned int n = voices.mSize;
     Voice_unk& v = voices.mData[rand() % n];
 
     GameMessage* msg = (GameMessage*)((GameScene*)table)->fn_803CC6B4(v.mFirst);

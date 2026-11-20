@@ -537,7 +537,7 @@ int Arms::fn_80045510(ArmsCond_unk* cond, CharaTask* chara) {
         }
         break;
     case 25:
-        for (unsigned int i = 0; i < chara->m12D0.mCount; i++) {
+        for (unsigned int i = 0; i < chara->m12D0.mSize; i++) {
             CharaHit_unk& h = chara->m12D0.mData[i];
             HitInfo_unk* hit = h.mHit;
             if (h.m04 != 0) {

@@ -4,6 +4,7 @@
 #include "game/Input_unk.h"
 #include "atn/Scene.h"
 #include "math/Vec.h"
+#include "atn/Vec2_unk.h"
 #include "string.h"
 
 // inferred: game settings with a debug menu (0x1144 bytes; the instance is lbl_8087F0A8, created by
@@ -114,22 +115,6 @@ struct GameConfig53C_unk {
     int mChPlayerHit;
 };
 
-namespace atn {
-// inferred: 2D vector of the dialog layout (weak copies 0x800F84BC and 0x800F833C of another file; a
-// different class from Vector2_unk, whose copies at 0x805030FC are in game/SoftKeyboardU.cpp). Name
-// invented.
-struct Vec2_unk {
-    Vec2_unk() {}
-    Vec2_unk(float x_, float y_) : x(x_), y(y_) {}
-    // inferred: user copy constructor (fn_800F84D8 returns the vector through memory, not in r3/r4)
-    Vec2_unk(const Vec2_unk& v) : x(v.x), y(v.y) {}
-    Vec2_unk& operator=(const Vec2_unk& v) {
-        __Vec2Copy(&x, &v.x);
-        return *this;
-    }
-    float x, y;
-};
-} // namespace atn
 
 // inferred: one side of the dialog layout (debug menu "Dialog/Left", "Dialog/Right")
 struct DialogSide_unk {

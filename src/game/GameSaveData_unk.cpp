@@ -1139,7 +1139,7 @@ void GameSaveData_unk::fn_803BE590() {
             if ((mParty.mMask & (1 << i)) == (1 << i)) {
                 memcpy(&Inventory::instance_->mPlayers[i], &mParty.mStatus[i], sizeof(CharaStatusBase));
                 Inventory::instance_->mPlayers[i].mChara = 0;
-                Inventory::instance_->mPlayers[i].mRefs.mCount = 0;
+                Inventory::instance_->mPlayers[i].mRefs.mSize = 0;
             }
         }
     }

@@ -456,7 +456,7 @@ int fn_8003F538(HitInfo_unk* data, CharaStatus* attacker, CharaStatus* target, u
 void fn_80040434(float* elements, CharaStatus* status, unsigned int flags) {
     if (status->fn_80133EE8(0x3F)) {
         CharaStatusEntry_unk* entry = status->mEntries.mData;
-        for (unsigned int i = 0; i < status->mEntries.mCount; entry++, i++) {
+        for (unsigned int i = 0; i < status->mEntries.mSize; entry++, i++) {
             if (entry->mId == 0x3F) {
                 switch (entry->mValue) {
                 case 1:

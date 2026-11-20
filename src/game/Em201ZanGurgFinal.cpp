@@ -1639,7 +1639,7 @@ void Em201ZanGurgFinal::fn_802692B4() {
                 targets.PushBack_unk(p);
             }
         }
-        unsigned int n = targets.mCount;
+        unsigned int n = targets.mSize;
         if (n < 7) {
             n = 7;
         }
@@ -1652,9 +1652,9 @@ void Em201ZanGurgFinal::fn_802692B4() {
             dir = front;
             PSMTXMultVec(m, &dir, &dir);
             dir.y += 0.4f;
-            if (targets.mCount != 0) {
+            if (targets.mSize != 0) {
                 ZanHoming_unk param;
-                param.mTarget = targets[i % targets.mCount];
+                param.mTarget = targets[i % targets.mSize];
                 param.mTurn = 1.2566371f;
                 param.mDelay = 0.0f;
                 param.mCount = id;

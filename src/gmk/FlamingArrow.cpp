@@ -95,7 +95,7 @@ inline bool CanTarget_unk(CharaTask* chara) {
     return ok;
 }
 // inferred: list of characters (16 entries; names invented)
-struct ArrowTargets_unk {
+struct ArrowTargets_unk : public atn::FixedArrayBase_unk {
     ArrowTargets_unk(); // 0x804180B0: weak copy
     CharaTask** At_unk(unsigned int i); // 0x804180BC: weak copy
     // NONMATCHING: 96.1% - register allocation (the loop pointer reuses r4 in the original)
@@ -103,27 +103,22 @@ struct ArrowTargets_unk {
     void Collect_unk(CharaManager<T>* manager) {
         for (T* chara = manager->mHead; chara != 0; chara = (T*)((CharaListNode_unk*)chara)->mNext) {
             if (CanTarget_unk(chara)) {
-                CharaTask** slot = &mData[mCount];
+                CharaTask** slot = &mData[mSize];
                 if (slot != 0) {
                     *slot = chara;
                 }
-                if (++mCount >= 16) {
+                if (++mSize >= 16) {
                     return;
                 }
             }
         }
     }
-    unsigned int mCount;
     CharaTask* mData[16];
 };
-inline ArrowTargets_unk::ArrowTargets_unk() {
-    mCount = 0;
-}
+inline ArrowTargets_unk::ArrowTargets_unk() {}
 inline CharaTask** ArrowTargets_unk::At_unk(unsigned int i) {
     return &mData[i];
 }
-extern "C" int fn_803D6EDC(ArrowTargets_unk* list);           // inferred: empty
-extern "C" unsigned int fn_80372574(ArrowTargets_unk* list);  // inferred: size
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8(); // inferred: player manager
 extern "C" CharaManager<EnemyTask>* fn_801A03E0();  // inferred: enemy manager
 extern "C" GameTask* fn_80121F00();
@@ -320,10 +315,10 @@ void FlamingArrow::vf10() {
         } else {
             list.Collect_unk(fn_8000D9E8());
         }
-        if (fn_803D6EDC(&list) != 0) {
+        if (list.empty()) {
             return;
         }
-        unsigned int count = fn_80372574(&list);
+        unsigned int count = list.size();
         target = *(*list.At_unk(rand() % count))->fn_8013C38C();
     }
     atn::Vector3 offset(0.0f, 0.0f, mDesc->m40 * (rand() % 1001 / 1000.0f));

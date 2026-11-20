@@ -61,7 +61,7 @@ int Em006DarkMaster::vf0C() {
         m1438->fn_800D246C(0);
         m1438->mFlags |= 4;
     }
-    m14D8.mCount = 0;
+    m14D8.mSize = 0;
     m14A8 &= ~0x04000000;
     for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
         if (e->m146C == 42) {
@@ -94,7 +94,7 @@ void Em006DarkMaster::fn_802549C8() {
     if (CanAct_unk()) {
         m14D4 = 0;
         if (EnemyManager::sInstance != 0) {
-            for (unsigned int i = 0; i < m14D8.mCount; i++) {
+            for (unsigned int i = 0; i < m14D8.mSize; i++) {
                 DarkServant_unk* e = (DarkServant_unk*)m14D8.mData[i];
                 if (e->mMaster == this && e->CanAct_unk() && fn_8030E490(e) == 0) {
                     m14D4++;
@@ -137,7 +137,7 @@ void Em006DarkMaster::vf40(HitInfo_unk* hit) {
     }
     if (m58C != 9 || (msg->mAttacker != 0 && fn_80219558(msg->mAttacker->m50) == 0)) {
         if (m58C == 9) {
-            for (unsigned int i = 0; i < m14D8.mCount; i++) {
+            for (unsigned int i = 0; i < m14D8.mSize; i++) {
                 DarkServant_unk* e = (DarkServant_unk*)m14D8.mData[i];
                 if (e->mMaster == this && e->CanAct_unk() && fn_8030E490(e) != 0) {
                     fn_8030E530(e);
@@ -146,7 +146,7 @@ void Em006DarkMaster::vf40(HitInfo_unk* hit) {
             mStatus.fn_8012F440(4, 0, 1, 0, 0, 0, 1);
         }
         if ((mStatus.m0C & 4) == 4) {
-            for (unsigned int i = 0; i < m14D8.mCount; i++) {
+            for (unsigned int i = 0; i < m14D8.mSize; i++) {
                 DarkServant_unk* e = (DarkServant_unk*)m14D8.mData[i];
                 if (e->mMaster == this && e->CanAct_unk()) {
                     fn_8030E4AC(e);

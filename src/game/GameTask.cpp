@@ -915,7 +915,7 @@ void GameTask::fn_80367A40(int arg) {
                 player->mStatus.fn_8012D8B8();
                 Inventory::instance_->mPlayers[member] = player->mStatus;
                 Inventory::instance_->mPlayers[member].mChara = 0;
-                Inventory::instance_->mPlayers[member].mRefs.mCount = 0;
+                Inventory::instance_->mPlayers[member].mRefs.mSize = 0;
             }
         }
     }
@@ -3180,7 +3180,7 @@ extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int ent
         if (member >= 0 && member < 7) {
             Inventory::instance_->mPlayers[member] = player->mStatus;
             Inventory::instance_->mPlayers[member].mChara = 0;
-            Inventory::instance_->mPlayers[member].mRefs.mCount = 0;
+            Inventory::instance_->mPlayers[member].mRefs.mSize = 0;
         }
     }
     task->m550C.m30 = (int)save;

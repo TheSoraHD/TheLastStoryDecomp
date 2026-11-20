@@ -7763,7 +7763,7 @@ extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
         msg.mData.mRate = ev->mRate;
         msg.mData.mCombo = ev->mTarget != 0 ? ev->mTarget->mFE4 : 1;
         if (ev->mAttacker != 0) {
-            for (unsigned int i = 0; i < ev->mAttacker->mStatus.mEntries.mCount; i++) {
+            for (unsigned int i = 0; i < ev->mAttacker->mStatus.mEntries.mSize; i++) {
                 msg.mData.mEntries[i] = ev->mAttacker->GetStatus_unk()->mEntries[i];
             }
         }
@@ -8990,7 +8990,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
     }
     fn_8014F8F4()->mEnabled = 0;
     if (attacker != 0) {
-        attacker->mStatus.mEntries.mCount = 0;
+        attacker->mStatus.mEntries.mSize = 0;
         for (unsigned int i = 0; i < fn_804F1060(); i++) {
             if (data->mEntries[i].mId != 0) {
                 PPAddEntry_unk(attacker->GetStatus_unk(), data->mEntries[i]);

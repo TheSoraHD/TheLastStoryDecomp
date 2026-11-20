@@ -153,7 +153,7 @@ BattleCharaTask::BattleCharaTask(atn::Task* parent, int type, void* data)
     m1498 = mColli.m54;
     if (lbl_8087F610 != 0) {
         int free = 1;
-        for (unsigned int i = 0; i < mParts.mCount; i++) {
+        for (unsigned int i = 0; i < mParts.mSize; i++) {
             if (mParts.mData[i]->m04 == 1) {
                 free = 0;
             }
@@ -817,8 +817,8 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                                         }
                                     }
                                     done = 1;
-                                } else if (items.mCount != 0) {
-                                    unsigned int count = items.mCount;
+                                } else if (items.mSize != 0) {
+                                    unsigned int count = items.mSize;
                                     for (unsigned int i = 0; i < count; i++) {
                                         if (!fn_80211734(items.mData[i])) {
                                             fn_8044441C(Inventory::instance_, items.mData[i]->m04, 1);
@@ -1708,8 +1708,8 @@ void BattleCharaTask::fn_800E7F04() {
                             targets.PushBack_unk(e);
                         }
                     }
-                    int count = targets.mCount;
-                    if (targets.mCount < 7) {
+                    int count = targets.mSize;
+                    if (targets.mSize < 7) {
                         count = 7;
                     }
                     int id = lbl_8087F048->fn_800F8548();
@@ -1720,14 +1720,14 @@ void BattleCharaTask::fn_800E7F04() {
                         pos = FrontDir_unk(mRot);
                         PSMTXMultVec(rot.m, &pos, &pos);
                         pos.y += 0.4f;
-                        if (targets.mCount != 0) {
+                        if (targets.mSize != 0) {
                             homing.mAccel = 0.0f;
                             homing.m08 = -1.0f;
                             homing.mMaxSpeed = 10.0f;
                             homing.mTime = 300.0f;
                             homing.mNode = 0;
                             homing.mTurn = 1.2566371f;
-                            homing.mTarget = targets[i % targets.mCount];
+                            homing.mTarget = targets[i % targets.mSize];
                             homing.mDelay = 0.0f;
                             homing.mCount = id;
                             BattleTask* mgr = lbl_8087F048;
@@ -2728,7 +2728,7 @@ void BattleCharaTask::fn_800EBA5C() {
     mMotion.m1DC = 0;
     mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
     mMotion.fn_80097510();
-    for (unsigned int i = 0; i < mParts.mCount; i++) {
+    for (unsigned int i = 0; i < mParts.mSize; i++) {
         ((atn::Model*)mParts.mData[i]->m010)->m1DC = 0;
     }
     chr::CharaEquip_unk** equips = m680;
@@ -2737,7 +2737,7 @@ void BattleCharaTask::fn_800EBA5C() {
             (*equips)->GetModel_unk()->m1DC = 0;
         }
     }
-    for (unsigned int i = 0; i < m6A4.mCount; i++) {
+    for (unsigned int i = 0; i < m6A4.mSize; i++) {
         m6A4.mData[i]->mModel.m1DC = 0;
     }
     m1428 = 0;

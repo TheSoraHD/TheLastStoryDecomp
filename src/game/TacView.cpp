@@ -1344,7 +1344,7 @@ void TacView::fn_805ABE74() {
     int kind = fn_80219558(chara->m50);
     if (0 <= kind && kind < 7) {
         m54.m64[0] = 5;
-        m54.m74[0] = chara->mStatus.m2CC.mCount - 1;
+        m54.m74[0] = chara->mStatus.m2CC.mSize - 1;
     }
     if (chara->mStatus.m228 < 1.0f) {
         m54.m50[0] = 0;

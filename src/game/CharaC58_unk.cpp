@@ -191,7 +191,7 @@ void CharaC58_unk::fn_8011C4AC(CharaTask* chara) {
         CharaTask* target = mC4;
         fn_8011C074(chara, 7);
         m10C = target;
-        if (chara->mStatus.m2CC.mCount > 3) {
+        if (chara->mStatus.m2CC.mSize > 3) {
             mDC = (SkillRef_unk*)&chara->mStatus.m2CC[3];
         }
     } else {
@@ -218,7 +218,7 @@ void CharaC58_unk::fn_8011C610(CharaTask* chara, int count) {
 void CharaC58_unk::fn_8011C650(CharaTask* chara, unsigned int skill, CharaTask* target) {
     fn_8011C074(chara, 7);
     m10C = target;
-    if (skill < chara->mStatus.m2CC.mCount) {
+    if (skill < chara->mStatus.m2CC.mSize) {
         mDC = (SkillRef_unk*)&chara->mStatus.m2CC[skill];
     }
 }

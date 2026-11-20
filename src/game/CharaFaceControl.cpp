@@ -97,7 +97,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
     if (m44[!m5C].mSize != 0 || m44[m5C].mSize != 0) {
         atn::Model::Res_unk* res = m00->GetRes_unk();
         FixedArray_unk<Event::PoseKey_unk, 32> edits;
-        edits.mCount = 0;
+        edits.mSize = 0;
         for (unsigned int i = 0; i < m44[!m5C].mSize; i++) {
             Event::PoseKey_unk edit = m44[!m5C].mData[i];
             float weight = m04[!m5C].m08;
@@ -109,7 +109,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
         for (unsigned int i = 0; i < m44[m5C].mSize; i++) {
             Event::PoseKey_unk edit = m44[m5C].mData[i];
             bool found = false;
-            for (unsigned int j = 0; j < edits.mCount; j++) {
+            for (unsigned int j = 0; j < edits.mSize; j++) {
                 if (edits.mData[j].m00 == m44[m5C].mData[i].m00) {
                     Event::PoseKey_unk& old = edits.mData[j];
                     float weight = m04[m5C].m08;
@@ -132,7 +132,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
         for (int i = 0; i < res->m44; i++) {
             atn::Model::NodeRes_unk* node = res->m48[i];
             int index = node->m18;
-            for (unsigned int j = 0; j < edits.mCount; j++) {
+            for (unsigned int j = 0; j < edits.mSize; j++) {
                 if (node->m14 == edits.mData[j].m00) {
                     atn::MotionBuffer* pose = &nodes[index];
                     pose->m00 = 0;

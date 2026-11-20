@@ -2278,7 +2278,7 @@ int BattleTask::fn_800F8C6C(HitResult_unk* out, int outCount, CharaTask* chara, 
         mShots.Push_unk(shot);
     }
     if (chara != 0) {
-        chara->mStatus.mEntries.mCount = 0;
+        chara->mStatus.mEntries.mSize = 0;
     }
     return count;
 }
@@ -2414,7 +2414,7 @@ int BattleTask::fn_800FAB80(CharaTask* attacker, HitInfo_unk* data, int id, cons
         mShots.Push_unk(shot);
     }
     if (attacker != 0) {
-        attacker->mStatus.mEntries.mCount = 0;
+        attacker->mStatus.mEntries.mSize = 0;
     }
     return hit;
 }
@@ -2580,7 +2580,7 @@ int BattleTask::fn_800FB4B0(CharaTask* attacker, HitInfo_unk* data, int id, cons
         m38A04 = MAX(zero = 0.0f, MIN(m38A04 + add, m38A0C));
     }
     if (attacker != 0) {
-        attacker->mStatus.mEntries.mCount = 0;
+        attacker->mStatus.mEntries.mSize = 0;
     }
     return hit;
 }
@@ -3351,7 +3351,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             attacker->mStatus.fn_80133E24(-1, 0x13);
         } else {
             CharaStatusEntry_unk* entry = attacker->mStatus.mEntries.mData;
-            for (unsigned int i = 0; i < attacker->mStatus.mEntries.mCount; i++, entry++) {
+            for (unsigned int i = 0; i < attacker->mStatus.mEntries.mSize; i++, entry++) {
                 if (entry->mSub == 0x13) {
                     fn_80109864((SpEffect_unk*)entry, attacker);
                 }
@@ -3398,7 +3398,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             }
         }
         if (p->m64 != 1 || (p->m94 & 0x8000u) == 0x8000u) {
-            attacker->mStatus.mEntries.mCount = 0;
+            attacker->mStatus.mEntries.mSize = 0;
             ClearHitFlag_unk(p, 0x2000000);
         }
     }
@@ -3464,7 +3464,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             value = (int)((float)(status->mParamB.m84 * status->fn_80133F18(0x47, -1)) / 100.0f);
             list.PushBack_unk(attacker);
         }
-        unsigned int count = list.mCount;
+        unsigned int count = list.mSize;
         if (count != 0) {
             if (value > 0) {
                 HitDamage_unk damage;
@@ -3480,7 +3480,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
                 }
             }
             if (add > 0) {
-                for (unsigned int i = 0; i < list.mCount; i++) {
+                for (unsigned int i = 0; i < list.mSize; i++) {
                     CharaStatus& s = list.mData[i]->mStatus;
                     s.m224 = MIN(MAX(s.m224 + add, 0), s.mParamB.m98);
                 }
@@ -3905,7 +3905,7 @@ int BattleTask::fn_8010089C(BattleTarget_unk* out, CharaTask* chara, const atn::
     PSMTXMultVec(m, &dir, &dir);
     atn::Vector3 center = chara->mPos;
     center.y += chara->m5B0;
-    for (unsigned int i = 0; i < list->mCount; i++) {
+    for (unsigned int i = 0; i < list->mSize; i++) {
         CharaTask* other = list->mData[i];
         for (unsigned int j = 0; j < other->m624.mSize; j++) {
             atn::Vector3 d = other->m624.mData[j].m04.mCenter - center;
@@ -6118,7 +6118,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     if (center == 0) {
         return chara->mPos;
     }
-    unsigned int count = center->m125C.mCount;
+    unsigned int count = center->m125C.mSize;
     FixedArray_unk<CharaPair_unk, 8>& ring = center->m125C;
     if (count <= 1) {
         return chara->mPos;
@@ -6138,7 +6138,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     CharaTask* nearest = 0;
     float angle = 0.0f;
     CharaPair_unk* it = ring.begin();
-    for (unsigned int i = 0; i < ring.mCount; i++, it++) {
+    for (unsigned int i = 0; i < ring.mSize; i++, it++) {
         atn::Vector3 d = it->m04->mPos - center->mPos;
         float dist = PSVECSquareMag(&d);
         CharaTask* c = it->m04;
@@ -6160,7 +6160,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     }
     float total = 0.0f;
     it = ring.begin();
-    for (unsigned int i = 0; i < ring.mCount; i++, it++) {
+    for (unsigned int i = 0; i < ring.mSize; i++, it++) {
         total += it->m04->vfA0();
     }
     if (total < 6.2831855f) {
@@ -6690,7 +6690,7 @@ int BattleTask::fn_8010B398(BattleCalcParam_unk* param) {
         attacker = m3E398;
         arms = AttackArms_unk(attacker);
     }
-    status->mEntries.mCount = 0;
+    status->mEntries.mSize = 0;
     if (m3E39C != 0) {
         return 0;
     }
@@ -6720,7 +6720,7 @@ int BattleTask::fn_8010B398(BattleCalcParam_unk* param) {
         }
     }
     if (target->fn_80134134(0x23)) {
-        for (unsigned int i = 0; i < target->mRefs.mCount; i++) {
+        for (unsigned int i = 0; i < target->mRefs.mSize; i++) {
             CharaStatusEntry_unk* entry = target->mRefs[i].mEntry;
             if (entry->mId == 0x23 && entry->m10 > rand() % 100 && (entry->mSub != 9 || (hit->mAC & 4) != 4)) {
                 status->mEntries.push_back(*entry);
@@ -6802,7 +6802,7 @@ int BattleTask::fn_8010B398(BattleCalcParam_unk* param) {
     if (status->fn_80133EE8(1) && chara->mFlag22 == 1) {
         status->fn_80133E24(1, -1);
     }
-    for (unsigned int i = 0; i < status->mEntries.mCount; i++) {
+    for (unsigned int i = 0; i < status->mEntries.mSize; i++) {
         CharaStatusEntry_unk* entry = &status->mEntries[i];
         bool shown = true;
         if (entry->mSub == 0x13) {
@@ -6891,7 +6891,7 @@ void BattleTask::fn_8010C00C(CharaTask* chara) {
                 }
             }
             if (lbl_8087F610 != 0) {
-                Arms* part = (chara->m678 == 0 && chara->mParts.mCount >= 3) ? (Arms*)chara->mParts.mData[2] : 0;
+                Arms* part = (chara->m678 == 0 && chara->mParts.mSize >= 3) ? (Arms*)chara->mParts.mData[2] : 0;
                 if (part != 0 && part->m274 != 0 && part->m274->m78 == 0) {
                     for (int j = 0; j < 2; j++) {
                         if (part->fn_80044F54(j, chara)) {

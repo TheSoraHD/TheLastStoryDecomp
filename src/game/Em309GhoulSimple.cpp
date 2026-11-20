@@ -102,7 +102,7 @@ int Em309GhoulSimple::vf0C() {
             return 0;
         }
         fn_80306078((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
-        if (m15B8 > 0.0f && m1574.mCount != 0) {
+        if (m15B8 > 0.0f && m1574.mSize != 0) {
             m163C.LoadRequest(m15BC.mStr);
         }
         m164C++;
@@ -123,7 +123,7 @@ int Em309GhoulSimple::vf0C() {
             m1438->fn_800D246C(0);
             m1438->mFlags |= 4;
         }
-        if (m15B8 > 0.0f && m1574.mCount != 0) {
+        if (m15B8 > 0.0f && m1574.mSize != 0) {
             m1648 = 1;
         }
         mStatus.m18 |= 0x1C0;
@@ -175,7 +175,7 @@ void Em309GhoulSimple::fn_80306078(const char* text, int length) {
             }
         } else if (strcmp(key, "SummonWarpPoint") == 0) {
             GhoulPair_unk* p = m1574.mData;
-            for (unsigned int i = 0; i < m1574.mCount; p++, i++) {
+            for (unsigned int i = 0; i < m1574.mSize; p++, i++) {
                 p->m04 = atoi(csv.fn_8005B9CC());
             }
         } else if (strcmp(key, "SummonNotifyFlag") == 0) {
@@ -714,7 +714,7 @@ void Em309GhoulSimple::vf108() {
         float frame = mMotion.mTracks[0].m08;
         if (m14BC == 0) {
             if (frame >= 40.0f) {
-                for (unsigned int i = 0; i < m1574.mCount; i++) {
+                for (unsigned int i = 0; i < m1574.mSize; i++) {
                     GhoulPair_unk* pair = &m1574.mData[i];
                     EnemyTask* enemy = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->Find_unk(pair->m00) : 0;
                     GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;

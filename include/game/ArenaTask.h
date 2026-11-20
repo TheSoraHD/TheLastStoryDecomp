@@ -64,7 +64,7 @@ public:
 
     // inferred: entry of `chara` (inlined twice in fn_80043BF4); name invented
     Entry_unk* Find_unk(CharaTask* chara) {
-        for (unsigned int i = 0; i < mEntries.mCount; i++) {
+        for (unsigned int i = 0; i < mEntries.mSize; i++) {
             Entry_unk* e = &mEntries.mData[i];
             if (e->mChara == chara) {
                 return e;
