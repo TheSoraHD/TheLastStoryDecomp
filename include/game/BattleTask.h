@@ -2,6 +2,7 @@
 #define GAME_BATTLETASK_H
 
 #include "atn/Task.h"
+#include "atn/FixedArray.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/EffectSystem_unk.h"
 #include "game/BattleCalc_unk.h"
@@ -525,8 +526,7 @@ public:
     float m3E2FC; // inferred: alpha of the chant effect
     int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
     EffectColor_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
-    unsigned int mStunCount;       // 0x3E314: inferred: entries of mStuns (cleared by fn_800F3D28)
-    BattleStun_unk mStuns[4];      // 0x3E318: inferred: characters with a timed effect (fn_8010A868)
+    atn::FixedArray_unk<BattleStun_unk, 4> mStuns; // 0x3E314: inferred: characters with a timed effect (fn_8010A868)
     atn::EfpFile mStunEfp[2][3];   // 0x3E348: inferred: [enemy of the player][-, loop, end] effects
     int m3E390; // inferred: debug "DrawPick"
     int m3E394; // inferred: the battle effects are loaded (cleared by fn_800F3170)
