@@ -1506,6 +1506,36 @@ extern "C" inline atn::EffectManager* fn_800F7FA0() {
 extern "C" inline PPManager2_unk* fn_800F7F90() {
     return (PPManager2_unk*)lbl_8087F610;
 }
+// inferred: the request searches of fn_804F5A98/fn_804F5B08 on the MP::Manager2 instance, read through the
+// getter at each use (as the inlined copies in fn_804D8910, fn_804F3258 and fn_804FAB40)
+static inline PPRequest_unk* FindRequestM_unk(unsigned int id) {
+    for (int i = 0; i < 32; i++) {
+        if (fn_800F7F90()->mRequests[i].mUsed != 0 && id == fn_800F7F90()->mRequests[i].m15) {
+            return &fn_800F7F90()->mRequests[i];
+        }
+    }
+    return 0;
+}
+static inline PPRequest_unk* FindFreeRequestM_unk() {
+    for (int i = 0; i < 32; i++) {
+        if (fn_800F7F90()->mRequests[i].mUsed == 0) {
+            return &fn_800F7F90()->mRequests[i];
+        }
+    }
+    return 0;
+}
+static inline bool PPAddRequestM_unk(unsigned char a, int b, unsigned char c) {
+    PPRequest_unk* req = FindFreeRequestM_unk();
+    if (req == 0) {
+        return false;
+    }
+    req->mUsed = 1;
+    req->m04 = 0;
+    req->m14 = a;
+    req->m08 = b;
+    req->m15 = c;
+    return true;
+}
 // inferred: friend list of the network manager (an inline level: the registers of fn_804E448C follow it); name
 // invented
 static inline MpFriendList_unk* PPFriendList_unk() {
@@ -1602,12 +1632,11 @@ extern "C" __declspec(noinline) inline PPCharaInfo_unk* fn_804D8078(PPCharaInfo_
     return dst;
 }
 extern "C" void fn_804D00B8(int index, int value);
-struct PPRequests_unk;
-extern "C" bool fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c);
-extern "C" void fn_804F5FCC(PPRequests_unk* queue);
-extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id);
-extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id);
-extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id);
+extern "C" bool fn_804F5A98(PPManager2_unk* queue, unsigned char a, int b, unsigned char c);
+extern "C" void fn_804F5FCC(PPManager2_unk* queue);
+extern "C" int fn_804F5E38(PPManager2_unk* queue, unsigned int id);
+extern "C" int fn_804F5C9C(PPManager2_unk* queue, unsigned int id);
+extern "C" long long* fn_804F5B08(PPManager2_unk* queue, unsigned int id);
 extern "C" int fn_804FB968(const PPManager2_unk* mgr, CharaTask* chara);
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg);
 extern "C" void fn_804E448C(PPManager2_unk* mgr);
@@ -2425,7 +2454,7 @@ void MP::Manager2::vf10() {
         }
     }
     fn_804D5F68(mgr);
-    fn_804F5FCC((PPRequests_unk*)mgr);
+    fn_804F5FCC(mgr);
     fn_804D1694()->fn_805092FC();
     fn_804D6680()->fn_8050C2F4();
     if (fn_804D5F7C(fn_804D1694()) == 1) {
@@ -3250,7 +3279,7 @@ void MP::Manager2::vf10() {
             data[0] = fn_804D64B4(own);
             fn_804D1694();
             fn_804AE3BC()->fn_8050E094(fn_804D6228(fn_804D1694()), 0x1046, data, 1);
-            fn_804F5A98((PPRequests_unk*)fn_800F7F90(), own->mAid, 150, data[0]);
+            fn_804F5A98(fn_800F7F90(), own->mAid, 150, data[0]);
             mgr->m9A78 = fn_804CF194();
             mgr->m9A80 = data[0];
         }
@@ -3260,14 +3289,14 @@ void MP::Manager2::vf10() {
         fn_804E9360(mgr);
         PPPlayer_unk* own = fn_804EB870(mgr);
         if (mgr->m9A77 == 0 && own != 0 && fn_804D6278(fn_804D1694(), own->mAid) != 1) {
-            int result = fn_804F5E38((PPRequests_unk*)fn_800F7F90(), mgr->m9A80);
+            int result = fn_804F5E38(fn_800F7F90(), mgr->m9A80);
             if ((unsigned int)(result + 2) <= 1) {
-                fn_804F5C9C((PPRequests_unk*)fn_800F7F90(), mgr->m9A80);
+                fn_804F5C9C(fn_800F7F90(), mgr->m9A80);
             } else if (result == 1) {
                 long long now = fn_804CF194();
                 long long half = (now - mgr->m9A78) / 2;
-                mgr->mStartTime = now - (*fn_804F5B08((PPRequests_unk*)mgr, mgr->m9A80) + half);
-                fn_804F5C9C((PPRequests_unk*)fn_800F7F90(), mgr->m9A80);
+                mgr->mStartTime = now - (*fn_804F5B08(mgr, mgr->m9A80) + half);
+                fn_804F5C9C(fn_800F7F90(), mgr->m9A80);
                 mgr->m9A77 = 1;
             }
         }
@@ -3753,7 +3782,7 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
                 data->mSeq = player->m0D52++;
                 mgr->m9A54[mgr->mPlayers[i].mAid] = data->mSeq;
                 fn_804AE3BC()->fn_8050E094(mgr->mPlayers[i].mAid, 0x1040, data, 1);
-                fn_804F5A98((PPRequests_unk*)fn_800F7F90(), mgr->mPlayers[i].mAid, 300,
+                PPAddRequestM_unk(mgr->mPlayers[i].mAid, 300,
                             mgr->m9A54[mgr->mPlayers[i].mAid]);
             }
         }
@@ -3833,7 +3862,7 @@ inline void SendWeapon_unk(GameSaveData_unk* save, int& value, PPMsgWeapon_unk* 
     }
 }
 
-// NONMATCHING: 98.91% - registers (save data and character swapped; aid/offset of the inlined search fn_804DD158)
+// NONMATCHING: 99.60% - the store of the sequence in the message is scheduled before the reload of the player array
 // inferred: sends the equipment of the own save data to everybody (messages 0x1009 and 0x100A, character
 // mB0 + 700000), then asks every other player for an answer (message 0x1041 with the next sequence of the own
 // slot, kept in m99F4 and in the request queue)
@@ -3865,7 +3894,7 @@ extern "C" void fn_804D8910(PPManager2_unk* mgr) {
             *data = seq;
             mgr->m99F4[mgr->mPlayers[i].mAid] = seq;
             fn_804AE3BC()->fn_8050E094(mgr->mPlayers[i].mAid, 0x1041, data, 1);
-            fn_804F5A98((PPRequests_unk*)lbl_8087F610, mgr->mPlayers[i].mAid, 300,
+            PPAddRequestM_unk(mgr->mPlayers[i].mAid, 300,
                         mgr->m99F4[mgr->mPlayers[i].mAid]);
         }
     }
@@ -3889,16 +3918,16 @@ extern "C" void fn_804D90E0(PPManager2_unk* mgr) {
         count++;
         int* seq = &mgr->m99F4[player->mAid];
         if (*seq >= 0) {
-            int state = fn_804F5E38((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+            int state = fn_804F5E38((PPManager2_unk*)lbl_8087F610, (unsigned char)*seq);
             if (state == -2) {
                 *seq = -3;
                 fn_804FB470(mgr, 158, 9);
             } else if (state == -1) {
-                fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+                fn_804F5C9C((PPManager2_unk*)lbl_8087F610, (unsigned char)*seq);
                 *seq = -3;
                 fn_804FB470(mgr, 158, 9);
             } else if (state == 1) {
-                fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+                fn_804F5C9C((PPManager2_unk*)lbl_8087F610, (unsigned char)*seq);
                 *seq = -2;
             }
         }
@@ -3982,12 +4011,12 @@ extern "C" int fn_804D9C14(PPManager2_unk* mgr, PPPlayer_unk* own, int arg) {
         if (*seq < 0) {
             continue;
         }
-        int state = fn_804F5E38((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+        int state = fn_804F5E38((PPManager2_unk*)lbl_8087F610, (unsigned char)*seq);
         if (state == -2) {
             *seq = -3;
             fn_804FB470(mgr, 158, 9);
         } else if (state == -1) {
-            fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+            fn_804F5C9C((PPManager2_unk*)lbl_8087F610, (unsigned char)*seq);
             *seq = -3;
             fn_804FB470(mgr, 158, 9);
         } else {
@@ -3998,7 +4027,7 @@ extern "C" int fn_804D9C14(PPManager2_unk* mgr, PPPlayer_unk* own, int arg) {
                 done = true;
             }
             if (done == true) {
-                fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+                fn_804F5C9C((PPManager2_unk*)lbl_8087F610, (unsigned char)*seq);
                 *seq = -2;
             }
         }
@@ -7880,7 +7909,7 @@ extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
                 fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
             } else {
                 data->m1E = GetMyPlayer_unk()->m0D52++;
-                if (fn_804F5A98((PPRequests_unk*)lbl_8087F610, lbl_8087F628->GetServerAid_unk(), 150, data->m1E) ==
+                if (PPAddRequestM_unk(lbl_8087F628->GetServerAid_unk(), 150, data->m1E) ==
                     1) {
                     ((gmk::DropItem*)gimmick)->m2A0 = data->m1E;
                     fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
@@ -7897,7 +7926,7 @@ extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
                 fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
             } else {
                 data->m1E = GetMyPlayer_unk()->m0D52++;
-                if (fn_804F5A98((PPRequests_unk*)lbl_8087F610, lbl_8087F628->GetServerAid_unk(), 150, data->m1E) ==
+                if (PPAddRequestM_unk(lbl_8087F628->GetServerAid_unk(), 150, data->m1E) ==
                     1) {
                     cannon->m524 = data->m1E;
                     fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
@@ -9614,12 +9643,8 @@ extern "C" void fn_804F3170() {
 }
 
 // inferred: queue of 32 requests at 0x48 (0x18 bytes each); names invented
-struct PPRequests_unk {
-    unsigned char m00[0x48];
-    PPRequest_unk mRequests[32];
-};
 // inferred: request of id `id` (m15)
-static inline PPRequest_unk* FindRequest_unk(PPRequests_unk* queue, unsigned int id) {
+static inline PPRequest_unk* FindRequest_unk(PPManager2_unk* queue, unsigned int id) {
     for (int i = 0; i < 32; i++) {
         if (queue->mRequests[i].mUsed != 0 && id == queue->mRequests[i].m15) {
             return &queue->mRequests[i];
@@ -9628,16 +9653,6 @@ static inline PPRequest_unk* FindRequest_unk(PPRequests_unk* queue, unsigned int
     return 0;
 }
 
-// inferred: FindRequest_unk on the requests of the MP::Manager2 instance, read through the getter at each use
-// (fn_804F3258 at 100 % only this way)
-static inline PPRequest_unk* FindRequestM_unk(unsigned int id) {
-    for (int i = 0; i < 32; i++) {
-        if (fn_800F7F90()->mRequests[i].mUsed != 0 && id == fn_800F7F90()->mRequests[i].m15) {
-            return &fn_800F7F90()->mRequests[i];
-        }
-    }
-    return 0;
-}
 // inferred: message 0x29: answer of a request of this machine (its 8 bytes are kept in the request)
 extern "C" void fn_804F3258() {
     if (PP_NO_DATA_UNK) {
@@ -10137,7 +10152,7 @@ extern "C" int fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned s
 }
 
 // inferred: free request of the queue
-static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
+static inline PPRequest_unk* FindFreeRequest_unk(PPManager2_unk* queue) {
     for (int i = 0; i < 32; i++) {
         if (queue->mRequests[i].mUsed == 0) {
             return &queue->mRequests[i];
@@ -10149,7 +10164,7 @@ static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
 extern "C" void fn_804F5A94(PPManager2_unk* mgr) {}
 
 // inferred: adds a request (0 when the queue is full)
-extern "C" bool fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c) {
+extern "C" bool fn_804F5A98(PPManager2_unk* queue, unsigned char a, int b, unsigned char c) {
     PPRequest_unk* req = FindFreeRequest_unk(queue);
     if (req == 0) {
         return false;
@@ -10164,7 +10179,7 @@ extern "C" bool fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsig
 
 // inferred: ages the requests: after the timer a new request waits 150 more frames, an old one is freed
 
-extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id) {
+extern "C" long long* fn_804F5B08(PPManager2_unk* queue, unsigned int id) {
     PPRequest_unk* req = FindRequest_unk(queue, id);
     if (req == 0) {
         return 0;
@@ -10172,7 +10187,7 @@ extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id) {
     return (long long*)req->m0C;
 }
 
-extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id) {
+extern "C" int fn_804F5C9C(PPManager2_unk* queue, unsigned int id) {
     PPRequest_unk* req = FindRequest_unk(queue, id);
     if (req == 0) {
         return 0;
@@ -10181,7 +10196,7 @@ extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id) {
     return 1;
 }
 
-extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id) {
+extern "C" int fn_804F5E38(PPManager2_unk* queue, unsigned int id) {
     PPRequest_unk* req = FindRequest_unk(queue, id);
     if (req == 0) {
         return -2;
@@ -10189,7 +10204,7 @@ extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id) {
     return req->m04;
 }
 
-extern "C" void fn_804F5FCC(PPRequests_unk* queue) {
+extern "C" void fn_804F5FCC(PPManager2_unk* queue) {
     for (int i = 0; i < 32; i++) {
         if (queue->mRequests[i].mUsed != 0) {
             if (--queue->mRequests[i].m08 < 0) {
@@ -10762,7 +10777,6 @@ extern "C" void fn_804FAA7C(PPManager2_unk* mgr, unsigned int flush, PPPlayer_un
     }
 }
 
-// NONMATCHING: 99.58% - registers of the inlined request search of fn_804F5A98 (base/index/pointer)
 // inferred: payload of the message 0x1036 (sequence number of the slot and a value); names invented
 struct PPMsgSeq_unk {
     unsigned char mSeq;
@@ -10777,7 +10791,7 @@ extern "C" __declspec(noinline) int fn_804FAB40(PPManager2_unk* mgr, int value, 
     data->mSeq = next;
     data->mValue = value;
     if (seq != 0) {
-        if (fn_804F5A98((PPRequests_unk*)fn_800F7F90(), lbl_8087F628->GetServerAid_unk(), 150, data->mSeq) == 0) {
+        if (PPAddRequestM_unk(lbl_8087F628->GetServerAid_unk(), 150, data->mSeq) == 0) {
             return 0;
         }
         *seq = data->mSeq;
