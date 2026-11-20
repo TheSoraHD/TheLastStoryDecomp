@@ -181,16 +181,7 @@ ReplayRecorder_unk::ReplayRecorder_unk() {
 
 ReplayRecorder_unk::~ReplayRecorder_unk() {}
 
-// inferred: a hidden or dead character is not recorded (name invented)
-static inline bool IsSkipped_unk(CharaTask* chara) {
-    bool ret = false;
-    if (chara->IsFlag_unk(4) || chara->IsFlag_unk(1)) {
-        ret = true;
-    }
-    return ret;
-}
-
-// NONMATCHING: 99.38% - r3/r4 swapped between the flag word and the result of IsSkipped_unk
+// inferred: a hidden or dead character (type 2) is not recorded (CharaTask::IsActive_unk)
 void ReplayRecorder_unk::fn_8056B3D4() {
     atn::Matrix3x4 inv;
     atn::Matrix3x4 trans;
@@ -201,12 +192,12 @@ void ReplayRecorder_unk::fn_8056B3D4() {
     inv = m464;
     PSMTXInverse(inv.m, inv.m);
     for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
-        if (!player->IsFlag_unk(4) && !(player->mType == 2 && IsSkipped_unk(player))) {
+        if (!player->IsFlag_unk(4) && !(player->mType == 2 && !player->IsActive_unk())) {
             fn_8056B558(player, inv);
         }
     }
     for (NpcTask* npc = NpcManager::sInstance->mHead; npc != 0; npc = npc->mNext) {
-        if (!npc->IsFlag_unk(4) && !(npc->mType == 2 && IsSkipped_unk(npc)) && npc->fn_8016E484()) {
+        if (!npc->IsFlag_unk(4) && !(npc->mType == 2 && !npc->IsActive_unk()) && npc->fn_8016E484()) {
             fn_8056B558(npc, inv);
         }
     }
@@ -243,12 +234,10 @@ static inline void ToHalf3_unk(short* dst, const atn::Vector3& v) {
     dst[1] = ToHalf_unk(v.y);
     dst[2] = ToHalf_unk(v.z);
 }
-// NONMATCHING: 99.32% - registers of the prologue (m460 in r0, the matrix argument copied last) and a frsp
-// of the z of the direction before atan2
 // inferred: records one character in mCharas: matrix relative to the leader, motion tracks, pose of the
 // "reference" node and the angle of the upper body
 void ReplayRecorder_unk::fn_8056B558(CharaTask* chara, const atn::Matrix3x4& inv) {
-    if (m460 < 8 && (chara->mFlags & 2) == 2) {
+    if (m460 < 8 && chara->IsFlag_unk(2)) {
         atn::Model* model = &chara->mMotion;
         ReplayChara_unk* entry = &mCharas[m460];
         entry->mChara = chara;
@@ -267,7 +256,7 @@ void ReplayRecorder_unk::fn_8056B558(CharaTask* chara, const atn::Matrix3x4& inv
         atn::Model::Node_unk* node = &nodes[model->GetNodeNoByName("reference", 0)];
         ToHalf3_unk(entry->mRefPos, node->mPos);
         entry->mRefFlags = node->m00;
-        atn::Vector3 rot = chara->mFA4.ToRotationZ_unk();
+        atn::Vector3 rot = chara->mFA4.ToRotation_unk();
         entry->mAngle = ToHalf_unk(atn::WrapAngle_unk(rot.y - chara->mRot.y));
         entry->m07 = chara->HasC48_unk();
         m460++;
@@ -351,8 +340,8 @@ inline float RenderSetting_unk::GetFrameSpeed_unk() const {
     return m3A4;
 }
 
-// NONMATCHING: 98.72% - registers: the frame pointer (r25 in the original) and the flag word/result of
-// IsSkipped_unk in the enemy loop (as in ReplayRecorder_unk::fn_8056B3D4)
+// NONMATCHING: 98.91% - registers: the frame pointer (r25 in the original) and the stack slots and FPRs of
+// the bullet loop
 // inferred: records a frame every frame time: the party relative to the leader, the friends, the enemies, the
 // gimmick models and the homing bullets
 void ReplayBuffer::fn_8056C3D8() {
@@ -374,12 +363,12 @@ void ReplayBuffer::fn_8056C3D8() {
             fn_8056CB20(frame, lbl_8087F8A0->mHead, inv);
             for (CharaTask* chara = FriendManager::sInstance->fn_8036554C(); chara != 0;
                  chara = ((PlayerTask*)chara)->mNext) {
-                if (!chara->IsFlag_unk(4) && !(chara->mType == 2 && IsSkipped_unk(chara))) {
+                if (!chara->IsFlag_unk(4) && !(chara->mType == 2 && !chara->IsActive_unk())) {
                     fn_8056CB20(frame, chara, inv);
                 }
             }
             for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
-                if (!enemy->IsFlag_unk(4) && !(enemy->mType == 2 && IsSkipped_unk(enemy))) {
+                if (!enemy->IsFlag_unk(4) && !(enemy->mType == 2 && !enemy->IsActive_unk())) {
                     fn_8056CB20(frame, enemy, inv);
                 }
             }
@@ -411,11 +400,10 @@ void ReplayBuffer::fn_8056C3D8() {
     }
 }
 
-// NONMATCHING: same as ReplayRecorder_unk::fn_8056B558 (prologue registers, frsp before atan2)
 // inferred: records one character in the frame (same code as ReplayRecorder_unk::fn_8056B558; a free function:
 // a new member in ReplayBuffer.h renumbers the @N labels of the units that include it)
 void fn_8056CB20(ReplayFrame_unk* frame, CharaTask* chara, const atn::Matrix3x4& inv) {
-    if (frame->mNumCharas < 15 && (chara->mFlags & 2) == 2) {
+    if (frame->mNumCharas < 15 && chara->IsFlag_unk(2)) {
         atn::Model* model = &chara->mMotion;
         ReplayChara_unk* entry = &frame->mCharas[frame->mNumCharas];
         entry->mChara = chara;
@@ -434,7 +422,7 @@ void fn_8056CB20(ReplayFrame_unk* frame, CharaTask* chara, const atn::Matrix3x4&
         atn::Model::Node_unk* node = &nodes[model->GetNodeNoByName("reference", 0)];
         ToHalf3_unk(entry->mRefPos, node->mPos);
         entry->mRefFlags = node->m00;
-        atn::Vector3 rot = chara->mFA4.ToRotationZ_unk();
+        atn::Vector3 rot = chara->mFA4.ToRotation_unk();
         entry->mAngle = ToHalf_unk(atn::WrapAngle_unk(rot.y - chara->mRot.y));
         entry->m07 = chara->HasC48_unk();
         frame->mNumCharas++;
@@ -937,7 +925,7 @@ void ReplayBuffer::vf08(EffectEvent_unk* event) {
     }
 }
 
-// NONMATCHING: 98.65% - same registers as fn_8056C3D8 (IsSkipped_unk in the enemy loop) and the stack slots
+// NONMATCHING: 98.79% - same registers as fn_8056C3D8 and the stack slots
 // of the bullet loop
 // inferred: records the live frame mLive (the party relative to the leader, the friends and the enemies; the
 // gimmick models and the homing bullets unless `charasOnly`)
@@ -954,12 +942,12 @@ void ReplayBuffer::fn_8056F5B4(int charasOnly) {
     fn_8056CB20(&mLive, lbl_8087F8A0->mHead, inv);
     for (CharaTask* chara = FriendManager::sInstance->fn_8036554C(); chara != 0;
          chara = ((PlayerTask*)chara)->mNext) {
-        if (!chara->IsFlag_unk(4) && !(chara->mType == 2 && IsSkipped_unk(chara))) {
+        if (!chara->IsFlag_unk(4) && !(chara->mType == 2 && !chara->IsActive_unk())) {
             fn_8056CB20(&mLive, chara, inv);
         }
     }
     for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
-        if (!enemy->IsFlag_unk(4) && !(enemy->mType == 2 && IsSkipped_unk(enemy))) {
+        if (!enemy->IsFlag_unk(4) && !(enemy->mType == 2 && !enemy->IsActive_unk())) {
             fn_8056CB20(&mLive, enemy, inv);
         }
     }
