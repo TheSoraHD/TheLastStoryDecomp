@@ -844,12 +844,43 @@ inline void SetCapsule_unk(atn::ColliCapsule* colli, const atn::ColliCapsuleShap
     colli->m48 = c.mEnd;
 }
 
-// NONMATCHING: ~97% - scheduling of the copy of the capsule against the rotation (8 variants)
+// inferred: capsule of the body collision (as in game/EnemyQuarkStand.cpp; names invented)
+inline atn::ColliCapsuleShape_unk QuarkGetCapsule_unk(atn::ColliCapsule& c) {
+    atn::ColliCapsuleShape_unk cap;
+    cap.mStart = c.m3C;
+    cap.mEnd = c.m48;
+    cap.mRadius = c.m54;
+    return cap;
+}
+// inferred: front direction of the character, copying the rotation first (as in game/EnemyQuarkStand.cpp)
+inline atn::Vector3 QuarkFrontY_unk(CharaTask* c) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    float rotY = c->mRot.y;
+    PSMTXRotRad(m, 'y', rotY);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+// inferred: front direction of the character (reads the rotation inside; as in game/EnemyQuarkStand.cpp)
+inline atn::Vector3 QuarkFrontOf_unk(CharaTask* c) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.SetRotationY_unk(c->mRot.y);
+    PSMTXMultVec(m.m, &dir, &dir);
+    return dir;
+}
+inline void QuarkSetCapsule_unk(atn::ColliCapsule& c, const atn::ColliCapsuleShape_unk& cap) {
+    c.m3C = cap.mStart;
+    c.m48 = cap.mEnd;
+    c.m54 = cap.mRadius;
+}
+
+// inferred: moves the collision capsule start in front of the body (same code as EnemyQuarkStand::fn_803470F0)
 void EnemyQuarkSecond::fn_8033AB88() {
-    atn::ColliCapsuleShape_unk capsule(mColli.m3C, mColli.m48, mColli.m54);
-    capsule.mStart = m614 + Front_unk(mRot.y, 10.0f);
-    capsule.mStart.y -= 10.0f;
-    SetCapsule_unk(&mColli, capsule);
+    atn::ColliCapsuleShape_unk cap = QuarkGetCapsule_unk(mColli);
+    cap.mStart = m614 + QuarkFrontY_unk(this) * 10.0f;
+    cap.mStart.y -= 10.0f;
+    QuarkSetCapsule_unk(mColli, cap);
 }
 
 // inferred: position of a node (as in game/Em301LShade.cpp); name invented
@@ -857,11 +888,10 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: ~95% - stack slots of the temporaries (rotated front, node positions) against the
-// Item14_unk constructor temporary; 7 variants
+// inferred: damage spheres (same code as EnemyQuarkStand::vf50)
 void EnemyQuarkSecond::vf50() {
     Item14_unk item;
-    item.m04.mCenter = m614 + Front_unk(mRot.y, 10.0f);
+    item.m04.mCenter = m614 + QuarkFrontOf_unk(this) * 10.0f;
     item.m04.mRadius = m620;
     item.m04.mCenter.y -= 10.0f;
     m624.push_back(item);
