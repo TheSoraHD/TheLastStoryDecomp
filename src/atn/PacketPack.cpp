@@ -188,16 +188,14 @@ struct Manager2;
 typedef MP::Manager2 PPManager2_unk;
 extern "C" unsigned int fn_804EAEE0(PPManager2_unk* mgr, CharaTask* chara);
 
-// NONMATCHING: 99.91% - stack frame 0x30 instead of 0x20: the original shares one slot for the two
-// float to integer conversions
-// inferred: packs the state of a character
+// inferred: packs the state of a character (mFB8/mFBC through the const getters of CharaTask: one shared fctiwz slot)
 extern "C" void fn_804CF468(PackedChara_unk* out, CharaTask* task) {
     PPChara_unk* chara = (PPChara_unk*)task;
     out->m00 = chara->m674;
     out->m04 = chara->m55C;
     out->m06 = chara->m560;
-    out->m08 = task->fn_80160324() ? (unsigned short)chara->mFB8 : 0;
-    out->m0A = task->fn_80160324() ? (unsigned short)chara->mFBC : 0;
+    out->m08 = task->fn_80160324() ? (unsigned short)task->GetFB8_unk() : 0;
+    out->m0A = task->fn_80160324() ? (unsigned short)task->GetFBC_unk() : 0;
     out->m0C = chara->m638 != 0 ? chara->m638->m04 : 0;
     out->m12_7 = chara->m12A4 >> 5;
     out->m12_6 = chara->m12A4 >> 6;
