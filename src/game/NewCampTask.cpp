@@ -362,10 +362,6 @@ inline SetConfig* GetSetConfig_unk() {
 extern "C" inline int fn_80244CA0(atn::Task* task) {
     return (task->mFlags >> 1) & 1;
 }
-// inferred: copies a camera (defined in game/GameCamera_unk.cpp)
-extern "C" inline void fn_80392A04(atn::Camera* dst, const atn::Camera* src) {
-    *dst = *src;
-}
 extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy) {
     camera->mFovy = fovy;
 }
@@ -517,7 +513,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     fn_8037F688(&mCamera, m1214);
     mCamera.fn_8004B378();
     fn_8008B964()->SetCamera_unk(mCamera);
-    fn_80392A04(&m260, &mCamera);
+    m260 = mCamera;
     fn_8052C6C0(fn_8008B964());
     fn_8052C6CC(fn_8008B964(), &m260);
     ((DamageEffectParam_unk*)&m130C[0x1310 - 0x130C])->mEnabled = 1;

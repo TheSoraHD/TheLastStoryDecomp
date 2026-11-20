@@ -4201,13 +4201,10 @@ void GameCamera::fn_803928C0() {
     m1F4.mFovy = m954 + fovy;
 }
 
-// inferred: copies a camera (also called by game/TutorialTask)
-extern "C" void fn_80392A04(atn::Camera* dst, const atn::Camera* src);
-
-// NONMATCHING: the original is over the inlining budget and calls fn_80392A04 and RenderManager::SetCamera_unk;
-// here both are inlined
+// inferred: the camera copy is the implicit operator= of atn::Camera (weak copy 0x80392A04, over the inlining
+// budget here)
 void GameCamera::fn_80392964(int a, int b, int c, int d) {
-    fn_80392A04(&m1F4, &mCamera);
+    m1F4 = mCamera;
     if (c != 0) {
         fn_80392510();
     }
@@ -4223,12 +4220,6 @@ void GameCamera::fn_80392964(int a, int b, int c, int d) {
     fn_803928C0();
     m1F4.fn_8004B378();
     fn_8008B964()->SetCamera_unk(m1F4);
-}
-
-// NONMATCHING: 99.4% - registers of the pointers of the copies of the frustum bounds and planes (r6-r9 in
-// the reverse order)
-extern "C" void fn_80392A04(atn::Camera* dst, const atn::Camera* src) {
-    *dst = *src;
 }
 
 void GameCamera::fn_80392C94(GameCameraState_unk* state) const {
