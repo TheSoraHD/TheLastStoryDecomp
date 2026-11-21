@@ -49,7 +49,7 @@ extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // i
 struct ColliManager_unk;
 extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
-extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
+extern "C" void fn_805A5078(atn::Vector3* pos, atn::Vector3* dir, int id, float radius, float angle);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameTask* lbl_8087F430;

@@ -30,7 +30,7 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
     return static_cast<PlayerTask*>(chara)->mNext;
 }
 // inferred: sends `id` to the gimmicks in a cone (game/SpecialEnemyBase.cpp)
-extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
+extern "C" void fn_805A5078(atn::Vector3* pos, atn::Vector3* dir, int id, float radius, float angle);
 // inferred: segment against capsule test
 extern "C" int fn_80051B70(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
 // inferred: zero vector

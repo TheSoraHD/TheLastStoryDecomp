@@ -53,7 +53,7 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 // inferred: sends `id` to the gimmicks in a cone (game/SpecialEnemyBase.cpp)
-extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
+extern "C" void fn_805A5078(atn::Vector3* pos, atn::Vector3* dir, int id, float radius, float angle);
 
 // inferred: sounds of the spider
 static const char* const sSe_unk[3] = {"SE_EM202_008", "SE_EM202_002", "SE_DG001_014"};

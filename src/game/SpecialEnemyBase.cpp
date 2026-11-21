@@ -416,9 +416,9 @@ void SpecialEnemyBase::vf118(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 98.1% - load order of the position and of the z-first copy of `dir`
+// inferred: the parameters are not const (with const the loads move above the stores)
 // inferred: sends `id` to the gimmicks of kind 1 in a cone (radius, angle in degrees x2)
-extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle) {
+extern "C" void fn_805A5078(atn::Vector3* pos, atn::Vector3* dir, int id, float radius, float angle) {
     for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         if (g->m50 == 1) {
             atn::Vector3 p = g->vf54();

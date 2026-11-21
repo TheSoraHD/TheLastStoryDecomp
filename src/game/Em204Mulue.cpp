@@ -58,7 +58,7 @@ extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // infe
 struct ColliManager_unk;
 extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
-extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
+extern "C" void fn_805A5078(atn::Vector3* pos, atn::Vector3* dir, int id, float radius, float angle);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);

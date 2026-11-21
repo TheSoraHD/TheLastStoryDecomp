@@ -47,10 +47,10 @@ for k in cands:
         if k2 == k or not (0.85 * n <= len(s2) <= 1.15 * n):
             continue
         sm = difflib.SequenceMatcher(None, seq, s2, autojunk=False)
-        if sm.real_quick_ratio() < 0.8 or sm.quick_ratio() < 0.8:
+        if sm.real_quick_ratio() < float(os.environ.get("TWMIN", "0.8")) or sm.quick_ratio() < float(os.environ.get("TWMIN", "0.8")):
             continue
         r = sm.ratio()
-        if r >= 0.8:
+        if r >= float(os.environ.get("TWMIN", "0.8")):
             res.append((r, k2))
     res.sort(reverse=True)
     if res:
