@@ -100,7 +100,10 @@ def mutations(lines, a, b):
                     return False
                 if w in other:
                     return True
-                r = re.match(r"\w+", w).group(0)
+                mr = re.match(r"\w+", w)
+                if not mr:
+                    return True
+                r = mr.group(0)
                 # the whole object (not one of its members) used in the other statement
                 return re.search(r"\b%s\b(?!\s*(?:\.|->)\s*\w)" % r, other) is not None or (r == w and re.search(r"\b%s\b" % r, other))
             if conflict(lhs(lines[i]), lines[i + 1]) or conflict(lhs(lines[i + 1]), lines[i]):
@@ -307,7 +310,8 @@ def mutations2(lines, a, b):
                     break
             else:
                 e1 = inner
-        if re.search(r"\b%s\b" % re.escape(re.match(r"\w+", lhs).group(0)), k):
+        mr = re.match(r"\w+", lhs)
+        if not mr or re.search(r"\b%s\b" % re.escape(mr.group(0)), k):
             continue
         new = lines[:]
         new[i] = "%s%s%s = %s;\n%s%s %s= %s;" % (ind, typ or "", lhs, e1, ind, lhs, o, k)
