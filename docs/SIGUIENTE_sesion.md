@@ -1,26 +1,24 @@
-# Siguiente sesion (tras grandes-20261120)
+# Siguiente sesion (tras barrido-20261121)
 
-> Sesion `grandes-20261120` (secuencial, sin agentes) del 2026-11-20 23:59 al 2026-11-21 ~10:45 (cierre desde las 09:58). Notas: `docs/grandes-20261120.md`;
-> para el port: `claude/port-grandes-20261120.md` (proyecto). Anterior: `codigo-20261120` (`docs/codigo-20261120.md`).
+> Sesion `barrido-20261121` (secuencial, sin agentes; barrido en segundo plano en dos worktrees) del 2026-11-21 12:22 al 2026-11-22 ~01:00 (cierre desde las 00:23). Notas: `docs/barrido-20261121.md`. Sin cambios de logica ni firmas (no hay doc de port). Anterior: `grandes-20261120`.
 
-Estado: **16366 / 18113**, lost 0, rep100 6, labelcheck 10 lineas, `main.dol: OK`. Codigo **65,94 %**, datos 76,77 %,
-**755** unidades completas.
+Estado: **16370 / 18113**, lost 0, rep100 6, labelcheck 10 lineas, `main.dol: OK`. Codigo **65,99 %**, datos 76,77 %, **755** unidades completas, 387 avisos del compilador.
 
 ## Decisiones pendientes del usuario
 
-- Ninguna nueva. Usadas las aprobadas del prompt: funciones inventadas que el enlazador quita (SequenceHolderAddUnit_unk, NewCampAddElem_unk) y bajadas de fuzzy por bytes (lista en las notas).
+- Ninguna nueva. El renombrado de la copia debil `size()` 0x800E0AA8 (GameTask fn_803729B4) se probo y se revirtio: es la copia que dejo el enlazador al fusionar `size()` de vectores distintos; ponerle el nombre de `vector<EnemyTask*>` baja 12 funciones en 10 unidades. Solo se cerraria con casts entre vectores en esas unidades (decision del usuario si interesa).
 
 ## Siguiente (decomp)
 
-- **Barrido automatico primero**: `tools/decomp/mutsweep.py <unidad> <simbolo> <Clase::metodo>` sin `--only` (intercambio de sentencias independientes, local de un solo uso como expresion, ternarios, `fswap`, `cswap`) cerro o desatasco 5 funciones y subio otras 0,5-1,3 puntos. Las listas barridas estaban en el scratch de la sesion (no persisten): regenerar con `bigcands.py`; barridas las de 97-99,7 % de 500-4000 B y las de 99-99,6 %. Quedan sin barrer las de 90-97 %.
-- **Familias**: la de "mover hacia la rotacion" quedo cerrada salvo LastCocoonQuadruped fn_80462038 (99,63, `li` de keepRot) y CharaTask fn_8013CB68 (14,7 KB, 98,62 con los mismos retoques: un GPR guardado mas). Buscar otras familias con `tools/decomp/twins.py`.
-- Casi cerradas (ver `docs/mwcc-blockers.md` seccion grandes-20261120): GameTask fn_803729B4 (99,99: solo el nombre de la copia debil `size()` 0x800E0AA8, ver la nota), CharaStatus fn_8012F440 (15,5 KB, 99,85), ChaserGuard fn_8017D13C (99,99), D2AMpMenu fn_804B1528, DamageCalc fn_8003F538/fn_8003EA3C, EnemyQuarkSecond fn_8033D750.
-- Al probar variantes que anaden inlines, el porcentaje baja por los `@N` renumerados: contar `odiff2.py | grep -v @` (`tools/decomp/varnl.sh`).
+- El barrido ya paso por todas las funciones del juego de >= 200 B por debajo de 100 % (al menos con los kinds nuevos); rindio 4 cierres en 12 h. Lo que mas rindio: barrido + un retoque a mano mirando el asm (VecAssign_unk, setter por valor, valor de verdad) y `--plateau` en funciones que el barrido ya habia mejorado.
+- Casi cerradas (un registro o un `cmpw`, ver `docs/mwcc-blockers.md` seccion barrido-20261121): Em204Mulue fn_802A8BBC (99,974 con `float ry = rot.y;`), Em203GreaterDaemonRed fn_80296DB8 (99,92 con VecAssign_unk), LastCocoonQuadruped fn_80468534 (99,92), CosEditBase fn_801CDE14 (99,80), Em301LShade fn_802D57B8 (99,72, parche de una inline para la rama del efecto).
+- Bloqueos que se repiten en lo que queda: huecos de pila de temporales y numeracion de registros guardados (uno de mas o de menos); la direccion base de un miembro en registro (`m4D8`/`m97C` del modo de camara: inline miembro).
+- Lista de candidatas grandes: `claude/grandes-candidatas-20261122.md` (proyecto).
 
 ## Herramientas nuevas
 
-- `tools/decomp/bigcands.py`, `unitcmp.py`, `odctx.py`, `twins.py`, `mutsweep.py` (kinds `fswap`, `cswap`, `splitor`, `nest`...), `hoistsweep.py`, `constsweep.py`, `constsweep2.py`, `getsweep.py`, `symonly.py`.
-- Re-emparejado: `MAINREF=<build de referencia> python3 tools/decomp/refmap2.py <unidades>` tras compilar la unidad (si no, renombra 0) y antes de `precommit.sh`.
+- `tools/decomp/mutsweep.py`: kinds mulsplit, divsplit, idx, ifid, ld, swret, cref, cassign, vassign, dtop, byval; `--plateau K` (sigue desde una variante con el mismo porcentaje), `--diff F`, `--list`. Busca tambien `Metodo` sin el espacio de nombres.
+- `tools/decomp/rotld.py [regex]`: en todas las funciones < 100 %, el angulo de `PSMTXRotRad(m, 'y', a.b.y)` en un `float` local (o el patron que se pase).
 
 ## Candidatas por datos (report.json de mixto2-20261120; sin cambios en codigo-20261120)
 
