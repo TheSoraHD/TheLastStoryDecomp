@@ -3867,7 +3867,6 @@ inline void SendWeapon_unk(GameSaveData_unk* save, int& value, PPMsgWeapon_unk* 
     }
 }
 
-// NONMATCHING: 99.60% - the store of the sequence in the message is scheduled before the reload of the player array
 // inferred: sends the equipment of the own save data to everybody (messages 0x1009 and 0x100A, character
 // mB0 + 700000), then asks every other player for an answer (message 0x1041 with the next sequence of the own
 // slot, kept in m99F4 and in the request queue)
@@ -3896,8 +3895,9 @@ extern "C" void fn_804D8910(PPManager2_unk* mgr) {
     for (int i = 0; i < mgr->mPlayers.size(); i++) {
         if (mgr->mPlayers[i].mFlags.mActive == 1 && own->mAid != mgr->mPlayers[i].mAid) {
             unsigned char seq = own->m0D52++;
+            PPPlayer_unk* player = &mgr->mPlayers[i];
             *data = seq;
-            mgr->m99F4[mgr->mPlayers[i].mAid] = seq;
+            mgr->m99F4[player->mAid] = seq;
             fn_804AE3BC()->fn_8050E094(mgr->mPlayers[i].mAid, 0x1041, data, 1);
             PPAddRequestM_unk(mgr->mPlayers[i].mAid, 300,
                         mgr->m99F4[mgr->mPlayers[i].mAid]);

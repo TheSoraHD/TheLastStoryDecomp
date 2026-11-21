@@ -6,7 +6,7 @@
 # unless --keep N (keep variant N, 1-based).
 import sys,subprocess,os,shutil
 u,sym,vf=sys.argv[1:4]; keep=int(sys.argv[sys.argv.index('--keep')+1]) if '--keep' in sys.argv else 0
-src='src/%s.cpp'%u; bak=src+'.bak'
+src=sys.argv[sys.argv.index('--file')+1] if '--file' in sys.argv else 'src/%s.cpp'%u; bak=src+'.bak'
 if not os.path.exists(bak): shutil.copy(src,bak)
 base=open(bak,encoding='latin-1').read()
 blocks=[b.strip('\n') for b in open(vf,encoding='latin-1').read().split('%%%') if b.strip()]

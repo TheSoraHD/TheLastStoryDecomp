@@ -14,4 +14,4 @@ f = lambda x: (x.get("instruction") or {}).get("formatted", "") if isinstance(x.
 for i in range(max(0, idx - n), min(max(len(L), len(R)), idx + n + 1)):
     a = L[i] if i < len(L) else {}; b = R[i] if i < len(R) else {}
     k = a.get("diff_kind", "") or b.get("diff_kind", "")
-    print("%-4d %s %-40s | %s" % (i, "*" if k else " ", f(b), f(a)))
+    print("%-4d %s %-40s | %s" % (i, "*" if k else " ", f(a), f(b)))
