@@ -705,7 +705,7 @@ void Em101LittleZesya::fn_8025F07C() {
     m14F4 = 0;
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA9), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA9), m60->m04);
     lbl_8087F048->fn_80109828(text);
     atn::Vector3 dir;
     atn::Vector3 rot = (mPos - m1590).ToRotationZ_unk();
@@ -754,7 +754,7 @@ void Em101LittleZesya::fn_8025F45C() {
     m14F4 = 0;
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xAB), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xAB), m60->m04);
     lbl_8087F048->fn_80109828(text);
     if (m15BC != 0) {
         m1590 = m14C4.mData[Nearest_unk(m15A8.m08)];

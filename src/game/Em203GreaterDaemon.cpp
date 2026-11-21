@@ -1120,7 +1120,7 @@ void Em203GreaterDaemon::fn_8028C834() {
     } else if (m14B4 == 1) {
         if (mMotion.mTracks[0].m08 >= 31.0f) {
             wchar_t text[256];
-            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xBD), *(const wchar_t**)((char*)m60 + 4));
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xBD), m60->m04);
             lbl_8087F048->fn_80109828(text);
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
             atn::Vector3 dir = m14B0->mPos - pos;
@@ -1724,7 +1724,7 @@ void Em203GreaterDaemon::fn_8028FB30() {
     m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x13F, 0, 0, 1.0f);
     wchar_t text[256];
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xCD), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xCD), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 

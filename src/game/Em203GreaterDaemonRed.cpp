@@ -911,7 +911,7 @@ void Em203GreaterDaemonRed::fn_80297114() {
                    m15B4 == m14F4[m14C8]) {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
-            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD5), *(const wchar_t**)((char*)m60 + 4));
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD5), m60->m04);
             lbl_8087F048->fn_80109828(text);
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
             atn::Vector3 dir = m14B0->mPos - pos;
@@ -984,7 +984,7 @@ void Em203GreaterDaemonRed::fn_80297474() {
         } else if (mMotion.mTracks[0].m08 >= 47.0f && mMotion.mTracks[0].m08 < 48.0f) {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
-            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD9), *(const wchar_t**)((char*)m60 + 4));
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD9), m60->m04);
             lbl_8087F048->fn_80109828(text);
             fn_80239DAC(lbl_8087F3C0, this, 1002, 1);
             fn_80232B7C(this, 1002);

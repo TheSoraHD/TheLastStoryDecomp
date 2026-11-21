@@ -194,7 +194,7 @@ inline void Em301LShade::SetState_unk(int state) {
 inline void Em301LShade::ShowMessage_unk(int id) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 
@@ -1143,7 +1143,7 @@ void Em301LShade::fn_802D4378() {
     }
     if (m14E8 == 65) {
         lbl_8087F048->fn_800FAB80(this, skill, m590, &m153C, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x115), *(const wchar_t**)((char*)m60 + 4));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x115), m60->m04);
         lbl_8087F048->fn_80109828(text);
         fn_800C344C("SE_EM301_002", &m153C, 0, -1, 1.0f);
     }
@@ -1535,7 +1535,7 @@ void Em301LShade::fn_802D67F8(int index) {
     }
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 

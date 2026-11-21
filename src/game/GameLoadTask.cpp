@@ -17,7 +17,7 @@ extern "C" Pad_unk* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" void fn_800D2338(atn::Task* task);                // inferred: removes the task
-extern "C" void* fn_8006BA8C(const char* path, int* size, int flag); // inferred: loads a file
+extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
 // inferred: defined here (between GameEventScript and GameLoadTask in .sdata/.sbss of the .dol)
 extern "C" {
 MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/GameSaveData_unk)
@@ -104,7 +104,7 @@ int GameLoadTask::vf0C() {
 // inferred: loads the save data of a slot from the debug file (name invented)
 static inline void LoadDebugData_unk(GameLoadTask* self) {
     char path[0x100];
-    int size;
+    unsigned long size;
     int offset;
     sprintf(path, "/test/savedata/savedata.dat");
     ResetSaveData_unk();
