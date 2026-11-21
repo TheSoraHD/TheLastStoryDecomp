@@ -673,7 +673,6 @@ void Em309Ghoul::fn_802FF800() {
     }
 }
 
-// NONMATCHING: 99.82% - load order of m1518/m150C[i] in the base compare and fcmpu operand order; ~8 variants
 // inferred: chooses the next move (route place or the target) and the attack (states 1, 6, 9)
 void Em309Ghoul::fn_802FFFF8() {
     if (m55C == 6 && m560 == 22) {
@@ -687,24 +686,26 @@ void Em309Ghoul::fn_802FFFF8() {
     float tgtAngle = homeDist;
     float leadXZ = homeDist;
     float leadAngle = homeDist;
-    if (m150C != 0 && m14EC != 0) {
-        gs::WarpPoint* home = m1518;
-        if (home != 0) {
-            atn::Vector3 d = *m14EC->fn_8013C38C() - home->mPos;
-            d.y = 0.0f;
-            homeDist = d.Length_unk();
-            atn::Vector3 e = mPos - m1518->mPos;
-            homeXZ = fn_801C3910(e);
-        }
+    if (m150C != 0) {
         if (m14EC != 0) {
-            atn::Vector3 d = *m14EC->fn_8013C38C() - mPos;
-            tgtXZ = fn_801C3910(d);
-            tgtAngle = atn::WrapAngle_unk(d.ToRotation_unk().y - mRot.y);
-        }
-        if (leader != 0) {
-            atn::Vector3 d = *leader->fn_8013C38C() - mPos;
-            leadXZ = fn_801C3910(d);
-            leadAngle = atn::WrapAngle_unk(d.ToRotation_unk().y - mRot.y);
+            gs::WarpPoint* home = m1518;
+            if (home != 0) {
+                atn::Vector3 d = *m14EC->fn_8013C38C() - home->mPos;
+                d.y = 0.0f;
+                homeDist = d.Length_unk();
+                atn::Vector3 e = mPos - m1518->mPos;
+                homeXZ = fn_801C3910(e);
+            }
+            if (m14EC != 0) {
+                atn::Vector3 d = *m14EC->fn_8013C38C() - mPos;
+                tgtXZ = fn_801C3910(d);
+                tgtAngle = atn::WrapAngle_unk(d.ToRotation_unk().y - mRot.y);
+            }
+            if (leader != 0) {
+                atn::Vector3 d = *leader->fn_8013C38C() - mPos;
+                leadXZ = fn_801C3910(d);
+                leadAngle = atn::WrapAngle_unk(d.ToRotation_unk().y - mRot.y);
+            }
         }
     }
     if (m14F8 == 0) {
@@ -732,8 +733,8 @@ void Em309Ghoul::fn_802FFFF8() {
         if (d1 < (m150C[2]->mPos - *m14EC->fn_8013C38C()).Length_unk()) {
             if (m1518->mId == m150C[1]->mId && homeXZ < 70.0f) {
                 move = 1;
-                m1518 = m150C[1];
                 m151C++;
+                m1518 = m150C[1];
             } else {
                 m151C = 0;
                 m1518 = m150C[1];
@@ -741,8 +742,8 @@ void Em309Ghoul::fn_802FFFF8() {
         } else {
             if (m1518->mId == m150C[2]->mId && homeXZ < 70.0f) {
                 move = 1;
-                m1518 = m150C[2];
                 m151C++;
+                m1518 = m150C[2];
             } else {
                 m151C = 0;
                 m1518 = m150C[2];
@@ -761,7 +762,7 @@ void Em309Ghoul::fn_802FFFF8() {
         if (m14F4 > m1698 && homeXZ < 20.0f) {
             if (tgtXZ < 0.7f * fn_80219E6C(0x64A)->m58) {
                 attack = 1;
-            } else if (atn::Abs_unk(tgtAngle) != 0.0f) {
+            } else if (atn::Abs_unk(tgtAngle)) {
                 attack = 3;
             }
         }
