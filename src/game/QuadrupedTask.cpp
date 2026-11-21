@@ -507,9 +507,12 @@ inline bool QuadIsLanded_unk(const atn::ColliResult_unk& result) {
     }
     return landed;
 }
-// NONMATCHING: 99.39% - only the != 1 of the bit of the temporary status (the original computes it as a
-// general != (subfic/or/srwi), ours with xori: `1u`, `% 2`, a bitfield, an inline: same or worse);
-// the push of state 1 is scaled by mStatus.fn_8012DB04() (it was missing)
+// inferred: flag test of the character parameters (as CharaParam_unk::fn_801404E0, inlined here); name
+// invented
+inline bool QuadHasFlag_unk(const CharaParam_unk& param, unsigned int flag) {
+    return (param.m9C & flag) == flag;
+}
+// inferred: the push of state 1 is scaled by mStatus.fn_8012DB04()
 // inferred: moves the leopard towards the rotation `target` (as Em403WarLion::fn_80324A38, plus the push
 // forward of the first 24 frames of the attack)
 void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed, float rate) {
@@ -575,7 +578,7 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
     }
     // inferred: the original tests a default-constructed status here (temporary built and destroyed
     // around the test), not mStatus
-    if ((CharaStatus().mParamB.m9C & 1) != 1) {
+    if (!QuadHasFlag_unk(CharaStatus().mParamB, 1)) {
         int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
