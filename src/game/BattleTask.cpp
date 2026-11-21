@@ -834,10 +834,12 @@ extern "C" inline float fn_800F7FF8(BattleCharaTask* chara) {
     }
     return chara->m5B0;
 }
-// inferred: colour of a 0xAARRGGBB value
-extern "C" inline atn::Color fn_800F8014(unsigned int rgba) {
-    return atn::Color(0.003921569f * (float)((rgba >> 16) & 0xFF), 0.003921569f * (float)((rgba >> 8) & 0xFF),
-                      0.003921569f * (float)(rgba & 0xFF), 0.003921569f * (float)(rgba >> 24));
+// inferred: colour of a 0xAARRGGBB value (constructor: the callers use the `this` it returns)
+inline atn::Color::Color(unsigned int rgba) {
+    r = 0.003921569f * (float)((rgba >> 16) & 0xFF);
+    g = 0.003921569f * (float)((rgba >> 8) & 0xFF);
+    b = 0.003921569f * (float)(rgba & 0xFF);
+    a = 0.003921569f * (float)(rgba >> 24);
 }
 extern "C" inline HateConfig_unk* fn_800F8098(GameConfig_unk* config) {
     return (HateConfig_unk*)&config->mTargetedNumDefault;
@@ -1664,21 +1666,21 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
     switch (mode) {
     case 1:
         if (chara->GetStatus_unk()->fn_80134270()) {
-            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorMagic);
+            color = atn::Color(fn_800F8098(fn_800F52F8())->mLineColorMagic);
         } else if (chara->GetStatus_unk()->fn_80134250()) {
-            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorArcher);
+            color = atn::Color(fn_800F8098(fn_800F52F8())->mLineColorArcher);
         } else {
-            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorSword);
+            color = atn::Color(fn_800F8098(fn_800F52F8())->mLineColorSword);
         }
         if ((unsigned int)(((Player_unk*)chara)->GetM146C_unk() - 0x11) <= 1) {
-            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorMagic);
+            color = atn::Color(fn_800F8098(fn_800F52F8())->mLineColorMagic);
         }
         break;
     case 2:
-        color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorMagic);
+        color = atn::Color(fn_800F8098(fn_800F52F8())->mLineColorMagic);
         break;
     default:
-        color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorNormal);
+        color = atn::Color(fn_800F8098(fn_800F52F8())->mLineColorNormal);
         break;
     }
     marker->mMode = mode;

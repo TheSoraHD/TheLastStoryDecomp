@@ -110,7 +110,6 @@ extern "C" inline CharaTask* fn_802A4094(CharaTask* chara) {
     return ((PlayerTask*)chara)->mNext;
 }
 extern "C" RenderSetting_unk* fn_802F0990();                // inferred: returns lbl_8087EFA8
-extern "C" atn::Color fn_800F8014(unsigned int rgba);       // inferred: colour of a 32-bit value (game/BattleTask)
 // inferred: as in game/GameTask.cpp
 inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
@@ -182,9 +181,7 @@ extern "C" inline BloomParam_unk* fn_80453DB4(RenderSetting_unk* rs) {
     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
     return &rs->m054;
 }
-// NONMATCHING: 97.6% - the colours of fn_800F8014 are passed to Color::operator= from r3 in the original (a
-// temporary here): fn_800F8014 is a constructor `atn::Color::Color(unsigned int)` (constructors return `this`),
-// not declared in atn/Color.h (shared header; see game/BattleTask fn_800F72F4, same difference)
+// inferred: the colours come from the constructor atn::Color(unsigned int) (0x800F8014)
 int LastCocoonEgg::vf0C() {
     if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m14EC.fn_8008B140() == 0 && m1928.IsLoading() == 0 &&
         m1934.IsLoading() == 0 && m1940.IsLoading() == 0 && m1950.IsLoading() == 0 && m195C.IsLoading() == 0 &&
@@ -245,28 +242,28 @@ int LastCocoonEgg::vf0C() {
         for (int j = 0; j < 3; j++) {
             m2700[0].mBloom.mScale[j] = 2;
         }
-        m2700[0].mBloom.mColor[0] = fn_800F8014(0xFF234794);
+        m2700[0].mBloom.mColor[0] = atn::Color(0xFF234794);
         m2700[0].mColorMatrix.mRows[0] = atn::Vector4_unk(0.9f, 0.1f, 0.1f, 0.0f);
         m2700[0].mColorMatrix.mRows[1] = atn::Vector4_unk(0.1f, 0.9f, 0.1f, 0.0f);
         m2700[0].mColorMatrix.mRows[2] = atn::Vector4_unk(0.1f, 0.1f, 1.0f, 0.0f);
         for (int j = 0; j < 3; j++) {
             m2700[1].mBloom.mScale[j] = 2;
         }
-        m2700[1].mBloom.mColor[0] = fn_800F8014(0xFF800000);
+        m2700[1].mBloom.mColor[0] = atn::Color(0xFF800000);
         m2700[1].mColorMatrix.mRows[0] = atn::Vector4_unk(2.0f, 0.1f, 0.1f, 0.0f);
         m2700[1].mColorMatrix.mRows[1] = atn::Vector4_unk(0.1f, 0.7f, 0.1f, 0.0f);
         m2700[1].mColorMatrix.mRows[2] = atn::Vector4_unk(0.1f, 0.1f, 0.7f, 0.0f);
         for (int j = 0; j < 3; j++) {
             m2700[2].mBloom.mScale[j] = 2;
         }
-        m2700[2].mBloom.mColor[0] = fn_800F8014(0xFFFFFFFF);
+        m2700[2].mBloom.mColor[0] = atn::Color(0xFFFFFFFF);
         m2700[2].mColorMatrix.mRows[0] = atn::Vector4_unk(0.9f, 0.1f, 0.1f, 0.0f);
         m2700[2].mColorMatrix.mRows[1] = atn::Vector4_unk(0.1f, 0.9f, 0.1f, 0.0f);
         m2700[2].mColorMatrix.mRows[2] = atn::Vector4_unk(0.1f, 0.1f, 1.0f, 0.0f);
         for (int j = 0; j < 3; j++) {
             m2700[3].mBloom.mScale[j] = 2;
         }
-        m2700[3].mBloom.mColor[0] = fn_800F8014(0xFF004000);
+        m2700[3].mBloom.mColor[0] = atn::Color(0xFF004000);
         m2700[3].mColorMatrix.mRows[0] = atn::Vector4_unk(0.9f, 0.1f, 0.1f, 0.0f);
         m2700[3].mColorMatrix.mRows[1] = atn::Vector4_unk(0.1f, 0.9f, 0.1f, 0.0f);
         m2700[3].mColorMatrix.mRows[2] = atn::Vector4_unk(0.1f, 0.1f, 1.0f, 0.0f);

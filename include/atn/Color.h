@@ -21,6 +21,9 @@ struct Color {
         b = b_;
         a = a_;
     }
+    // inferred: 0xAARRGGBB value (0x800F8014, defined in game/BattleTask.cpp; the callers use the `this` it
+    // returns in r3)
+    explicit Color(unsigned int);
     // inferred: weak copy 0x800D8BB4
     Color(const Color& c) : r(c.r), g(c.g), b(c.b), a(c.a) {}
     void Set_unk(float r_, float g_, float b_, float a_) { // inferred: weak copy of another file
