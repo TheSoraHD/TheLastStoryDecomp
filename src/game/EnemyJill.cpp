@@ -666,8 +666,6 @@ void EnemyJill::fn_8032FD30() {
     }
 }
 
-// NONMATCHING: 98.2% - registers of the guard counter start (r0/r3/r4 for the attack data, the state 8 and the
-// flag; 5 variants: control local, accessor, SetHit_unk written by hand)
 void EnemyJill::fn_8032FDE8() {
     switch (m55C) {
     case 6:
@@ -676,8 +674,8 @@ void EnemyJill::fn_8032FDE8() {
             m58C = 8;
             m59D = 0;
             m59C = 0;
-            SetHit_unk(m14D4);
             m59F = 1;
+            SetHit_unk(m14D4);
             ((JillControl_unk*)mControl.get())->m1C = 1;
         } else if (m560 == 0x27) {
             m14BC = 0;
