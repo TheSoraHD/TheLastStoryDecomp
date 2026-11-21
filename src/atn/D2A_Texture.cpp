@@ -176,13 +176,16 @@ D2A_Texture::~D2A_Texture() {
     }
 }
 
-// NONMATCHING: 97.96% - pointer-array growth uses a different register schedule.
+// inferred: registers an animated UV value in the layout (one inline level more, as D2A_Message::vf0C)
+inline void AddTextureAnim_unk(D2A_Layout_unk* layout, D2A_TexAnim_unk& anim) {
+    layout->mTextureAnims.PushBackRef_unk(anim);
+}
+
 void D2A_Texture::vf0C() {
     fn_801EC784();
-    D2A_Data* owner = (D2A_Data*)mFC;
-    if (owner != 0) {
-        owner->m10.mTextureAnims.PushBackRef_unk(mTexRect);
-        owner->m10.mTextureAnims.PushBackRef_unk(mTexScale);
+    if (mFC != 0) {
+        AddTextureAnim_unk(&((D2A_Data*)mFC)->m10, mTexRect);
+        AddTextureAnim_unk(&((D2A_Data*)mFC)->m10, mTexScale);
     }
 }
 
