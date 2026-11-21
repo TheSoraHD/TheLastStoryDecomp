@@ -932,20 +932,20 @@ atn::Vector3 EnemyQuarkSecond::vf64(int center) {
     return m624.mData->m04.mCenter;
 }
 
-// NONMATCHING: ~93% - the original keeps the distance in f31 from the start and the rotation
-// temporaries in other slots; 6 variants
+// inferred: shape of the twin Em208Queen::fn_802C9880 (Vector3 constructor, Length_unk, if/else)
 void EnemyQuarkSecond::fn_8033C000() {
     float dist = 0.0f;
     float speed = 1.0f;
     atn::Vector3 rot = mRot;
     if (m55C == 7) {
         mRoute.fn_80126214();
-        atn::Vector3 move = mRoute.m58;
+        atn::Vector3 move(mRoute.m58);
         speed *= 0.2f;
         atn::Vector3 d = m14B0->mPos - mPos;
-        dist = 0.0f;
-        if (!(PSVECMag(&d) < 0.7f * m177C)) {
-            dist = PSVECMag(&move);
+        if (d.Length_unk() < 0.7f * m177C) {
+            dist = 0.0f;
+        } else {
+            dist = move.Length_unk();
         }
         if (dist > 0.0001f) {
             rot = move.GetNormalize().ToRotation_unk();
