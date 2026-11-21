@@ -24,12 +24,15 @@ SequenceHolder::SequenceHolder() : mCount(0) {
     mUnits.reserve(0x80);
 }
 
-// NONMATCHING: 97.25% - the inlined push_back loads the capacity before the size (known std/vector.h
-// problem, see vector::push_back) and the file pool has "" before "vector length error"
+// inferred: not static and before its caller, so that its literal comes first in the pool; auto-inlined
+// into fn_800C3990 and the out-of-line copy is removed by the linker (approved exception 2026-11-20)
+void SequenceHolderAddUnit_unk(SequenceHolder* holder, SequenceHolder::SequenceUnitBase* unit) {
+    holder->Add_unk(unit);
+}
 int SequenceHolder::fn_800C3990(const SequenceUnit& unit) {
     SequenceUnit* copy = new ((MemoryTag)1, "", "", 0) SequenceUnit(unit);
     copy->mId = ++mCount;
-    mUnits.push_back(copy);
+    SequenceHolderAddUnit_unk(this, copy);
     return copy->mId;
 }
 

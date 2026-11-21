@@ -621,30 +621,31 @@ void LastCocoonImago::vf50() {
 inline atn::Vector3 ImagoLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
     return (b - a) * t + a;
 }
-// NONMATCHING: 99.2% - stack slot of the forward vector of the first branch and the load order of the nodes
+// inferred: front direction and node position (as Em206CocoonMp::vf54, its twin; names invented)
+inline atn::Vector3 ImagoFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    PSMTXRotRad(r, 'y', rot.y);
+    PSMTXMultVec(r, &v, &v);
+    return v;
+}
+inline atn::Vector3 ImagoNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
 void LastCocoonImago::vf54() {
     if (m624.mSize != 0) {
         for (int i = 0; i < 3; i++) {
             if (i == 0) {
-                atn::Vector3 dir;
-                dir.x = 0.0f;
-                dir.y = 0.0f;
-                dir.z = 1.0f;
-                atn::Matrix3x4 rot;
-                rot.SetRotationY_unk(mRot.y);
-                PSMTXMultVec(rot.m, &dir, &dir);
-                m624.mData[i].m04.mCenter = mPos - dir * 3.0f;
+                m624.mData[i].m04.mCenter = mPos - ImagoFront_unk(mRot) * 3.0f;
                 m624.mData[i].m04.mCenter.y += 0.5f * sImagoAttacks_unk[i].mRadius;
             } else {
                 MtxPtr a = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode0);
                 MtxPtr b = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode1);
                 if (a != 0) {
                     if (b != 0) {
-                        atn::Vector3 pb = ((atn::Matrix3x4*)b)->GetTrans_unk();
-                        atn::Vector3 pa = ((atn::Matrix3x4*)a)->GetTrans_unk();
-                        m624.mData[i].m04.mCenter = ImagoLerp_unk(pa, pb, 0.6f);
+                        m624.mData[i].m04.mCenter = ImagoLerp_unk(ImagoNodePos_unk(a), ImagoNodePos_unk(b), 0.6f);
                     } else {
-                        m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)a)->GetTrans_unk();
+                        m624.mData[i].m04.mCenter = ImagoNodePos_unk(a);
                     }
                 }
             }
