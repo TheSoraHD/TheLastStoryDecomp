@@ -1215,8 +1215,8 @@ extern "C" void* fn_80218BC4(int member); // inferred: protector priorities of a
 // (a: from the protector it wears)
 CosEditWeaponItem_unk* CosEditProtector::fn_801DCDAC(int member, int slot, int a) {
     void* priorities = fn_80218BC4(member);
-    CosEditWeaponItem_unk* result = 0;
     void* best = fn_801CFA5C(member, slot);
+    CosEditWeaponItem_unk* result = 0;
     if (a == 0) {
         best = 0;
     }
