@@ -180,6 +180,17 @@ def mutations(lines, a, b):
             if k:
                 new = lines[:]; new[i] = l[:m.start()] + m.group(1) + " / " + k + l[m.end():]
                 out.append(("fswap %d x/k" % (i + 1), new))
+    # commutative operand swap: a == b <-> b == a (also !=), a < b <-> b > a (and <=, >=), a + b, a * b
+    OPS = {"==": "==", "!=": "!=", "<": ">", ">": "<", "<=": ">=", ">=": "<=", "+": "+", "*": "*"}
+    for i in range(a, b):
+        l = lines[i]
+        if l.lstrip().startswith(("//", "#")):
+            continue
+        for m in re.finditer(r"(?<![\w.>\])\-+*/&|])(%s) (==|!=|<=|>=|<|>|\+|\*) (%s)(?![\w.\[(])" % (SIMPLE, SIMPLE), l):
+            if m.group(1) == m.group(3):
+                continue
+            new = lines[:]; new[i] = l[:m.start()] + m.group(3) + " " + OPS[m.group(2)] + " " + m.group(1) + l[m.end():]
+            out.append(("cswap %d %s" % (i + 1, m.group(2)), new))
     # split `if (A || B) {` whose body is a single return/continue/break into two ifs
     for i in range(a, b - 2):
         m = re.match(r"^(\s+)if \((.+)\) \{$", lines[i])
