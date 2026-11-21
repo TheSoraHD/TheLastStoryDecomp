@@ -1,29 +1,26 @@
-# Siguiente sesion (tras codigo-20261120)
+# Siguiente sesion (tras grandes-20261120)
 
-> Sesion `codigo-20261120` (secuencial, sin agentes) del 2026-11-20 13:58 al ~22:20. Notas: `docs/codigo-20261120.md`;
-> para el port: `claude/port-codigo-20261120.md` (proyecto). Anterior: `mixto2-20261120` (`docs/mixto2-20261120.md`).
+> Sesion `grandes-20261120` (secuencial, sin agentes) del 2026-11-20 23:59 al 2026-11-21 ~10:45 (cierre desde las 09:58). Notas: `docs/grandes-20261120.md`;
+> para el port: `claude/port-grandes-20261120.md` (proyecto). Anterior: `codigo-20261120` (`docs/codigo-20261120.md`).
 
-Estado: **16347 / 18113**, lost 0, rep100 6, labelcheck 10 lineas, `main.dol: OK`. Codigo **65,50 %**, datos 76,77 %,
-**755** unidades completas (enlaza atn/D2A_Data).
+Estado: **16366 / 18113**, lost 0, rep100 6, labelcheck 10 lineas, `main.dol: OK`. Codigo **65,94 %**, datos 76,77 %,
+**755** unidades completas.
 
 ## Decisiones pendientes del usuario
 
-- Ninguna nueva. Las de mixto2 quedaron resueltas: qA3 de D2AMpMenu y el `goto` de Em303KrakenFootMp aprobados (regla 2), `SetParam2_unk` por valor integrada.
+- Ninguna nueva. Usadas las aprobadas del prompt: funciones inventadas que el enlazador quita (SequenceHolderAddUnit_unk, NewCampAddElem_unk) y bajadas de fuzzy por bytes (lista en las notas).
 
 ## Siguiente (decomp)
 
-- Seguir la idea que mas rindio al final: valores de un solo uso como expresion (`x.GetNormalize().ToRotation_unk()`, `VecAssign_unk(m, Neg(dir.GetNormalize()))`) en funciones al 98-99,9 % con huecos de pila; a veces baja (el original tenia el local): probar y revertir.
-- Relecturas de globales que faltan (`tools`: odiff2 con `DIFF_DELETE lwz rX, lbl_...@sda21`; lista de la sesion en las notas): Event/Manager fn_8047FCC0/fn_80482ED8, GameEventScript fn_803A11D8/fn_803A8470, ModelInstance fn_8009E6EC, MapTask vf0C, BattleTask fn_80106878, PostFxGodRay fn_800AEF68, PacketPack fn_804E4EB0/fn_804EB934.
-- Gemelas de familia por similitud de opcodes (twins): EnemyQuarkStand/First/Second, Em202Spider*, Em203GreaterDaemon*, Em101*Zesya*.
-- Casi cerradas con pocas lineas de diff (ver `docs/mwcc-blockers.md` seccion codigo-20261120 para lo ya probado): em005 vf3C (un `b` inalcanzable), DrawHelper fn_800602E8 (`mr` frente a `li 0`), WaitObject vf40 y GameEventScript fn_803A26F4 (una instruccion movida), PPDATAU fn_8050DC58, atn_colli fn_80059264.
-- Lo de mixto2 sigue valido: Event/Section/Channel/Cut (delete del buffer), Event/Label `__sinit`, push_back de `vector<std::string>` (qV3) y push_back dentro de otra inline (qV2).
+- **Barrido automatico primero**: `tools/decomp/mutsweep.py <unidad> <simbolo> <Clase::metodo>` sin `--only` (intercambio de sentencias independientes, local de un solo uso como expresion, ternarios, `fswap`, `cswap`) cerro o desatasco 5 funciones y subio otras 0,5-1,3 puntos. Las listas barridas estaban en el scratch de la sesion (no persisten): regenerar con `bigcands.py`; barridas las de 97-99,7 % de 500-4000 B y las de 99-99,6 %. Quedan sin barrer las de 90-97 %.
+- **Familias**: la de "mover hacia la rotacion" quedo cerrada salvo LastCocoonQuadruped fn_80462038 (99,63, `li` de keepRot) y CharaTask fn_8013CB68 (14,7 KB, 98,62 con los mismos retoques: un GPR guardado mas). Buscar otras familias con `tools/decomp/twins.py`.
+- Casi cerradas (ver `docs/mwcc-blockers.md` seccion grandes-20261120): GameTask fn_803729B4 (99,99: solo el nombre de la copia debil `size()` 0x800E0AA8, ver la nota), CharaStatus fn_8012F440 (15,5 KB, 99,85), ChaserGuard fn_8017D13C (99,99), D2AMpMenu fn_804B1528, DamageCalc fn_8003F538/fn_8003EA3C, EnemyQuarkSecond fn_8033D750.
+- Al probar variantes que anaden inlines, el porcentaje baja por los `@N` renumerados: contar `odiff2.py | grep -v @` (`tools/decomp/varnl.sh`).
 
-## Herramientas
+## Herramientas nuevas
 
-- Integracion de colas: `tools/decomp/symmerge.sh X` (bloques en conflicto de symbols.txt con HEAD via `ourshunks.py` + `refmap2.py` con MAINREF = copia del agente, recompilando antes sus `.o`). `tools/decomp/dollarfix.py` para nombres `$N` tras renumerar.
-- `tools/decomp/permrun.py <unidad> <simbolo> <funcion>`: prueba los ordenes de bloques cortos de asignaciones. `tools/decomp/stk.py <unidad> <simbolo>`: ranuras de pila nuestras frente al original.
-- Re-emparejado: `MAINREF=<build de referencia> python3 tools/decomp/refmap2.py <unidades>` (por direccion). Una `static inline` nueva renumera los `@N` de la unidad; una inline de clase no plantilla en una cabecera consume 4 `@N` en cada unidad que la incluye.
-- Agentes que piden permiso de Bash se quedan parados: pararlos y reanudarlos con un prompt de continuacion.
+- `tools/decomp/bigcands.py`, `unitcmp.py`, `odctx.py`, `twins.py`, `mutsweep.py` (kinds `fswap`, `cswap`, `splitor`, `nest`...), `hoistsweep.py`, `constsweep.py`, `constsweep2.py`, `getsweep.py`, `symonly.py`.
+- Re-emparejado: `MAINREF=<build de referencia> python3 tools/decomp/refmap2.py <unidades>` tras compilar la unidad (si no, renombra 0) y antes de `precommit.sh`.
 
 ## Candidatas por datos (report.json de mixto2-20261120; sin cambios en codigo-20261120)
 
