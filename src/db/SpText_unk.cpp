@@ -319,8 +319,6 @@ static inline const wchar_t* FindValue_unk(atn::SimpleArray<SpTextEntry_unk>& va
 }
 
 // inferred: text of a condition and its value
-// NONMATCHING: 86.23% - the original reloads the data of the buffer when the value is found and
-// numbers the registers of the chara search differently
 extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
     const wchar_t* format = sConds[cond].c_str();
     switch (cond) {
@@ -346,7 +344,7 @@ extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
         } else {
             WeaponParamEntry_unk* weapon = fn_80206B14(0, value + 300);
             if (weapon == 0) {
-                return false;
+                break;
             }
             wchar_t name[0x100];
             fn_800DD3FC(name, text, weapon->mName);
@@ -363,9 +361,8 @@ extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
             chara = fn_80209294(i);
             const char* model = chara->m10;
             if (strlen(model) >= 13) {
-                int b = atoi(model + 8) * 100;
-                int a = atoi(chara->m10 + 2) * 10000;
-                if (value == atoi(chara->m10 + 11) + (a + b)) {
+                int id = atoi(chara->m10 + 11) + (atoi(chara->m10 + 2) * 10000 + atoi(model + 8) * 100);
+                if (id == value) {
                     break;
                 }
             }
@@ -374,14 +371,15 @@ extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
             fn_800DD3FC(buf, format, chara->mName);
             return true;
         }
-        return false;
+        break;
     }
     default:
         fn_800DD3FC(buf, format);
         return true;
     case 0:
-        return false;
+        break;
     }
+    return false;
 }
 
 // inferred: loads /boot/sp_text_xx.u16 (texts of whole effects)
