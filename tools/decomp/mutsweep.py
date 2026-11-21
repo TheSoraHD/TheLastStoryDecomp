@@ -448,6 +448,25 @@ def mutations2(lines, a, b):
         if not hasinc:
             new[inc] = '#include "math/VecAssign_unk.h"\n' + new[inc]
         out.append(("vassign %d" % (i + 1), "\n".join(new).split("\n")))
+    # dtop: a declaration without initializer (or with literal constructor arguments) moved to the top of the
+    # function (stack slots follow the order of the declarations); only if the name is declared once
+    LITARGS = r"\((?:\s*-?[\d.]+f?\s*,?)+\)"
+    for i in range(a + 1, b):
+        m = re.match(r"^(\s+)((?:atn::)?[A-Za-z_][\w:]*) (\w+)(\[\w+\]|%s)?;\s*$" % LITARGS, lines[i])
+        if not m or m.group(2) in ("return", "delete", "goto", "case", "else") or len(m.group(1)) <= 4:
+            continue
+        name = m.group(3)
+        if m.group(2) not in ("Mtx", "Vector3", "atn::Vector3", "Matrix3x4", "atn::Matrix3x4", "float", "int", "Vec"):
+            continue
+        if m.group(4) and m.group(4).startswith("(") and any(re.match(r"^\s+(for|while|do)\b", l) for l in lines[a:i]):
+            continue
+        ndecl = sum(1 for l in lines[a:b] if re.match(r"^\s+(?:const\s+)?[A-Za-z_][\w:<>]*[\s*&]+%s\s*(?:;|\[|\(|=)" % re.escape(name), l))
+        if ndecl != 1:
+            continue
+        new = lines[:]
+        del new[i]
+        new.insert(a, "    " + lines[i].strip())
+        out.append(("dtop %s" % name, new))
     # cref: `dst = src;` (src a member chain) -> `const atn::Vector3& r = src; dst = r;`
     for i in range(a, b):
         m = re.match(r"^(\s+)(%s|\w+) = (%s);\s*$" % (CHAIN, CHAIN), lines[i])
