@@ -23,6 +23,7 @@ def opt(n, d, conv=str):
     return d
 rounds = opt("--rounds", 2, int); mx = opt("--max", 200, int); tlim = opt("--time", 1500, float)
 keep = "--keep" in args
+only = opt("--only", None)
 args = [a for a in args if a != "--keep"]
 unit, sym, fname = args[:3]
 src = "src/%s.cpp" % unit
@@ -164,7 +165,38 @@ def mutations(lines, a, b):
         new = lines[:i] + ["%sif (%s) {" % (ind, parts[0]), "%s    if (%s) {" % (ind, " && ".join(parts[1:]))] + inner + \
               [ind + "    }", ind + "}"] + lines[j + 1:]
         out.append(("nest %d" % (i + 1), new))
+    # split `if (A || B) {` whose body is a single return/continue/break into two ifs
+    for i in range(a, b - 2):
+        m = re.match(r"^(\s+)if \((.+)\) \{$", lines[i])
+        if not m or "&&" in m.group(2):
+            continue
+        ind, cond = m.groups()
+        parts = split_or(cond)
+        if len(parts) < 2 or lines[i + 2] != ind + "}":
+            continue
+        body = lines[i + 1]
+        if not re.match(r"^\s+(return\b[^;]*|continue|break);$", body):
+            continue
+        new = lines[:i]
+        for q in parts:
+            new += ["%sif (%s) {" % (ind, q), body, ind + "}"]
+        new += lines[i + 3:]
+        out.append(("splitor %d" % (i + 1), new))
     return out
+
+def split_or(c):
+    parts, depth, cur, k = [], 0, "", 0
+    while k < len(c):
+        ch = c[k]
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        if depth == 0 and c[k:k + 4] == " || ":
+            parts.append(cur); cur = ""; k += 4; continue
+        cur += ch; k += 1
+    parts.append(cur)
+    return parts
 
 def split_and(c):
     parts, depth, cur, k = [], 0, "", 0
@@ -187,6 +219,8 @@ tried = 0
 for r in range(rounds):
     lines, a, b = body_range(best_text)
     muts = mutations(lines, a, b)
+    if only:
+        muts = [m for m in muts if m[0].split()[0] in only.split(",")]
     random.seed(r)
     print("round %d: %d mutations" % (r + 1, len(muts)), flush=True)
     rbest = (best, None, None)
