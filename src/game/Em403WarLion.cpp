@@ -925,9 +925,8 @@ void Em403WarLion::vf54() {
     }
 }
 
-// inferred: chooses the next action of the walk mode (m14CC)
-// NONMATCHING: 99.94% - f30/f31 de la distancia y del angulo (y declarado de varias formas: igual)
-// (el original llama fuera de linea a los helpers de Vector3: supera el presupuesto de inline)
+// inferred: chooses the next action of the walk mode (m14CC); the original calls the Vector3 helpers out of
+// line (over the inlining budget)
 void Em403WarLion::fn_803267E8() {
     if (m15D4 != 0) {
         fn_80326F0C();
@@ -1020,8 +1019,7 @@ void Em403WarLion::fn_803267E8() {
             m1518 = (m1500 - mPos).ToRotation_unk();
             fn_803278B4();
         } else if (m14CC == 3) {
-            float y = GetRot_unk()->y;
-            float diff = fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - y));
+            float diff = fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - GetRot_unk()->y));
             (void)WarLionStripped1_unk;
             if (fn_80011220(diff) <= 60.0f && dist < 200.0f) {
                 atn::Vector3 from(mPos);
