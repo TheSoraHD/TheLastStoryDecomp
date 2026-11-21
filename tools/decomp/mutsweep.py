@@ -467,6 +467,23 @@ def mutations2(lines, a, b):
         del new[i]
         new.insert(a, "    " + lines[i].strip())
         out.append(("dtop %s" % name, new))
+    # byval: `p->m = atn::Vector3(e);` / `p->m = e;` through an inline taking the value by copy (setter of the
+    # original: CosEditBase fn_801CD648); the helper is declared after the last #include
+    lastinc = max((k for k, l in enumerate(lines) if l.startswith("#include")), default=None)
+    hashelper = any("ByValAssign_unk" in l and "template" in l for l in lines)
+    for i in range(a, b):
+        m = re.match(r"^(\s+)(%s) = (?:atn::Vector3\((%s|\w+)\)|(%s));\s*$" % (CHAIN, CHAIN, CHAIN), lines[i])
+        if not m or lastinc is None:
+            continue
+        ind, d, s1, s2 = m.groups()
+        s = s1 or s2
+        if re.search(r"(?:\.|->)[xyzw]$", d) or re.search(r"(?:\.|->)[xyzw]$", s):
+            continue
+        new = lines[:]
+        new[i] = "%sByValAssign_unk<atn::Vector3>(%s, %s);" % (ind, d, s)
+        if not hashelper:
+            new[lastinc] += "\ntemplate <class T> inline void ByValAssign_unk(T& d, T v) { d = v; } // inferred: setter by value"
+        out.append(("byval %d" % (i + 1), "\n".join(new).split("\n")))
     # cref: `dst = src;` (src a member chain) -> `const atn::Vector3& r = src; dst = r;`
     for i in range(a, b):
         m = re.match(r"^(\s+)(%s|\w+) = (%s);\s*$" % (CHAIN, CHAIN), lines[i])
