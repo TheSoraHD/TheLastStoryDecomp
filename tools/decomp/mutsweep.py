@@ -26,6 +26,7 @@ def opt(n, d, conv=str):
 rounds = opt("--rounds", 2, int); mx = opt("--max", 200, int); tlim = opt("--time", 1500, float)
 keep = "--keep" in args
 only = opt("--only", None)
+plateau = opt("--plateau", 0, int)
 difff = opt("--diff", None)
 listonly = "--list" in args
 args = [a for a in args if a not in ("--keep", "--list")]
@@ -553,16 +554,25 @@ for r in range(rounds):
     muts = [q for grp in zip(*[v + [None] * (max(map(len, byk.values())) - len(v)) for v in byk.values()]) for q in grp if q] if byk else []
     print("round %d: %d mutations" % (r + 1, len(muts)), flush=True)
     rbest = (best, None, None)
+    equal = []
     for name, new in muts:
         if tried >= mx or time.time() - t0 > tlim:
             break
         tried += 1
         v = pct("\n".join(new))
+        if abs(v - best) < 1e-6:
+            equal.append((name, "\n".join(new)))
         if v > rbest[0] + 1e-6:
             rbest = (v, name, "\n".join(new)); print("  better %.4f %s" % (v, name), flush=True)
         if v >= 100:
             break
     if rbest[1] is None:
+        # --plateau K: take a random mutation with the same percent and go on (at most K times)
+        if plateau > 0 and equal:
+            plateau -= 1
+            name, best_text = random.choice(equal)
+            print("  plateau %s" % name, flush=True)
+            continue
         break
     best, best_text = rbest[0], rbest[2]
     if best >= 100:
