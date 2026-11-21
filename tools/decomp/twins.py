@@ -44,7 +44,8 @@ for k in cands:
         continue
     n = len(seq); res = []
     for k2, s2 in byLen:
-        if k2 == k or not (0.85 * n <= len(s2) <= 1.15 * n):
+        tol = float(os.environ.get("TWLEN", "0.15"))
+        if k2 == k or not ((1 - tol) * n <= len(s2) <= (1 + tol) * n):
             continue
         sm = difflib.SequenceMatcher(None, seq, s2, autojunk=False)
         if sm.real_quick_ratio() < float(os.environ.get("TWMIN", "0.8")) or sm.quick_ratio() < float(os.environ.get("TWMIN", "0.8")):

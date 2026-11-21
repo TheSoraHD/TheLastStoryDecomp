@@ -165,6 +165,21 @@ def mutations(lines, a, b):
         new = lines[:i] + ["%sif (%s) {" % (ind, parts[0]), "%s    if (%s) {" % (ind, " && ".join(parts[1:]))] + inner + \
               [ind + "    }", ind + "}"] + lines[j + 1:]
         out.append(("nest %d" % (i + 1), new))
+    # float literal operand order and x * 0.5f <-> x / 2.0f (exact for powers of two)
+    LIT = r"\d+\.\d*f"
+    SIMPLE = r"[A-Za-z_][\w]*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]]*\]|\(\))*"
+    for i in range(a, b):
+        l = lines[i]
+        for m in re.finditer(r"(?<![*/] )(?<![\w.>\])])(%s) \* (%s)(?![\w.\[(])" % (LIT, SIMPLE), l):
+            new = lines[:]; new[i] = l[:m.start()] + m.group(2) + " * " + m.group(1) + l[m.end():]
+            out.append(("fswap %d lit*x" % (i + 1), new))
+        for m in re.finditer(r"(?<![*/] )(?<![\w.>\])])(%s) \* (%s)(?![\w.\[(])" % (SIMPLE, LIT), l):
+            new = lines[:]; new[i] = l[:m.start()] + m.group(2) + " * " + m.group(1) + l[m.end():]
+            out.append(("fswap %d x*lit" % (i + 1), new))
+            k = {"0.5f": "2.0f", "0.25f": "4.0f", "0.125f": "8.0f"}.get(m.group(2))
+            if k:
+                new = lines[:]; new[i] = l[:m.start()] + m.group(1) + " / " + k + l[m.end():]
+                out.append(("fswap %d x/k" % (i + 1), new))
     # split `if (A || B) {` whose body is a single return/continue/break into two ifs
     for i in range(a, b - 2):
         m = re.match(r"^(\s+)if \((.+)\) \{$", lines[i])
