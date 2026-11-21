@@ -415,6 +415,18 @@ def mutations2(lines, a, b):
                 new[k] = re.sub(r"return\b\s*.*?;$", "break;", new[k])
             new = new[:j + 1] + tail + new[j + 1:]
             out.append(("swret %d" % (i + 1), new))
+    # cassign: `x op= E;` -> `x = x op E;` (and `x = E op x;` for the commutative + and *)
+    for i in range(a, b):
+        m = re.match(r"^(\s+)([\w.\[\]>-]+) ([-+*/|&^])= (.+);\s*$", lines[i])
+        if not m:
+            continue
+        ind, x, o, e = m.groups()
+        pe = e if not top_ops(e) else "(" + e + ")"
+        new = lines[:]; new[i] = "%s%s = %s %s %s;" % (ind, x, x, o, pe)
+        out.append(("cassign %d" % (i + 1), new))
+        if o in "+*|&^":
+            new = lines[:]; new[i] = "%s%s = %s %s %s;" % (ind, x, pe, o, x)
+            out.append(("cassign %d rev" % (i + 1), new))
     # cref: `dst = src;` (src a member chain) -> `const atn::Vector3& r = src; dst = r;`
     for i in range(a, b):
         m = re.match(r"^(\s+)(%s|\w+) = (%s);\s*$" % (CHAIN, CHAIN), lines[i])
