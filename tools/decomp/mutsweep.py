@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""mutsweep.py <unit> <symbol> <function-name-in-source> [--rounds N] [--max M] [--keep] [--time S]
+"""mutsweep.py <unit> <symbol> <function-name-in-source> [--rounds N] [--max M] [--keep] [--time S] [--only k1,k2] [--diff F] [--list]
 
 Greedy search of small source mutations of one function body (C++), measured with objdiff-cli.
 Each mutation is one natural rewrite (no asm, no volatile, no dead code):
@@ -10,6 +10,8 @@ Each mutation is one natural rewrite (no asm, no volatile, no dead code):
   const  - add/remove `const` on a local pointer declaration
   ne0    - `if (x != 0)` <-> `if (x)`, `if (x == 0)` <-> `if (!x)`
   decl   - move a declaration without initializer one statement up/down
+  mulsplit/divsplit/idx/ifid/ld/swret/cref - see mutations2 (barrido-20261121)
+--diff F writes the unified diff of the best variant; --list prints the mutations without compiling.
 Keeps the best variant of each round and starts the next round from it. Prints the best percent.
 The source is restored unless --keep is given (then the best variant stays).
 """
@@ -24,7 +26,9 @@ def opt(n, d, conv=str):
 rounds = opt("--rounds", 2, int); mx = opt("--max", 200, int); tlim = opt("--time", 1500, float)
 keep = "--keep" in args
 only = opt("--only", None)
-args = [a for a in args if a != "--keep"]
+difff = opt("--diff", None)
+listonly = "--list" in args
+args = [a for a in args if a not in ("--keep", "--list")]
 unit, sym, fname = args[:3]
 src = "src/%s.cpp" % unit
 orig = open(src, encoding="latin-1").read()
@@ -49,10 +53,20 @@ def pct(text):
 def body_range(text):
     lines = text.split("\n")
     st = None
-    for i, l in enumerate(lines):
-        if re.search(r"\b" + re.escape(fname) + r"\s*\(", l) and not l.startswith((" ", "\t", "//")) \
-                and not l.rstrip().endswith(";"):
-            st = i; break
+    names = [fname]
+    while names[-1].count("::") > 1:
+        names.append(names[-1].split("::", 1)[1])
+    if "::" in names[-1]:
+        c, m_ = names[-1].split("::")
+        if c != m_:
+            names.append(m_)
+    for fn in names:
+        for i, l in enumerate(lines):
+            if re.search(r"(?<![\w:])" + re.escape(fn) + r"\s*\(", l) and not l.startswith((" ", "\t", "//")) \
+                    and not l.rstrip().endswith(";"):
+                st = i; break
+        if st is not None:
+            break
     if st is None:
         raise SystemExit("function not found: " + fname)
     while not lines[st].rstrip().endswith("{"):
@@ -238,6 +252,176 @@ def mutations(lines, a, b):
             new += ["%sif (%s) {" % (ind, q), body, ind + "}"]
         new += lines[i + 3:]
         out.append(("splitor %d" % (i + 1), new))
+    out += mutations2(lines, a, b)
+    return out
+
+# ---- kinds added in barrido-20261121 (retouches that closed functions in grandes-20261120) ----
+def top_ops(e):
+    """top-level binary operators of expression e: list of (pos, op)"""
+    res, depth, k = [], 0, 0
+    while k < len(e):
+        ch = e[k]
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        elif depth == 0 and k > 0:
+            two = e[k:k + 2]
+            if two in ("&&", "||", "==", "!=", "<=", ">=", "<<", ">>", "->"):
+                if two != "->":
+                    res.append((k, two))
+                k += 2; continue
+            if ch in "+-*/%<>&|^?:" and e[k - 1] == " " and e[k + 1:k + 2] == " ":
+                res.append((k, ch))
+        k += 1
+    return res
+
+ASG = re.compile(r"^(\s+)((?:const\s+)?[\w:<>]+\s+)?([\w.\[\]>-]+?) = (.+);\s*$")
+CHAIN = r"[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\(]*\])+"
+
+def nuses(name, text):
+    return len(re.findall(r"(?<![\w.>])%s\b" % re.escape(name), text))
+
+def mutations2(lines, a, b):
+    out = []
+    body = "\n".join(lines[a:b])
+    # mulsplit: `x = E * K;` -> `x = E; x *= K;` (also `/`), when every top-level operator of the right side
+    # is * or / (left associative, so the last factor is applied last: same value)
+    for i in range(a, b):
+        m = ASG.match(lines[i])
+        if not m:
+            continue
+        ind, typ, lhs, rhs = m.groups()
+        if typ and "&" in typ:
+            continue
+        ops = top_ops(rhs)
+        if not ops or any(o not in ("*", "/") for _, o in ops):
+            continue
+        p, o = ops[-1]
+        e1, k = rhs[:p].rstrip(), rhs[p + 1:].strip()
+        if e1.startswith("(") and e1.endswith(")") and not top_ops(e1[1:-1]) is None:
+            inner = e1[1:-1]; dep = 0
+            for ch in inner:
+                dep += (ch == "(") - (ch == ")")
+                if dep < 0:
+                    break
+            else:
+                e1 = inner
+        if re.search(r"\b%s\b" % re.escape(re.match(r"\w+", lhs).group(0)), k):
+            continue
+        new = lines[:]
+        new[i] = "%s%s%s = %s;\n%s%s %s= %s;" % (ind, typ or "", lhs, e1, ind, lhs, o, k)
+        out.append(("mulsplit %d" % (i + 1), "\n".join(new).split("\n")))
+    # divsplit: `... (v / E) ...` with v a local not used after this line -> `v /= E;` before it
+    for i in range(a, b):
+        l = lines[i]
+        if l.lstrip().startswith(("//", "for", "while", "}")):
+            continue
+        for m in re.finditer(r"\(([A-Za-z_]\w*) ([/*]) ([^()]+|[^()]*\([^()]*\)[^()]*)\)", l):
+            v, o, e = m.groups()
+            if top_ops(e):
+                continue
+            dl = next((k for k in range(a, i) if re.match(r"^\s+[\w:<>]+\s+%s\b" % v, lines[k])), None)
+            if dl is None or any(re.match(r"^\s+(for|while|do)\b", lines[k]) for k in range(dl, i)):
+                continue
+            if nuses(v, "\n".join(lines[i + 1:b])) or nuses(v, l) != 1 or re.search(r"\b%s\b" % v, e):
+                continue
+            ind = re.match(r"\s*", l).group(0)
+            if l.lstrip().startswith(("if", "return", "else")):
+                pass
+            new = lines[:]
+            new[i] = "%s%s %s= %s;\n%s" % (ind, v, o, e, l[:m.start()] + v + l[m.end():])
+            out.append(("divsplit %d %s" % (i + 1, v), "\n".join(new).split("\n")))
+    # idx: `a[f(x)] = c;` -> `int idx = f(x); a[idx] = c;`
+    for i in range(a, b):
+        l = lines[i]
+        m = re.match(r"^(\s+)(.*?)\[([^\[\]]*\w\([^\[\]]*\))\](.*;)\s*$", l)
+        if not m or l.lstrip().startswith(("if", "for", "while", "return", "//", "}")):
+            continue
+        ind, pre, e, post = m.groups()
+        new = lines[:]
+        new[i] = "%sint idx_%d = %s;\n%s%s[idx_%d]%s" % (ind, i, e, ind, pre, i, post)
+        out.append(("idx %d" % (i + 1), "\n".join(new).split("\n")))
+    # ifid: `if (E == K)` with E a call and K an integer literal or a name -> `int id = E; if (id == K)`
+    for i in range(a, b):
+        l = lines[i]
+        m = re.match(r"^(\s+)(if|\} else if) \((.+?\w\(.*?\)) (==|!=) (-?\d+|0x[0-9A-Fa-f]+|[A-Za-z_]\w*)\)( \{)?\s*$", l)
+        if not m or "&&" in m.group(3) or "||" in m.group(3) or m.group(2) != "if":
+            continue
+        ind, kw, e, op, k, br = m.groups()
+        if top_ops(e):
+            continue
+        new = lines[:]
+        new[i] = "%sint id_%d = %s;\n%sif (id_%d %s %s)%s" % (ind, i, e, ind, i, op, k, br or "")
+        out.append(("ifid %d" % (i + 1), "\n".join(new).split("\n")))
+    # ld: read a vector component (`X.y`, `p->m.z`) into a float local just before the statement that uses it
+    for i in range(a, b):
+        l = lines[i]
+        if l.lstrip().startswith(("//", "for", "while", "}", "else", "case", "default")) or l.rstrip().endswith("{") \
+                and not l.lstrip().startswith("if"):
+            continue
+        seen = set()
+        for m in re.finditer(r"(?<![\w.>])(%s)" % CHAIN, l):
+            c = m.group(1)
+            if not re.search(r"(?:\.|->)[xyzw]$", c) or c in seen:
+                continue
+            seen.add(c)
+            # not written in this statement
+            if re.search(re.escape(c) + r"\s*(?:[-+*/]?=(?!=)|\+\+|--)", l):
+                continue
+            ind = re.match(r"\s*", l).group(0)
+            dm = decl.match(l)
+            if dm and dm.group(4).strip() == c:
+                continue
+            nm = "ld_%d" % len(seen) + "_%d" % i
+            new = lines[:]
+            new[i] = "%sfloat %s = %s;\n%s" % (ind, nm, c, l.replace(c, nm))
+            out.append(("ld %d %s" % (i + 1, c), "\n".join(new).split("\n")))
+    # swret: `return X;` repeated inside a switch followed by `return X;` -> `break;` (one shared return)
+    for i in range(a, b):
+        m = re.match(r"^(\s+)switch \(.*\) \{$", lines[i])
+        if not m:
+            continue
+        ind = m.group(1)
+        j = next((k for k in range(i + 1, b) if lines[k] == ind + "}"), None)
+        if j is None:
+            continue
+        inner = lines[i + 1:j]
+        # no loop or nested switch inside (a `break` there would mean something else)
+        if any(re.match(r"^\s+(for|while|do|switch)\b", x) for x in inner):
+            continue
+        after = lines[j + 1] if j + 1 < b else ""
+        rets = {}
+        for k in range(i + 1, j):
+            r = re.match(r"^\s+return\b\s*(.*?);$", lines[k])
+            if r:
+                rets.setdefault(r.group(1), []).append(k)
+        for x, ks in rets.items():
+            ra = re.match(r"^%sreturn\b\s*(.*?);$" % re.escape(ind), after)
+            if ra and ra.group(1) == x:
+                tail = []
+            elif j + 1 == b and x:
+                tail = [ind + "return %s;" % x]
+            else:
+                continue
+            if len(ks) < 2 and not (ra and len(ks) >= 1):
+                continue
+            new = lines[:]
+            for k in ks:
+                new[k] = re.sub(r"return\b\s*.*?;$", "break;", new[k])
+            new = new[:j + 1] + tail + new[j + 1:]
+            out.append(("swret %d" % (i + 1), new))
+    # cref: `dst = src;` (src a member chain) -> `const atn::Vector3& r = src; dst = r;`
+    for i in range(a, b):
+        m = re.match(r"^(\s+)(%s|\w+) = (%s);\s*$" % (CHAIN, CHAIN), lines[i])
+        if not m:
+            continue
+        ind, d, s = m.groups()
+        if re.search(r"(?:\.|->)[xyzw]$", s) or re.search(r"(?:\.|->)[xyzw]$", d):
+            continue
+        new = lines[:]
+        new[i] = "%sconst atn::Vector3& cref_%d = %s;\n%s%s = cref_%d;" % (ind, i, s, ind, d, i)
+        out.append(("cref %d" % (i + 1), "\n".join(new).split("\n")))
     return out
 
 def split_or(c):
@@ -268,6 +452,17 @@ def split_and(c):
     parts.append(cur)
     return parts
 
+if listonly:
+    import difflib
+    lines, a, b = body_range(orig)
+    for name, new in mutations(lines, a, b):
+        if only and name.split()[0] not in only.split(","):
+            continue
+        print("==", name)
+        for d in list(difflib.unified_diff(lines, new, lineterm="", n=0))[2:]:
+            if not d.startswith("@@"):
+                print(d)
+    raise SystemExit(0)
 base = pct(orig)
 print("base %.4f" % base, flush=True)
 best_text, best = orig, base
@@ -278,6 +473,11 @@ for r in range(rounds):
     if only:
         muts = [m for m in muts if m[0].split()[0] in only.split(",")]
     random.seed(r)
+    # interleave the kinds (round robin) so that a time limit does not leave the last kinds untried
+    byk = {}
+    for m in muts:
+        byk.setdefault(m[0].split()[0], []).append(m)
+    muts = [q for grp in zip(*[v + [None] * (max(map(len, byk.values())) - len(v)) for v in byk.values()]) for q in grp if q] if byk else []
     print("round %d: %d mutations" % (r + 1, len(muts)), flush=True)
     rbest = (best, None, None)
     for name, new in muts:
@@ -295,6 +495,10 @@ for r in range(rounds):
     if best >= 100:
         break
 print("best %.4f (tried %d, %.0f s)" % (best, tried, time.time() - t0))
+if difff and best > base:
+    import difflib
+    open(difff, "w", encoding="latin-1").write("".join(difflib.unified_diff(
+        orig.splitlines(True), best_text.splitlines(True), "a/" + src, "b/" + src)))
 if keep and best > base:
     open(src, "w", encoding="latin-1").write(best_text)
     open(src + ".mut", "w", encoding="latin-1").write(best_text)
