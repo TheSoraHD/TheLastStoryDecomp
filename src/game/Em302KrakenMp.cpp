@@ -1103,7 +1103,7 @@ void Em302KrakenMp::fn_802E1414() {
     m15A0 = lbl_807C7030;
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 

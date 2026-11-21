@@ -165,7 +165,7 @@ extern "C" inline void fn_802660FC(CharaParam_unk* param, unsigned int flag) {
     GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
     GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
     GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
-    *(unsigned int*)((char*)param + 0x9C) |= flag;
+    param->m9C |= flag;
 }
 
 // The original is over the inlining budget and calls the Vector3, color, ResHandle and parameter setters

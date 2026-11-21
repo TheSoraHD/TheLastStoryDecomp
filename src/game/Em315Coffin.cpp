@@ -7,6 +7,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "atn/Lerp_unk.h"
+#include "atn/EffectManager.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -464,7 +465,7 @@ extern "C" inline CoffinCapsule_unk* fn_80315644(atn::ColliCapsule* colli) {
 }
 // inferred: sets the owner of the next effects (weak copy; name keeps the address)
 extern "C" inline void fn_8031564C(atn::EffectManager* mgr, int on) {
-    *(int*)((char*)mgr + 0xC4) = on;
+    mgr->mSystem.m78 = on;
 }
 
 void Em315Coffin::vf108() {

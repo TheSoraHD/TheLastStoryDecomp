@@ -455,7 +455,7 @@ void Em302Kraken::vf10() {
         if (target != 0) {
             GameTask* field = lbl_8087F430;
             if (m1658 > 0) {
-                atn::Vector3 pos = *(atn::Vector3*)((char*)target + 0x6C);
+                atn::Vector3 pos = ((GimmickCommon*)m1654)->m6C; // inferred: m1654 is the gimmick of fn_802DC4E0
                 pos.y += 20.0f;
                 if (m165C == 0) {
                     field->mCamera.m834 = this;
@@ -940,7 +940,7 @@ void Em302Kraken::fn_802DAA38() {
         }
         wchar_t text[256];
         memset(text, 0, sizeof(text));
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12D), *(const wchar_t**)((char*)m60 + 4));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12D), m60->m04);
         lbl_8087F048->fn_80109828(text);
     }
     if (m14C4 > 20 && m14C4 <= 90) {
@@ -984,7 +984,7 @@ void Em302Kraken::fn_802DAA38() {
             lbl_8087F048->fn_80108C10(&damage, pos, 0, this, 0, 0);
             wchar_t text[256];
             memset(text, 0, sizeof(text));
-            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12F), *(const wchar_t**)((char*)m60 + 4));
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12F), m60->m04);
             lbl_8087F048->fn_80109828(text);
         }
         Reset_unk();
@@ -1223,7 +1223,7 @@ void Em302Kraken::fn_802DC014() {
     PlayEffectAt_unk(this, 21, &m1570, mPos + atn::Vector3(0.0f, 70.0f, 0.0f), 1.0f);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x135), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x135), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 
@@ -1246,7 +1246,7 @@ void Em302Kraken::fn_802DC1C0() {
     m15C8 = lbl_807C7030;
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 
@@ -1422,7 +1422,7 @@ void Em302Kraken::fn_802DCA34(int state, int count) {
         for (unsigned int i = 0; i < targets.size(); i++) {
             targets[i]->fn_80166760();
         }
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x139), *(const wchar_t**)((char*)m60 + 4));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x139), m60->m04);
         lbl_8087F048->fn_80109828(text);
         break;
     case 0:
@@ -1430,7 +1430,7 @@ void Em302Kraken::fn_802DCA34(int state, int count) {
             targets[i]->mStatus.fn_80133130(1, 900, 0);
             targets[i]->fn_80167F1C();
         }
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13B), *(const wchar_t**)((char*)m60 + 4));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13B), m60->m04);
         lbl_8087F048->fn_80109828(text);
         break;
     case 3:
@@ -1493,7 +1493,7 @@ void Em302Kraken::fn_802DD1B4(int level) {
     }
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13D), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13D), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 
@@ -1515,7 +1515,7 @@ void Em302Kraken::fn_802DDA90() {
     }
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13F), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13F), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 

@@ -304,7 +304,7 @@ void Em101ElderZesyaSecond::vf10() {
                 }
                 wchar_t text[256];
                 memset(text, 0, sizeof(text));
-                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA5), *(const wchar_t**)((char*)m60 + 4));
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA5), m60->m04);
                 lbl_8087F048->fn_80109828(text);
             } else if (frame >= mMotion.fn_80097D7C(0)) {
                 mFB8 = 0.0f;
@@ -576,7 +576,7 @@ void Em101ElderZesyaSecond::fn_8025BF58() {
     } else if ((float)__fabs(mMotion.mTracks[0].m08 - 62.0f) < 1.1920929e-7f) {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA3), *(const wchar_t**)((char*)m60 + 4));
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA3), m60->m04);
         lbl_8087F048->fn_80109828(text);
         lbl_8087F048->fn_800FAB80(this, m638, m590, &m14E4, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }

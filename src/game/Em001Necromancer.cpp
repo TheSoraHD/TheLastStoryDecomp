@@ -946,7 +946,7 @@ void Em001Necromancer::fn_80247258() {
     }
     if (count > 1) {
         CharaInfo_unk* info = first->m60;
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x93), *(const wchar_t**)((char*)m60 + 4),
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x93), m60->m04,
                     *(const wchar_t**)((char*)info + 4));
         lbl_8087F048->fn_80109828(text);
     }

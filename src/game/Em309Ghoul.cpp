@@ -248,7 +248,7 @@ inline void Em309Ghoul::StartAttack_unk() {
     mMotion.fn_80097C08(0, 0x147, 0, 0, 1, 0.0f, 0.1f);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x143), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x143), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 
@@ -825,7 +825,7 @@ void Em309Ghoul::fn_80300654() {
     mMotion.fn_80097C08(0, 0x156, 0, 0, 1, 0.0f, 0.1f);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x141), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x141), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 
@@ -858,7 +858,7 @@ void Em309Ghoul::fn_803009F4() {
     mMotion.fn_80097C08(0, 0x143, 0, 0, 1, 0.0f, 0.1f);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x145), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x145), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 
@@ -907,7 +907,7 @@ void Em309Ghoul::fn_80300AD8() {
     lbl_8087F430->fn_80370AE4(0xA4, 1);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x147), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x147), m60->m04);
     lbl_8087F048->fn_80109828(text);
     if (mFlag22) {
         lbl_8087F430->fn_80370AE4(0xA7, 1);
@@ -1005,9 +1005,9 @@ void Em309Ghoul::fn_803010BC() {
     fn_8017A300(m1670);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x149), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x149), m60->m04);
     lbl_8087F048->fn_80109828(text);
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14B), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14B), m60->m04);
     lbl_8087F048->fn_80109828(text);
     if (mFlag22) {
         lbl_8087F430->fn_80370AE4(0xA8, 1);
@@ -1240,7 +1240,7 @@ void Em309Ghoul::fn_80301DDC() {
             GhoulEffect2_unk(lbl_8087F3C0, &m1558, &mMotion);
             wchar_t text[256];
             memset(text, 0, sizeof(text));
-            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14D), *(const wchar_t**)((char*)m60 + 4));
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14D), m60->m04);
             lbl_8087F048->fn_80109828(text);
         }
         if (mMotion.mTracks[0].m00 == 0x145) {
