@@ -427,6 +427,27 @@ def mutations2(lines, a, b):
         if o in "+*|&^":
             new = lines[:]; new[i] = "%s%s = %s %s %s;" % (ind, x, pe, o, x)
             out.append(("cassign %d rev" % (i + 1), new))
+    # vassign: Vector3 copy through atn::VecAssign_unk (one more inline level: dst/src registers of __VecCopy)
+    inc = next((k for k, l in enumerate(lines) if l.startswith("#include")), None)
+    hasinc = any("math/VecAssign_unk.h" in l for l in lines)
+    for i in range(a, b):
+        m = re.match(r"^(\s+)((?:const )?(?:atn::)?Vector3) (\w+) = (%s|\w+);\s*$" % CHAIN, lines[i])
+        m2 = re.match(r"^(\s+)(%s|\w+) = (%s|\w+);\s*$" % (CHAIN, CHAIN), lines[i])
+        if m and "const" not in m.group(2):
+            ind, typ, x, s = m.groups()
+            rep = "%s%s %s;\n%satn::VecAssign_unk(%s, %s);" % (ind, typ, x, ind, x, s)
+        elif m2 and not re.search(r"(?:\.|->)[xyzw]$", m2.group(3)) and not re.search(r"(?:\.|->)[xyzw]$", m2.group(2)):
+            ind, x, s = m2.groups()
+            rep = "%satn::VecAssign_unk(%s, %s);" % (ind, x, s)
+        else:
+            continue
+        if inc is None:
+            continue
+        new = lines[:]
+        new[i] = rep
+        if not hasinc:
+            new[inc] = '#include "math/VecAssign_unk.h"\n' + new[inc]
+        out.append(("vassign %d" % (i + 1), "\n".join(new).split("\n")))
     # cref: `dst = src;` (src a member chain) -> `const atn::Vector3& r = src; dst = r;`
     for i in range(a, b):
         m = re.match(r"^(\s+)(%s|\w+) = (%s);\s*$" % (CHAIN, CHAIN), lines[i])
