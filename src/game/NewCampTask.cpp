@@ -826,7 +826,11 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 // inferred: reads camp_config.csv: the damage effect of the camp starts from the one of the render settings
 // ("angle", "color" r g b a, "scale", "zoom")
-// NONMATCHING: 99.8% - offsets of the string pool (the vector error string of fn_805305D0 comes first)
+// inferred: not static and before fn_805303D0, so that the message of the vector comes first in the pool;
+// auto-inlined into fn_805305D0 and the out-of-line copy is removed by the linker (approved exception)
+void NewCampAddElem_unk(const NewCampElem_unk& elem) {
+    sElems_unk.push_back(elem);
+}
 void NewCampTask::fn_805303D0() {
     atn::Csv csv;
     m1310 = fn_802F0990()->m374;
@@ -899,7 +903,7 @@ void NewCampTask::fn_805305D0() {
         elem.mAfterShadow[1] = fn_800DC12C(csv.fn_8005B9CC());
         elem.mAfterShadow[2] = fn_800DC12C(csv.fn_8005B9CC());
         elem.mAfterShadow[3] = fn_800DC12C(csv.fn_8005B9CC());
-        sElems_unk.push_back(elem);
+        NewCampAddElem_unk(elem);
     } while (csv.fn_8005BBF8());
     m1344.fn_80473F88();
 }
