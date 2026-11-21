@@ -534,8 +534,15 @@ void Em403WarLion::fn_803241E8() {
     fn_80324A38(rot, 0, a, b);
 }
 
+// inferred: the ground test of the move (attribute 0x1A of the polygon hit); name invented
+inline bool WarLionIsLanded_unk(const atn::ColliResult_unk& result) {
+    bool landed = false;
+    if (result.m34 != 0 && *(unsigned int*)result.m34 == 0x1A) {
+        landed = true;
+    }
+    return landed;
+}
 // inferred: moves the war lion towards the rotation `target` (own version of CharaTask::fn_8013CB68)
-// NONMATCHING: 98.22% - registros FPR del giro y del clamp de m584 (frsp), orden de m574 al final
 void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed, float rate) {
     atn::Vector3 pos(mPos);
     atn::Vector3 rot(mRot);
@@ -544,7 +551,8 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
     float cur = rot.y;
     float turn = m56C;
     rate *= dt;
-    float k = atn::Abs_unk(diff / 3.1415927f) * 0.75f;
+    float k = atn::Abs_unk(diff / 3.1415927f);
+    k *= 0.75f;
     turn *= 1.0f + k;
     float step = diff * turn;
     cur += step;
@@ -567,7 +575,8 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
         if (angle < 0.0f) {
             angle = 0.0f;
         }
-        speed *= 1.0f - 1.5f * (angle / (1.0f - ofs));
+        angle /= 1.0f - ofs;
+        speed *= 1.0f - 1.5f * angle;
         if (speed < 0.0f) {
             speed = 0.0f;
         }
@@ -584,8 +593,9 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
     m574.z *= 0.3f;
     atn::Vector3 move;
     move.x = m570 * (float)sin(rot.y);
+    float y = rot.y;
     move.y = 0.0f;
-    move.z = m570 * (float)cos(rot.y);
+    move.z = m570 * (float)cos(y);
     move.x *= dt;
     move.y *= dt;
     move.z *= dt;
@@ -594,14 +604,14 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
         move.y *= 2.0f;
         move.z *= 2.0f;
     }
-    if ((mStatus.mParamB.m9C & 1) != 1) {
+    if ((mStatus.mParamB.m9C & 1u) != 1) {
         int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
     move += m6B8;
     m6B8.x *= 0.8f;
-    m6B8.y = 0.0f;
     m6B8.z *= 0.8f;
+    m6B8.y = 0.0f;
     if (m6B8.Length_unk() < 0.1f) {
         m6B8.Set_unk(0.0f, 0.0f, 0.0f);
     }
@@ -622,24 +632,22 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
         mask |= 0x80;
     }
     int hit = fn_8004D388(lbl_8087EE98, &result, &sphere, &move, mask, &mColli, 0, sphere.mRadius);
-    pos = result.m10;
+    const atn::Vector3& hitPos = result.m10;
+    pos = hitPos;
     pos -= m5A4;
     pos.y -= sphere.mRadius;
     if (hit != 0 && oldPos.y - pos.y < 0.95f * -move.y) {
         move.y = 0.0f;
     }
-    bool landed = false;
-    if (result.m34 != 0 && *(unsigned int*)result.m34 == 0x1A) {
-        landed = true;
-    }
-    mFlag3 = landed;
+    mFlag3 = WarLionIsLanded_unk(result);
     float lean = 0.0f;
     atn::Vector3 vel(move + (pos - oldPos));
     if (PSVECSquareMag(&vel) > 0.001f && speed > 0.001f) {
         lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
     }
     lean *= 2.0f;
-    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
+    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f);
+    m584 *= 0.9f;
     if ((m54C & 2) == 2 && pos.y < 0.0f) {
         pos.y = 0.0f;
     }
@@ -648,8 +656,8 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
         mRot = rot;
     }
     m574 = move;
-    m574.z /= dt;
     m574.x /= dt;
+    m574.z /= dt;
 }
 
 // NONMATCHING: 99.75% - dt en f28 en vez de f29 y registros de la comparacion con m500/m508

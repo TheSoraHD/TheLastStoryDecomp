@@ -597,10 +597,11 @@ extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m030: frame
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 
-// NONMATCHING: 98.1% - float registers of the turn and of the m584 clamp (the original rounds it with frsp,
-// as in Em403WarLion::fn_80324A38) and the order of m574 at the end
+// NONMATCHING: 99.63% - only the `li r31, 1` of keepRot (the original sets it at the sphere code but gives it
+// r31 as when it is declared at the top; same shape as Em403WarLion::fn_80324A38 at 100 %; 62 positions tried)
 // inferred: moves towards the rotation `target` (as Em403WarLion::fn_80324A38, without its landing flag)
 void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float speed, float rate) {
+    int keepRot = 1;
     atn::Vector3 pos(mPos);
     atn::Vector3 rot(mRot);
     float diff = atn::WrapAngle_unk(target.y - rot.y);
@@ -608,7 +609,8 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
     float cur = rot.y;
     float turn = m56C;
     rate *= dt;
-    float k = atn::Abs_unk(diff / 3.1415927f) * 0.75f;
+    float k = atn::Abs_unk(diff / 3.1415927f);
+    k *= 0.75f;
     turn *= 1.0f + k;
     float step = diff * turn;
     cur += step;
@@ -631,7 +633,8 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
         if (angle < 0.0f) {
             angle = 0.0f;
         }
-        speed *= 1.0f - 1.5f * (angle / (1.0f - ofs));
+        angle /= 1.0f - ofs;
+        speed *= 1.0f - 1.5f * angle;
         if (speed < 0.0f) {
             speed = 0.0f;
         }
@@ -648,8 +651,9 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
     m574.z *= 0.3f;
     atn::Vector3 move;
     move.x = m570 * (float)sin(rot.y);
+    float y = rot.y;
     move.y = 0.0f;
-    move.z = m570 * (float)cos(rot.y);
+    move.z = m570 * (float)cos(y);
     move.x *= dt;
     move.y *= dt;
     move.z *= dt;
@@ -664,8 +668,8 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
     }
     move += m6B8;
     m6B8.x *= 0.8f;
-    m6B8.y = 0.0f;
     m6B8.z *= 0.8f;
+    m6B8.y = 0.0f;
     if (m6B8.Length_unk() < 0.1f) {
         m6B8.Set_unk(0.0f, 0.0f, 0.0f);
     }
@@ -673,7 +677,6 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
     if (move.y < -6.0f) {
         move.y = -6.0f;
     }
-    int keepRot = 1;
     atn::Vector3 oldPos(pos);
     atn::ColliResult_unk result;
     CharaTask::Sphere_unk sphere = fn_80176548(pos);
@@ -686,7 +689,8 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
         mask |= 0x80;
     }
     int hit = fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &move, mask, &mColli, 0, sphere.mRadius);
-    pos = result.m10;
+    const atn::Vector3& hitPos = result.m10;
+    pos = hitPos;
     pos -= m5A4;
     pos.y -= sphere.mRadius;
     if (hit != 0 && oldPos.y - pos.y < 0.95f * -move.y) {
@@ -698,7 +702,8 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
         lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
     }
     lean *= 2.0f;
-    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
+    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f);
+    m584 *= 0.9f;
     if ((m54C & 2) == 2 && pos.y < 0.0f) {
         pos.y = 0.0f;
     }
@@ -707,8 +712,8 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
         mRot = rot;
     }
     m574 = move;
-    m574.z /= dt;
     m574.x /= dt;
+    m574.z /= dt;
 }
 
 // NONMATCHING: 99.5% - the frame time (dt) is in f28 here, f29 in the original. Tried: local

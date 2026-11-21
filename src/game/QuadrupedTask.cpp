@@ -499,7 +499,16 @@ void QuadrupedTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
     fn_80567968(rot, 0, a, m568 * b);
 }
 
-// NONMATCHING: 97.33% - FPR of the turn, the != 1 of the status bit and the order of m574 at the end;
+// inferred: the ground test of the move (attribute 0x1A of the polygon hit); name invented
+inline bool QuadIsLanded_unk(const atn::ColliResult_unk& result) {
+    bool landed = false;
+    if (result.m34 != 0 && *(unsigned int*)result.m34 == 0x1A) {
+        landed = true;
+    }
+    return landed;
+}
+// NONMATCHING: 99.39% - only the != 1 of the bit of the temporary status (the original computes it as a
+// general != (subfic/or/srwi), ours with xori: `1u`, `% 2`, a bitfield, an inline: same or worse);
 // the push of state 1 is scaled by mStatus.fn_8012DB04() (it was missing)
 // inferred: moves the leopard towards the rotation `target` (as Em403WarLion::fn_80324A38, plus the push
 // forward of the first 24 frames of the attack)
@@ -511,7 +520,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
     float cur = rot.y;
     float turn = m56C;
     rate *= dt;
-    float k = 0.75f * atn::Abs_unk(diff / 3.1415927f);
+    float k = atn::Abs_unk(diff / 3.1415927f);
+    k *= 0.75f;
     turn *= 1.0f + k;
     float step = diff * turn;
     cur += step;
@@ -534,7 +544,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
         if (angle < 0.0f) {
             angle = 0.0f;
         }
-        speed *= 1.0f - 1.5f * (angle / (1.0f - ofs));
+        angle /= 1.0f - ofs;
+        speed *= 1.0f - 1.5f * angle;
         if (speed < 0.0f) {
             speed = 0.0f;
         }
@@ -551,8 +562,9 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
     m574.z *= 0.3f;
     atn::Vector3 move;
     move.x = m570 * (float)sin(rot.y);
+    float y = rot.y;
     move.y = 0.0f;
-    move.z = m570 * (float)cos(rot.y);
+    move.z = m570 * (float)cos(y);
     move.x *= dt;
     move.y *= dt;
     move.z *= dt;
@@ -569,8 +581,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
     }
     move += m6B8;
     m6B8.x *= 0.8f;
-    m6B8.y = 0.0f;
     m6B8.z *= 0.8f;
+    m6B8.y = 0.0f;
     if (m6B8.Length_unk() < 0.1f) {
         m6B8.Set_unk(0.0f, 0.0f, 0.0f);
     }
@@ -598,24 +610,22 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
         mask |= 0x80;
     }
     int hit = fn_8004D388(lbl_8087EE98, &result, &sphere, &move, mask, &mColli, 0, sphere.mRadius);
-    pos = result.m10;
+    const atn::Vector3& hitPos = result.m10;
+    pos = hitPos;
     pos -= m5A4;
     pos.y -= sphere.mRadius;
     if (hit != 0 && oldPos.y - pos.y < 0.95f * -move.y) {
         move.y = 0.0f;
     }
-    bool landed = false;
-    if (result.m34 != 0 && *(unsigned int*)result.m34 == 0x1A) {
-        landed = true;
-    }
-    mFlag3 = landed;
+    mFlag3 = QuadIsLanded_unk(result);
     float lean = 0.0f;
     atn::Vector3 vel(move + (pos - oldPos));
     if (PSVECSquareMag(&vel) > 0.001f && speed > 0.001f) {
         lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
     }
     lean *= 2.0f;
-    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
+    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f);
+    m584 *= 0.9f;
     if ((m54C & 2) == 2 && pos.y < 0.0f) {
         pos.y = 0.0f;
     }
@@ -624,8 +634,8 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
         mRot = rot;
     }
     m574 = move;
-    m574.z /= dt;
     m574.x /= dt;
+    m574.z /= dt;
 }
 
 extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
