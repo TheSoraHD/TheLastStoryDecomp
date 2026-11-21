@@ -489,7 +489,7 @@ extern "C" void fn_80234CD8() {
                             (forceCenter != 0 || useCenter != 0) ? &item->mCenter : 0, 1);
             }
             if ((item->mFlags & 0x10) == 0x10) {
-                atn::RenderManager::instance_->fn_800C06B0((const atn::FogSettings*)((char*)item->m6C + 0x3C));
+                atn::RenderManager::instance_->fn_800C06B0(&((atn::Scene*)item->m6C)->mFog); // inferred: m6C is the scene
             } else {
                 atn::RenderManager::instance_->fn_800C08B0();
             }

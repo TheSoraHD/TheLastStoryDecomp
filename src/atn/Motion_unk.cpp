@@ -78,7 +78,7 @@ extern "C" void fn_8009FE24() {
             delete m;
             *it = 0;
         } else if (m != 0) {
-            if (fn_8009FFCC(*it) == 0 && ((*(unsigned int*)((char*)*it + 0x21C)) & 1)) {
+            if (fn_8009FFCC(*it) == 0 && (*it)->mModel.m20C_0) {
                 (*it)->mModel.GetModel_unk()->fn_80095CD0();
             }
         }

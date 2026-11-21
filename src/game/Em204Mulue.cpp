@@ -225,7 +225,7 @@ inline void Em204Mulue::StartThrust_unk() {
 inline void Em204Mulue::ShowMessage_unk(int id) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
-    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)m60 + 4));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), m60->m04);
     lbl_8087F048->fn_80109828(text);
 }
 // inferred: turn toward `target` (frames and direction)
@@ -957,10 +957,10 @@ void Em204Mulue::fn_802A8BBC() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             if (lbl_8087F8A0->mHead->m560 == 17) {
-                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE5), *(const wchar_t**)((char*)m60 + 4));
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE5), m60->m04);
                 lbl_8087F048->fn_80109828(text);
             } else {
-                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE7), *(const wchar_t**)((char*)m60 + 4));
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE7), m60->m04);
                 lbl_8087F048->fn_80109828(text);
             }
         } else {

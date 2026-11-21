@@ -2016,7 +2016,7 @@ extern "C" __declspec(noinline) inline void fn_804D6484(CharaTask* chara, CharaI
     chara->m60 = info;
 }
 extern "C" __declspec(noinline) inline atn::SimpleArray<PPRoute_unk>* fn_804D649C(void* route) {
-    return (atn::SimpleArray<PPRoute_unk>*)((char*)route + 0xF4);
+    return (atn::SimpleArray<PPRoute_unk>*)&((GameScene*)route)->mF4; // inferred: the AI areas (gs::AiArea)
 }
 extern "C" __declspec(noinline) inline PPCharaEntry_unk* fn_804D64A4(PPCharaArray_unk* charas, int index) {
     return &(*charas)[index];

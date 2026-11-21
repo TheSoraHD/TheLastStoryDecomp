@@ -107,7 +107,7 @@ inline int GetKind_unk(HitInfo_unk* hit) {
 
 // inferred: second bullet of a sub bullet (HitInfo_unk + 0xC8, past the known part of the struct)
 inline int GetC8_unk(HitInfo_unk* hit) {
-    return *(int*)((char*)hit + 0xC8);
+    return hit->mC8;
 }
 
 static const char sEfp0[] = "effect/ef_sc001a.efp";

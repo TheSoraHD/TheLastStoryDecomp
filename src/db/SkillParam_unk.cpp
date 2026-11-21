@@ -8,7 +8,7 @@ extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int atoi(const char* s);
 extern "C" unsigned long wcslen(const wchar_t* s);
 
-extern "C" void* fn_8006BA8C(const char* path, unsigned int* size, int flag); // inferred: loads a file
+extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
 
 #include "db/SkillParam_unk.h"
 
@@ -24,7 +24,7 @@ extern "C" void fn_80219C30();
 
 // inferred: loads /boot/skill_param.csv (the first line may hold the "Version" of the format)
 extern "C" void fn_8021996C() {
-    unsigned int size = 0;
+    unsigned long size = 0;
     void* data = fn_8006BA8C("/boot/skill_param.csv", &size, 0);
     atn::Csv csv((const char*)data, size);
     const char* id; // inferred: the current field without its two letter prefix
@@ -80,7 +80,7 @@ extern "C" void fn_80219C30() {
             delete[] sTexts;
             sTexts = 0;
         }
-        unsigned int size = 0;
+        unsigned long size = 0;
         void* data = fn_8006BA8C(sTextFileName, &size, 0);
         atn::CsvU csv((const wchar_t*)data, size / 2);
         csv.fn_8005BBF8();

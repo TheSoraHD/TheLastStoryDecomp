@@ -550,7 +550,7 @@ inline Material_unk* LoadedMaterial_unk(LH_Material& file, int i) {
 
 // inferred: debug menu folder of the model (created on first use when the debug menu is on)
 inline void* ModelFolder_unk(ResHandle& handle, const char* name) {
-    void* parent = *(void**)((char*)lbl_8087EFA8 + 0x4C); // inferred: debug menu folder of the models
+    void* parent = lbl_8087EFA8->m04C; // inferred: debug menu folder of the models
     if (handle.mRes == 0 && parent != 0 && lbl_8087EF10 != 0) {
         return handle.mRes = fn_8008937C(parent, name);
     }

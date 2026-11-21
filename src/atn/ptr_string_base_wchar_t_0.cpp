@@ -3,7 +3,7 @@
 #include "atn/Memory.h"
 #include "atn/TextTable_unk.h"
 
-extern "C" void* fn_8006BA8C(const char* path, unsigned int* size, int flag); // inferred: loads a file
+extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);         // inferred: wide sprintf
 extern "C" unsigned long wcslen(const wchar_t* s);
 
@@ -27,9 +27,9 @@ TextTable_unk::~TextTable_unk() {}
 // (pos, then the text of the second pass, then the index, then the total)
 TextTable_unk::TextTable_unk() {
     int pos = 0;
-    unsigned int size0 = 0;
+    unsigned long size0 = 0;
     void* data0 = fn_8006BA8C("/boot/common_text_xx.u16", &size0, 0);
-    unsigned int size1 = 0;
+    unsigned long size1 = 0;
     void* data1 = fn_8006BA8C("/boot/shop_name_table_xx.u16", &size1, 0);
     atn::CsvU csv0((const wchar_t*)data0, size0 / 2);
     atn::CsvU csv1((const wchar_t*)data1, size1 / 2);

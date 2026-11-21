@@ -86,7 +86,7 @@ extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen 
 extern "C" void fn_800D2338(atn::Task* task);   // inferred: removes the task
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
-extern "C" char* fn_8006BA8C(const char* path, int* size, int arg);   // inferred: loads a file
+extern "C" char* fn_8006BA8C(const char* path, unsigned long* size, int arg); // inferred: loads a file
 extern "C" int fn_8006AA20(const char* path);                        // inferred: the file exists
 extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group (atn/Se_unk.cpp)
 struct DialogTextMgr_unk;
@@ -1139,7 +1139,7 @@ void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
         char name[0x100];
         MapTask::GetMapNameFromId(name, area, map, part);
         sprintf(path, "/game_scene/%s.gs", name);
-        int size;
+        unsigned long size;
         char* data = fn_8006BA8C(path, &size, 0);
         m1A6C = GameScene::fn_803BEBAC(this, area, map, part);
         m1A6C->FreezeTask();
