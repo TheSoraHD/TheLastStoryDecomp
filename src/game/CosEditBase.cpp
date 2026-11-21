@@ -295,7 +295,11 @@ void CosEditBase::vf20() {
 
 void CosEditBase::vf68() {}
 
-// NONMATCHING: 94.0% - the camera override block of lbl_8087EFA8 is copied with other registers and order
+// inferred: target offset of the character (name invented)
+static inline void SetOffsetTarget_unk(CostumeEditChara* c, atn::Vector3 v) {
+    c->mOffsetTarget = v;
+}
+
 void CosEditBase::fn_801CD648() {
     if (mF8 > 0.0f) {
         float v = mF8 - 0.1f;
@@ -304,7 +308,8 @@ void CosEditBase::fn_801CD648() {
         float v = mF8 + 0.1f;
         mF8 = v < 0.0f ? v : 0.0f;
     }
-    CosEditCamera_unk camera = lbl_8087EFA8->mCamera;
+    CosEditCamera_unk camera;
+    camera = lbl_8087EFA8->mCamera;
     camera.mEnabled = 0;
     if (mF4) {
         camera.mEnabled = 1;
@@ -361,14 +366,14 @@ void CosEditBase::fn_801CD648() {
         mE4 = 0.2f * (mE0 - mE4) + mE4;
         atn::Vector3 rot(0.0f, mE4, 0.0f);
         mChara[0]->fn_801E91A0(rot);
-        mChara[0]->mOffsetTarget = atn::Vector3(m478);
+        SetOffsetTarget_unk(mChara[0], m478);
         if (mChara[1]) {
             mChara[1]->fn_801E91A0(rot);
-            mChara[1]->mOffsetTarget = atn::Vector3(m478);
+            SetOffsetTarget_unk(mChara[1], m478);
         }
         if (mChara[2]) {
             mChara[2]->fn_801E91A0(rot);
-            mChara[2]->mOffsetTarget = atn::Vector3(m478);
+            SetOffsetTarget_unk(mChara[2], m478);
         }
     }
 }
