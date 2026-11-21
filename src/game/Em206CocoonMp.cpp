@@ -430,10 +430,6 @@ extern "C" inline bool fn_800E0AB0(const std::vector<EnemyTask*>* list) {
 
 // inferred: runs the current state; while rolling (states 13 and 14) every 120 frames one random character
 // other than the target gets all the aggro, else every character has the same weight
-// NONMATCHING: 99.9% - the names of the list constructor/destructor relocations (the original calls the weak
-// copies named fn_802A4170 and __dt__18NecroPlaceList_unkFv in symbols.txt, ours std::vector<EnemyTask*>) and the
-// register of the last 1.0f (f31 here; with the index in a local it is f0 as the original, but then report.json
-// counts the function at 100% while objdiff-cli does not, see the notes of the queue)
 void Em206CocoonMp::vf104() {
     m14E0++;
     if (mC58.mC4 == 0) {
@@ -517,8 +513,8 @@ void Em206CocoonMp::vf104() {
             }
             if (!fn_800E0AB0(&list)) {
                 unsigned int n = fn_800E0AA8(&list);
-                CharaTask* t = list[rand() % n];
-                slots->m128[slots->fn_80108378(t)] = 1.0f;
+                int idx = slots->fn_80108378(list[rand() % n]);
+                slots->m128[idx] = 1.0f;
             }
         }
     } else {
