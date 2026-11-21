@@ -2614,16 +2614,17 @@ void BattleCharaTask::fn_800EB49C() {
     vf44();
 }
 
-// NONMATCHING: 98.3% - this stays in r3 for the first test, and dir/aim get r30/r29 the other way round
 void BattleCharaTask::fn_800EB4AC() {
     if (m55C != 6 && m648 != 0 && m648->m04 == 1) {
         atn::Vector3 dir(0.0f, 0.0f, 1.0f);
         Mtx m;
-        PSMTXRotRad(m, 'y', mRot.y);
+        float ry = mRot.y;
+        PSMTXRotRad(m, 'y', ry);
         PSMTXMultVec(m, &dir, &dir);
         atn::Vector3 from;
         atn::Vector3 to;
-        atn::Vector3 aim = dir;
+        atn::Vector3 aim;
+        atn::VecAssign_unk(aim, dir);
         // inferred: the part m648 is the weapon (Arms; fn_800EE5AC receives it as one)
         from = ((Arms*)m648)->fn_80044BD4();
         if (mC58.mD0 != 0) {
