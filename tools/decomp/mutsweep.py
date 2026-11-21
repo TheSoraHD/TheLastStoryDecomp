@@ -73,6 +73,27 @@ def mutations(lines, a, b):
             n1 = decl.match(lines[i]) or declnoinit.match(lines[i])
             if n1 and re.search(r"\b%s\b" % n1.group(3), lines[i + 1]):
                 continue
+            # do not swap statements that write a variable the other one reads or writes (root name of the
+            # left side of `=`, `op=`, `++`/`--`), nor two calls (order of side effects)
+            def lhs(l):
+                m = re.match(r"^\s*(?:[\w:<>]+(?:\s*\*+|\s*&)?\s+)?(\**[\w.\[\]>-]+?)\s*(?:[-+*/%&|^]|<<|>>)?=(?!=)", l)
+                if m:
+                    return m.group(1).lstrip("*")
+                m = re.match(r"^\s*(?:\+\+|--)?([\w.\[\]>-]+?)(?:\+\+|--)?;", l)
+                return m.group(1) if m else None
+            def conflict(w, other):
+                if not w:
+                    return False
+                if w in other:
+                    return True
+                r = re.match(r"\w+", w).group(0)
+                # the whole object (not one of its members) used in the other statement
+                return re.search(r"\b%s\b(?!\s*(?:\.|->)\s*\w)" % r, other) is not None or (r == w and re.search(r"\b%s\b" % r, other))
+            if conflict(lhs(lines[i]), lines[i + 1]) or conflict(lhs(lines[i + 1]), lines[i]):
+                continue
+            if re.search(r"\w\s*\(", lines[i]) and re.search(r"\w\s*\(", lines[i + 1]) and \
+                    not (lhs(lines[i]) and lhs(lines[i + 1])):
+                continue
             new = lines[:]; new[i], new[i + 1] = lines[i + 1], lines[i]
             out.append(("swap %d" % (i + 1), new))
     body = "\n".join(lines[a:b])
@@ -189,6 +210,15 @@ def mutations(lines, a, b):
         for m in re.finditer(r"(?<![\w.>\])\-+*/&|])(%s) (==|!=|<=|>=|<|>|\+|\*) (%s)(?![\w.\[(])" % (SIMPLE, SIMPLE), l):
             if m.group(1) == m.group(3):
                 continue
+            # only whole operands: `(a op b)`, `= a op b;`, `&& a op b)`... (precedence stays the same)
+            pre = l[:m.start()].rstrip(" ")
+            post = l[m.end():].lstrip(" ")
+            if not (pre.endswith(("(", "=", ",", "return", "&&", "||", "?")) and
+                    post.startswith((")", ";", ",", "&&", "||", "?", ":"))):
+                continue
+            if pre.endswith(("&&", "||", "?")) or post.startswith(("&&", "||", "?", ":")):
+                if m.group(2) in ("+", "*"):
+                    continue
             new = lines[:]; new[i] = l[:m.start()] + m.group(3) + " " + OPS[m.group(2)] + " " + m.group(1) + l[m.end():]
             out.append(("cswap %d %s" % (i + 1, m.group(2)), new))
     # split `if (A || B) {` whose body is a single return/continue/break into two ifs
