@@ -158,7 +158,12 @@ static inline T EffectMaxT_unk(T a, T b) {
     return a > b ? a : b;
 }
 
-// NONMATCHING: 99.3% - the ring size m1AC of the loop condition is loaded before the max of mB4 (r3)
+// inferred: used items of the fade ring through an inline (the original loads it before the max of mB4;
+// name invented)
+static inline unsigned int FadeCount_unk(const EffectSlot_unk* slot) {
+    return slot->m1AC;
+}
+
 // inferred: frees the stopped instances and slots, keeps the fade rings of the slots, counts the slots
 // and the draw passes used; when the slots run out, frees one of three slots of the instances with flag
 // 0x40
@@ -203,7 +208,7 @@ void EffectSystem_unk::fn_8022C3F0() {
                             fade->m10 = slot->m1A4;
                             slot->m1AC++;
                         }
-                        while ((float)slot->m1AC > (slot->mB4 > 0.0f ? slot->mB4 : 0.0f)) {
+                        while ((float)FadeCount_unk(slot) > (slot->mB4 > 0.0f ? slot->mB4 : 0.0f)) {
                             slot->m1B0 = (slot->m1B0 + 1) % slot->m1B4;
                             slot->m1AC = EffectMaxT_unk<unsigned int>(slot->m1AC - 1, 0);
                         }
