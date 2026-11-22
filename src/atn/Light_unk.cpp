@@ -127,11 +127,16 @@ static inline unsigned int ToARGB_unk(const LightColor_unk& c) {
     return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
-// NONMATCHING: 96.52% - scheduling of the call arguments after the color conversion
+// inferred: radius of a light (name invented)
+static inline float RadiusOf_unk(const atn::Light* light) {
+    return light->mRadius;
+}
+
+// NONMATCHING: 99.32% - order of the loads of 2.0f and the radius in the spot light (case 2)
 void atn::Light::fn_800795DC() {
     switch (mType) {
     case 3:
-        lbl_8087EEB0->fn_80063D3C(mPos, mRadius, 0.0f, ToARGB_unk(mColor));
+        lbl_8087EEB0->fn_80063D3C(mPos, RadiusOf_unk(this), 0.0f, ToARGB_unk(mColor));
         break;
     case 2:
         lbl_8087EEB0->fn_800641CC(mPos, mDir, ToARGB_unk(mColor), 2.0f * mRadius, mAngle, 0.0f);

@@ -965,8 +965,18 @@ void atn::RenderManager::fn_800C0590(int clear, int format) {
     }
 }
 
+// inferred: near and far planes of a camera (names invented)
+static inline float NearOf_unk(const atn::Camera& camera) {
+    return camera.mNear;
+}
+
+static inline float FarOf_unk(const atn::Camera& camera) {
+    return camera.mFar;
+}
+
+
 void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
-    // NONMATCHING: 98.06% - stack slots of the colours: the original passes GXColor by value (temporaries
+    // NONMATCHING: 99.93% - stack slots of the colours: the original passes GXColor by value (temporaries
     // after the named colour); declared so, fn_800C08B0 loses its scheduling (71%)
     if (lbl_8087EFA8->m02C != 0) {
         if (m890 != 0) {
@@ -1012,7 +1022,7 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     c.b = (unsigned char)(255.0f * m8A8);
     c.a = (unsigned char)(255.0f * m8AC);
     GXColor arg = c;
-    GXSetFog(type, m898, m89C, mCamera.mNear, mCamera.mFar, &arg);
+    GXSetFog(type, m898, m89C, NearOf_unk(mCamera), FarOf_unk(mCamera), &arg);
 }
 
 void atn::RenderManager::fn_800C08B0() {
