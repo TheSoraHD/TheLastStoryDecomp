@@ -1,8 +1,8 @@
 # Siguiente sesion (tras bloqueos-20261122)
 
-> Sesion `bloqueos-20261122` (secuencial, sin agentes; barridos de fondo en dos worktrees) del 2026-11-22 01:31 al ~12:15 (cierre desde las 11:31). Notas: `docs/bloqueos-20261122.md`. Port: `claude/port-bloqueos-20261122.md` (proyecto). Anterior: `barrido-20261121`.
+> Sesion `bloqueos-20261122` (secuencial, sin agentes; barridos de fondo en dos worktrees) del 2026-11-22 01:31 al ~12:20 (cierre desde las 11:31). Notas: `docs/bloqueos-20261122.md`. Port: `claude/port-bloqueos-20261122.md` (proyecto). Anterior: `barrido-20261121`.
 
-Estado: **16398 / 18113**, lost 0, rep100 y labelcheck iguales a la referencia, `main.dol: OK`. Codigo **66,38 %**, datos 76,94 %, **756** unidades completas (chr/ControlChaseCaught enlaza).
+Estado: **16400 / 18113**, lost 0, rep100 y labelcheck iguales a la referencia, `main.dol: OK`. Codigo **66,40 %**, datos 76,94 %, 387 avisos del compilador, **756** unidades completas (chr/ControlChaseCaught enlaza).
 
 ## Decisiones pendientes del usuario
 
@@ -13,6 +13,7 @@ Estado: **16398 / 18113**, lost 0, rep100 y labelcheck iguales a la referencia, 
 
 - Lo que mas rindio: leer un miembro por una inline con parametro (`FaceOf_unk(c)`, `TableOf_unk(task)`, `FirstOf_unk`/`NextOf_unk` en el arbol de tareas): la llamada se evalua antes (Sethi-Ullman) y cambia el orden de carga y los registros. Barrido: `mutsweep.py --only val,valb` (sonda `Val_unk`) y `patsweep.py`. Cubierto: >= 98,7 % de todo el juego, 97-98,7 % y 95-97 % solo en parte (logs val3/val4 en el scratch, se pierden); CharaTask entera (97-100 %).
 - Huecos de pila: `tools/decomp/slotmap.py` (que objeto se movio) y `tools/decomp/mirrorscan.py` (grupos invertidos: el original los tenia en una inline o no). Lista de mirrorscan 97-100 %: unas 70 funciones; probadas solo 8. Siguientes: EventParser_unk Parse*ID_unk (9 hermanas, 99,26-99,91 %, objetos de 1 byte de las copias de `std::string` en push_back), Em203GreaterDaemon fn_8028BFE0, LastCocoonQuadruped fn_80462CCC / fn_80465B88, ReplayBuffer fn_8056C3D8 / fn_8056F5B4, Em204BigMulue push_back, main push_back de SimpleVector, gmk/PigeonManager y ChickenManager (gemelas).
+- Cierres de la ultima hora que abren familia: los aciertos del barrido `val` en 95-98,7 % (val3/val4) solo se recorrieron en parte; seguir la banda 95-98,7 con `valdrv`/`mutsweep --only val,valb` y reescribir cada acierto como accesor (GameCamera x2 cerraron asi; GameUI fn_803DE89C 99,62, ControlCharge vf0C 99,71, RenderManager fn_800C06B0 99,93, Light fn_800795DC 99,32 quedaron cerca).
 - Casi cerradas: Em403WarLion fn_80329ED8 (99,25, ver decision), EnemyQuarkStand fn_8034F788 (99,88: solo el par copia/objetivo de SetTarget_unk), Em101LittleZesya fn_8025D90C (99,81, registros del primer bloque), BattleTask fn_801018E4 (99,67), PassBoard vf0C (99,45; enlazaria la unidad), CompositeCacheEntry_unk fn_800D8458 (99,19).
 - Bloqueos confirmados (no repetir sin idea nueva): el registro base de un miembro (`m4D8`/`m97C`, fase 2: no reproducido en fichero suelto, ver `docs/mwcc-blockers.md`), `Loader::Get_unk<T>`, la familia vf3C de NewCampParts (mismo codigo con todas las formas), atn/Task fn_800D32B8 (cualquier cambio cambia el inlining).
 - Lista de candidatas: `claude/candidatas-bloqueos-20261122.md` (proyecto).
