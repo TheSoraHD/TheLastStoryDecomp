@@ -1601,7 +1601,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
 }
 
 
-// NONMATCHING: 99.6% - r28/r29 of the rotated vector and of the direction swapped
+// NONMATCHING: 99.92% - r28/r29 of &v/&dir swapped
 void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn::Vector3& at, float base,
                                       float dist) {
     atn::Vector3 dir;
@@ -1618,7 +1618,8 @@ void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn
         float a = base + 3.1415927f * i - 1.5707964f;
         atn::Matrix3x4 m;
         m.SetRotationY_unk(a);
-        atn::Vector3 v = dir;
+        atn::Vector3 v;
+        atn::VecAssign_unk(v, dir);
         PSMTXMultVec(m.m, &v, &v);
         fn_8004D388(lbl_8087EE98, &result, &from, &v, 0x80000000, &mColli, 0, m620);
         v = result.m10;

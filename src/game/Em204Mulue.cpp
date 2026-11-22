@@ -920,7 +920,7 @@ void Em204Mulue::fn_802A8718() {
     }
 }
 
-// NONMATCHING: 99.58% - allocation of the loop constants in f20-f31 (one register off)
+// NONMATCHING: 99.97% - `frame` in f20 (the original shares f21 with a loop constant)
 void Em204Mulue::fn_802A8BBC() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -930,7 +930,8 @@ void Em204Mulue::fn_802A8BBC() {
             if (c->CanAct_unk()) {
                 atn::Vector3 d = c->mPos - mPos;
                 atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
-                float angle = fn_802A7910(fn_802A7964(rot.y - mRot.y));
+                float ry = rot.y;
+                float angle = fn_802A7910(fn_802A7964(ry - mRot.y));
                 float dist = PSVECSquareMag(&d);
                 if (-50.0f < angle && angle < 50.0f && dist < 2500.0f) {
                     if (c == m14B0) {

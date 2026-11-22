@@ -1625,35 +1625,39 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
     return 0;
 }
 
-// NONMATCHING: 98.99% - registros r28/r29 de move/ofs y posicion de un stfs del prologo
+// NONMATCHING: 99.93% - r28/r29 of &v/&dir swapped (as LastCocoonQuadruped fn_80468534)
 // inferred: best place at distance `dist` on the left or the right of `target` (rotation `rot`):
 // the farthest one the war lion can reach; `angle` faces back towards the target
 void Em403WarLion::fn_8032A3D4(atn::Vector3* pos, float* angle, const atn::Vector3* target, float rot, float dist) {
-    atn::Vector3 ofs(0.0f, 0.0f, dist);
-    atn::Vector3 from(*target);
-    float best = 0.0f;
+    atn::Vector3 dir;
+    dir.z = dist;
     atn::ColliResult_unk result;
-    atn::Vector3 found;
+    atn::Vector3 from = *target;
+    dir.x = 0.0f;
     from.y += m620;
-    float a = mRot.y;
+    dir.y = 0.0f;
+    float best = 0.0f;
+    float yaw = mRot.y;
+    atn::Vector3 bestPos;
     for (int i = 0; i < 2; i++) {
-        float r = 3.1415927f * (float)i + rot - 1.5707964f;
+        float a = rot + 3.1415927f * i - 1.5707964f;
         Mtx m;
-        PSMTXRotRad(m, 'y', r);
-        atn::Vector3 move(ofs);
-        PSMTXMultVec(m, &move, &move);
-        fn_8004D388(lbl_8087EE98, &result, (CharaTask::Sphere_unk*)&from, &move, 0x80000000, &mColli, 0, m620);
-        move = result.m10;
-        atn::Vector3 d = move - from;
-        float len = PSVECSquareMag(&d);
-        if (len > best) {
-            a = atn::WrapAngle_unk(3.1415927f + r);
-            best = len;
-            found = move;
+        PSMTXRotRad(m, 'y', a);
+        atn::Vector3 v;
+        atn::VecAssign_unk(v, dir);
+        PSMTXMultVec(m, &v, &v);
+        fn_8004D388(lbl_8087EE98, &result, (CharaTask::Sphere_unk*)&from, &v, 0x80000000, &mColli, 0, m620);
+        v = result.m10;
+        atn::Vector3 d = v - from;
+        float sq = PSVECSquareMag(&d);
+        if (sq > best) {
+            yaw = atn::WrapAngle_unk(3.1415927f + a);
+            best = sq;
+            bestPos = v;
         }
     }
-    *pos = found;
-    *angle = a;
+    *pos = bestPos;
+    *angle = yaw;
 }
 
 // inferred: the point of the circuit with flags (a, b) farthest from the mean position of the players

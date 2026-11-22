@@ -465,17 +465,23 @@ __declspec(noinline) CosEditMember_unk* CosEditBase::fn_801CDD9C(int step) {
     return &((CosEditParent_unk*)m48)->mMembers1[index];
 }
 
-// NONMATCHING: 98.8% - the original loads mFace before member->mId but compares member->mId first
+// inferred: face id of a costume chara (name invented)
+static inline int FaceOf_unk(CostumeEditChara* c) {
+    return c->mFace;
+}
+
+// inferred: the face through an inline (the original loads mFace before member->mId and compares
+// (mId, mFace): the inline call is evaluated first)
 void CosEditBase::fn_801CDE14(CosEditMember_unk* member, int dir) {
     if (!mChara[0]) {
         return;
     }
     m104 = member;
     if (dir > 0) {
-        if (mChara[1] && mChara[1]->mFace == member->mId) {
+        if (mChara[1] && member->mId == FaceOf_unk(mChara[1])) {
             mChara[0]->fn_801E92D4(sMainPos, sPrevPos);
             mChara[1]->fn_801E92D4(sNextPos, sMainPos);
-        } else if (mChara[2] && member->mId == mChara[2]->mFace) {
+        } else if (mChara[2] && member->mId == FaceOf_unk(mChara[2])) {
             CostumeEditChara* next = mChara[1];
             mChara[1] = mChara[2];
             mChara[2] = next;
@@ -486,13 +492,13 @@ void CosEditBase::fn_801CDE14(CosEditMember_unk* member, int dir) {
         mF8 = 1.0f;
         vf6C();
     } else {
-        if (mChara[1] && member->mId == mChara[1]->mFace) {
+        if (mChara[1] && member->mId == FaceOf_unk(mChara[1])) {
             CostumeEditChara* next = mChara[1];
             mChara[1] = mChara[2];
             mChara[2] = next;
             mChara[0]->fn_801E92D4(sMainPos, sNextPos);
             mChara[2]->fn_801E92D4(sPrevPos, sMainPos);
-        } else if (mChara[2] && member->mId == mChara[2]->mFace) {
+        } else if (mChara[2] && member->mId == FaceOf_unk(mChara[2])) {
             mChara[0]->fn_801E92D4(sMainPos, sNextPos);
             mChara[2]->fn_801E92D4(sPrevPos, sMainPos);
         }

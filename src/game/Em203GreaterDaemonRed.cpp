@@ -868,13 +868,15 @@ void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
 }
 
 // inferred: state 6/7 (hovers to the route point m1540)
-// NONMATCHING: 99.78% - r3/r4 swap on the psq copy into m1530 (known blocker)
+// NONMATCHING: 99.97% - stack slots: the original puts the result of the interpolation of mPos below
+// its two inner temporaries and the temporary of state 1 above them
 void Em203GreaterDaemonRed::fn_80296DB8() {
     if (m14B4 == 0) {
         atn::Vector3 point = m1540->mPos;
         fn_801C3910(point - mPos);
-        if (m1528 == m1540->mIndex) {
-            m1530 = point - mPos;
+        int index = m1540->mIndex;
+        if (m1528 == index) {
+            atn::VecAssign_unk(m1530, point - mPos);
             ToIdle_unk();
         } else {
             m152C += 1.0f / m1670;
