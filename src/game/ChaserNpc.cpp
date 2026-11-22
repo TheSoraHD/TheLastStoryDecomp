@@ -108,8 +108,14 @@ void ChaserNpc::vf14() {
 // inferred: names of the states (debug display)
 static const char* sStateNames_unk[] = {"START", "STAY", "WALK", "RUN", "CAUGHT", "END"};
 
-// NONMATCHING: 99.9% - stack slots of the temporaries (the original puts the player distance vector at
-// 0x8, below the color temporaries of the debug text). MAX(0, x) gives the srawi/andc of the original.
+// inferred: distance between two points (name invented; its vector is a local of the inline: lowest slot)
+static inline float DistanceTo_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECMag(&d);
+}
+
+// inferred: MAX(0, x) gives the srawi/andc of the original; the distance of state 1 through an inline puts
+// its vector at the bottom of the frame, the one of the debug text is a temporary
 void ChaserNpc::fn_80180AE0() {
     mC58.mC4 = 0;
     mC58.m11C.m01 = 0;
@@ -120,8 +126,8 @@ void ChaserNpc::fn_80180AE0() {
         break;
     case 1: {
         CharaTask* player = lbl_8087F8A0->mHead;
-        atn::Vector3 d = player->mPos - mPos;
-        if (PSVECMag(&d) < lbl_8087F0A8->m53C.mChCatchDistance && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+        if (DistanceTo_unk(player->mPos, mPos) < lbl_8087F0A8->m53C.mChCatchDistance && m14D0 == 0 &&
+            lbl_8087F8A0->mHead->m560 != 0x69) {
             fn_8018161C(4);
         } else {
             m14C4 = 1.0f;
@@ -155,8 +161,7 @@ void ChaserNpc::fn_80180AE0() {
             lbl_8087EEB0->fn_800616C0(screen.x, y, 0.0f, 12.0f, 12.0f, text, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 0.0f, 1, 1, 0);
             y += 12.0f;
             CharaTask* player = lbl_8087F8A0->mHead;
-            atn::Vector3 d = player->mPos - mPos;
-            sprintf(text, "S %d, R %d, D %f", m14C8, m14D0, PSVECMag(&d));
+            sprintf(text, "S %d, R %d, D %f", m14C8, m14D0, (player->mPos - mPos).Length_unk());
             lbl_8087EEB0->fn_800616C0(screen.x, y, 0.0f, 12.0f, 12.0f, text, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)), 0.0f, 1, 1, 0);
         }
     }
