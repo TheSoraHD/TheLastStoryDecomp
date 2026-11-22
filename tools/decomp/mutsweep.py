@@ -11,6 +11,7 @@ Each mutation is one natural rewrite (no asm, no volatile, no dead code):
   ne0    - `if (x != 0)` <-> `if (x)`, `if (x == 0)` <-> `if (!x)`
   decl   - move a declaration without initializer one statement up/down
   mulsplit/divsplit/idx/ifid/ld/swret/cref - see mutations2 (barrido-20261121)
+  lentmp - `Vector3 d = E; PSVECMag(&d)` -> `(E).Length_unk()` (bloqueos-20261122)
   val    - one or two member reads of a line through `Val_unk(...)` (bloqueos-20261122)
 --diff F writes the unified diff of the best variant; --list prints the mutations without compiling.
 Keeps the best variant of each round and starts the next round from it. Prints the best percent.
@@ -519,6 +520,26 @@ def mutations2(lines, a, b):
             if not hasval:
                 new[lastinc] += "\ntemplate <class T> inline T Val_unk(const T& v) { return v; } // inferred: read through an inline"
             out.append(("val %d:%s" % (i + 1, "+".join(o.group(1) for o in st)), "\n".join(new).split("\n")))
+    # lentmp: `atn::Vector3 d = E;` used once as `PSVECMag(&d)` / `PSVECSquareMag(&d)` -> `(E).Length_unk()` /
+    # `(E).LengthSq_unk()`: the vector becomes a temporary (stack slot after the named locals; RouteWalker_unk
+    # fn_801279E8, bloqueos-20261122)
+    for i in range(a, b):
+        m = re.match(r"^(\s+)(?:const\s+)?atn::Vector3 (\w+) = (.+);\s*$", lines[i])
+        if not m:
+            continue
+        ind, name, e = m.groups()
+        rest = "\n".join(lines[i + 1:b])
+        if len(re.findall(r"\b%s\b" % name, rest)) != 1:
+            continue
+        for j in range(i + 1, min(b, i + 4)):
+            mm = re.search(r"(PSVECMag|PSVECSquareMag)\(&%s\)" % name, lines[j])
+            if mm:
+                meth = "Length_unk" if mm.group(1) == "PSVECMag" else "LengthSq_unk"
+                new = lines[:]
+                new[j] = lines[j].replace(mm.group(0), "(%s).%s()" % (e, meth))
+                del new[i]
+                out.append(("lentmp %d" % (i + 1), new))
+                break
     return out
 
 def split_or(c):
