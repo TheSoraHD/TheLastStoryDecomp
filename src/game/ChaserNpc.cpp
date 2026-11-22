@@ -364,12 +364,18 @@ void ChaserNpc::fn_80181A64() {
     mC58.m0C.fn_801255C8();
 }
 
+// inferred: route table of the game task through a getter that takes the task (registers of the original; as
+// in game/Em101ElderZesya.cpp; name invented)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
 // NONMATCHING: 99.7% - register allocation of the inlined GameScene::FindPlace_unk (index/offset and
 // the place pointer swapped). The current index in a local (`idx`) fixes the load order of m14C0.
 void ChaserNpc::fn_80181D94() {
     RouteWalker_unk& route = mC58.m0C;
     if (route.fn_80125474() == 0) {
-        GameScene* table = lbl_8087F430->m10D8;
+        GameScene* table = TableOf_unk(lbl_8087F430);
         int point = ((GameScene*)table)->fn_803C1560(&mPos, 0, 0, 0, 1, -1.0f);
         if (point != 0) {
             mPos = table->m98.mData[point - 1].mPos;

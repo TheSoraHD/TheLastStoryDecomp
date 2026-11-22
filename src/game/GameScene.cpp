@@ -2002,6 +2002,13 @@ void GameScene::fn_803CA530() {
     }
 }
 
+// inferred: facing of an event box through an inline (registers of the second rotation; name invented)
+static inline float BoxYaw_unk(const gs::EventBox& box) {
+    return box.m14;
+}
+
+// NONMATCHING: 99.77% - reset/zero in r24/r23 (the original has reset in r23); scale as a temporary and
+// the boxes by reference give the stack slots of the original
 void GameScene::fn_803CA604() {
     int reset = 0;
     if (lbl_8087F430 != 0) {
@@ -2025,7 +2032,8 @@ void GameScene::fn_803CA604() {
     }
     int n = 0;
     for (unsigned int i = 0; i < mE4.size(); i++) {
-        if (mE4[i].m2C <= 0 && mE4[i].m30 != 0) {
+        gs::EventBox& box = mE4[i];
+        if (box.m2C <= 0 && box.m30 != 0) {
             n++;
         }
     }
@@ -2052,16 +2060,15 @@ void GameScene::fn_803CA604() {
         PSMTXMultVec(m, &pos, &pos);
         pos += box.mPos;
         atn::Vector3 rot(0.0f, box.m14, 0.0f);
-        atn::Vector3 scale(1.0f, 1.0f, 1.0f);
         gimmick->m6C = pos;
         gimmick->m78 = rot;
-        gimmick->m90 = scale;
+        gimmick->m90 = atn::Vector3(1.0f, 1.0f, 1.0f);
         gimmick->vf68(0, box.m34);
         m188.mData[k++] = gimmick;
         atn::Vector3 size(4.5f, 6.0f, 8.0f);
         atn::Vector3 center(0.0f, 0.0f, 1.0f + (size.z - 2.8f));
         Mtx m2;
-        PSMTXRotRad(m2, 'y', box.m14);
+        PSMTXRotRad(m2, 'y', BoxYaw_unk(box));
         PSMTXMultVec(m2, &center, &center);
         center += pos;
         box.mPos = center;

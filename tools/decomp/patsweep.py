@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""patsweep.py <regex> <replacement> [--units u1,u2] [--min P] [--helper TEXT]: one rewrite at every match.
+
+For each source line matching <regex> inside a function of the game below 100 % (report.json of the copy,
+fuzzy >= --min, default 90), applies re.sub(<regex>, <replacement>) to that line only, adds --helper after the
+last #include when given (default: the identity inline Val_unk), rebuilds the unit and prints the percent of
+the function before -> after. The source is always restored. (bloqueos-20261122: the read of
+lbl_8087F430->m10D8 through an inline with a parameter closed three functions.)
+"""
+import json, os, re, subprocess, sys
+root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+os.chdir(root)
+args = sys.argv[1:]
+def opt(n, d):
+    if n in args:
+        i = args.index(n); v = args[i + 1]; del args[i:i + 2]; return v
+    return d
+units = opt("--units", None)
+mn = float(opt("--min", 90))
+helper = opt("--helper", "template <class T> inline T Val_unk(const T& v) { return v; } // inferred: read through an inline")
+pat, rep = re.compile(args[0]), args[1]
+r = json.load(open("build/SLSP01/report.json"))
+
+def pct(u, sym):
+    if subprocess.run(["ninja", "-j1", "build/SLSP01/src/%s.o" % u], capture_output=True).returncode:
+        return -1
+    o = subprocess.run(["build/tools/objdiff-cli", "diff", "-p", ".", "-u", "main/" + u, sym, "-o", "-", "--format", "json"],
+                       capture_output=True, text=True).stdout
+    for s in json.loads(o)["left"]["symbols"]:
+        if s["name"] == sym:
+            return s.get("match_percent") or 0
+    return -1
+
+for u in r["units"]:
+    un = u["name"][5:]
+    src = "src/%s.cpp" % un
+    if not os.path.exists(src) or (units and un not in units.split(",")):
+        continue
+    text = open(src, encoding="latin-1").read()
+    if not pat.search(text):
+        continue
+    lines = text.split("\n")
+    lastinc = max((k for k, l in enumerate(lines) if l.startswith("#include")), default=0)
+    for f in u.get("functions", []):
+        p = f.get("fuzzy_match_percent", 0)
+        dn = f.get("metadata", {}).get("demangled_name", "")
+        if not (mn <= p < 100) or not dn:
+            continue
+        name = dn.split("(")[0]
+        short = name.split("::")[-1]
+        # body of the function: the definition line not indented that contains Class::name( or name(
+        cands = [name.split("::", 1)[1] if name.count("::") > 1 else name, short]
+        st = None
+        for c in cands:
+            for k, l in enumerate(lines):
+                if not l.startswith((" ", "\t", "/")) and re.search(r"(?<![\w:])%s\s*\(" % re.escape(c), l) and not l.rstrip().endswith(";"):
+                    st = k; break
+            if st is not None:
+                break
+        if st is None:
+            continue
+        en = next((k for k in range(st + 1, len(lines)) if lines[k].startswith("}")), None)
+        if en is None:
+            continue
+        for k in range(st, en):
+            if not pat.search(lines[k]):
+                continue
+            new = lines[:]
+            new[k] = pat.sub(rep, lines[k])
+            if helper and helper.split("(")[0] not in text:
+                new[lastinc] += "\n" + helper
+            open(src, "w", encoding="latin-1").write("\n".join(new))
+            v = pct(un, f["name"])
+            print("%-28s %-50s %d %.3f -> %.3f" % (un, f["name"][:50], k + 1, p, v), flush=True)
+        open(src, "w", encoding="latin-1").write(text)
+    subprocess.run(["ninja", "-j1", "build/SLSP01/src/%s.o" % un], capture_output=True)

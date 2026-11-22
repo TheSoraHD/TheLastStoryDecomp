@@ -1727,6 +1727,12 @@ void Em203GreaterDaemonRed::fn_8029BE7C() {
     }
 }
 
+// inferred: route table of the game task through a getter that takes the task (registers of the original; as
+// in game/Em101ElderZesya.cpp; name invented)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
 // inferred: the route point nearest to the daemon among the high hover points (m153C)
 // NONMATCHING: 99.42% - loop counter registers swapped (r29/r30)
 int Em203GreaterDaemonRed::fn_8029C564(int arg) {
@@ -1749,7 +1755,7 @@ int Em203GreaterDaemonRed::fn_8029C564(int arg) {
             nearest = i;
         }
     }
-    GameScene* table = lbl_8087F430->m10D8;
+    GameScene* table = TableOf_unk(lbl_8087F430);
     int index = ((GameScene*)table)->fn_803C1560(&m1564[nearest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
     m153C = &table->m98.mData[index];
     return 1;

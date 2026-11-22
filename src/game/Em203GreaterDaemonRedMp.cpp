@@ -1566,6 +1566,12 @@ extern "C" int fn_802A4168(CharaManager<EnemyTask>* manager) {
 }
 
 
+// inferred: route table of the game task through a getter that takes the task (registers of the original; as
+// in game/Em101ElderZesya.cpp; name invented)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
 int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
     if (m15A8.size() == 0) {
         return 0;
@@ -1580,7 +1586,7 @@ int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
             nearest = i;
         }
     }
-    GameScene* table = lbl_8087F430->m10D8;
+    GameScene* table = TableOf_unk(lbl_8087F430);
     int index = ((GameScene*)table)->fn_803C1560(&m15A8[nearest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
     m156C = &table->m98.mData[index];
     return 1;
