@@ -1328,7 +1328,7 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
 // inferred: free camera moved with the stick (dead zone 0.2, squared response, turned around the up vector and the
 // side vector at the speed m558.m1C) from frame 15 on, and kept m558.m10 above the character looking m558.m00 away;
 // with m838 set it blends instead the target from m84C to m840 and the fovy from m85C to half m558.m04 (6 steps)
-// NONMATCHING: 97.4% - stack slots of the temporaries of the two stick rotations and of the final offset
+// NONMATCHING: 99.49% - stack slots of the temporaries of the two stick rotations and of the final offset
 void GameCamera::fn_803830A8(const CharaTask* chara) {
     if (++m808 < 15) {
         return;
@@ -1390,7 +1390,8 @@ void GameCamera::fn_803830A8(const CharaTask* chara) {
         atn::Vector3 rot = chara->mRot;
         atn::Vector3 offset(0.0f, m558.m10, 0.0f);
         Mtx r;
-        PSMTXRotRad(r, 'y', rot.y);
+        float ry = rot.y;
+        PSMTXRotRad(r, 'y', ry);
         PSMTXMultVec(r, &offset, &offset);
         head += offset;
         pos = head;
