@@ -318,10 +318,17 @@ void ChaserNpc::fn_8018161C(int state) {
     m14B0 = state;
 }
 
-// NONMATCHING: 97.6% - register allocation of the place search and two swapped stack slots.
+// inferred: route table of the game task through a getter that takes the task (registers of the original; as
+// in game/Em101ElderZesya.cpp; name invented)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
+// NONMATCHING: 98.65% - registers of the inlined FindPlace_unk and the slots of away/dir swapped (the
+// original has away lowest)
 void ChaserNpc::fn_80181A64() {
+    GameScene* table = TableOf_unk(lbl_8087F430);
     CharaTask* player = lbl_8087F8A0->mHead;
-    GameScene* table = lbl_8087F430->m10D8;
     int found = -1;
     int playerPoint = ((GameScene*)table)->fn_803C1560(&player->mPos, player->fn_80179D44(), 0, 0, 1, -1.0f);
     int point = ((GameScene*)table)->fn_803C1560(&mPos, fn_80179D44(), 0, 0, 1, -1.0f);
@@ -367,12 +374,6 @@ void ChaserNpc::fn_80181A64() {
     m14C0 = found;
     mC58.m0C.fn_80128818(m14B4[found], &mPos, 8);
     mC58.m0C.fn_801255C8();
-}
-
-// inferred: route table of the game task through a getter that takes the task (registers of the original; as
-// in game/Em101ElderZesya.cpp; name invented)
-static inline GameScene* TableOf_unk(GameTask* task) {
-    return task->m10D8;
 }
 
 // NONMATCHING: 99.7% - register allocation of the inlined GameScene::FindPlace_unk (index/offset and
