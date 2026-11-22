@@ -286,8 +286,11 @@ inline int KeyFind_unk(std::vector<ActionKey_unk>& keys, float time) {
     return -1;
 }
 
-// NONMATCHING: 99.8% - registers of the size and the capacity in the fast path of push_back (r5/r4 swapped)
-// and stack slots of the temporaries of the reallocation
+// inferred: sorts the keys of a curve by time (name invented; the iterators are locals of the inline)
+inline void SortKeys_unk(std::vector<ActionKey_unk>& keys) {
+    MslSort_unk(MslIter_unk<ActionKey_unk>(keys.begin()), MslIter_unk<ActionKey_unk>(keys.end()), KeyLess_unk);
+}
+
 // inferred: sets the key of the curve at its time (time and value clamped to [0, 1]), keeps the curve
 // sorted and returns the index of the key
 int Action::fn_805393F8(const ActionKey_unk& key) {
@@ -302,7 +305,7 @@ int Action::fn_805393F8(const ActionKey_unk& key) {
     } else {
         mKeys[index] = k;
     }
-    MslSort_unk(MslIter_unk<ActionKey_unk>(mKeys.begin()), MslIter_unk<ActionKey_unk>(mKeys.end()), KeyLess_unk);
+    SortKeys_unk(mKeys);
     for (int i = 0; i < (int)mKeys.size(); i++) {
         if (k.mTime == mKeys[i].mTime && k.mValue == mKeys[i].mValue) {
             return i;
