@@ -17,6 +17,7 @@ def opt(n, d):
     return d
 units = opt("--units", None)
 mn = float(opt("--min", 90))
+mx = float(opt("--max", 100))
 logf = opt("--log", None)
 done = set()
 if logf and os.path.exists(logf):
@@ -59,7 +60,7 @@ for u in r["units"]:
     for f in u.get("functions", []):
         p = f.get("fuzzy_match_percent", 0)
         dn = f.get("metadata", {}).get("demangled_name", "")
-        if not (mn <= p < 100) or not dn:
+        if not (mn <= p < min(mx, 100)) or not dn:
             continue
         name = dn.split("(")[0]
         short = name.split("::")[-1]
