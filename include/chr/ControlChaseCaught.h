@@ -84,7 +84,7 @@ class ControlChaseFollow : public ControlBase {
 public:
     ControlChaseFollow(Chara_unk* chara); // 0x801A90BC
     virtual int vf0C();
-    virtual int vf34() { return 1; }
+    virtual int vf3C() { return 1; } // inferred: slot 0x3C (the vtable of the original; formerly vf34)
     int m08;
 };
 

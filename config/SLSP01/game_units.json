@@ -795,7 +795,7 @@
    "chr::ControlChaseHeld",
    "chr::ControlChaseCaught"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlCliffhang.cpp",
