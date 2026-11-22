@@ -194,8 +194,17 @@ ControlCharge::ControlCharge(Chara_unk* chara, int a, const atn::Vector3* target
     }
 }
 
-// NONMATCHING: 97.9% - registers of the two flags of the cursor test (r4/r5, as in the
-// constructor), of the status word and of the copy of the cursor into the tactical view.
+// inferred: the character of a control; the cursor of the tactical view (names invented)
+static inline CharaTask* CharaOf_unk(const chr::ControlCharge* control) {
+    return control->mChara;
+}
+
+static inline void SetCursor_unk(TacView_unk* view, const TacCursor_unk& cursor) {
+    view->m15D8 = cursor;
+}
+
+// NONMATCHING: 99.71% - registers of the two flags of the cursor test (r4/r5, as in the constructor) and of
+// the status word (the character and the cursor copy through CharaOf_unk/SetCursor_unk fixed the rest).
 // inferred: charges while the button is held; returns 1 when the charge ends
 int ControlCharge::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
@@ -272,10 +281,10 @@ int ControlCharge::vf0C() {
             if (m3C == 0 && mChara->m50 == 1) {
                 TacCursor_unk cursor;
                 cursor.m00 = 1;
-                cursor.m04 = mChara->mPos + FrontDir_unk(mChara->mRot) * 5.0f;
+                cursor.m04 = CharaOf_unk(this)->mPos + FrontDir_unk(mChara->mRot) * 5.0f;
                 cursor.m10 = 100.0f;
                 cursor.m14 = false;
-                lbl_8087F9F8->m15D8 = cursor;
+                SetCursor_unk(lbl_8087F9F8, cursor);
             }
             lbl_8087F430->fn_80373FC4();
             done = 1;
