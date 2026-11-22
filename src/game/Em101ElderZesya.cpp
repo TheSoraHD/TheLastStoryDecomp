@@ -282,10 +282,15 @@ int Em101ElderZesya::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.85% - r24/r25 of the route table and the barrier pointer (8 variants: declaration orders,
-// field local, table copy, pointer/offset forms); the push_back of the points is the inlined SimpleVector one
+// inferred: route table of the game task through a getter (one more inline level: r24/r25 of the table and
+// of the barrier pointer; a getter without the task as parameter does not give them; name invented)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
+// inferred: the push_back of the points is the inlined SimpleVector one
 void Em101ElderZesya::fn_80256384() {
-    GameScene* table = lbl_8087F430->m10D8;
+    GameScene* table = TableOf_unk(lbl_8087F430);
     int barrier = 0;
     atn::Csv csv((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
     do {
