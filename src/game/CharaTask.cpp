@@ -9319,13 +9319,19 @@ void CharaTask::fn_8016DA4C() {
 }
 
 // inferred: remaining chant time in frames, rounded for the tactics view
-// NONMATCHING: ~93% (6/89, same instructions) - mFBC is loaded before mFB8 and the second fctiwz store
-// gets its own stack slot; tried MAX in both orders, a named float/int local, an inline helper, an
-// if/else, a negated difference, MIN(result, 89).
+// inferred: the two frame counters of the lock-on (names invented; read through inlines like the original)
+static inline float LockEnd_unk(const CharaTask* c) {
+    return c->mFBC;
+}
+
+static inline float LockStart_unk(const CharaTask* c) {
+    return c->mFB8;
+}
+
 int CharaTask::fn_8016DAB0() {
     int result = 0;
     if (fn_80160324() && m638 != 0) {
-        result = MAX((int)(mFBC - mFB8), 0);
+        result = MAX((int)(LockEnd_unk(this) - LockStart_unk(this)), 0);
         if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
             if (((TacView*)lbl_8087F9F8)->fn_805ADCC0(this, m638, 1) && (m638->mAC & 0x40000) != 0x40000) {
                 result = MIN(89, result);
