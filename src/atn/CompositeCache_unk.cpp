@@ -40,7 +40,7 @@ public:
     // inferred: deletes the entries without references
     void Purge_unk() {
         std::list<CompositeCacheEntry_unk*>::iterator it = mList.begin();
-        while (it != mList.end()) {
+        while (mList.end() != it) {
             CompositeCacheEntry_unk* entry = *it;
             if (entry->mRefCount == 0) {
                 delete entry;
@@ -111,7 +111,8 @@ void CompositeCacheEntry_unk::fn_800D8448() {
     mRefCount++;
 }
 
-// NONMATCHING: 99.04% - the list begin/end iterators are swapped in r30/r31 (~10 variants of the loop)
+// NONMATCHING: 99.19% - the list begin/end iterators are swapped in r30/r31 (~20 variants of the loop;
+// `end != it` fixes the cmplw)
 void CompositeCacheEntry_unk::fn_800D8458() {
     if (--mRefCount == 0) {
         CompositeCache_unk::Get_unk().Purge_unk();

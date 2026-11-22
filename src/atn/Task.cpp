@@ -287,8 +287,16 @@ extern "C" void fn_800D2AD8(Task* root) {
     }
 }
 
-// NONMATCHING: 98.67% - r25/r26 intercambiados en el segundo y tercer nivel inlineado; probado: un helper
-// inline por hijo (sale fuera de linea el helper), while, continue y mascara local.
+// inferred: next sibling of a task (name invented; read through an inline like the original)
+static inline Task* NextOf_unk(const Task* task) {
+    return task->m1C;
+}
+
+// inferred: first child of a task (name invented)
+static inline Task* FirstOf_unk(const Task* task) {
+    return task->m18;
+}
+
 static void fn_800D2C50(Task* task) {
     Task* child = task->m18;
     if (child != 0) {
@@ -302,7 +310,7 @@ static void fn_800D2C50(Task* task) {
                     fn_800D2C50(child);
                 }
             }
-            child = child->m1C;
+            child = NextOf_unk(child);
         } while (child != 0);
     }
 }
@@ -373,7 +381,6 @@ void Task::fn_800D3F28(Task* child) {
 }
 
 // inferred: nonzero when every descendant is ready (flag 2, set once its vf0C returns nonzero)
-// NONMATCHING: 99.40% - registros de los niveles inlineados de fn_800D4280.
 int Task::fn_800D3FA4() {
     Task* child = m18;
     if (child != 0) {
@@ -382,19 +389,18 @@ int Task::fn_800D3FA4() {
     return 1;
 }
 
-// NONMATCHING: 95.24% - el original guarda 4 GPR con stw (aqui stmw r27) y registros de los niveles.
 static int fn_800D4280(Task* task) {
     int ready = 1;
     if (!task->IsFlag_unk(2)) {
         return 0;
     }
-    Task* child = task->m18;
+    Task* child = FirstOf_unk(task);
     if (child != 0) {
         TASK_ASSERT_VALID(child);
         ready = fn_800D4280(child);
     }
     if (ready) {
-        child = task->m1C;
+        child = NextOf_unk(task);
         if (child != 0) {
             TASK_ASSERT_VALID(child);
             ready = fn_800D4280(child);
@@ -403,8 +409,6 @@ static int fn_800D4280(Task* task) {
     return ready;
 }
 
-// NONMATCHING: 97.70% - registros de los niveles inlineados de fn_800D498C (el original da r31 a `task` y
-// r30 al primer hijo; aqui al reves). Probado: un local o dos, `if ((c = ...) != 0)`, assert como inline.
 void Task::fn_800D4558() {
     Task* child = m18;
     if (child != 0) {
@@ -412,14 +416,13 @@ void Task::fn_800D4558() {
     }
 }
 
-// NONMATCHING: 97.57% - registros de los niveles inlineados (ver fn_800D4558).
 static void fn_800D498C(Task* task) {
-    Task* child = task->m18;
+    Task* child = FirstOf_unk(task);
     if (child != 0) {
         TASK_ASSERT_VALID(child);
         fn_800D498C(child);
     }
-    child = task->m1C;
+    child = NextOf_unk(task);
     if (child != 0) {
         TASK_ASSERT_VALID(child);
         fn_800D498C(child);
@@ -427,7 +430,6 @@ static void fn_800D498C(Task* task) {
     task->mFlags |= 4;
 }
 
-// NONMATCHING: 97.70% - registros de los niveles inlineados (ver fn_800D4558).
 void Task::fn_800D4DB8() {
     Task* child = m18;
     if (child != 0) {
@@ -435,14 +437,13 @@ void Task::fn_800D4DB8() {
     }
 }
 
-// NONMATCHING: 97.57% - registros de los niveles inlineados (ver fn_800D4558).
 static void fn_800D51EC(Task* task) {
-    Task* child = task->m18;
+    Task* child = FirstOf_unk(task);
     if (child != 0) {
         TASK_ASSERT_VALID(child);
         fn_800D51EC(child);
     }
-    child = task->m1C;
+    child = NextOf_unk(task);
     if (child != 0) {
         TASK_ASSERT_VALID(child);
         fn_800D51EC(child);
