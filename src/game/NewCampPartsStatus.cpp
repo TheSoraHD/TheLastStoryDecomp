@@ -225,19 +225,18 @@ void NewCampPartsStatus::vf10() {
     }
 }
 
-// NONMATCHING: 99.70% - register allocation only (the show flag and the entry offset swap r30/r31, the
-// source vector address and its copy swap r3/r4)
+// inferred: the camp task that owns the status page (the parent of the parts; name invented)
+static inline NewCampStatusCamp_unk* CampOf_unk(const NewCampPartsStatus* parts) {
+    return (NewCampStatusCamp_unk*)parts->m48;
+}
+
 void NewCampPartsStatus::vf14() {
     int show = 0;
-    if (fn_8050FD20() && ((NewCampStatusCamp_unk*)m48)->m11F8 != 1) {
+    if (fn_8050FD20() && CampOf_unk(this)->m11F8 != 1) {
         show = 1;
     }
     vf3C(show);
-    const atn::Vector3* src = &lbl_807C7030;
-    if (((NewCampStatusCamp_unk*)m48)->m464 == 6) {
-        src = &sOffset;
-    }
-    atn::Vector3 target = *src;
+    atn::Vector3 target = CampOf_unk(this)->m464 == 6 ? sOffset : lbl_807C7030;
     mOffset = LerpFrom_unk(mOffset, target, 0.2f);
     atn::Vector3 move = mMove * mScroll;
     for (int i = 0; i < m4C; i++) {

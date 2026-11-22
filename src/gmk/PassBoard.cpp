@@ -75,16 +75,16 @@ GimmickCommon* PassBoard::fn_8042D628(atn::Task* parent, int id, int arg) {
     return 0;
 }
 
-// NONMATCHING: 98.67% - registers only: the original colours the pair cursor (this + 8 * i, stores at
-// 0x864/0x868) and the name cursor after count/object/hash (here they come first). Tried: pair/name as
-// named cursors, `&mPairs[i]` in a local, names->mNames[i], extra declarations.
+// NONMATCHING: 99.45% - registers only: count and the pair cursor (this + 8 * i, stores at 0x864/0x868)
+// swap r25/r29 (declaration order object/hash/name/count fixed the others; every order of the
+// declarations, pair/name as named cursors, `&mPairs[i]` in a local, names->mNames[i] tried).
 // The pairs are indexed (the stores fold the 0x864 of mPairs into the offset, as in the original) and
 // mColli.m0C is set even without a map (the original jumps there from both null checks).
 int PassBoard::vf0C() {
-    int count;
     MapInstance_unk* object;
     unsigned int hash;
     char* name;
+    int count;
     PassBoardNames_unk* names;
     MapTask* group;
     MapPartsBase* part;
