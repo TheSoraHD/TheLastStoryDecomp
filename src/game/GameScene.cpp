@@ -2150,14 +2150,29 @@ inline double MaxD_unk(float a, float b) {
     return a > b ? a : b;
 }
 
-// NONMATCHING: 98.4% - stack slots of the vectors of the loop and the order of the loads of the reach (4 * m570)
+// inferred: step of the character (CharaTask::m570) through an inline: read before the constant 4 (name
+// invented)
+static inline float StepOf_unk(const CharaTask* c) {
+    return c->m570;
+}
+// inferred: cross and dot products by reference (names invented; the vectors can be temporaries)
+static inline void CrossV_unk(const atn::Vector3& a, const atn::Vector3& b, atn::Vector3* out) {
+    PSVECCrossProduct(&a, &b, out);
+}
+static inline float DotV_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+
+// NONMATCHING: 99.78% - registers of the height h (f6/f8) and of `blocked`/`world` (r25/r21); the stack slots
+// match with the distance, up and the normal as temporaries
 int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check, int point) {
     atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
     atn::ColliResult_unk unused;
     Mtx m;
-    PSMTXRotRad(m, 'y', chara->mRot.y);
+    float yaw = chara->mRot.y;
+    PSMTXRotRad(m, 'y', yaw);
     PSMTXMultVec(m, &fwd, &fwd);
-    float reach = 4.0f * chara->m570;
+    float reach = 4.0f * StepOf_unk(chara);
     float best = 1e16f;
     gs::HideLink_unk* found = 0;
     point -= 1;
@@ -2171,8 +2186,8 @@ int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check,
         if (point >= 0 && link.mFrom != point && link.mTo != point) {
             continue;
         }
-        atn::Vector3 d(link.mMid.x - chara->m614.x, link.mMid.y - chara->m614.y, link.mMid.z - chara->m614.z);
-        if (d.LengthSq_unk() > 10000.0f) {
+        if (atn::Vector3(link.mMid.x - chara->m614.x, link.mMid.y - chara->m614.y, link.mMid.z - chara->m614.z)
+                .LengthSq_unk() > 10000.0f) {
             continue;
         }
         Segment_unk seg;
@@ -2184,8 +2199,7 @@ int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check,
         atn::Vector3 dir(seg.mEnd.x - seg.mStart.x, seg.mEnd.y - seg.mStart.y, seg.mEnd.z - seg.mStart.z);
         dir.Normalize_unk();
         atn::Vector3 side;
-        atn::Vector3 up(0.0f, 1.0f, 0.0f);
-        PSVECCrossProduct(&dir, &up, &side);
+        CrossV_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f), &side);
         float dot = PSVECDotProduct(&side, &fwd);
         if (check != 0 && dot < 0.5f) {
             continue;
@@ -2199,9 +2213,7 @@ int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check,
         if (dist < sphere.mRadius * sphere.mRadius && dist < best) {
             atn::Vector3 off(closest.x - chara->m614.x, 0.0f, closest.z - chara->m614.z);
             if (!(off.LengthSq_unk() < 4.0f)) {
-                atn::Vector3 n = off;
-                n.Normalize_unk();
-                if (!(PSVECDotProduct(&n, &fwd) > 0.5f)) {
+                if (!(DotV_unk(off.GetNormalize(), fwd) > 0.5f)) {
                     continue;
                 }
             }

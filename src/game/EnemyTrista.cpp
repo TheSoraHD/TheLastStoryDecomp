@@ -225,9 +225,10 @@ inline atn::Vector3 FrontDir_unk(float rotY) {
 
 // inferred: fires the event damage skill in front of the target (name invented)
 inline void EnemyTrista::FireEvent_unk() {
+    const atn::Vector3& rot = mC58.mC4->mRot;
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
     Mtx m;
-    PSMTXRotRad(m, 'y', mC58.mC4->mRot.y);
+    PSMTXRotRad(m, 'y', rot.y);
     PSMTXMultVec(m, &dir, &dir);
     BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = mC58.mC4->mPos + dir;
@@ -235,19 +236,16 @@ inline void EnemyTrista::FireEvent_unk() {
 }
 
 inline void EnemyTrista::StartEvent_unk() {
-    unsigned int i = 0;
-    TristaEvent_unk* e = m1540.mData;
-    for (; i < m1540.mSize; i++) {
+    for (unsigned int i = 0; i < m1540.mSize; i++) {
+        TristaEvent_unk* e = &m1540.mData[i];
         if (lbl_8087F430->fn_80370A78(e->m00) == 0) {
             lbl_8087F430->fn_80370AE4(e->m00, 1);
             m14D0 = i;
             break;
         }
-        e++;
     }
 }
 
-// NONMATCHING: 98.8% - registers of the event loop of StartEvent_unk (pointer/counter swapped)
 void EnemyTrista::vf10() {
     if (m55C == 2) {
         fn_8016E970(3);
