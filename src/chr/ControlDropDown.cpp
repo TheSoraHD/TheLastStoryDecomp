@@ -1,4 +1,5 @@
 #include "atn/RenderSetting_unk.h"
+#include "math/VecAssign_unk.h"
 #include "chr/ControlDropDown.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
@@ -57,8 +58,12 @@ inline int SlowLimit_unk() {
 
 namespace chr {
 
-// NONMATCHING: 98.0% - the original keeps a stored (and frsp-converted) z of the temporary of the last
-// velocity update; mChara lands in r6 instead of r4
+// inferred: speed of the character through an inline (mChara in r6 as in the original; name invented)
+static inline float SpeedOf_unk(Chara_unk* chara) {
+    return chara->m570;
+}
+
+// inferred: the last velocity update through VecAssign_unk (stored z of the temporary)
 ControlDropDown::ControlDropDown(Chara_unk* chara, const atn::Vector3& vel)
     : ControlBase(chara), mVel(vel), mFrames(0), mStart(0.0f, 0.0f, 0.0f), mFallSpeed(5.0f), m2C(0), m2D(0),
       mSlowFrames(0) {
@@ -68,12 +73,12 @@ ControlDropDown::ControlDropDown(Chara_unk* chara, const atn::Vector3& vel)
     motion->mTracks[0].m20 = 1.0f;
     motion->mTracks[0].m0C = 1.0f;
     motion->fn_80097C08(0, 0x68, 0, 0, 1, 0.0f, 0.1f);
-    m08 = mChara->m570;
+    m08 = SpeedOf_unk(mChara);
     mVel.y = 0.0f;
     mStart = chara->mPos - vel * 5.0f - mChara->m574 * 3.0f;
     atn::Vector3 v = mChara->m574;
     v.y += -0.015f;
-    mChara->m574 = v;
+    atn::VecAssign_unk(mChara->m574, v);
 }
 
 inline void ControlDropDown::Land_unk(Motion_unk* motion) {
