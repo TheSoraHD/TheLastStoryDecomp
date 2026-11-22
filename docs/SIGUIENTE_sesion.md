@@ -1,24 +1,29 @@
-# Siguiente sesion (tras barrido-20261121)
+# Siguiente sesion (tras bloqueos-20261122)
 
-> Sesion `barrido-20261121` (secuencial, sin agentes; barrido en segundo plano en dos worktrees) del 2026-11-21 12:22 al 2026-11-22 ~01:00 (cierre desde las 00:23). Notas: `docs/barrido-20261121.md`. Sin cambios de logica ni firmas (no hay doc de port). Anterior: `grandes-20261120`.
+> Sesion `bloqueos-20261122` (secuencial, sin agentes; barridos de fondo en dos worktrees) del 2026-11-22 01:31 al ~12:15 (cierre desde las 11:31). Notas: `docs/bloqueos-20261122.md`. Port: `claude/port-bloqueos-20261122.md` (proyecto). Anterior: `barrido-20261121`.
 
-Estado: **16370 / 18113**, lost 0, rep100 6, labelcheck 10 lineas, `main.dol: OK`. Codigo **65,99 %**, datos 76,77 %, **755** unidades completas, 387 avisos del compilador.
+Estado: **16398 / 18113**, lost 0, rep100 y labelcheck iguales a la referencia, `main.dol: OK`. Codigo **66,38 %**, datos 76,94 %, **756** unidades completas (chr/ControlChaseCaught enlaza).
 
 ## Decisiones pendientes del usuario
 
-- Ninguna nueva. El renombrado de la copia debil `size()` 0x800E0AA8 (GameTask fn_803729B4) se probo y se revirtio: es la copia que dejo el enlazador al fusionar `size()` de vectores distintos; ponerle el nombre de `vector<EnemyTask*>` baja 12 funciones en 10 unidades. Solo se cerraria con casts entre vectores en esas unidades (decision del usuario si interesa).
+- Identidad `Val_unk` (`template <class T> inline T Val_unk(const T& v) { return v; }`): solo se usa como sonda de los barridos y cada acierto se reescribe como accesor con nombre. Em403WarLion fn_80329ED8 solo llega al 100 % con `Val_unk(c)->m560 == 4` (ningun accesor con nombre lo da): se deja en 99,25 %. Si se aprobara la identidad como excepcion de la regla 2, cerraria.
+- Copia debil `size()` 0x800E0AA8: sin tocar (decision anterior).
 
 ## Siguiente (decomp)
 
-- El barrido ya paso por todas las funciones del juego de >= 200 B por debajo de 100 % (al menos con los kinds nuevos); rindio 4 cierres en 12 h. Lo que mas rindio: barrido + un retoque a mano mirando el asm (VecAssign_unk, setter por valor, valor de verdad) y `--plateau` en funciones que el barrido ya habia mejorado.
-- Casi cerradas (un registro o un `cmpw`, ver `docs/mwcc-blockers.md` seccion barrido-20261121): Em204Mulue fn_802A8BBC (99,974 con `float ry = rot.y;`), Em203GreaterDaemonRed fn_80296DB8 (99,92 con VecAssign_unk), LastCocoonQuadruped fn_80468534 (99,92), CosEditBase fn_801CDE14 (99,80), Em301LShade fn_802D57B8 (99,72, parche de una inline para la rama del efecto).
-- Bloqueos que se repiten en lo que queda: huecos de pila de temporales y numeracion de registros guardados (uno de mas o de menos); la direccion base de un miembro en registro (`m4D8`/`m97C` del modo de camara: inline miembro).
-- Lista de candidatas grandes: `claude/grandes-candidatas-20261122.md` (proyecto).
+- Lo que mas rindio: leer un miembro por una inline con parametro (`FaceOf_unk(c)`, `TableOf_unk(task)`, `FirstOf_unk`/`NextOf_unk` en el arbol de tareas): la llamada se evalua antes (Sethi-Ullman) y cambia el orden de carga y los registros. Barrido: `mutsweep.py --only val,valb` (sonda `Val_unk`) y `patsweep.py`. Cubierto: >= 98,7 % de todo el juego, 97-98,7 % y 95-97 % solo en parte (logs val3/val4 en el scratch, se pierden); CharaTask entera (97-100 %).
+- Huecos de pila: `tools/decomp/slotmap.py` (que objeto se movio) y `tools/decomp/mirrorscan.py` (grupos invertidos: el original los tenia en una inline o no). Lista de mirrorscan 97-100 %: unas 70 funciones; probadas solo 8. Siguientes: EventParser_unk Parse*ID_unk (9 hermanas, 99,26-99,91 %, objetos de 1 byte de las copias de `std::string` en push_back), Em203GreaterDaemon fn_8028BFE0, LastCocoonQuadruped fn_80462CCC / fn_80465B88, ReplayBuffer fn_8056C3D8 / fn_8056F5B4, Em204BigMulue push_back, main push_back de SimpleVector, gmk/PigeonManager y ChickenManager (gemelas).
+- Casi cerradas: Em403WarLion fn_80329ED8 (99,25, ver decision), EnemyQuarkStand fn_8034F788 (99,88: solo el par copia/objetivo de SetTarget_unk), Em101LittleZesya fn_8025D90C (99,81, registros del primer bloque), BattleTask fn_801018E4 (99,67), PassBoard vf0C (99,45; enlazaria la unidad), CompositeCacheEntry_unk fn_800D8458 (99,19).
+- Bloqueos confirmados (no repetir sin idea nueva): el registro base de un miembro (`m4D8`/`m97C`, fase 2: no reproducido en fichero suelto, ver `docs/mwcc-blockers.md`), `Loader::Get_unk<T>`, la familia vf3C de NewCampParts (mismo codigo con todas las formas), atn/Task fn_800D32B8 (cualquier cambio cambia el inlining).
+- Lista de candidatas: `claude/candidatas-bloqueos-20261122.md` (proyecto).
 
 ## Herramientas nuevas
 
-- `tools/decomp/mutsweep.py`: kinds mulsplit, divsplit, idx, ifid, ld, swret, cref, cassign, vassign, dtop, byval; `--plateau K` (sigue desde una variante con el mismo porcentaje), `--diff F`, `--list`. Busca tambien `Metodo` sin el espacio de nombres.
-- `tools/decomp/rotld.py [regex]`: en todas las funciones < 100 %, el angulo de `PSMTXRotRad(m, 'y', a.b.y)` en un `float` local (o el patron que se pase).
+- `tools/decomp/slotmap.py <unidad> <simbolo> [-v]`: grupos de pila movidos (original, nuestro, delta, tamano, primera fila).
+- `tools/decomp/mirrorscan.py [--lo P] [--hi P] [--min B] [--units ...]`: funciones con grupos de pila en orden invertido.
+- `tools/decomp/patsweep.py <regex> <reemplazo> [--units] [--min] [--max] [--helper] [--log] [--all]`: una reescritura en cada coincidencia de las funciones < 100 %.
+- `tools/decomp/frontsweep.py`: el vector unitario girado por una inline (`FrontY_unk`).
+- `mutsweep.py`: kinds `val`, `valb`, `lentmp` (tambien con una inline `DistV_unk`).
 
 ## Candidatas por datos (report.json de mixto2-20261120; sin cambios en codigo-20261120)
 
