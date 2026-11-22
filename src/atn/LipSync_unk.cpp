@@ -49,7 +49,11 @@ Chara1154_unk::Chara1154_unk()
     m14[5] = 0.05f;
 }
 
-// NONMATCHING: 99.70% - FPR allocation of the clamp (current value and m2C swapped f2/f3)
+// inferred: current weight of a track through an inline (FPRs of the clamp; name invented)
+static inline float TrackWeight_unk(const atn::Model::Track_unk& track) {
+    return track.m1C;
+}
+
 void Chara1154_unk::fn_8007A7BC(atn::Model* model) {
     if (m00 == 0 || (m00 != 0 ? m04 >= m00->mCount : true)) {
         model->fn_80097CCC(5, 0.0f);
@@ -60,7 +64,7 @@ void Chara1154_unk::fn_8007A7BC(atn::Model* model) {
         LipSyncKey_unk* key = &m00->mKeys[i];
         model->fn_80097C08(5, ((int (*)(int))m30)(key->mVowel), 1, 0, 1, 0.0f, 0.1f);
         atn::Model::Track_unk& track = model->mTracks[5];
-        float cur = track.m1C;
+        float cur = TrackWeight_unk(track);
         float delta = key->mTime * m0C - cur;
         float v = cur + LS_MAX(-m2C, LS_MIN(m2C, delta));
         track.m1C = LS_MIN(1.0f, LS_MAX(0.0f, v));
