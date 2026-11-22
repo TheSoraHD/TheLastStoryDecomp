@@ -4133,7 +4133,8 @@ void BattleTask::fn_80101524(const atn::Vector3* pos, const atn::Vector3* rot, u
 // inferred: hit effect of the attack parameters `param` at the hit point, oriented along the hit direction: the
 // guard effect of the level of the attacker when the target guards (CharaStatus flag 0x20), the effect m88 of
 // kind 1, nothing for kind 2, else the normal or strong (m0C 0x80) hit effect of the level of the attacker
-// NONMATCHING: 98.5% - stack slots and registers of the inlined Vector3::fn_80139F60
+// NONMATCHING: 99.67% - attacker and the address of rot swap r28/r29 (with ToRotation_unk the stack is the
+// one of the original; fn_80139F60 in place put its temporaries in reverse order)
 void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
     CharaTask* attacker = param->m00;
     CharaTask* chara = param->m04;
@@ -4146,8 +4147,7 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
     if (!show) {
         return;
     }
-    atn::Vector3 rot = param->m28;
-    rot.fn_80139F60();
+    atn::Vector3 rot = param->m28.ToRotation_unk();
     if (chara != 0 && (chara->mStatus.m0C & 0x20) == 0x20) {
         int level = attacker != 0 ? attacker->fn_8017A160() : 0;
         fn_80232B7C((unsigned int)this, 0);

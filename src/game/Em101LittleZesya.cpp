@@ -384,9 +384,16 @@ void Em101LittleZesya::fn_8025D7B0() {
     }
 }
 
-// NONMATCHING: 99.04% - stack slots: the original keeps the rows of the 4x4 matrix of ToRotation_unk in
-// descending order and the effect locals higher (8 variants: helper inlines, locals hoisted,
-// GetNormalize form); r3/r4/r5 of the first block
+// inferred: turns toward the target (yaw only; name invented)
+static inline void FaceTarget_unk(Em101LittleZesya* self) {
+    atn::Vector3 dir = self->m14B8->mPos - self->mPos;
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 rot = dir.ToRotation_unk();
+    self->mRot.y = rot.y;
+}
+
+// NONMATCHING: 99.81% - r3/r4/r5 and r0 of the first block (m151C, the state word and the bool of the
+// first ternary); the stack is the one of the original with FaceTarget_unk (mirrorscan.py)
 void Em101LittleZesya::fn_8025D90C() {
     atn::Vector3 target = m14B8->mPos;
     atn::Vector3 d = target - mPos;
@@ -420,10 +427,7 @@ void Em101LittleZesya::fn_8025D90C() {
             m58C = 1;
             fn_801561E4(fn_80219E6C(200));
             m598 = 0;
-            atn::Vector3 dir = m14B8->mPos - mPos;
-            PSVECNormalize(&dir, &dir);
-            atn::Vector3 rot = dir.ToRotation_unk();
-            mRot.y = rot.y;
+            FaceTarget_unk(this);
         }
     } else if (m14D0 > m1534) {
         m14D0 = 0;
