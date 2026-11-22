@@ -612,9 +612,12 @@ void RouteWalker_unk::fn_80128818(int id, const atn::Vector3* b, int c) {
     mRadius = 3.0f;
 }
 
-// NONMATCHING: only the order of the two radius loads (target loads mChara's first into f1).
-// Tried: both operand orders, locals, an inline adder, adding 5 first or last. `float r = mChara->m5B0;
-// r = 5.0f + (target->m5B0 + r);` gives the load order but swaps f1/f2/f3 (99.3%).
+// inferred: radius of a character (name invented)
+static inline float RadiusOf_unk(chr::Chara_unk* c) {
+    return c->m5B0;
+}
+
+// inferred: the radii through an inline (gives the f1/f2 of the original)
 void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg) {
     GameScene* table = GetGameScene();
     if (table == 0 || target == 0) {
@@ -625,7 +628,7 @@ void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* de
     mMode = 4;
     m48 = arg;
     mTarget = target;
-    float r = 5.0f + (mChara->m5B0 + target->m5B0);
+    float r = 5.0f + (RadiusOf_unk(mChara) + RadiusOf_unk(target));
     mRadius = 30.0f > r ? 30.0f : r;
 }
 

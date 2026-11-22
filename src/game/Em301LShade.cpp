@@ -1335,10 +1335,21 @@ fn_80232B7C(this, 20);
     m14F4 = 0;
 }
 
+// inferred: plays an effect at a position on the model with a scale (name invented)
+inline void PlayEffectAt_unk(atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos, float scale) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    atn::EffectManager* mgr = lbl_8087F3C0;
+    fn_8023A8B4(mgr, efp, model, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+}
+
 // inferred: starts state 2 (dead): the death effect (big shade or not), the event camera on the head,
 // half speed and the body turned to the camera
-// NONMATCHING: 99.2% - stack slots of the effect temporaries and of the blur copy (registers r3/r9),
-// string pool offsets; 4 variants
+// NONMATCHING: 99.88% - registers r3/r9 of the blur copy (struct copy, local game pointer, SetBlur_unk
+// inline, copy constructor: same)
 void Em301LShade::fn_802D57B8() {
     m14E8 = 0;
     m590 = lbl_8087F048->fn_800F8548();
@@ -1357,14 +1368,8 @@ void Em301LShade::fn_802D57B8() {
     if (m14D4 != 0) {
         PlayEffect2_unk(&m1614, (atn::Model*)&mMotion);
     } else {
-        Color4f_unk color;
         atn::Vector3 pos(0.0f, 13.0f * m540.x, 0.0f);
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        atn::EffectManager* mgr = lbl_8087F3C0;
-        fn_8023A8B4(mgr, &m1608, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
+        PlayEffectAt_unk(&m1608, (atn::Model*)&mMotion, pos, m540.x);
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0 && mType == 2) {
         lbl_8087F048->fn_801092C8(6, this, 0, 0);
@@ -1387,7 +1392,7 @@ void Em301LShade::fn_802D57B8() {
     game->m240 = blur;
     lbl_8087EFA8->m3A4 = 0.5f;
     lbl_8087F430->fn_80370320(0xD0, 1, 0);
-    dir.Set_unk(c.mPos.x - mPos.x, 0.0f, c.mPos.z - mPos.z);
+    dir.Set_unk(c.mTarget.x - mPos.x, 0.0f, c.mTarget.z - mPos.z);
     atn::Vector3 rot = dir.ToRotationZ_unk();
     mRot.y = rot.y;
 }
