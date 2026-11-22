@@ -11,6 +11,7 @@ Each mutation is one natural rewrite (no asm, no volatile, no dead code):
   ne0    - `if (x != 0)` <-> `if (x)`, `if (x == 0)` <-> `if (!x)`
   decl   - move a declaration without initializer one statement up/down
   mulsplit/divsplit/idx/ifid/ld/swret/cref - see mutations2 (barrido-20261121)
+  val    - one or two member reads of a line through `Val_unk(...)` (bloqueos-20261122)
 --diff F writes the unified diff of the best variant; --list prints the mutations without compiling.
 Keeps the best variant of each round and starts the next round from it. Prints the best percent.
 The source is restored unless --keep is given (then the best variant stays).
@@ -496,6 +497,28 @@ def mutations2(lines, a, b):
         new = lines[:]
         new[i] = "%sconst atn::Vector3& cref_%d = %s;\n%s%s = cref_%d;" % (ind, i, s, ind, d, i)
         out.append(("cref %d" % (i + 1), "\n".join(new).split("\n")))
+    # val: one or two member reads `a->mX` / `a.mX` of a line through an identity inline
+    # (`Val_unk(a->mX)`): the inline call is evaluated first and changes the load order and the registers
+    # (CosEditBase fn_801CDE14, RouteWalker_unk fn_80128930, bloqueos-20261122); rewrite a hit as a named
+    # accessor of the class by hand
+    hasval = any("Val_unk" in l and "template" in l for l in lines)
+    RD = re.compile(r"(?<![\w.>&])((?:(?:this->)?[A-Za-z_]\w*(?:\[[^\]\(]*\])?(?:(?:\.|->)[A-Za-z_]\w*(?:\[[^\]\(]*\])?)*(?:\.|->))?m[A-Z0-9][A-Za-z0-9_]*)(?![\w(\[]|\s*(?:=[^=]|[-+*/|&^]=|\+\+|--|\.|->))")
+    for i in range(a, b):
+        l = lines[i]
+        if l.strip().startswith("//") or lastinc is None:
+            continue
+        occ = [mm for mm in RD.finditer(l) if not re.match(r"\s*[\w:<>*& ]+\s+$", l[:mm.start()]) or "(" in l[:mm.start()]]
+        occ = occ[:6]
+        sets = [[o] for o in occ] + [[o1, o2] for k, o1 in enumerate(occ) for o2 in occ[k + 1:]]
+        for st in sets:
+            nl = l
+            for o in sorted(st, key=lambda o: -o.start()):
+                nl = nl[:o.start()] + "Val_unk(" + o.group(1) + ")" + nl[o.end():]
+            new = lines[:]
+            new[i] = nl
+            if not hasval:
+                new[lastinc] += "\ntemplate <class T> inline T Val_unk(const T& v) { return v; } // inferred: read through an inline"
+            out.append(("val %d:%s" % (i + 1, "+".join(o.group(1) for o in st)), "\n".join(new).split("\n")))
     return out
 
 def split_or(c):
