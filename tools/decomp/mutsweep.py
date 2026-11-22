@@ -12,6 +12,7 @@ Each mutation is one natural rewrite (no asm, no volatile, no dead code):
   decl   - move a declaration without initializer one statement up/down
   mulsplit/divsplit/idx/ifid/ld/swret/cref - see mutations2 (barrido-20261121)
   lentmp - `Vector3 d = E; PSVECMag(&d)` -> `(E).Length_unk()` (bloqueos-20261122)
+  valb   - the base pointer of one `p->mX` through `Val_unk(p)` (bloqueos-20261122)
   val    - one or two member reads of a line through `Val_unk(...)` (bloqueos-20261122)
 --diff F writes the unified diff of the best variant; --list prints the mutations without compiling.
 Keeps the best variant of each round and starts the next round from it. Prints the best percent.
@@ -540,6 +541,23 @@ def mutations2(lines, a, b):
                 del new[i]
                 out.append(("lentmp %d" % (i + 1), new))
                 break
+    # valb: the base pointer of one `p->m...` read of a line through the identity inline (`Val_unk(p)->mX`)
+    RB = re.compile(r"(?<![\w.>&])([a-z]\w*)(?=->m[A-Z0-9])")
+    for i in range(a, b):
+        l = lines[i]
+        if l.strip().startswith("//") or lastinc is None:
+            continue
+        seen = set()
+        for mm in list(RB.finditer(l))[:6]:
+            if mm.group(1) in ("this",) or (mm.group(1), mm.start()) in seen:
+                continue
+            seen.add((mm.group(1), mm.start()))
+            nl = l[:mm.start()] + "Val_unk(" + mm.group(1) + ")" + l[mm.end():]
+            new = lines[:]
+            new[i] = nl
+            if not hasval:
+                new[lastinc] += "\ntemplate <class T> inline T Val_unk(const T& v) { return v; } // inferred: read through an inline"
+            out.append(("valb %d:%s@%d" % (i + 1, mm.group(1), mm.start()), "\n".join(new).split("\n")))
     return out
 
 def split_or(c):
