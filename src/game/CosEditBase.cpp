@@ -781,6 +781,11 @@ CostumeEditChara* CosEditBase::fn_801CF334() {
     return mChara[0];
 }
 
+// inferred: m674 of the character through an inline (the original reads it before the call; name invented)
+static inline int PartOf_unk(CharaTask* c) {
+    return c->m674;
+}
+
 // inferred: equips weapon `item` in `slot` of `member` (and on every character using the same model)
 int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk* item, int slot, int add, int remove) {
     CosEditItemData_unk* data = fn_80206C50(item->mId);
@@ -806,7 +811,7 @@ int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk
     fn_8044D184(Inventory::instance_, slot, data->m80, -1, member);
     if (chara) {
         if (chara->mType == 0 || chara->mType == 3) {
-            int part = chara->m674;
+            int part = PartOf_unk(chara);
             chara->fn_8014EEC4(1);
             chara->fn_8014F5D4(slot, data->m78, data->m80);
             if (part >= 0) {
