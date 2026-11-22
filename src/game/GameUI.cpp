@@ -4341,10 +4341,13 @@ void GameUI::fn_803DE648() {
     }
 }
 
-// NONMATCHING: ~96% - the field pointer and the leader are in r6/r5 in the original (swapped here, also the
-// address registers of the copies of the centre and f7/f8); the rest differs only in the @N labels and the
-// offsets of @stringBase0 (pool order of the unit); tried the field in a local before/after the leader,
-// VecAssign_unk for the copies of mF6C
+// inferred: the leader (first) of a character manager (name invented)
+static inline PlayerTask* LeaderOf_unk(CharaManager<PlayerTask>* manager) {
+    return manager->mHead;
+}
+
+// NONMATCHING: 99.62% - the address registers of the copies of the centre (r3/r5); the leader through
+// LeaderOf_unk fixed the field/leader registers; tried VecAssign_unk/Assign_unk for every copy
 // inferred: marker `index` of a skill effect: shown near the centre (tactical view or the leader), at the
 // head of its owner (or the centre of its collision), with the name of the skill and of its link
 void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
@@ -4352,7 +4355,7 @@ void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
         return;
     }
     bool near = false;
-    PlayerTask* player = lbl_8087F8A0->mHead;
+    PlayerTask* player = LeaderOf_unk(lbl_8087F8A0);
     atn::Vector3 center(0.0f, 0.0f, 0.0f);
     bool hasCenter = false;
     GameTask* field = lbl_8087F430;

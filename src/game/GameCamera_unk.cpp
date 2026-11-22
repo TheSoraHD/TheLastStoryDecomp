@@ -1998,11 +1998,20 @@ static inline atn::Vector3 FrontY_unk(const float& rad) {
     return front;
 }
 
+// inferred: the head (look-at point) of a character (name invented)
+static inline const atn::Vector3& HeadOf_unk(const CharaTask* chara) {
+    return chara->mF6C;
+}
+
+// inferred: option m040 of the game configuration (name invented)
+static inline int SideHalf_unk(const GameConfig_unk* config) {
+    return config->m040;
+}
+
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
 // inferred: update of the side camera mode (see fn_8038BD78): the target follows the target of the character
 // (10 further in front while it is in control 14 of state 6), the eye stays beside it out of the walls; with
 // the debug option m28C, button 7 gives the default camera
-// NONMATCHING: 99.75% - registers r3/r6-r8 of the pointers of the first copies (up, head, point, lbl_8087F0A8)
 void GameCamera::fn_80387548(const CharaTask* chara) {
     if (lbl_8087F0A8->m28C != 0 && lbl_8087F0A8->mInput.fn_801240B4(7)) {
         fn_8037F9AC(chara);
@@ -2012,9 +2021,9 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
     atn::Vector3 pos = mCamera.mPos;
     atn::Vector3 target = mCamera.mTarget;
     atn::Vector3 up = mCamera.mUp;
-    const atn::Vector3& head = chara->mF6C;
+    const atn::Vector3& head = HeadOf_unk(chara);
     atn::Vector3 point = head;
-    if (lbl_8087F0A8->m040 == 0) {
+    if (SideHalf_unk(lbl_8087F0A8) == 0) {
         point = (head + chara->mPos) * 0.5f;
     }
     if (chara->m55C == 6 && chara->m560 == 14) {
@@ -2873,10 +2882,13 @@ void GameCamera::fn_8038B650(const CharaTask* chara) {
     m860 = 0;
 }
 
+// inferred: field of view of a camera parameter set (name invented)
+static inline float FovyOf_unk(const GameCameraParam_unk& param) {
+    return param.m04;
+}
+
 // inferred: side camera mode: from beside the character (m648.m0C to the side, m648.m10 up, m648.m14 behind its target
 // mF6C, or halfway to it), blended in 15 frames; then back to the sub mode with m83C = 6
-// NONMATCHING: 98.3% - registers r5-r7 of the pointers of the point copies (as fn_80387548) and the order of the
-// stores of the cross offset
 void GameCamera::fn_8038BD78(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -2884,9 +2896,9 @@ void GameCamera::fn_8038BD78(const CharaTask* chara) {
         m830 = mCamera.mFovy;
     }
     const atn::Vector3& up = mCamera.mUp;
-    const atn::Vector3& head = chara->mF6C;
+    const atn::Vector3& head = HeadOf_unk(chara);
     atn::Vector3 point = head;
-    if (lbl_8087F0A8->m040 == 0) {
+    if (SideHalf_unk(lbl_8087F0A8) == 0) {
         point = (head + chara->mPos) * 0.5f;
     }
     atn::Vector3 target = point;
@@ -2896,7 +2908,7 @@ void GameCamera::fn_8038BD78(const CharaTask* chara) {
     pos.y += m648.m10;
     float side = m648.m0C;
     pos += Cross_unk(dir, up) * side;
-    fn_8038AEF0(&pos, &target, chara, 1, m648.m04, (float)m808 / 15.0f);
+    fn_8038AEF0(&pos, &target, chara, 1, FovyOf_unk(m648), (float)m808 / 15.0f);
     fn_80392964(0, 1, 0, 0);
     if (++m808 > 15) {
         m80C = pos;
