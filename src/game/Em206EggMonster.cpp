@@ -1255,21 +1255,26 @@ int Em206EggMonster::vfF4() {
 // NONMATCHING: 97.9% - registers of the inlined GameScene::FindPlace_unk
 // inferred: sends the next wave: the three characters of the table go to their route points (80 units up)
 // and the team AI is told to attack
+// inferred: route table of the game task through a getter that takes the task (name invented)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
 void Em206EggMonster::fn_802C653C() {
     if (m15C8 < 3) {
         atn::Vector3 pos;
         atn::Vector3 up(0.0f, 80.0f, 0.0f);
-        gs::WarpPoint* p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[0]);
+        gs::WarpPoint* p = TableOf_unk(lbl_8087F430)->FindPlace_unk(sWaves_unk[m15C8].mIds[0]);
         if (p != 0) {
             pos = p->mPos + up;
             fn_802C6878(EnemyManager::sInstance->Find_unk(sWaves_unk[m15C8].mIds[0]), pos);
         }
-        p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[1]);
+        p = TableOf_unk(lbl_8087F430)->FindPlace_unk(sWaves_unk[m15C8].mIds[1]);
         if (p != 0) {
             pos = p->mPos + up;
             fn_802C6878(EnemyManager::sInstance->Find_unk(sWaves_unk[m15C8].mIds[1]), pos);
         }
-        p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[2]);
+        p = TableOf_unk(lbl_8087F430)->FindPlace_unk(sWaves_unk[m15C8].mIds[2]);
         if (p != 0) {
             pos = p->mPos + up;
             fn_802C6878(EnemyManager::sInstance->Find_unk(sWaves_unk[m15C8].mIds[2]), pos);

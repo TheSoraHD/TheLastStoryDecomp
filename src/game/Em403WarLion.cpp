@@ -1545,6 +1545,10 @@ void Em403WarLion::vfEC() {
 }
 
 extern "C" PlayerManager* lbl_8087F8A0;
+// inferred: first player through an inline (registers of fn_80329ED8; name invented)
+static inline PlayerTask* FirstOf_unk(PlayerManager* players) {
+    return players->mHead;
+}
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/CharaTask.cpp)
 // inferred: every caller walks the player list (lbl_8087F8A0)
 inline CharaTask* NextChara_unk(CharaTask* chara) {
@@ -1557,7 +1561,8 @@ struct CollObj_unk {
     CharaTask* m0C;
 };
 
-// NONMATCHING: 98.28% - asignacion de GPR (this en r27 en el original) y el id del control releido
+// NONMATCHING: 99.25% - the state test: the original compares m560 with 4 and 5 (no range check) through
+// a copy of the pointer from an inline (`Val_unk(c)->m560 == 4` gives 100 %, not kept: identity helper)
 // inferred: looks for a player that attacks the war lion (magic, arrows or the gun) and gives the
 // place where to avoid it; counts the calls in `count` (true after 5)
 int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
@@ -1568,7 +1573,7 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
     float rot = 0.0f;
     atn::Vector3 target(0.0f, 0.0f, 0.0f);
     float dist = 40.0f;
-    for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
+    for (CharaTask* c = FirstOf_unk(lbl_8087F8A0); c != 0; c = NextChara_unk(c)) {
         if (!c->IsActive_unk() || c->vf78() == 0) {
             continue;
         }
@@ -1608,7 +1613,7 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
                 continue;
             }
             found = 1;
-            target = dir;
+            atn::VecAssign_unk(target, dir);
             rot = c->mRot.y;
             break;
         } else {
