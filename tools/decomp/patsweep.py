@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""patsweep.py <regex> <replacement> [--units u1,u2] [--min P] [--helper TEXT]: one rewrite at every match.
+"""patsweep.py <regex> <replacement> [--units u1,u2] [--min P] [--helper TEXT] [--log F (resume)]: one rewrite at every match.
 
 For each source line matching <regex> inside a function of the game below 100 % (report.json of the copy,
 fuzzy >= --min, default 90), applies re.sub(<regex>, <replacement>) to that line only, adds --helper after the
@@ -17,8 +17,22 @@ def opt(n, d):
     return d
 units = opt("--units", None)
 mn = float(opt("--min", 90))
+logf = opt("--log", None)
+done = set()
+if logf and os.path.exists(logf):
+    for l in open(logf):
+        w = l.split()
+        if len(w) > 2: done.add((w[0], w[2]))
+logh = open(logf, "a") if logf else None
 helper = opt("--helper", "template <class T> inline T Val_unk(const T& v) { return v; } // inferred: read through an inline")
 pat, rep = re.compile(args[0]), args[1]
+import signal
+cur = [None, None]
+def restore(*a):
+    if cur[0]:
+        open(cur[0], "w", encoding="latin-1").write(cur[1])
+    raise SystemExit(1)
+signal.signal(signal.SIGTERM, restore)
 r = json.load(open("build/SLSP01/report.json"))
 
 def pct(u, sym):
@@ -39,6 +53,7 @@ for u in r["units"]:
     text = open(src, encoding="latin-1").read()
     if not pat.search(text):
         continue
+    cur[0], cur[1] = src, text
     lines = text.split("\n")
     lastinc = max((k for k, l in enumerate(lines) if l.startswith("#include")), default=0)
     for f in u.get("functions", []):
@@ -63,7 +78,7 @@ for u in r["units"]:
         if en is None:
             continue
         for k in range(st, en):
-            if not pat.search(lines[k]):
+            if not pat.search(lines[k]) or (un, str(k + 1)) in done:
                 continue
             new = lines[:]
             new[k] = pat.sub(rep, lines[k])
@@ -71,6 +86,8 @@ for u in r["units"]:
                 new[lastinc] += "\n" + helper
             open(src, "w", encoding="latin-1").write("\n".join(new))
             v = pct(un, f["name"])
-            print("%-28s %-50s %d %.3f -> %.3f" % (un, f["name"][:50], k + 1, p, v), flush=True)
+            res = "%-28s %-50s %d %.3f -> %.3f" % (un, f["name"][:50], k + 1, p, v)
+            print(res, flush=True)
+            if logh: logh.write(res + "\n"); logh.flush()
         open(src, "w", encoding="latin-1").write(text)
     subprocess.run(["ninja", "-j1", "build/SLSP01/src/%s.o" % un], capture_output=True)
