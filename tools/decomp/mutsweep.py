@@ -540,6 +540,17 @@ def mutations2(lines, a, b):
                 new[j] = lines[j].replace(mm.group(0), "(%s).%s()" % (e, meth))
                 del new[i]
                 out.append(("lentmp %d" % (i + 1), new))
+                # the same through an inline with the vector as its local (lowest stack slot: ChaserNpc
+                # fn_80180AE0)
+                ops = top_ops(e) if "top_ops" in globals() else None
+                parts = re.split(r" - ", e)
+                if mm.group(1) == "PSVECMag" and len(parts) == 2 and "(" not in parts[1] and lastinc is not None:
+                    new = lines[:]
+                    new[j] = lines[j].replace(mm.group(0), "DistV_unk(%s, %s)" % (parts[0], parts[1]))
+                    del new[i]
+                    if not any("DistV_unk" in l and "inline" in l for l in lines):
+                        new[lastinc - 0] += "\nstatic inline float DistV_unk(const atn::Vector3& a, const atn::Vector3& b) { atn::Vector3 d = a - b; return PSVECMag(&d); } // inferred: distance"
+                    out.append(("lentmp %di" % (i + 1), new))
                 break
     # valb: the base pointer of one `p->m...` read of a line through the identity inline (`Val_unk(p)->mX`)
     RB = re.compile(r"(?<![\w.>&])([a-z]\w*)(?=->m[A-Z0-9])")
