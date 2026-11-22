@@ -1302,11 +1302,16 @@ inline atn::Vector3 QuarkLerp_unk(const atn::Vector3& a, const atn::Vector3& b, 
     return (b - a) * t + a;
 }
 
+// inferred: current frame of the first motion track (name invented)
+static inline float FrameOf_unk(const atn::Model& model) {
+    return model.mTracks[0].m08;
+}
+
 // inferred: state 11 (attack 3, motion 0x142): turns, then at frame 24 aims 50 units short of the target and
 // dashes there (frames 24-30, "TackleSkillID" at 30), then 10 more units in front (frames 30-39, the second
 // tackle at 39)
-// NONMATCHING: 98.01% - the frame of the original is 24 bytes larger above the locals of AimAt_unk (same
-// family as fn_80350070); all the slots are shifted by 0x18; ~3 forms
+// NONMATCHING: 99.16% - stack slots of the locals of AimAt_unk (the original keeps the copy of the target
+// and its temporaries at the top of the frame); the frame reads through FrameOf_unk
 void EnemyQuarkStand::fn_8034AE48() {
     if (m14B4 == 0) {
         TurnTo_unk(1.0f);
@@ -1322,7 +1327,7 @@ void EnemyQuarkStand::fn_8034AE48() {
     } else if (m14B4 == 1) {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 24.0f) / 6.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
-        if (mMotion.mTracks[0].m08 >= 30.0f) {
+        if (FrameOf_unk(mMotion) >= 30.0f) {
             lbl_8087F048->fn_800F8C6C(0, 0, this, m1534, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
             GameTask* field = lbl_8087F430;
             field->mCamera.mShake.mFrame %= 2;
@@ -1336,7 +1341,7 @@ void EnemyQuarkStand::fn_8034AE48() {
     } else if (m14B4 == 2) {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 30.0f) / 9.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
-        if (mMotion.mTracks[0].m08 >= 39.0f) {
+        if (FrameOf_unk(mMotion) >= 39.0f) {
             lbl_8087F048->fn_800F8C6C(0, 0, this, m1538, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
             GameTask* field = lbl_8087F430;
             field->mCamera.mShake.mFrame %= 2;
@@ -1949,10 +1954,20 @@ inline void EnemyQuarkStand::AimAt_unk() {
     m570 = 0.0f;
 }
 
+// inferred: aims a dash from `from` toward `pos` (name invented)
+static inline void AimDir_unk(EnemyQuarkStand* self, const atn::Vector3& pos) {
+    self->m15DC.mRot = (pos - self->mPos).ToRotationZ_unk();
+    self->m15DC.mDir = pos - self->mPos;
+    self->m15DC.mDir.y = 0.0f;
+    PSVECNormalize(&self->m15DC.mDir, &self->m15DC.mDir);
+    self->m15DC.mStart = self->mPos;
+}
+
 // inferred: starts attack 10 (state 7, motion 0x13F): flies to the centre of the arena; frees the character
 // stuck by the sword
-// NONMATCHING: 98.28% - same stack slots as AimAt_unk (fn_80350070): the copy of the target and the
-// temporaries of ToRotationZ_unk sit in other slots; ~3 forms
+// NONMATCHING: 99.88% - the copy of the target for SetTarget_unk and the named target swap their slots
+// (0x80/0x74 in the original); the rest of the aim through AimDir_unk puts the temporaries of
+// ToRotationZ_unk where the original has them
 void EnemyQuarkStand::fn_8034F788() {
     fn_8034F384();
     fn_8016E970(3);
@@ -1966,11 +1981,7 @@ void EnemyQuarkStand::fn_8034F788() {
     QuarkPlayMotion_unk(&mMotion, 0x13F, 0, 0, 1.0f);
     atn::Vector3 pos = m160C;
     m15DC.SetTarget_unk(pos);
-    m15DC.mRot = (pos - mPos).ToRotationZ_unk();
-    m15DC.mDir = pos - mPos;
-    m15DC.mDir.y = 0.0f;
-    PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
-    m15DC.mStart = mPos;
+    AimDir_unk(this, pos);
     m570 = 0.0f;
 }
 
@@ -1996,11 +2007,7 @@ void EnemyQuarkStand::fn_8034FB50() {
     atn::Vector3* far = la < (float)sqrt(db.x * db.x + db.z * db.z) ? &b : &a;
     atn::Vector3 pos = *far;
     m15DC.SetTarget_unk(pos);
-    m15DC.mRot = (pos - mPos).ToRotationZ_unk();
-    m15DC.mDir = pos - mPos;
-    m15DC.mDir.y = 0.0f;
-    PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
-    m15DC.mStart = mPos;
+    AimDir_unk(this, pos);
     m570 = 0.0f;
 }
 
@@ -2103,11 +2110,7 @@ void EnemyQuarkStand::fn_80350F64() {
     atn::Vector3* far = la < (float)sqrt(db.x * db.x + db.z * db.z) ? &b : &a;
     atn::Vector3 pos = *far;
     m15DC.SetTarget_unk(pos);
-    m15DC.mRot = (pos - mPos).ToRotationZ_unk();
-    m15DC.mDir = pos - mPos;
-    m15DC.mDir.y = 0.0f;
-    PSVECNormalize(&m15DC.mDir, &m15DC.mDir);
-    m15DC.mStart = mPos;
+    AimDir_unk(this, pos);
     m570 = 0.0f;
 }
 
