@@ -53,13 +53,22 @@ ControlCliffhang::ControlCliffhang(Chara_unk* chara, int a, int flags, float f)
     fn_801AB6B8(a, 1, f);
 }
 
-// NONMATCHING: 99.85% - stack slots of the vectors of states 0-2 (the original has dir lowest, below the
-// temporaries of dir * 4 * speed) and the FPRs of the speeds of states 1 and 2.
 // inferred: weak accessor of the position (0x8013C38C), inlined here
 inline atn::Vector3* CharaTask::fn_8013C38C() {
     return &mPos;
 }
 
+// inferred: unit vector of a facing (name invented)
+static inline atn::Vector3 FrontY_unk(const float& yaw) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 mtx;
+    mtx.SetRotationY_unk(yaw);
+    PSMTXMultVec(mtx.m, &dir, &dir);
+    return dir;
+}
+
+// NONMATCHING: 99.91% - FPRs of the speed of state 1 (f31 for f30) and the load order of the time step; the
+// direction of state 2 through FrontY_unk gives the stack slots of the original
 int ControlCliffhang::vf0C() {
     if (m0C == 0) {
         atn::Vector3 rot = mChara->mRot;
@@ -107,7 +116,8 @@ int ControlCliffhang::vf0C() {
                 float speed = m6C / PSVECMag(&(m14 - m20));
                 float length = motion->fn_80097D7C(0) - 1.0f;
                 if (length > 0.0f) {
-                    float step = motion->mTracks[0].m0C * lbl_8087EFA8->m3A4 / length;
+                    float dt = lbl_8087EFA8->m3A4;
+                    float step = motion->mTracks[0].m0C * dt / length;
                     if (m70 != 0) {
                         m74 += speed * step;
                     } else {
@@ -159,11 +169,7 @@ int ControlCliffhang::vf0C() {
                 float scale = motion->mTracks[0].m0C;
                 float speed = scale * time / motion->fn_80097D7C(0);
                 atn::Vector3 pos = mChara->mPos;
-                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-                atn::Matrix3x4 mtx;
-                mtx.SetRotationY_unk(mChara->mRot.y);
-                PSMTXMultVec(mtx.m, &dir, &dir);
-                pos += dir * 4.0f * speed;
+                pos += FrontY_unk(mChara->mRot.y) * 4.0f * speed;
                 mChara->mPos = pos;
             }
             float frame = motion->mTracks[0].m08;
