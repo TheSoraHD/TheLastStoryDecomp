@@ -1335,6 +1335,11 @@ fn_80232B7C(this, 20);
     m14F4 = 0;
 }
 
+// inferred: time scale of the render settings through a setter (registers of the blur copy; name invented)
+static inline void SetTimeScale_unk(RenderSetting_unk* settings, float scale) {
+    settings->m3A4 = scale;
+}
+
 // inferred: plays an effect at a position on the model with a scale (name invented)
 inline void PlayEffectAt_unk(atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos, float scale) {
     Color4f_unk color;
@@ -1348,8 +1353,6 @@ inline void PlayEffectAt_unk(atn::EfpFile* efp, atn::Model* model, const atn::Ve
 
 // inferred: starts state 2 (dead): the death effect (big shade or not), the event camera on the head,
 // half speed and the body turned to the camera
-// NONMATCHING: 99.88% - registers r3/r9 of the blur copy (struct copy, local game pointer, SetBlur_unk
-// inline, copy constructor: same)
 void Em301LShade::fn_802D57B8() {
     m14E8 = 0;
     m590 = lbl_8087F048->fn_800F8548();
@@ -1390,7 +1393,7 @@ void Em301LShade::fn_802D57B8() {
     MotionBlurParam_unk blur = game->m240;
     blur.mEnabled = 1;
     game->m240 = blur;
-    lbl_8087EFA8->m3A4 = 0.5f;
+    SetTimeScale_unk(lbl_8087EFA8, 0.5f);
     lbl_8087F430->fn_80370320(0xD0, 1, 0);
     dir.Set_unk(c.mTarget.x - mPos.x, 0.0f, c.mTarget.z - mPos.z);
     atn::Vector3 rot = dir.ToRotationZ_unk();

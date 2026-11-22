@@ -235,9 +235,13 @@ ControlChaseFollow::ControlChaseFollow(Chara_unk* chara) : ControlBase(chara) {
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 99.97% - in the last branch mChara/&d take r3/r4 swapped (tried store/rotation order, chara/c
-// locals, member and free setters, Max inline, decl orders of len/speed/rate); `near` declared at the top puts
-// dist/near in f30/f29 as in the original
+// inferred: speed of the character through a setter (registers of the last branch; name invented)
+static inline void SetSpeed_unk(CharaTask* chara, float speed) {
+    chara->m570 = speed;
+}
+
+// inferred: `near` declared at the top puts dist/near in f30/f29 as in the original; the speed of the last
+// branch in a local passed to SetSpeed_unk gives mChara/&d in r4/r3
 // inferred: keeps behind the leader, faster when far
 int ControlChaseFollow::vf0C() {
     if (lbl_8087F098->mState == 0) {
@@ -277,7 +281,8 @@ int ControlChaseFollow::vf0C() {
         float len = sqrt(dist);
         float speed = leader->m570;
         float rate = len / near;
-        mChara->m570 = rate > speed ? rate : speed;
+        float v = rate > speed ? rate : speed;
+        SetSpeed_unk(mChara, v);
         atn::Vector3 rot = d.ToRotation_unk();
         mChara->vf34(rot, 0, 0.0f, 1.0f);
     }
