@@ -18,6 +18,8 @@ def opt(n, d):
 units = opt("--units", None)
 mn = float(opt("--min", 90))
 mx = float(opt("--max", 100))
+whole = "--all" in args
+args = [a for a in args if a != "--all"]
 logf = opt("--log", None)
 done = set()
 if logf and os.path.exists(logf):
@@ -78,11 +80,15 @@ for u in r["units"]:
         en = next((k for k in range(st + 1, len(lines)) if lines[k].startswith("}")), None)
         if en is None:
             continue
-        for k in range(st, en):
-            if not pat.search(lines[k]) or (un, str(k + 1)) in done:
-                continue
+        ks = [k for k in range(st, en) if pat.search(lines[k]) and (un, str(k + 1)) not in done]
+        if whole and ks:
+            ks = [ks]
+        for k in ks:
             new = lines[:]
-            new[k] = pat.sub(rep, lines[k])
+            for kk in (k if whole else [k]):
+                new[kk] = pat.sub(rep, lines[kk])
+            if whole:
+                k = k[0]
             if helper and helper.split("(")[0] not in text:
                 new[lastinc] += "\n" + helper
             open(src, "w", encoding="latin-1").write("\n".join(new))
