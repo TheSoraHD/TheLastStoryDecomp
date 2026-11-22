@@ -497,9 +497,13 @@ void MiniMapTask::fn_804AAFCC(CharaTask* chara) {
 }
 
 // inferred: second draw pass of the minimap model with the minimap camera
-// NONMATCHING: 98.5% - scheduling of the inlined implicit copies of atn::Camera (as its weak copy constructor)
+// inferred: camera of a render view through an accessor (scheduling of the copy; name invented)
+static inline const atn::Camera& CameraOf_unk(atn::RenderManager* view) {
+    return view->mCamera;
+}
+
 void MiniMapTask::vf18(atn::RenderManager* view) {
-    atn::Camera saved(view->mCamera);
+    atn::Camera saved(CameraOf_unk(view));
     view->SetCamera_unk(m640);
     m208.vf18(view);
     view->SetCamera_unk(saved);

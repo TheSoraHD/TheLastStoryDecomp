@@ -369,8 +369,7 @@ void Em316LastLaser::vf3C(HitInfo_unk* hit, int) {
     vf40(hit);
 }
 
-// NONMATCHING: 99.66% - r4/r5 of the two globals of the gravity (lbl_8087EFA8 / the double constant);
-// ~18 variants of the gravity expression
+// inferred: the time step read after the gravity (registers of the two globals)
 void Em316LastLaser::vf40(HitInfo_unk* hit) {
     if ((mStatus.m0C & 0x20) == 0x20) {
         atn::Vector3 epos;
@@ -385,9 +384,9 @@ void Em316LastLaser::vf40(HitInfo_unk* hit) {
         if (m14F0.y > 0.0f) {
             m14F0.y = 0.0f;
         }
-        float dt = lbl_8087EFA8->m3A4;
         int fps = lbl_8087F0A8->m030;
         float g = -98.1f / (float)(fps * fps);
+        float dt = lbl_8087EFA8->m3A4;
         m14FC = 1.5f * (g * dt);
         fn_800EB7A0();
         fn_80239DAC(lbl_8087F3C0, this, 0x65, 0);
