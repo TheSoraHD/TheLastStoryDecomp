@@ -165,8 +165,22 @@ OnOff::OnOff(atn::Task* parent, int id, int arg)
 
 OnOff::~OnOff() {}
 
-// NONMATCHING: 99.86% - stack slots of the temporaries of the case 5 loop and the order of the
-// hoisted stack addresses (r19-r30)
+// NONMATCHING: 99.95% - stack slots of the two matrices of case 0 (rot below mtx in the original) and the order
+// of the hoisted stack addresses; the scale through MaxScale_unk puts its vectors at the bottom as the original
+// inferred: length of a column of a matrix (name invented, as in gmk/ArenaFloor.cpp)
+inline float ColLen_unk(const atn::Matrix3x4& mtx, int i) {
+    atn::Vector3 v(mtx.m[0][i], mtx.m[1][i], mtx.m[2][i]);
+    return PSVECMag(&v);
+}
+// inferred: largest scale of the axes of a matrix (name invented, as in gmk/ArenaFloor.cpp)
+inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
+    float sz = ColLen_unk(mtx, 2);
+    float sy = ColLen_unk(mtx, 1);
+    float sx = ColLen_unk(mtx, 0);
+    atn::Vector3 s(sx, sy, sz);
+    return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
+}
+
 int OnOff::vf0C() {
     if (fn_803EC91C() == 0) {
     if (mHasModel != 0) {
@@ -183,14 +197,7 @@ int OnOff::vf0C() {
                 PSMTXConcat(rot.m, mtx.m, mtx.m);
                 __SetTrans_unk(mtx, mtx.GetTrans_unk() + m6C);
                 __MtxCopy(model->mMtx.m, mtx.m);
-                atn::Vector3 az(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
-                float sz = PSVECMag(&az);
-                atn::Vector3 ay(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
-                float sy = PSVECMag(&ay);
-                atn::Vector3 ax(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
-                float sx = PSVECMag(&ax);
-                atn::Vector3 s(sx, sy, sz);
-                model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
+                model->m54 = MaxScale_unk(mtx);
                 model->CalcMatrixStack(atn::ModelNodeCallback_unk());
                 break;
             }

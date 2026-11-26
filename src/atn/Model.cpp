@@ -354,9 +354,18 @@ unsigned int ModelBase::fn_8008B138() {
     return mLods[0].mHandle.fn_80473F34();
 }
 
+// inferred: binds the textures of the materials from the directory of the model (name invented)
+inline void BindTextures_unk(ModelBase* self) {
+    std::string dir = fn_8006B0C8(std::string(self->fn_8008B130()));
+    for (unsigned int i = 0; i < self->m104.mMaterials.size(); i++) {
+        TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, self, _1);
+        self->m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
+    }
+}
+
 // inferred: load state machine (m20C_31_24); returns nonzero while the model is still loading
-// NONMATCHING: 99.2% - loop registers (counter/offset swapped, as in fn_8008AA90), the "" of the pool at 0xA and
-// the stack slots of the path strings (below the boost::function temporaries in the original, as fn_8008B978)
+// NONMATCHING: 99.4% - loop registers (counter/offset swapped, as in fn_8008AA90) and the "" of the pool at 0xA;
+// the stack is the one of the original with BindTextures_unk
 int ModelBase::fn_8008B140() {
     switch (m20C_31_24) {
     case 1:
@@ -474,11 +483,7 @@ int ModelBase::fn_8008B140() {
         fn_8008BD10(this);
         GetModel_unk()->fn_8008C850(&m104);
         if (!mFlag3_unk) {
-            std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
-            for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
-                TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
-                m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
-            }
+            BindTextures_unk(this);
         }
         m20C_31_24 = 4;
     case 4: {
@@ -526,18 +531,11 @@ int ModelBase::vf20() {
 void ModelBase::vf24() {
 }
 
-// NONMATCHING: 99.3% - stack slots (the path strings are above the boost::function temporaries); the directory
-// string lives in its own block (destroyed before the state is set, as in the original)
+// inferred: the binding loop is an inline (its stack is in the reverse order of the function's own temporaries)
 void ModelBase::fn_8008B978(int unbound) {
     mFlag3_unk = unbound;
     if (!mFlag3_unk) {
-        {
-            std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
-            for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
-                TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
-                m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
-            }
-        }
+        BindTextures_unk(this);
         m20C_31_24 = 4;
         mFlag2_unk = 1;
     }

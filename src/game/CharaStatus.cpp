@@ -877,14 +877,19 @@ void CharaStatus::fn_8012F034(float amount) {
     }
 }
 
-// NONMATCHING: 95.3% - the original repeats the chara/flag test of the inlined fn_8012F3D8
-// (ours reuses the first test) and passes the new gauge value to the second one from a register
-// (frsp) instead of reloading m42C. Tried: a HasGauge_unk helper, the body in an inline helper.
+// NONMATCHING: 99.29% - registers of the flag words after the chara test (r5/r4, ours r4/r3); the chara read
+// through CharaOf_unk makes the inlined fn_8012F3D8 repeat its test as in the original (95.3 -> 99.29).
+// Tried: a HasGauge_unk helper, the body in an inline helper, the flag word in a local.
+// inferred: the character of a status (name invented; read through an inline, found with the Val_unk probe)
+static inline CharaTask* CharaOf_unk(const CharaStatus* status) {
+    return status->mChara;
+}
+
 void CharaStatus::fn_8012F188(float amount) {
     if (lbl_8087F430 != 0 && !lbl_8087F430->fn_80375184()) {
         return;
     }
-    if (mChara == 0 || !mChara->mFlag28) {
+    if (CharaOf_unk(this) == 0 || !CharaOf_unk(this)->mFlag28) {
         return;
     }
     if ((m1A8.mBits[1] & 0x20000000) != 0x20000000) {
@@ -905,7 +910,7 @@ void CharaStatus::fn_8012F188(float amount) {
     m42C = MIN(MAX(m42C + amount * rate, 0.0f), max - 0.1f);
     int after = fn_8012F3D8();
     if (before < after && after > 1 && lbl_8087F048 != 0) {
-        lbl_8087F048->fn_8010652C(mChara);
+        lbl_8087F048->fn_8010652C(CharaOf_unk(this));
         lbl_8087F048->fn_801061BC(mChara, &mChara->mMotion, after - 1);
     }
 }

@@ -215,15 +215,25 @@ inline int HasShadow_unk(InstModel_unk* model) {
     return shadow;
 }
 
-// NONMATCHING: 97.53% - register choices in the inlined shadow tests (the original reuses the loaded
-// flags after the second shadow test instead of reloading them)
+// NONMATCHING: 99.11% - register choices of the bools of the inlined shadow tests (shadow/cast r3/r4 in the
+// original); DataOf_unk/DrawOrderOf_unk (Val_unk probe) fixed the reloads of the flags (97.53 -> 99.11)
+// inferred: data of an instance; draw order of a model (names invented; read through an inline, found with the
+// Val_unk probe)
+static inline InstData_unk* DataOf_unk(const ModelInstance* inst) {
+    return inst->mData;
+}
+
+static inline float DrawOrderOf_unk(const InstModel_unk& model) {
+    return model.mDrawOrder;
+}
+
 void ModelInstance::fn_8009E6EC(int arg) {
     Sphere* sphere = &mSphere;
     InstModel_unk* model = &mData->mModel;
     SetupLens_unk(model);
     mData->mModel.mFlags &= 0x42030;
     int flags = mFlags;
-    mData->mModel.mFlags |= flags;
+    DataOf_unk(this)->mModel.mFlags |= flags;
     mVisible = 1;
     if (fn_8004FF58(&atn::RenderManager::instance_->mCamera.mFrustum, sphere) == 0) {
         mVisible = 0;
@@ -265,7 +275,7 @@ void ModelInstance::fn_8009E6EC(int arg) {
                 }
             }
         } else if (mVisible) {
-            atn::RenderManager::instance_->AddRender(this, 4, mData->mModel.mDrawOrder);
+            atn::RenderManager::instance_->AddRender(this, 4, DrawOrderOf_unk(mData->mModel));
         }
     }
     if (mVisible) {
