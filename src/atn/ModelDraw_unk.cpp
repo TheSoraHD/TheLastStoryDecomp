@@ -1124,19 +1124,30 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
 }
 
 
-// NONMATCHING: 96.75% - stack slots of the temporaries of the three column lengths and of the centre, and
-// the copy of the callbacks (one word at a time in the original)
+// inferred: the column lengths through ColLen_unk (z first, as MaxScale_unk of gmk/ArenaFloor.cpp) and the callbacks
+// copied member by member (one word at a time in the original)
+// inferred: length of a column of a matrix (name invented, as in gmk/ArenaFloor.cpp)
+static inline float ColLen_unk(const Mtx m, int i) {
+    return atn::Vector3(m[0][i], m[1][i], m[2][i]).Length_unk();
+}
+
 DrawEntry_unk::DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18, DrawColor_unk* color,
                              DrawMaterials_unk* mats, DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40,
                              unsigned int flags, atn::Scene* lens, int m98, const DrawCallback_unk* cb)
     : m00(-1), m04(flags), m08(model), m10(mtx), m14(nodes), m18(m18), m1C(color), m20(mats), m24(remap), m28(0),
       m30(*sphere), m40(m40), m44(0), m48(0), m4C(0), m50(0), m54(0), m58(0), m5C(0),
-      m60(), m84(lens), m88(*cb), m98(m98) {
+      m60(), m84(lens) {
+    m88.mFunc1 = cb->mFunc1;
+    m88.mFunc2 = cb->mFunc2;
+    m88.mArg1 = cb->mArg1;
+    m88.mArg2 = cb->mArg2;
+    this->m98 = m98;
     m0C = (DrawModel_unk*)m08->fn_80475DF8();
     Mtx& m = *m10;
-    atn::Vector3 scale(atn::Vector3(m[0][0], m[1][0], m[2][0]).Length_unk(),
-                       atn::Vector3(m[0][1], m[1][1], m[2][1]).Length_unk(),
-                       atn::Vector3(m[0][2], m[1][2], m[2][2]).Length_unk());
+    float sz = ColLen_unk(m, 2);
+    float sy = ColLen_unk(m, 1);
+    float sx = ColLen_unk(m, 0);
+    atn::Vector3 scale(sx, sy, sz);
     // inferred: MAX macro (the inner maximum is evaluated twice in the original)
     m2C = MAX(scale.x, MAX(scale.y, scale.z));
     if (m30.mRadius < 15.0f || (m04 & 4) == 4) {

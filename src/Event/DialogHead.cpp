@@ -292,9 +292,29 @@ void DialogHead::vf10(atn::RenderManager* view) {
     fn_80071D68(lbl_8087EEE0, saved.mProj.m);
 }
 
-// NONMATCHING: 99.2% - stack layout: the original places the string and its char temporaries below the
-// ptmf temporaries (tried a nested block, kept; an inline function gets the stack right but not the
-// registers) and the registers of the inlined SimpleVector copy
+// NONMATCHING: 99.79% - registers of the inlined SimpleVector copy (count/data r25/r27); the motion name
+// built in FaceMotion_unk puts the string and its tag temporaries below the ptmf ones, as in the original
+// inferred: motion of a face expression (name invented)
+static inline int FaceMotion_unk(int kind, int arg) {
+    std::string name("CH_FACE_");
+    switch (kind) {
+    case 0:
+        name += "DFN";
+        break;
+    case 1:
+        name += "ANG";
+        break;
+    case 2:
+        name += "SAD";
+        break;
+    case 3:
+        name += "SML";
+        break;
+    }
+    name += fn_800DC980("%02d", arg);
+    return fn_802180A8(name.c_str());
+}
+
 void DialogHead::fn_80227434(int kind, int arg, int right) {
     float weight = lbl_8087F0A8->mDialog.mUseWaitMotion ? 0.0f : 1.0f;
     if (m1840[kind][arg][right]) {
@@ -302,26 +322,7 @@ void DialogHead::fn_80227434(int kind, int arg, int right) {
         CharaFaceControl* face = &m1188;
         face->m44[face->m5C] = m1840[kind][arg][right]->mEdits;
     } else {
-        int motion;
-        {
-            std::string name("CH_FACE_");
-            switch (kind) {
-            case 0:
-                name += "DFN";
-                break;
-            case 1:
-                name += "ANG";
-                break;
-            case 2:
-                name += "SAD";
-                break;
-            case 3:
-                name += "SML";
-                break;
-            }
-            name += fn_800DC980("%02d", arg);
-            motion = fn_802180A8(name.c_str());
-        }
+        int motion = FaceMotion_unk(kind, arg);
         if (motion < 0 || mMotion.fn_80097D40(motion) == 0) {
             motion = 0xB4;
         }

@@ -2231,9 +2231,19 @@ inline bool IsFreeControl_unk(int id) {
     return false;
 }
 
-// NONMATCHING: 97.8% - the result of IsFreeControl_unk is materialized (the original branches from its switch);
+// inferred: horizontal side direction of a rotation (name invented)
+static inline atn::Vector3 SideDir_unk(const atn::Vector3& rot) {
+    atn::Vector3 up(0.0f, 1.0f, 0.0f);
+    atn::Vector3 front = FrontDir_unk(rot);
+    atn::Vector3 side;
+    PSVECCrossProduct(&front, &up, &side);
+    return side;
+}
+
+// NONMATCHING: 98.5% - the result of IsFreeControl_unk is materialized (the original branches from its switch);
 // registers of the fn_800F8C6C arguments
-// inferred: update of the party members and enemies with a weapon (types 1-3; fn_800E589C for the player)
+// inferred: update of the party members and enemies with a weapon (types 1-3; fn_800E589C for the player); the side
+// direction in SideDir_unk puts its vectors at the bottom of the stack, as in the original
 void BattleCharaTask::fn_800E9ED8() {
     switch (m58C) {
     case 0:
@@ -2315,11 +2325,7 @@ void BattleCharaTask::fn_800E9ED8() {
                         mC58.m2B0 = 0;
                     } else if (!mFlagC25 && fn_801725EC(&mPos, &m574, &other)) {
                         if (mC58.mMode == 5 && mC58.mStep == 1 && mC58.mD0 == 0 && mC58.mC4 != 0) {
-                            atn::Vector3 up(0.0f, 1.0f, 0.0f);
-                            atn::Vector3 front = FrontDir_unk(mRot);
-                            atn::Vector3 side;
-                            PSVECCrossProduct(&front, &up, &side);
-                            mC14 = side;
+                            mC14 = SideDir_unk(mRot);
                             m58C = 1;
                             if (lbl_8087F048 != 0) {
                                 m590 = lbl_8087F048->fn_800F8548();
