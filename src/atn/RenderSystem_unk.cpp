@@ -974,18 +974,20 @@ static inline float FarOf_unk(const atn::Camera& camera) {
     return camera.mFar;
 }
 
+// inferred: fog colour (m8A0-m8AC: r, g, b, a) as GXColor (name invented); the original builds it in an inline
+static inline GXColor FogColorOf_unk(const float* rgba) {
+    GXColor c;
+    c.r = (unsigned char)(255.0f * rgba[0]);
+    c.g = (unsigned char)(255.0f * rgba[1]);
+    c.b = (unsigned char)(255.0f * rgba[2]);
+    c.a = (unsigned char)(255.0f * rgba[3]);
+    return c;
+}
+
 
 void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
-    // NONMATCHING: 99.93% - stack slots of the colours: the original passes GXColor by value (temporaries
-    // after the named colour); declared so, fn_800C08B0 loses its scheduling (71%)
     if (lbl_8087EFA8->m02C != 0) {
-        if (m890 != 0) {
-            m890 = 0;
-            unsigned int color = 0;
-            float farZ = mCamera.mFar;
-            float nearZ = mCamera.mNear;
-            GXSetFog(0, 0.0f, 0.0f, nearZ, farZ, &color);
-        }
+        fn_800C08B0();
         return;
     }
 
@@ -1016,12 +1018,7 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     case 4: type = 6; break;
     case 5: type = 7; break;
     }
-    GXColor c;
-    c.r = (unsigned char)(255.0f * m8A0);
-    c.g = (unsigned char)(255.0f * m8A4);
-    c.b = (unsigned char)(255.0f * m8A8);
-    c.a = (unsigned char)(255.0f * m8AC);
-    GXColor arg = c;
+    GXColor arg = FogColorOf_unk(&m8A0);
     GXSetFog(type, m898, m89C, NearOf_unk(mCamera), FarOf_unk(mCamera), &arg);
 }
 
