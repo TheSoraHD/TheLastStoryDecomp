@@ -4346,10 +4346,18 @@ static inline PlayerTask* LeaderOf_unk(CharaManager<PlayerTask>* manager) {
     return manager->mHead;
 }
 
-// NONMATCHING: 99.62% - the address registers of the copies of the centre (r3/r5); the leader through
-// LeaderOf_unk fixed the field/leader registers; tried VecAssign_unk/Assign_unk for every copy
 // inferred: marker `index` of a skill effect: shown near the centre (tactical view or the leader), at the
 // head of its owner (or the centre of its collision), with the name of the skill and of its link
+// inferred: head position of a character (as in game/GameCamera.cpp)
+static inline const atn::Vector3& HeadOf_unk(const CharaTask* chara) {
+    return chara->mF6C;
+}
+
+// inferred: point aimed by the tactical view (name invented)
+static inline const atn::Vector3& AimPointOf_unk(const GameCamera& camera) {
+    return camera.m8A4;
+}
+
 void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
     if (bullet == 0) {
         return;
@@ -4361,18 +4369,19 @@ void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
     GameTask* field = lbl_8087F430;
     if (field != 0) {
         if (lbl_8087F9F8->mAim.mMode == 1) {
-            center.Assign_unk(field->mCamera.m8A4);
+            center = AimPointOf_unk(field->mCamera);
             hasCenter = true;
         } else if (field->mCamera.m7FC == 7) {
-            center = player->mF6C;
+            center = HeadOf_unk(player);
             hasCenter = true;
         } else if (field->mCamera.m7FC == 5 && lbl_8087F610 != 0 && player->m55C == 6 && player->m560 == 13) {
-            center = player->mF6C;
+            center = HeadOf_unk(player);
             hasCenter = true;
         }
     }
     if (hasCenter) {
-        atn::Sphere sphere(bullet->m10, bullet->m5C * bullet->m28);
+        float radius = bullet->m5C * bullet->m28;
+        atn::Sphere sphere(bullet->m10, radius);
         float r = 6.0f + sphere.mRadius;
         if ((sphere.mCenter - center).LengthSq_unk() < r * r) {
             near = true;

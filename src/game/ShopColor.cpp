@@ -356,11 +356,11 @@ int ShopColor::fn_80588004(ShopColorEntry_unk* entry) {
 // in another order)
 void ShopColor::fn_805880F0() {
     void* party = Inventory::instance_;
-    mListBase->mFlags &= ~4;
+    mListBase->MeltTask();
     SetPaneFloat_unk(&mListBase->mData.m10, "ofsOn", 1.0f);
     fn_80584750(mListBase, mScroll.mTop, mColors.size(), 10);
     ShopPoint_unk pos;
-    mContent->mFlags &= ~4;
+    mContent->MeltTask();
     for (int i = 0; i < 10; i++) {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);

@@ -697,6 +697,11 @@ void Em401_01_WhiteLeoPard::vf24() {
     mMotion.mTracks[2].m20 = weight;
 }
 
+// inferred: rotation of a node pose (name invented; read through an inline, found with the Val_unk probe)
+inline atn::Quaternion_unk RotOf_unk(const atn::MotionBuffer& node) {
+    return node.m10;
+}
+
 // inferred: rotation around an axis (name invented, as in game/Em403WarLion.cpp)
 inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
     atn::Quaternion_unk q;
@@ -711,7 +716,7 @@ void Em401_01_WhiteLeoPard::fn_80321724(atn::MotionBuffer* nodes, int count) {
         const char* name = ((ModelNodeDesc_unk*)mMotion.GetRes_unk()->m48[i])->mName;
         if (strcmp(name, "neck") == 0) {
             if (m648 == 0) {
-                atn::Quaternion_unk rot(nodes[i].m10);
+                atn::Quaternion_unk rot(RotOf_unk(nodes[i]));
                 atn::Quaternion_unk q = QuatAxis_unk(atn::Vector3(1.0f, 0.0f, 0.0f), m580 - 0.7f * m584);
                 PSQUATMultiply(&q, &rot, &rot);
                 nodes[i].m10 = rot;
