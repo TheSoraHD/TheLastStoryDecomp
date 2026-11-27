@@ -980,8 +980,14 @@ ControlAttackLastOne::ControlAttackLastOne(Chara_unk* chara, const atn::Vector3&
 
 // inferred: lbl_8087EFA8 through a reference (the original reloads it for the store; name invented)
 static inline RenderSetting_unk*& RenderSettingRef_unk() { return *(RenderSetting_unk**)&lbl_8087EFA8; }
+// inferred: frame speed (as the other units that read it through the accessor)
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
+// inferred: position of a character (name invented)
+static inline const atn::Vector3& PosOf_unk(const CharaTask* c) { return c->mPos; }
 
-// NONMATCHING: 99.86% - registers of 0.2f + m3A4 (f0/f3) and of the target/chara pointers of the direction
+// inferred: the frame speed and the position of the character read through accessors (Val_unk probe)
 int ControlAttackLastOne::vf0C() {
     float speed = 0.0f;
     float rate = 1.0f;
@@ -993,7 +999,7 @@ int ControlAttackLastOne::vf0C() {
     }
     if (frame >= 28.0f) {
         if (mChara->mType == 0 && lbl_8087F610 == 0) {
-            RenderSettingRef_unk()->m3A4 = MIN(1.0f, 0.2f + lbl_8087EFA8->m3A4);
+            RenderSettingRef_unk()->m3A4 = MIN(1.0f, 0.2f + lbl_8087EFA8->GetFrameSpeed_unk());
         }
         if (mSlow && !mSlowEnd) {
             mSlowEnd = true;
@@ -1041,7 +1047,7 @@ int ControlAttackLastOne::vf0C() {
     }
     atn::Vector3 dir = mDir;
     if (mTarget != 0) {
-        dir = mTarget->mPos - mChara->mPos;
+        dir = mTarget->mPos - PosOf_unk(mChara);
         PSVECNormalize(&dir, &dir);
     }
     mChara->vf34(dir.ToRotation_unk(), 0, speed, rate);

@@ -282,8 +282,8 @@ GameUI::GameUI(atn::Task* parent)
             m318[i].mInst[j] = 0;
         }
     }
-    m3D8 = 0;
     m30C.clear();
+    m3D8 = 0;
     m3DC[0] = 0;
     m3DC[1] = 0;
     m3DC[2] = 0;
