@@ -132,12 +132,13 @@ void EnvSeBase::fn_8036102C(int value) {
     mTimer = 30;
 }
 
-// NONMATCHING: 86% - the original reloads lbl_8087EFE8 before the distance and keeps `this` (not
-// mData) in r31 across PSVECSquareMag; tried locals, inline helpers for the mute and range tests and an
-// accessor for the distance.
+// NONMATCHING: 93.1% - the original reloads lbl_8087EFE8 before the distance and rereads mData after
+// PSVECSquareMag (this in r31); 86 -> 93.1 reading mData through DataOf_unk in the mute test. Tried locals,
+// inlines for the listener position and the range test.
+static inline EnvSeData_unk* DataOf_unk(const EnvSeBase* se) { return se->mData; } // inferred: name invented
 int EnvSeBase::vf20() {
     if (lbl_8087EFE8 != 0) {
-        if (mData->m40 == 1 && lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
+        if (DataOf_unk(this)->m40 == 1 && lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
             return 0;
         }
         atn::Vector3 d = lbl_8087EFE8->mListener.mPos - mData->mPos;
