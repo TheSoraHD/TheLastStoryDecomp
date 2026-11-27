@@ -748,6 +748,22 @@ ControlQuarkSeirenAttack::ControlQuarkSeirenAttack(Chara_unk* chara, const atn::
 
 // NONMATCHING: 99.4% - registers of the hit block (an inline helper fixes them but moves the
 // stack slots).
+inline atn::Vector3 AtFront_unk(const atn::Vector3& rot) {
+    return FrontDir_unk(rot) * 10.0f;
+}
+inline void QuarkHit_unk(ControlQuarkSeirenAttack* self) {
+    CharaTask* chara = self->mChara;
+    HitInfo_unk* hit = chara->m638;
+    atn::Vector3 at = self->mChara->mPos + AtFront_unk(chara->mRot);
+    BattleTask* fx = lbl_8087F048;
+    fx->fn_800FAB80(self->mChara, hit, fx->fn_800F8548(), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    if ((hit->mAC & 0x40000) == 0x40000) {
+        self->mChara->mStatus.m228 = 0.0f;
+        if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(self->mChara, hit) != 0) {
+            lbl_8087EE68->fn_80018608(self->mChara, hit);
+        }
+    }
+}
 // inferred: warps to the target point after frame 61 and attacks there
 int ControlQuarkSeirenAttack::vf0C() {
     int done = 0;
@@ -763,17 +779,7 @@ int ControlQuarkSeirenAttack::vf0C() {
         m28 = 1;
         mChara->mPos = m08;
         mChara->fn_8016DA4C();
-        CharaTask* chara = mChara;
-        HitInfo_unk* hit = chara->m638;
-        atn::Vector3 at = mChara->mPos + FrontDir_unk(chara->mRot) * 10.0f;
-        BattleTask* fx = lbl_8087F048;
-        fx->fn_800FAB80(mChara, hit, fx->fn_800F8548(), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-        if ((hit->mAC & 0x40000) == 0x40000) {
-            mChara->mStatus.m228 = 0.0f;
-            if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit) != 0) {
-                lbl_8087EE68->fn_80018608(mChara, hit);
-            }
-        }
+        QuarkHit_unk(this);
     }
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
