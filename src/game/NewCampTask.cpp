@@ -781,12 +781,17 @@ void NewCampView_unk::fn_8052FA44() {
     *fn_8052B7F0(fn_802F0990()) = mGamma;
 }
 
-// NONMATCHING: 96% - order of the store of m11F8 and float registers of the camera sums
+// inferred: field of view of the camp camera (name invented; read through an inline, found with the Val_unk probe)
+static inline float FovyOf_unk(const NewCampTask* task) {
+    return task->m1214;
+}
+
+// inferred: m11F8 cleared between the two camera points; the field of view read through FovyOf_unk
 void NewCampTask::fn_80530174() {
     m11FC = atn::Vector3(40.0f, 0.0f, 210.0f);
+    m11F8 = 0;
     m1208 = atn::Vector3(40.0f, 0.0f, -20.0f);
     m1214 = 0.9599311f;
-    m11F8 = 0;
     m458 = 0.0f;
     m45C = m1368;
     m121C = 0;
@@ -799,7 +804,7 @@ void NewCampTask::fn_80530174() {
     atn::Vector3 offset = m136C ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f);
     mCamera.SetPosition(m11FC + offset);
     mCamera.SetTarget_unk(m1208 + offset);
-    mCamera.mFovy = m1214;
+    mCamera.mFovy = FovyOf_unk(this);
     fn_8052DEEC(0);
 }
 
