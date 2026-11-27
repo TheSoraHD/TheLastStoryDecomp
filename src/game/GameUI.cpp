@@ -5281,16 +5281,12 @@ void GameUI::fn_803E2410(CharaTask* chara) {
     }
 }
 
-// inferred: colour parameter of a d2anime instance from a colour of the HUD (see SetInstColor_unk)
-inline void SetInstColorU_unk(GameUIInst_unk* inst, const char* name, GameUIColor_unk c) {
-    inst->SetColor255_unk(name, atn::Color(c.r, c.g, c.b, c.a));
-}
-
 // inferred: next magic point gauge of the HUD (mA90/mAB8/mAE0[mA8C]) at `pos`: `frames` left (seconds and
 // sub-second frame), colour by `kind`, `count` points lit (the giga gauge when more than one) and the
 // speed gauge when `speed`
-// NONMATCHING: the colour (GameUIColor_unk) is copied to a temporary atn::Color for SetColor255_unk (the
-// original frame is 16 bytes smaller: its colour is probably an atn::Color) and registers
+// NONMATCHING: 98.26% - registers of point/giga/gauge and the load order of the colour (r first in the
+// original, as the copy constructor of atn::Color: with GameUIColor_unk derived from atn::Color the order is
+// right but the GameUI ctor drops to 95 %). 93.4 -> 98.26 calling SetColor255_unk in place (the frame is equal)
 void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int speed) {
     if (mA8C < 10) {
         int seconds = fn_803CE854(frames);
@@ -5343,7 +5339,7 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int 
         } else {
             color = GameUIColor_unk(240, 170, 0, 255);
         }
-        SetInstColorU_unk(point, "baseColor", color);
+        point->SetColor255_unk("baseColor", atn::Color(color.r, color.g, color.b, color.a));
         point->SetValue0_unk("colOn", 0.0f);
         point->SetValue0_unk("colR", 255.0f * color.r);
         point->SetValue0_unk("colG", 255.0f * color.g);
