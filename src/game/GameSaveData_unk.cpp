@@ -400,7 +400,16 @@ void GameSaveFlags_unk::fn_803BA120(int mode) {
     }
 }
 
-// NONMATCHING: register numbering only (the original keeps the entry offset in r4 and the player in r5)
+// inferred: route point and hide point of the table (names invented; read through an inline, found with the
+// Val_unk probe: register numbering of the original in fn_803BA408)
+static inline const gs::MovePoint& MovePointAt_unk(const GameScene* table, int i) {
+    return table->m98.mData[i];
+}
+
+static inline const gs::HidePoint& HidePointAt_unk(const GameScene* table, int i) {
+    return table->mAC.mData[i];
+}
+
 void GameSavePlayers_unk::fn_803BA408() {
     for (int i = 0; i < 16; i++) {
         mEntries[i].mFlags = 0;
@@ -432,10 +441,10 @@ void GameSavePlayers_unk::fn_803BA408() {
                 mEntries[n].mRouteFlag = route.m48;
                 switch (route.m44) {
                 case 0:
-                    mEntries[n].mRouteTarget = table->m98.mData[route.mPointB - 1].mId;
+                    mEntries[n].mRouteTarget = MovePointAt_unk(table, route.mPointB - 1).mId;
                     break;
                 case 1:
-                    mEntries[n].mRouteTarget = table->mAC.mData[route.mLink - 1].mId;
+                    mEntries[n].mRouteTarget = HidePointAt_unk(table, route.mLink - 1).mId;
                     break;
                 case 3:
                     mEntries[n].mRouteTarget = route.mPlace;
