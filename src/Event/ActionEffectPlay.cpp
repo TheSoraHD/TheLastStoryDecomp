@@ -326,7 +326,8 @@ int ActionAnimationPlay::vf08(Action* arg) {
     return 0;
 }
 
-// NONMATCHING: 97% - registers of the animation search (id in r5 in the original)
+// NONMATCHING: 99.61% - registers of the animation search (id in r5 in the original); the frozen tests through
+// IsFlag_unk (the flag word read twice, as the original)
 int ActionAnimationPlay::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -338,7 +339,7 @@ int ActionAnimationPlay::vf0C(Action* arg, int phase) {
         AnimEntry_unk* entry = FindAnim_unk(manager, id);
         if (entry->m1C == 1) {
             atn::D2A_Task* task = entry->m18;
-            if ((task->mFlags & 4) == 4) {
+            if (task->IsFlag_unk(4)) {
                 task->mFlags &= ~4;
             }
             if (speed >= 0.0f) {
@@ -358,7 +359,7 @@ int ActionAnimationPlay::vf0C(Action* arg, int phase) {
         AnimEntry_unk* entry = FindAnim_unk(manager, arg->GetParam_unk(0)->m04.i);
         if (entry->m1C == 1) {
             atn::D2A_Task* task = entry->m18;
-            if ((task->mFlags & 4) != 4) {
+            if (!task->IsFlag_unk(4)) {
                 task->mFlags |= 4;
             }
         }

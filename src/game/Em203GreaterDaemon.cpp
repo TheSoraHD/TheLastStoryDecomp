@@ -469,6 +469,11 @@ inline void Em203GreaterDaemon::StartFly_unk() {
 // The frames are read into a local before fn_80097D7C, and the end test of the default state is written in
 // place (as an inline bool its result is kept in a register).
 // NONMATCHING: 97.21% - stack slot order of the vector temporaries
+// inferred: frame speed of the render settings (name invented; read through an inline, found with the Val_unk probe)
+static inline float FrameSpeedOf_unk(const RenderSetting_unk* setting) {
+    return setting->m3A4;
+}
+
 void Em203GreaterDaemon::vf10() {
     fn_8028ADF4();
     if (mC58.mC0 == 0) {
@@ -534,7 +539,7 @@ void Em203GreaterDaemon::vf10() {
                 if (mMotion.mTracks[0].m08 >= start && mMotion.mTracks[0].m08 < start + length) {
                     atn::Vector3 move = m151C * (1.0f / length) * lbl_8087EFA8->m3A4;
                     mPos += move;
-                    mRot.y += m1528 / length * lbl_8087EFA8->m3A4;
+                    mRot.y += m1528 / length * FrameSpeedOf_unk(lbl_8087EFA8);
                 } else if (mMotion.mTracks[0].m08 > start + length) {
                     FaceCenter_unk();
                 }
