@@ -135,6 +135,9 @@ static inline GXColor ToGXColorF_unk(const ColorF_unk& v) {
 
 // NONMATCHING: 97.12% - FPR allocation only (0.0f of the columns, copy of the column and clamp limits in other
 // registers); the clamps are expressions on the globals (the limit is loaded just before its comparison)
+static inline float CmClamp_unk(float v, const float& lo, const float& hi) {
+    return v < lo ? lo : (v > hi ? hi : v);
+}
 void PostFxColorMatrix::vf10(RenderManager* view) {
     atn::RenderManager::instance_->fn_800C0508(1);
     GXInvalidateTexAll();
@@ -153,7 +156,7 @@ void PostFxColorMatrix::vf10(RenderManager* view) {
     };
     int scale = 0;
     for (int i = 0; i < 3; i++) {
-        ColorF_unk c = cols[i];
+        ColorF_unk c(cols[i].x, cols[i].y, cols[i].z, cols[i].w);
 #define CM_SCALE(v)                         \
     if ((v) > 2.0f) {                       \
         scale = CM_MAX(scale, 2);           \
@@ -170,7 +173,7 @@ void PostFxColorMatrix::vf10(RenderManager* view) {
     ColorF_unk k[4];
     for (int i = 0; i < 3; i++) {
         ColorF_unk c = cols[i];
-#define CM_CLAMP(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
+#define CM_CLAMP(v, lo, hi) CmClamp_unk(v, lo, hi)
         c.x = CM_CLAMP(c.x * inv, lbl_8087D830, lbl_8087D834);
         c.y = CM_CLAMP(c.y * inv, lbl_8087D838, lbl_8087D83C);
         c.z = CM_CLAMP(c.z * inv, lbl_8087D840, lbl_8087D844);
