@@ -94,7 +94,7 @@ inline GimmickCommon* PickArmorStand_unk() {
 }
 
 // inferred: linear interpolation (name invented)
-inline float LerpF_unk(float a, float b, float t) {
+inline float LerpF_unk(const float& a, const float& b, float t) {
     return (b - a) * t + a;
 }
 
