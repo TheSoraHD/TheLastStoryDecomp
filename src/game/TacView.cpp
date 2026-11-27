@@ -636,8 +636,9 @@ inline void TacViewSetAimB_unk(TacView* v, int mode, const atn::Vector3& pos, fl
 
 // inferred: gives `chara` the command of the direction `dir` of the character entry m54: target, skill and AI
 // order; skills that are aimed (areas, sub bullets) start the aiming of the view
-// NONMATCHING: 98.3% - registers (cmd and extra swapped, the vector addresses of the player states) and the
-// compares of cmd 8-11 in the AI branch, which the original makes on the cmd - 6 of the first test
+// NONMATCHING: 99.1% - registers (cmd and extra swapped, the vector addresses of the player states) and the
+// compares of cmd 8-11 in the AI branch, which the original makes on the cmd - 6 of the first test (98.4 -> 99.1
+// with the aim of the first three skill cases written in place instead of TacViewSetAim_unk)
 void TacView::fn_805A96D4(CharaTask* chara, int dir) {
     m54.m4C = dir;
     m54.mType = (int)chara;
@@ -748,7 +749,12 @@ void TacView::fn_805A96D4(CharaTask* chara, int dir) {
     user->mStatus.fn_8012D180();
     if (skill->m70 > 0) {
         if ((signed char)fn_80219E6C(skill->m70)->m02 == 7) {
-            TacViewSetAim_unk(this, 1, chara->mPos, 100.0f, 1);
+            TacViewAim_unk aim;
+            aim.mMode = 1;
+            aim.mPos = chara->mPos;
+            aim.mRadius = 100.0f;
+            aim.mA = 1;
+            this->mAim = aim;
         }
         return;
     }
@@ -756,7 +762,12 @@ void TacView::fn_805A96D4(CharaTask* chara, int dir) {
         switch (skill->m04) {
         case 0x1788:
         case 0x1791:
-            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1);
+            TacViewAim_unk aim;
+            aim.mMode = 1;
+            aim.mPos = chara->mPos;
+            aim.mRadius = skill->m58;
+            aim.mA = 1;
+            this->mAim = aim;
             break;
         case 0x179A:
         case 0x179B:
@@ -765,7 +776,14 @@ void TacView::fn_805A96D4(CharaTask* chara, int dir) {
             break;
         case 0x4FBB:
         case 0x1789:
-            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1);
+            {
+                TacViewAim_unk aim;
+                aim.mMode = 1;
+                aim.mPos = chara->mPos;
+                aim.mRadius = skill->m58;
+                aim.mA = 1;
+                this->mAim = aim;
+            }
             break;
         }
     } else if (skill->m04 == 0x4FBB || skill->m04 == 0x1789) {
