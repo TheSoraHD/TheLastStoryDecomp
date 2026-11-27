@@ -109,7 +109,7 @@ public:
     void* mMapHitArg;              // 0x314
     Camera mShadowCamera;          // 0x318: inferred: light camera of the shadow and light map
     GXTexObj m50C;                 // 0x50C: inferred: shadow map (fn_800BC618)
-    int m52C;
+    void* m52C; // inferred: remap table built by fn_800BC618
     GXTexObj m530;                 // 0x530: inferred: light of the normals (fn_800BC468)
     int m550;
     int m554;
