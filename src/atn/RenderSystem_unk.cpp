@@ -609,7 +609,7 @@ void atn::RenderManager::fn_800BDBC8() {
     memset(mPassHeads, 0, sizeof(mPassHeads));
     memset(mPassCounts, 0, sizeof(mPassCounts));
     mQueueUsed = 0;
-    *(int*)((unsigned char*)lbl_8087EEB0 + 0xC) = 0;
+    lbl_8087EEB0->m04.m08 = 0; // inferred: used bytes of the 2D command buffer (0xC on the Wii)
     mResolveCount = 0;
     m54960 = 0;
     if (m8E0.mFunc != 0) {

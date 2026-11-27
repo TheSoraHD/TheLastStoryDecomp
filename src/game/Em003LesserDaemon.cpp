@@ -38,13 +38,6 @@ extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" int rand();
-// inferred: fields of the running magic control (class unknown; names invented)
-struct ControlMagic_unk {
-    unsigned char m00[0x14];
-    CharaTask* m14; // inferred: target
-    unsigned char m18[0x1D - 0x18];
-    unsigned char m1D; // inferred: nonzero once the bullets are fired
-};
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
@@ -1214,7 +1207,7 @@ void Em003LesserDaemon::fn_8024ED68() {
             fn_80139560();
             break;
         case 0x1E: {
-            ControlMagic_unk* control = (ControlMagic_unk*)mControl.get();
+            chr::ControlMagic* control = static_cast<chr::ControlMagic*>(mControl.get());
             HitInfo_unk* hit = m638;
             bool fire = false;
             float frame;

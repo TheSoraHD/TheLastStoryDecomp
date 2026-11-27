@@ -237,7 +237,8 @@ void SpecialEnemyBase::fn_805A4254() {
         } else {
             rot = mRot;
         }
-        if ((*(unsigned int*)((char*)this + 0xD94) & 1) == 1) {
+        // inferred: CharaTask::mC58.m11C.m20 (Wii 0xD94) by its member
+        if ((mC58.m11C.m20 & 1) == 1) {
             scale *= 0.3f;
         }
         if (m1400.mSize >= 2) {

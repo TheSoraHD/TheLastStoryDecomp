@@ -56,7 +56,7 @@ inline void SetCameraLookPos_unk(GameCamera& camera, const atn::Vector3& pos) {
 }
 // inferred: input of the field (weak copy 0x80122550 of another file)
 extern "C" inline PlayerInput_unk* fn_80122550(GameTask* field) {
-    return (PlayerInput_unk*)((char*)field + 0x6C);
+    return (PlayerInput_unk*)&field->mCamera; // inferred: GameTask::mCamera (0x6C on the Wii)
 }
 // inferred: starts a rumble (weak copy 0x8028CFB8, also called by Em309Ghoul and EnemyQuarkSecond)
 // inferred: the empty asserts (release build) only count for the inline budget: with them fn_8028CB38 goes over

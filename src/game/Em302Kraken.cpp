@@ -99,7 +99,8 @@ struct KrakenShake_unk {
     float m0C;
 };
 inline KrakenShake_unk* Shake_unk() {
-    return (KrakenShake_unk*)((char*)lbl_8087F430 + 0x96C);
+    // inferred: GameCamera::mShake (the Wii offset 0x96C lands on other camera fields on PC)
+    return (KrakenShake_unk*)&((GameTask*)lbl_8087F430)->mCamera.mShake;
 }
 // inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp): screen blur parameters at 0x2AC
 struct KrakenBlur_unk {

@@ -148,13 +148,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" int rand();
-// inferred: fields of the running magic control (class unknown; as in game/Em003LesserDaemon.cpp)
-struct ControlMagic_unk {
-    unsigned char m00[0x14];
-    CharaTask* m14; // inferred: target
-    unsigned char m18[0x1D - 0x18];
-    unsigned char m1D; // inferred: nonzero once the bullets are fired
-};
 // inferred: list of free players (up to 16; names invented)
 struct ElderTargets_unk {
     ElderTargets_unk() : mCount(0) {}
@@ -853,7 +846,7 @@ void Em101ElderZesya::fn_80258A50() {
         if (m560 == 0x1E) {
         HitInfo_unk* hit = m638;
         if (hit == m150C) {
-            ControlMagic_unk* control = (ControlMagic_unk*)mControl.get();
+            chr::ControlMagic* control = static_cast<chr::ControlMagic*>(mControl.get());
             bool fire = false;
             if (control->m1D == 0 && mMotion.mTracks[0].m08 >= 24.0f) {
                 fire = true;
