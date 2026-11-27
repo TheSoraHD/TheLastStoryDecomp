@@ -2,23 +2,16 @@
 // inventado). Traduce puerto/boton/eje del juego a los del gestor (lbl_8087F018, atn/WPad_unk.cpp).
 #include "atn/Memory.h"
 
-// inferred: per-controller flags of the Wii Remote manager (bit 0: classic controller?,
-// bit 1: nunchuk?); names invented
-struct WPadFlags_unk {
-    unsigned int m_31_2 : 30;
-    unsigned int mBit1 : 1;
-    unsigned int mBit0 : 1;
-};
-
-// inferred: Wii Remote manager (0x40F8 bytes, created by fn_800DDA70)
-struct WPad_unk {
-    // inferred: accessors (names invented)
-    unsigned int GetBit0_unk(int port) const { return m3C00[port].mBit0; }
-    unsigned int GetBit1_unk(int port) const { return m3C00[port].mBit1; }
-
-    unsigned char m0000[0x3C00];
-    WPadFlags_unk m3C00[4];
-};
+// the Wii Remote manager (lbl_8087F018, 0x40F8 bytes, created by fn_800DDA70): its per-port flags mFlags (bit 0
+// classic controller, bit 1 nunchuk?) are written with masks by atn/WPad_unk.cpp and read the same way here
+#include "atn/WPad_unk.h"
+// inferred: accessors of the flags (names invented)
+inline unsigned int FlagBit0_unk(const WPad_unk* wpad, int port) {
+    return wpad->mFlags[port] & 1;
+}
+inline unsigned int FlagBit1_unk(const WPad_unk* wpad, int port) {
+    return (wpad->mFlags[port] >> 1) & 1;
+}
 
 // inferred: game pad (empty object created by fn_800A5508); the methods do not use `this`
 struct Pad_unk {};
@@ -91,7 +84,7 @@ float fn_800A56A8(Pad_unk* pad, int port, unsigned int axis, int flag) {
     case 0:
     case 1: {
         int p = sPortMap[port];
-        if (lbl_8087F018->m3C00[p].mBit0 == 1) {
+        if (FlagBit0_unk(lbl_8087F018, p) == 1) {
             v += fn_800DEF94(lbl_8087F018, p, sAxisMap2[axis]);
         } else if (flag == 0 || fn_800DEF54(lbl_8087F018, p, 0xD) == 0) {
             v += fn_800DEF94(lbl_8087F018, p, sAxisMap[axis]);
@@ -101,7 +94,7 @@ float fn_800A56A8(Pad_unk* pad, int port, unsigned int axis, int flag) {
     case 2:
     case 3: {
         int p = sPortMap[port];
-        if (lbl_8087F018->m3C00[p].mBit0 == 1) {
+        if (FlagBit0_unk(lbl_8087F018, p) == 1) {
             v += fn_800DEF94(lbl_8087F018, p, sAxisMap2[axis]);
         } else if (flag != 0 && fn_800DEF54(lbl_8087F018, p, 0xD) != 0) {
             v += fn_800DEF94(lbl_8087F018, p, sAxisMap[axis]);
@@ -132,12 +125,12 @@ int fn_800A5870(Pad_unk* pad, int port, int axis, float threshold) {
 // (arranque2: also tried locals in both orders, direct member/bitfield access, free inlines with the
 // port translation inside, unsigned/bool signatures: all 97.0)
 unsigned int fn_800A58D0(Pad_unk* pad, int port) {
-    return lbl_8087F018->GetBit0_unk(sPortMap[port]);
+    return FlagBit0_unk(lbl_8087F018, sPortMap[port]);
 }
 
 // NONMATCHING: same as fn_800A58D0
 unsigned int fn_800A58F8(Pad_unk* pad, int port) {
-    return lbl_8087F018->GetBit1_unk(sPortMap[port]);
+    return FlagBit1_unk(lbl_8087F018, sPortMap[port]);
 }
 
 bool fn_800A5920(Pad_unk* pad, int port, int all) {
