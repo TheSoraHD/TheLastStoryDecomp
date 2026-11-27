@@ -5302,10 +5302,14 @@ inline bool HasCond_unk(Arms* arms, int kind, int kind2) {
     return arms->fn_80045694(kind, -1, kind2, -1) != 0;
 }
 
+// inferred: speed of the first motion track (name invented)
+static inline float SpeedOf_unk(const atn::Model* model) { return model->mTracks[0].m0C; }
+
 // inferred: effect of the attack motion of `chara` (the motion of track 0 among seven "na000_ats" motions, effect
 // mEfp365E8[kind]), plus effect and sound 0x232C when the right weapon has the condition (2, 0x22); the effects of
 // group 9 follow the frame and the speed of the motion. called by chr::ControlAttackBase
-// NONMATCHING: 97.7% - frame 0x10 larger (stack slots of the strings and the second color), registers r26-r28
+// NONMATCHING: 98.7% - frame 0x10 larger (stack slots of the strings and the second color), registers r26-r28
+// (97.99 -> 98.74 with GetPart648_unk and SpeedOf_unk; the Val_unk probe on chara gives 99.56)
 void BattleTask::fn_80106878(CharaTask* chara) {
     atn::Model* model = chara->GetModel_unk();
     atn::LoadHandle* handle = model->fn_80097D40(model->mTracks[0].m00);
@@ -5334,7 +5338,7 @@ void BattleTask::fn_80106878(CharaTask* chara) {
     }
     fn_80232B7C((unsigned int)chara, 9);
     PlayEfp_unk(lbl_8087F3C0, &mEfp365E8[kind], model);
-    if (chara->m648 != 0 && HasCond_unk((Arms*)chara->m648, 2, 0x22)) {
+    if (chara->GetPart648_unk() != 0 && HasCond_unk((Arms*)chara->m648, 2, 0x22)) {
         EffectColor_unk white(1.0f, 1.0f, 1.0f, 1.0f);
         fn_801070C8(0x232C, (unsigned int)chara, 9, model, &lbl_807C7030, &lbl_807C7030, &white, 1.0f);
         fn_80107208(0x232C, &chara->mPos, 1.0f);
@@ -5342,7 +5346,7 @@ void BattleTask::fn_80106878(CharaTask* chara) {
     if (model->mTracks[0].m08 > 0.0f) {
         fn_8023A108(lbl_8087F3C0, (unsigned int)chara, 9, (int)model->mTracks[0].m08);
     }
-    lbl_8087F3C0->fn_8023A254((unsigned int)chara, 9, model->mTracks[0].m0C);
+    lbl_8087F3C0->fn_8023A254((unsigned int)chara, 9, SpeedOf_unk(model));
 }
 
 void BattleTask::fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
