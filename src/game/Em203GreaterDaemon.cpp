@@ -1530,33 +1530,38 @@ void Em203GreaterDaemon::fn_8028EF20() {
     }
 }
 
-// inferred: state 21 (grand attack: breathes on all the party, one after the other)
-// NONMATCHING: 94.77% - register allocation
+// inferred: frame of the first motion track (name invented, as in game/EnemyQuarkStand.cpp)
+static inline float FrameOf_unk(const atn::Model& model) {
+    return model.mTracks[0].m08;
+}
+
+// inferred: state 21 (grand attack: breathes on all the party, one after the other); the frame read through
+// FrameOf_unk (Val_unk probe) and arguments -1, -1, 1 of the effect, as the other calls
 void Em203GreaterDaemon::fn_8028F1D0() {
     if (m14B4 == 0) {
-        if (mMotion.mTracks[0].m08 > mMotion.fn_80097D7C(0)) {
+        if (FrameOf_unk(mMotion) > mMotion.fn_80097D7C(0)) {
             m14B4 = 1;
             PlayMotion_unk(0x14F, 0, 0, 1.0f);
             fn_80232B7C(this, 1000);
+            Color4f_unk color;
             atn::Vector3 pos(0.0f, 0.0f, 0.0f);
             atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-            Color4f_unk color;
             color.r = 1.0f;
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            fn_8023A8B4(lbl_8087F3C0, &m155C, &mMotion, 0, rot, pos, color, -1, 1, -1, 1.0f);
+            fn_8023A8B4(lbl_8087F3C0, &m155C, &mMotion, 0, rot, pos, color, -1, -1, 1, 1.0f);
         }
         return;
     }
-    if (mMotion.mTracks[0].m08 > mMotion.fn_80097D7C(0)) {
+    if (FrameOf_unk(mMotion) > mMotion.fn_80097D7C(0)) {
         ResetState_unk();
         m58C = 6;
         fn_8016E970(3);
         PlayMotion_unk(2, 1, 0, 1.0f);
         fn_80239DAC(lbl_8087F3C0, this, -2, 1);
     }
-    if (80.0f <= mMotion.mTracks[0].m08 && mMotion.mTracks[0].m08 < 150.0f) {
+    if (80.0f <= FrameOf_unk(mMotion) && FrameOf_unk(mMotion) < 150.0f) {
         mMotion.mTracks[0].m0C = 1.0f;
         if (m154C == 0) {
             m154C = 1;
@@ -1581,7 +1586,6 @@ void Em203GreaterDaemon::fn_8028F1D0() {
         ShakeCamera_unk(1, 0.1f, 0.1f);
     }
 }
-
 // inferred: back to state 6 (idle in the air)
 void Em203GreaterDaemon::fn_8028F4AC() {
     ASSERT_UNK(this != 0);

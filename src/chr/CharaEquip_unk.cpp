@@ -462,8 +462,22 @@ inline atn::Scene* SceneOf_unk(atn::Model& model) {
     return (model.m1DC == 0) ? atn::RenderManager::instance_->mScene : model.m1DC;
 }
 
-// NONMATCHING: 99.2% - stack slots of the column temporaries and the address of the character
-// matrix kept in r31 by the original
+// inferred: length of a column of a matrix and the largest scale of a matrix (names invented, as in
+// gmk/ArenaFloor.cpp: the z column first)
+inline float ColLen_unk(const atn::Matrix3x4& mtx, int i) {
+    atn::Vector3 v(mtx.m[0][i], mtx.m[1][i], mtx.m[2][i]);
+    return PSVECMag(&v);
+}
+inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
+    float sz = ColLen_unk(mtx, 2);
+    float sy = ColLen_unk(mtx, 1);
+    float sx = ColLen_unk(mtx, 0);
+    return MaxScale_unk(atn::Vector3(sx, sy, sz));
+}
+
+// NONMATCHING: 99.4% - the address of the character matrix kept in r31 by the original (the column loads go
+// through the model base; see docs/mwcc-blockers.md, base register of a member); the scale through
+// MaxScale_unk(mtx) (z column first) gives the stack of the original
 void CharaEquip_unk::fn_80565B98() {
     if (m024.mLods[0].m08 == 0) {
         return;
@@ -475,9 +489,7 @@ void CharaEquip_unk::fn_80565B98() {
     case 3: {
         const atn::Matrix3x4& mtx = m40C->GetModel_unk()->mMtx;
         static_cast<atn::Matrix3x4&>(m024.mMtx) = mtx;
-        m024.m54 = MaxScale_unk(atn::Vector3(Mag_unk(atn::Vector3(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0])),
-                                             Mag_unk(atn::Vector3(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1])),
-                                             Mag_unk(atn::Vector3(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]))));
+        m024.m54 = MaxScale_unk(mtx);
         m024.fn_80091C10(m40C->GetModel_unk(), m3F8.mData, 0);
         if (lbl_8087F540 == 0 || lbl_8087F540->fn_80481668() == 0) {
             fn_805660DC();
@@ -494,15 +506,12 @@ void CharaEquip_unk::fn_80565B98() {
         atn::Matrix3x4 result;
         PSMTXConcat(mtx.m, scaleMtx.m, result.m);
         static_cast<atn::Matrix3x4&>(m024.mMtx) = mtx = result;
-        m024.m54 = MaxScale_unk(atn::Vector3(Mag_unk(atn::Vector3(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0])),
-                                             Mag_unk(atn::Vector3(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1])),
-                                             Mag_unk(atn::Vector3(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]))));
+        m024.m54 = MaxScale_unk(mtx);
         m024.CalcMatrixStack(atn::ModelNodeCallback_unk());
         break;
     }
     }
 }
-
 void CharaEquip_unk::fn_80565F34() {
     if (m024.mLods[0].m08 == 0) {
         return;
