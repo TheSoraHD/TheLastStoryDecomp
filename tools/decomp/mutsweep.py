@@ -11,6 +11,7 @@ Each mutation is one natural rewrite (no asm, no volatile, no dead code):
   ne0    - `if (x != 0)` <-> `if (x)`, `if (x == 0)` <-> `if (!x)`
   decl   - move a declaration without initializer one statement up/down
   mulsplit/divsplit/idx/ifid/ld/swret/cref - see mutations2 (barrido-20261121)
+  inlc - a call of a short inline of the same file written in place (accesores-20261126)
   lentmp - `Vector3 d = E; PSVECMag(&d)` -> `(E).Length_unk()` (bloqueos-20261122)
   valb   - the base pointer of one `p->mX` through `Val_unk(p)` (bloqueos-20261122)
   val    - one or two member reads of a line through `Val_unk(...)` (bloqueos-20261122)
@@ -260,6 +261,7 @@ def mutations(lines, a, b):
         new += lines[i + 3:]
         out.append(("splitor %d" % (i + 1), new))
     out += mutations2(lines, a, b)
+    out += mutations_inl(lines, a, b)
     return out
 
 # ---- kinds added in barrido-20261121 (retouches that closed functions in grandes-20261120) ----
@@ -570,6 +572,64 @@ def mutations2(lines, a, b):
                 new[lastinc] += "\ntemplate <class T> inline T Val_unk(const T& v) { return v; } // inferred: read through an inline"
             out.append(("valb %d:%s@%d" % (i + 1, mm.group(1), mm.start()), "\n".join(new).split("\n")))
     return out
+
+# inlc (accesores-20261126): a call statement `Name(args);` of an inline method or function defined in the same
+# file with a short body is replaced by that body (parameters substituted), without and with braces. The turn
+# of Em203GreaterDaemon::fn_8028BFE0 written in place left the temporaries of the inline in the original slots.
+INLDEF = re.compile(r"^(?:static\s+)?inline\s+[\w:<>*& ]+?\b(?:\w+::)?(\w+)\s*\(([^)]*)\)\s*(?:const\s*)?\{\s*$")
+def mutations_inl(lines, a, b):
+    out = []
+    defs = {}
+    for i, l in enumerate(lines):
+        m = INLDEF.match(l)
+        if not m or i in range(a, b):
+            continue
+        en = next((k for k in range(i + 1, min(i + 12, len(lines))) if lines[k].startswith("}")), None)
+        if en is None or en - i - 1 > 8:
+            continue
+        body = lines[i + 1:en]
+        if any(re.match(r"^\s*return\b", x) for x in body):
+            continue
+        params = []
+        for q in [x.strip() for x in m.group(2).split(",") if x.strip() and x.strip() != "void"]:
+            mm = re.search(r"(\w+)\s*$", q)
+            params.append(mm.group(1) if mm else None)
+        if None in params:
+            continue
+        defs[m.group(1)] = (params, body)
+    for i in range(a, b):
+        m = re.match(r"^(\s*)(?:this->)?(\w+)\((.*)\);\s*$", lines[i])
+        if not m or m.group(2) not in defs:
+            continue
+        params, body = defs[m.group(2)]
+        args_ = [x.strip() for x in split_args(m.group(3))] if m.group(3).strip() else []
+        if len(args_) != len(params):
+            continue
+        ind = m.group(1)
+        nb = []
+        for x in body:
+            y = x.strip()
+            for pn, av in zip(params, args_):
+                y = re.sub(r"\b%s\b" % pn, av if re.match(r"^[\w.>-]+$", av) else "(" + av + ")", y)
+            nb.append(ind + y)
+        new = lines[:i] + nb + lines[i + 1:]
+        out.append(("inlc %d:%s" % (i + 1, m.group(2)), new))
+        new = lines[:i] + [ind + "{"] + ["    " + x for x in nb] + [ind + "}"] + lines[i + 1:]
+        out.append(("inlc %d:%s{}" % (i + 1, m.group(2)), new))
+    return out
+
+def split_args(t):
+    parts, depth, cur = [], 0, ""
+    for ch in t:
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            parts.append(cur); cur = ""; continue
+        cur += ch
+    parts.append(cur)
+    return parts
 
 def split_or(c):
     parts, depth, cur, k = [], 0, "", 0
