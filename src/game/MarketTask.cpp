@@ -22,7 +22,7 @@ extern "C" int fn_802114D8();
 extern "C" int fn_802179B4(); // inferred: number of price levels
 
 extern "C" GameTask* lbl_8087F430;
-class GameConfig_unk;
+#include "game/GameConfig_unk.h"
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 MarketTask* MarketTask::sInstance;
@@ -109,7 +109,7 @@ void MarketTask::fn_804A233C() {
         if (field->m10D8 == 0 || !field->m10D8->IsFlag_unk(2)) {
             return;
         }
-        if (field->m54E4 != 0 || ((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_80124B60() != 0) {
+        if (field->m54E4 != 0 || lbl_8087F0A8->mInput.fn_80124B60() != 0) {
             return;
         }
         if (lbl_8087FA20 != 0) {
