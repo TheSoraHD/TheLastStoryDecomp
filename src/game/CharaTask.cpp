@@ -1998,7 +1998,7 @@ float GameConfig_unk::fn_8013C50C() {
     return m048;
 }
 
-bool CharaD68_unk::fn_8013C514() {
+bool SkillEffect::fn_8013C514() {
     bool result = false;
     if (m04 != 0 && m00 != 3) {
         result = true;
@@ -2006,11 +2006,11 @@ bool CharaD68_unk::fn_8013C514() {
     return result;
 }
 
-atn::Vector3* CharaD68_unk::fn_8013C53C() {
+atn::Vector3* SkillEffect::fn_8013C53C() {
     return &m10;
 }
 
-float CharaD68_unk::fn_8013C544() {
+float SkillEffect::fn_8013C544() {
     return m5C * m28;
 }
 
@@ -10457,7 +10457,7 @@ void CharaTask::fn_80175B18(float distSq) {
     }
 }
 
-int CharaTask::fn_8017639C(CharaAttach_unk* obj) {
+int CharaTask::fn_8017639C(SkillEffect* obj) {
     for (int i = 0; i < 4; i++) {
         if (m120C[i] == 0) {
             m120C[i] = obj;
@@ -10467,7 +10467,7 @@ int CharaTask::fn_8017639C(CharaAttach_unk* obj) {
     return 0;
 }
 
-int CharaTask::fn_801763E0(CharaAttach_unk* obj) {
+int CharaTask::fn_801763E0(SkillEffect* obj) {
     for (int i = 0; i < 4; i++) {
         if (m120C[i] == obj) {
             m120C[i] = 0;

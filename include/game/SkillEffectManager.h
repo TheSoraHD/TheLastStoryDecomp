@@ -32,6 +32,10 @@ struct SkillEffect {
     void fn_8059A1FC(int keep);         // inferred: stops its efp effect
     int fn_8059A264(); // inferred: nonzero when the effect uses its own copy of the hit data (m80)
 
+    // inferred: active, position and reach of a magic circle (out of line in game/CharaTask.cpp, which follows one)
+    bool fn_8013C514();
+    atn::Vector3* fn_8013C53C();
+    float fn_8013C544();
     // inferred: replaces the callback (weak copy 0x8059C3F4; name invented)
     void SetCallback_unk(boost::function<void(SkillEffect*)> callback) { mCallback = callback; }
     // inferred: state 3 = finished

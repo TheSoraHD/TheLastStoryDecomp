@@ -107,29 +107,10 @@ struct CharaD74_unk {
 };
 
 
-// inferred: objects registered in CharaTask::m120C by fn_805989A4 (class unknown); m04 is compared
-// with the skill data of CharaStatus::m2CC by CharaTask::fn_80176428
-struct CharaAttach_unk {
-    int m00;
-    HitInfo_unk* m04;
-    CharaTask* m08;
-};
-
-// inferred: object pointed to by CharaTask::mD68 (class unknown)
-struct CharaD68_unk {
-    bool fn_8013C514();
-    atn::Vector3* fn_8013C53C();
-    float fn_8013C544();
-
-    int m00;
-    int m04;
-    unsigned char m08[0x10 - 0x08];
-    atn::Vector3 m10;
-    unsigned char m1C[0x28 - 0x1C];
-    float m28;
-    unsigned char m2C[0x5C - 0x2C];
-    float m5C;
-};
+// the effects of skills (game/SkillEffectManager.h): the magic circle followed by CharaTask::mC58.m110 (0xD68) and
+// the effects registered in CharaTask::m120C by SkillEffect::fn_805989A4 (formerly the views CharaD68_unk and
+// CharaAttach_unk)
+struct SkillEffect;
 
 // TODO: unused now (callers use atn::Model::fn_80094E2C); removing it renumbers the @N of every user of
 // this header, so it goes with the next batch of header changes
@@ -233,7 +214,7 @@ struct CharaC58_unk {
     int mPlace;     // 0xD5C: inferred: id of a place of the route tables
     float mRadius;  // 0xD60
     CharaTask* m10C; // 0xD64
-    CharaD68_unk* m110; // 0xD68
+    SkillEffect* m110; // 0xD68: inferred: magic circle being followed
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
@@ -735,8 +716,8 @@ public:
     void fn_8017547C(CharaTask* other); // inferred: starts dragging `other`
     void fn_80175A38(); // inferred: releases the dragged character (mF54)
     bool fn_80175AEC(); // inferred: control 0x74-0x77 is running
-    int fn_8017639C(CharaAttach_unk* obj);
-    int fn_801763E0(CharaAttach_unk* obj);
+    int fn_8017639C(SkillEffect* obj);
+    int fn_801763E0(SkillEffect* obj);
     int fn_80176428(int index);
     void fn_80154344();
     void fn_8015495C(int a, int b, int c, int d);
@@ -1224,7 +1205,7 @@ public:
     Chara1154_unk m1154;
     CharaFaceControl m1188;
     GimmickCommon* m1208; // inferred: held gimmick (the cannon of ControlCannonLift)
-    CharaAttach_unk* m120C[4]; // inferred: cleared with memset; filled by fn_8017639C
+    SkillEffect* m120C[4]; // inferred: cleared with memset; filled by fn_8017639C
     boost::scoped_ptr<atn::EfpFile> m121C;
     MotionCommand_unk m1220;
     int m1254;

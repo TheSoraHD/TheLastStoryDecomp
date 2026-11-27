@@ -62,7 +62,7 @@ void SkillEffect::fn_805989A4(HitInfo_unk* skill, CharaTask* user, CharaTask* ta
     m04 = skill;
     m08 = user;
     if (user != 0) {
-        user->fn_8017639C((CharaAttach_unk*)this); // inferred: CharaAttach_unk is a view of SkillEffect
+        user->fn_8017639C(this);
     }
     m0C = target;
     m5C = m04->m58;
@@ -152,7 +152,7 @@ void SkillEffect::fn_805991E0() {
     fn_8059A1FC(0);
     m00 = 3;
     if (m08 != 0) {
-        m08->fn_801763E0((CharaAttach_unk*)this); // inferred: CharaAttach_unk is a view of SkillEffect
+        m08->fn_801763E0(this);
         if (m04->m04 == 6004) {
             m08->fn_80178864(m04, m08);
         }
