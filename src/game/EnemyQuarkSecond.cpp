@@ -1,5 +1,6 @@
 #include "game/GameConfig_unk.h"
 #include "game/EnemyQuarkSecond.h"
+#include "math/VecAssign_unk.h"
 #include "macros.h"
 #include "game/GameVoice.h"
 #include "atn/ColliBase.h"
@@ -1778,18 +1779,28 @@ void EnemyQuarkSecond::fn_8033F7FC() {
     }
 }
 
+// inferred: number of kept hits (name invented; read through an inline, found with the Val_unk probe)
+static inline unsigned int CountOf_unk(const QuarkHits_unk& hits) {
+    return hits.mCount;
+}
+
+// inferred: linear interpolation of two vectors (name invented)
+static inline atn::Vector3 QuarkLerpV_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
 // inferred: pulls bullet `b` towards `target` in the stick attack; a bullet that arrives is kept (its skill,
 // at most 32) and removed. Not a member: the original is a function of the file with the enemy as first
 // argument (name keeps the address)
-// NONMATCHING: 95% - the original reads the count again before the copy of the shot and keeps the distance in
-// f31 before the test; stack slots of the temporaries of the two branches swapped; 5 variants
+// inferred: the count through CountOf_unk (Val_unk probe), the distance with Length_unk and the turn through
+// QuarkLerpV_unk copied with VecAssign_unk
 static void fn_803402C0(EnemyQuarkSecond* self, Bullet* b, const atn::Vector3& target) {
     atn::Vector3 pos = b->m08;
     b->m04 |= 0x200000;
     atn::Vector3 d = target - pos;
-    float dist = PSVECMag(&d);
+    float dist = d.Length_unk();
     if (dist <= 5.0f) {
-        if (self->m16D4.mCount < 32) {
+        if (CountOf_unk(self->m16D4) < 32) {
             BulletShot_unk shot;
             shot.m00 = b->m5C;
             shot.m04 = b->m60;
@@ -1809,9 +1820,7 @@ static void fn_803402C0(EnemyQuarkSecond* self, Bullet* b, const atn::Vector3& t
     float speed = PSVECMag(&v);
     if (b->m78 > 250.0f) {
         PSVECNormalize(&v, &v);
-        float t = (b->m78 - 200.0f) / 400.0f;
-        float k = QuarkMin_unk(1.0f, t);
-        v = (d - v) * k + v;
+        atn::VecAssign_unk(v, QuarkLerpV_unk(v, d, QuarkMin_unk(1.0f, (b->m78 - 200.0f) / 400.0f)));
     } else {
         d *= 3.0f;
         v = v + d;
