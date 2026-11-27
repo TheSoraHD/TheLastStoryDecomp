@@ -505,12 +505,14 @@ extern "C" EnemyTask* fn_8036DDD4(GameTask* task); // inferred: enemy in reach o
 
 // inferred: button of the cover attack (2 with the attack type A); name invented
 // inferred: drops the lock-on target when it can no longer be targeted (name invented)
+// inferred: the reload of the global in fn_800E4278 (config is also in a local there)
+static inline GameConfig_unk* Config_unk() { return lbl_8087F0A8; }
 static inline void ReleaseTarget_unk(CharaTask* self) {
     CharaTask* target = self->mFC4;
     if (target != 0) {
         if (!CanActB_unk(target) || self->mFlag31 || self->mFlag6 || (target->m54C & 0x2000) == 0x2000) {
             self->fn_8016DC14(0, 0);
-        } else if (!self->mFlag5 && lbl_8087F0A8->mInput.fn_801240B4(0x11)) {
+        } else if (!self->mFlag5 && Config_unk()->mInput.fn_801240B4(0x11)) {
             self->fn_8016DC14(0, 0);
         } else if (self->m55C == 6 && self->m560 == 0x1D) {
             self->fn_8016DC14(0, 0);
