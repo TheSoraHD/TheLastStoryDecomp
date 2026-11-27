@@ -1,23 +1,29 @@
-#!/usr/bin/env python3
-# blonly.py: functions of unlinked game units (95-99.99%) whose only differences are call targets
-# (bl X | bl Y) and label names: prints unit, function and the (original, ours) call pairs
-import subprocess,sys,re,json
-gu=[u['name'].rsplit('.',1)[0] for u in json.load(open('config/SLSP01/game_units.json')) if not u.get('matching') and 'CharaTask' not in u['name']]
-SYM=r'(lbl_[0-9A-F]+|@\S+?@|@\d+|\S*@STRING@\S*)'
-for u in gu:
-    o=subprocess.run(['build/tools/objdiff-cli','diff','-p','.','-u','main/'+u,'-o','-','--format','json'],capture_output=True,text=True).stdout
-    if not o: continue
-    d=json.loads(o)
-    for s in d['left']['symbols']:
-        p=s.get('match_percent')
-        if p is None or p>=100 or p<95 or 'instructions' not in s: continue
-        r=subprocess.run(['python3','tools/decomp/odiff2.py',u,s['name']],capture_output=True,text=True).stdout.splitlines()
-        bl=set();ok=bool(r)
-        for x in r:
-            m=re.match(r'\s*\d+\s+(\S+)\s+(.*?)\s+\|\s+(.*)$',x)
-            if not m or m.group(1)!='DIFF_ARG_MISMATCH': ok=False;break
-            a,b=m.group(2),m.group(3)
-            mb=re.match(r'bl (\S+)$',a.strip()); nb=re.match(r'bl (\S+)$',b.strip())
-            if mb and nb: bl.add((mb.group(1),nb.group(1))); continue
-            if re.sub(SYM,'S',a).split()!=re.sub(SYM,'S',b).split(): ok=False;break
-        if ok and bl: print(u,s['name'],sorted(bl),flush=True)
+# blonly.py lo hi: functions whose differences include call-target name mismatches (bl A | bl B)
+import json, subprocess, sys, os
+lo, hi = float(sys.argv[1]), float(sys.argv[2])
+r = json.load(open('build/SLSP01/report.json'))
+units = {}
+for u in r['units']:
+    un = u['name'][5:]
+    if not os.path.exists('src/%s.cpp' % un) and not os.path.exists('src/%s.c' % un): continue
+    for f in u.get('functions', []):
+        p = f.get('fuzzy_match_percent', 0)
+        if lo <= p < hi: units.setdefault(un, []).append((f['name'], p, int(f.get('size', 0))))
+for un, fs in sorted(units.items()):
+    o = subprocess.run(['build/tools/objdiff-cli', 'diff', '-p', '.', '-u', 'main/' + un, '-o', '-', '--format', 'json-pretty'], capture_output=True, text=True).stdout
+    try: d = json.loads(o)
+    except Exception: continue
+    L = {s['name']: s for s in d.get('left', {}).get('symbols', [])}
+    R = {s['name']: s for s in d.get('right', {}).get('symbols', [])}
+    for name, p, sz in fs:
+        if name not in L or name not in R: continue
+        a = L[name].get('instructions', []); b = R[name].get('instructions', [])
+        bls = []; other = 0
+        for x, y in zip(a, b):
+            k = x.get('diff_kind', '') or y.get('diff_kind', '')
+            if not k: continue
+            fa = x.get('instruction', {}).get('formatted', ''); fb = y.get('instruction', {}).get('formatted', '')
+            if fa.startswith('bl ') and fb.startswith('bl ') and fa != fb: bls.append((fa[3:], fb[3:]))
+            else: other += 1
+        if bls:
+            print('%-28s %-44s %5d %.3f other %d: %s' % (un, name[:44], sz, p, other, ' ; '.join('%s|%s' % (x[:40], y[:40]) for x, y in bls[:2]))); sys.stdout.flush()
