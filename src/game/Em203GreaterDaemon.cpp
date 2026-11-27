@@ -1060,12 +1060,18 @@ void Em203GreaterDaemon::fn_8028B75C(int wait) {
     }
 }
 
+// inferred: frame of the first motion track (name invented, as in game/EnemyQuarkStand.cpp)
+static inline float FrameOf_unk(const atn::Model& model) {
+    return model.mTracks[0].m08;
+}
+
 // inferred: state 7 (flies around the arena along the route; m14B4: 0 take off, 1 flight, 2 landing)
-// NONMATCHING: 99.20% - f0/f3 order after the motion length and stack slots
+// NONMATCHING: 99.87% - f9/f10 of 1 / length in the flight steps (stack fixed writing the turn to the
+// centre in place: FaceCenter_unk here leaves its temporaries under those of ToRotation_unk)
 void Em203GreaterDaemon::fn_8028BFE0() {
     if (m14B4 == 0) {
         float length = mMotion.fn_80097D7C(0) - 2.0f;
-        if (mMotion.mTracks[0].m08 >= length) {
+        if (FrameOf_unk(mMotion) >= length) {
             PlayMotion_unk(0x143, 1, 0, 1.0f);
             m14B4 = 1;
             mPos = m152C->mPos;
@@ -1096,13 +1102,13 @@ void Em203GreaterDaemon::fn_8028BFE0() {
         fn_8028AFD8(1);
     } else if (m14B4 == 2) {
         float length = mMotion.fn_80097D7C(0) - 2.0f;
-        if (mMotion.mTracks[0].m08 >= length) {
+        if (FrameOf_unk(mMotion) >= length) {
             ResetState_unk();
             m58C = 6;
             fn_8016E970(3);
             PlayMotion_unk(2, 1, 0, 1.0f);
             fn_80239DAC(lbl_8087F3C0, this, -2, 1);
-            FaceCenter_unk();
+            mRot.y = (m1978 - mPos).GetNormalize().ToRotation_unk().y;
             GameScene* table = lbl_8087F430->m10D8;
             int index = ((GameScene*)table)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
             mPos = table->m98.mData[index].mPos;
@@ -1533,11 +1539,6 @@ void Em203GreaterDaemon::fn_8028EF20() {
     } else if (20.0f < frame && frame <= 40.0f) {
         mPos -= m151C * (1.0f / (20.0f / mMotion.mTracks[0].m0C));
     }
-}
-
-// inferred: frame of the first motion track (name invented, as in game/EnemyQuarkStand.cpp)
-static inline float FrameOf_unk(const atn::Model& model) {
-    return model.mTracks[0].m08;
 }
 
 // inferred: state 21 (grand attack: breathes on all the party, one after the other); the frame read through
