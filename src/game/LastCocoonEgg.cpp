@@ -1,4 +1,5 @@
 #include "atn/EffectManager.h"
+#include "math/VecAssign_unk.h"
 #include "game/LastCocoonEgg.h"
 #include "game/PopupTask.h"
 #include "game/CharaManager.h"
@@ -633,15 +634,26 @@ inline atn::Vector3 EggShakeOffset_unk(const LastCocoonEggShake_unk& s) {
     float x = 2.0f * s.mX * ((rand() % 1001) / 1000.0f) - s.mX;
     atn::Vector3 v(x, 0.0f, z);
     if (s.m00 % 2 == 0) {
-        v = atn::Vector3(-v.x, -v.y, -v.z);
+        atn::VecAssign_unk(v, atn::Vector3(-v.x, -v.y, -v.z));
     }
     v *= (float)s.m00 / (float)s.mFrames;
     return v;
 }
 
-// NONMATCHING: 98.7% - registers of the place search and stack slots of the shake offset
+// NONMATCHING: 99.60% - float registers of the shake offset (x/z) and of the bob product; the place search
+// through TableOf_unk and the scale through EggLerpV_unk give the registers and the stack of the original
 // inferred: floats over the place 601 with a sine bob, adds the shake m2548 (alternating sign every frame,
 // fading with its frame count) and eases the scale m540 towards m14D0
+// inferred: linear interpolation of two vectors (name invented, as EggLerp_unk)
+inline atn::Vector3 EggLerpV_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: route table of the game task (name invented, as in game/ChaserNpc.cpp)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
 void LastCocoonEgg::fn_80454F08() {
     if (mC58.mC0 != 0) {
         if (m14CC != 0) {
@@ -651,7 +663,7 @@ void LastCocoonEgg::fn_80454F08() {
             m14C8 = 0;
         }
         float bob = 3.0f * (float)sin(6.2831855f * (m14C8 / 240.0f));
-        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(601);
+        gs::WarpPoint* place = TableOf_unk(lbl_8087F430)->FindPlace_unk(601);
         if (place != 0) {
             mPos = place->mPos;
         } else {
@@ -660,7 +672,8 @@ void LastCocoonEgg::fn_80454F08() {
         mPos.y = 15.0f + bob;
         mPos += EggShakeOffset_unk(m2548);
         if (m2A4C != 0) {
-            m540 = (atn::Vector3(m14D0, m14D0, m14D0) - m540) * m14D4 + m540;
+            atn::Vector3 target(m14D0, m14D0, m14D0);
+            m540 = EggLerpV_unk(m540, target, m14D4);
         }
     }
     fn_80144710();
