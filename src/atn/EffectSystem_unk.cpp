@@ -1214,12 +1214,20 @@ void fn_80230034(EffectSystem_unk* system, EffectInst_unk* inst, EffectParam_unk
 
 extern "C" float fn_8023329C(int curve, int emitter, const EffectAnimData_unk* data, int mul, float t, float base);
 
+// inferred: flag of the animation of an emitter (name invented)
+static inline bool EffectAnimFlag_unk(const EffectAnimData_unk* data, int emitter, unsigned int flag) {
+    return (data->mAnimFlags[emitter] & flag) == flag;
+}
+
 // NONMATCHING: 89% - written from the original; the vector temporaries and the order of the stores of
 // the translation differ
 // inferred: moves an instance (animated: by the curves 12-14 from its first frame; else by its velocity,
 // damped per axis) and starts its slots every period frames
 void EffectSystem_unk::fn_802301EC(EffectInst_unk* inst, EffectParam_unk* param, float* mtx) {
-    if ((inst->m1A & 0x7F) == 0 || sFrameStep == 0) {
+    if ((inst->m1A & 0x7F) == 0) {
+        return;
+    }
+    if (sFrameStep == 0) {
         return;
     }
     if (!(inst->m1C >= param->m48)) {
@@ -1237,7 +1245,7 @@ void EffectSystem_unk::fn_802301EC(EffectInst_unk* inst, EffectParam_unk* param,
     fn_80230034(this, inst, param, (const atn::Matrix3x4*)mtx, &frame, &period, &count);
     EffectAnimData_unk* data = inst->mData;
     int emitter = param - data->mParams;
-    if ((data->mAnimFlags[emitter] & 1) == 1 && param->m54 > 0) {
+    if (EffectAnimFlag_unk(data, emitter, 1) && param->m54 > 0) {
         atn::Matrix3x4 rot = inst->m6C;
         rot.m[0][3] = 0.0f;
         rot.m[1][3] = 0.0f;
@@ -1291,11 +1299,6 @@ extern "C" void fn_80233678(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
 extern "C" void fn_80233810(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
 extern "C" void fn_802339A8(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
 extern "C" void fn_80233B40(EffectColor_unk* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
-
-// inferred: flag of the animation of an emitter (name invented)
-static inline bool EffectAnimFlag_unk(const EffectAnimData_unk* data, int emitter, unsigned int flag) {
-    return (data->mAnimFlags[emitter] & flag) == flag;
-}
 
 // inferred: value clamped to [0, 1] (name invented)
 static inline void EffectClamp01_unk(float& v) {
