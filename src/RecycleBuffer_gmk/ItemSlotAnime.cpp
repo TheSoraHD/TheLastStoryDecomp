@@ -1,4 +1,5 @@
 #include "macros.h"
+#include "db/ItemParam_unk.h"
 #include "gmk/ItemSlotAnime.h"
 #include "atn/Task.h"
 #include "game/GameTask.h"
@@ -1112,13 +1113,6 @@ struct ItemSlotEquip_unk {
 extern "C" ItemSlotEquip_unk* fn_8020EE60(int index);        // inferred: equipment by index
 extern "C" ItemSlotEquip_unk* fn_8020ED84(int slot, int part); // inferred: equipment of a costume part
 extern "C" int fn_8020EF80(ItemSlotEquip_unk* entry);         // inferred: item id of an equipment
-// inferred: item data (only the id is used here)
-struct ItemSlotData_unk {
-    int m00;
-    int mId;
-};
-extern "C" int fn_802114D8();                     // inferred: number of items
-extern "C" ItemSlotData_unk* fn_802114E0(int index); // inferred: item by index
 extern "C" int rand();
 
 // inferred: writes in `text` the name of the item drawn for the current step: from the treasure
@@ -1265,7 +1259,7 @@ extern "C" int fn_804515A8(gmk::ItemSlotAnime* anime, wchar_t* text) {
     } else if (anime->m20->mId == 10009) {
         fn_80444CF8(text, anime->m20->mId, anime->m24, 1);
     } else {
-        ItemSlotData_unk* data = fn_802114E0(rand() % fn_802114D8());
+        ItemParamEntry_unk* data = fn_802114E0(rand() % fn_802114D8());
         fn_80444CF8(text, data->mId, rand() % (anime->m24 * 5), 1);
     }
     return 1;
