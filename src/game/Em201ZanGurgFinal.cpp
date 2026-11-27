@@ -21,7 +21,6 @@
 #include "game/BattleTask.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
-#include "db/WeaponParam_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -36,6 +35,15 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+// inferred: shield of the arena (fn_800457A4 makes a part, as in game/CharaTask.cpp; fn_80206C50 returns the
+// weapon data of an item id, as in gmk/DropItem.cpp)
+struct ZanWeapon_unk {
+    unsigned char m00[0x78];
+    int m78;
+    unsigned char m7C[0x80 - 0x7C];
+    int m80;
+};
+extern "C" ZanWeapon_unk* fn_80206C50(int id);
 extern "C" chr::CharaPart_unk* fn_800457A4(int kind, int id, int arg, CharaTask* chara, int arg2);
 extern "C" GameTask* lbl_8087F430;
 extern "C" GameTask* fn_80121F00();
@@ -601,8 +609,8 @@ Em201ZanGurgFinal::Em201ZanGurgFinal(atn::Task* parent, EnemyInfo_unk* info)
     m160C.LoadRequest("ef_we006.efp");
     m1618.LoadRequest("ef_bs073f.efp");
     mFlagB11 = 1;
-    WeaponParamEntry_unk* shield = fn_80206C50(0x18875);
-    m1628 = m1624 = fn_800457A4(shield->mKind, shield->mId, 0, this, 0);
+    ZanWeapon_unk* shield = fn_80206C50(0x18875);
+    m1628 = m1624 = fn_800457A4(shield->m78, shield->m80, 0, this, 0);
 }
 
 Em201ZanGurgFinal::~Em201ZanGurgFinal() {
@@ -2415,8 +2423,8 @@ struct ZanUIHint_unk : public GameUIElem1C_unk {
 
 // inferred: the leader takes the shield (names invented)
 inline void TakeShield_unk(Em201ZanGurgFinal* z, CharaTask* leader) {
-    WeaponParamEntry_unk* data = (WeaponParamEntry_unk*)z->m1624->m274;
-    fn_8044D104(Inventory::instance_, data->mKind, data->mId, 0, leader->m50);
+    ZanWeapon_unk* data = (ZanWeapon_unk*)z->m1624->m274;
+    fn_8044D104(Inventory::instance_, data->m78, data->m80, 0, leader->m50);
     chr::CharaPart_unk* old = leader->mParts.mData[1];
     fn_80044E0C(old, 1);
     leader->mParts.mData[1] = z->m1624;
