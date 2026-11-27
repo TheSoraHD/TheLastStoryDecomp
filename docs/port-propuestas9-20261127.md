@@ -1,0 +1,70 @@
+# port-propuestas9-20261127: arreglos del port de PC llevados a la decomp (regla 10)
+
+Rama `port-propuestas9-20261127` desde `main` (`02f7f9c8`, accesores-20261126), 2026-11-27, secuencial y sin agentes,
+dentro de la sesión de sincronización 7 del port (`TheSoraHD/TheLastStory-PortTest`, rama `sync-decomp7-20261127`).
+Objetivo: lo que el port de PC tuvo que arreglar con `#if TARGET_PC` porque la decomp leía un objeto con una vista de
+offsets de la Wii, con un tipo distinto en cada fichero o con una aridad que no era la real. Es la regla 10 de
+`CLAUDE.md`: un objeto, un solo tipo.
+
+## Resultado
+
+- **16418 / 18113** funciones (igual), código 66,59 %, unidades 757; fuzzy total 97,81190 -> 97,81192 (TacView).
+- `main.dol: OK` tras cada commit; `regress.py` lost 0 y `fuzzdrop.py` 0 contra el `report.json` de `02f7f9c8`;
+  `ordercheck.py` 0 fuera de orden y `mnemcheck.py` limpio en las 36 unidades tocadas; `poolcheck.py` con los mismos
+  avisos que antes en lo tocado; `labelcheck` igual que la referencia (tras `pdbatch.sh`); rep100 6.
+- **Sin bajadas.** Las que salieron al probar se quitaron (abajo, «Fuera»).
+- `symbols.txt`: solo renombrados (los métodos y parámetros que cambian de clase), seis tipos `data:` nuevos y el
+  re-emparejado de `@N` de `pd.sh`/`pdbatch.sh`.
+
+## Qué entró
+
+Cada cambio se probó por unidad con `fnstat.py` antes y después (mismo % en todas las funciones, salvo la subida de
+TacView), y con el build completo de la Wii.
+
+| Commit | Qué |
+|---|---|
+| `585e275f` | TacView `fn_805ABE74`: `fn_80219344(chara, type)` con sus dos argumentos, como su definición; r4 ya lleva `type` (97,08 -> 97,11 %) |
+| `cd1a2107` | Aridades que el original pasa en registros sin moverlos: `fn_80239794`/`fn_80234A8C` (los cuatro tamaños de main), `fn_800A5B30`/`fn_800DF16C` (sensibilidad), `fn_80089620` (dueño del menú de depuración) |
+| `c34f992b` | `atn::ColliBase` como objeto tocado por un rayo (fuera las dos vistas `CollObj_unk` de ControlStickByQuark y Em403WarLion; FlamingArrow tipado); `AIManager::m90` (fuera `Global8087EE68_unk`); `EquipParamEntry_unk::mA8` (fuera `CosEditEquip2_unk`) |
+| `2af0ffa3` | `SkillEffect`: el círculo mágico de `CharaTask::mC58.m110` y los efectos de `CharaTask::m120C` (fuera `CharaD68_unk` y `CharaAttach_unk`); `fn_8013C514/53C/544` son métodos de `SkillEffect` (copias fuera de línea en CharaTask.cpp) y `fn_8017639C/801763E0` toman `SkillEffect*` |
+| `a533dfb2` | `SkillEffect` como objetivo de TacView, de las líneas de puntería de GameUI y de `AiTarget` tipo 2 (fuera `TacViewTarget_unk` y `GameUIAimTarget_unk`); `TacView::fn_805AE034(SkillEffect*)` |
+| `043c42d4` | Em308InvertCrab pide el tutorial con el `GameUIElem1C_unk` real (fuera `CrabTutorial_unk`/`CrabMessage_unk`; vf10 99,80 -> 99,88 con `pd.sh`); `NewStaffRoll::mFade` es `atn::FadeColor*` (fuera `StaffRollFade_unk`); las tablas de las pistas d2anime por `atn::D2A_Track_unk::mTables` en D2AMpMenu, GameChoiceWindow, MenuCommonTask y NewTitleTask (antes `(char*)pista + 4`) |
+| `d3773d29` | `ColliTreeBounds_unk` como rejilla de las formas (fuera `ColliGrid_unk`; `vf1C` de ColliBase y de las cuatro formas); `ReplayShot_unk` deriva de `BulletShot_unk`; MenuCommonTask lee el evento como su `D2A_Common` y los colores del menú de `GameUI` (fuera `MenuAnimeEvent_unk` y `MenuColors_unk`) |
+| `cc8b9673` | Pad_unk lee las banderas del gestor de Wii Remote del `WPad_unk` real con máscaras, como las escribe WPad_unk.cpp (fuera las vistas locales `WPad_unk`/`WPadFlags_unk`) |
+| `39457724` | De la sync 6: `Sequence::m1CC` es el `unsigned long` que escribe `fn_8006BA8C` (EventParser ya no pasa un `int*`); Em001Necromancer lee `info->m04`; la tira de un efecto guarda su escena como `atn::Scene* mScene` (antes un `int` y un cast) |
+| `12c80ad2` | `symbols.txt`: `data:4byte` en `lbl_80750658` y `lbl_80787F68`, `data:wstring` en `lbl_8078C638`, `lbl_8087E0E0`, `lbl_8087E690`, `lbl_808813D0` (tablas que el port copia del `main.dol`); fuera los restos `.orig`/`.rej` que dejó accesores-20261126 |
+| `3834c25b`, `1fc7ca5b` | Vistas de parámetros de objeto, arma y armadura a la clase real (`ItemParamEntry_unk`, `WeaponParamEntry_unk`, `EquipParamEntry_unk`): MarketTask, ShopBase/ShopColor/ShopIdentify/ShopBuySell, TreasureBoxTable_unk, D2AMpMenuResult, CosEditBase, NewCampPartsItem, CosEditItemList_unk e ItemRare_unk; los miembros pasan al del mismo offset de la Wii (`mCountId` -> `mId`, `mKind` -> `mBC` o `mType`, `mPrice` -> `mC8`...) y las declaraciones locales de los getters, a las de las cabeceras de `db/`. `ItemParamEntry_unk::mC2` (rareza) es `signed char`: ItemRare_unk y GameUI la leen con `extsb` |
+| `1e492122` | `pdbatch.sh` en las unidades cuyas `@N` se movieron con los `#include` nuevos; Em201ZanGurgFinal vuelve a su vista (20 etiquetas de su pool no volvían a emparejar) |
+
+## Fuera, y por qué
+
+- **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas
+  de golpe de `BattleCalc_unk`): el original usa las dos formas en unidades ya al 100 % (`mFlagC26 = 1` en el
+  constructor y `m14A8 |= 0x4000000` en Em203, Em312...). Son un solo tipo (una unión de palabra y campos), así que no
+  rompen la regla 10; el problema del port es solo el orden de los bits en PC y se queda en su `#if`. No he probado a
+  pasar todos los lectores a una forma: `rlwimi` y `oris` no dan el mismo código.
+- **`SoundObject` sobre `SoundCore`**: es una vista del mismo objeto, pero `atn/SoundRef.h` lo incluyen cientos de
+  unidades y `SoundCore.h` trae declaraciones con parámetros con nombre: renumeraría `@N` en todo el juego. Pendiente
+  para un lote de cabeceras.
+- **`Model::fn_80096218` con `SimpleVector<unsigned int>`**: el original instancia `SimpleVector<unsigned long>` en
+  esa unidad (sus cadenas `@STRING@reserve__Q23atn16SimpleVector<Ul>FUii` están en `.sdata`, 0x8087D7CC). La decomp
+  tiene razón; el port se queda con su `#if`.
+- **ItemManager_unk con `atn::Vector4_unk`** (rectángulo de icono devuelto por memoria): baja cinco funciones del 100 %.
+- **DLAllocator** (`mallinfo` con `size_t`): en PC son 8 bytes; en la Wii `unsigned long` no es lo mismo que el `int`
+  del original. Se queda en el port.
+- **Vistas que quedan**: `GameUIItem_unk`, `BattleItem_unk` (sus condiciones son otra vista de `ItemParamFive_unk`),
+  `ItemSlotData_unk` (lee una palabra entera en 0x00), `ShopBase` `ShopWeapon_unk`/`ShopArmor_unk` (subestructuras
+  propias), `DropWeapon_unk` (una vista para armas y armaduras), `CosEditProtector` `CosEditItemData_unk` (baja con el
+  `#include`), Em201ZanGurgFinal `ZanWeapon_unk` (etiquetas), las vistas de equipo de CosEditItemList_unk
+  (`CosEditGear_unk`/`CosEditArmor_unk`) y el enlace `CharaListNode_unk` de Em202ForestSpider/EnemyQuarkSecond (el
+  `mNext` real está en `PlayerTask` y en `EnemyTask` por separado; llevarlo a `BattleCharaTask` es un cambio de cabecera).
+
+## Herramientas (en el proyecto del port, no en la decomp)
+
+- Conversión de una vista a la clase real: los miembros de la vista se marcan, clang (rama Wii, `wii_layout.py`)
+  señala cada acceso, y se renombran al miembro de la clase real del mismo offset de la Wii. Clang no siempre llega a
+  los cuerpos de los functores locales: la comprobación que vale es `fnstat.py` igual antes y después (un nombre que
+  existe en la clase real con otro offset cambia el código, como `mKind` de `BulletParam_unk` frente al `mBC` de la
+  vista).
+- Un `#include` nuevo de una cabecera de `db/` renumera `@N` de la unidad: `pd.sh`/`pdbatch.sh` lo arregla casi
+  siempre; `labelcheck.py` contra la referencia dice dónde falta.

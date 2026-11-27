@@ -8,6 +8,8 @@
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
 #include "game/MenuCommonTask.h"
+#include "db/ItemParam_unk.h"
+#include "db/WeaponParam_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -56,25 +58,13 @@ inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
     return D2A_TaskInstance32_unk::Create(parent, path);
 }
 
-// inferred: item data (fn_80211480)
-struct ShopItem_unk {
-    unsigned char m00[0x04];
-    int mCountId;          // 0x04: inferred: id counted by fn_804444E8
-    const wchar_t* mName;  // 0x08
-    const wchar_t* mText;  // 0x0C
-};
-extern "C" ShopItem_unk* fn_80211480(int id);
-extern "C" int fn_80211648(ShopItem_unk* item); // inferred: nonzero if the item can be sold
-// inferred: weapon data (fn_80206C50)
-struct ShopWeapon_unk {
-    unsigned char m00[0xB8];
-    int mKind; // 0xB8
-};
-extern "C" ShopWeapon_unk* fn_80206C50(int id);
+extern "C" ItemParamEntry_unk* fn_80211480(int id);
+extern "C" int fn_80211648(ItemParamEntry_unk* item); // inferred: nonzero if the item can be sold
+extern "C" WeaponParamEntry_unk* fn_80206C50(int id);
 extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
 extern "C" void fn_8044441C(Inventory* party, int id, int num); // inferred: removes items
 extern "C" int fn_80444564(Inventory* party, int id);
-extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
+extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
 extern "C" int fn_8044D560(Inventory* party);           // inferred: number of items to identify
@@ -398,7 +388,7 @@ void ShopIdentify::fn_805895B4() {
         ShopIdentifyEntry_unk* entry = &mItems[mCursor];
         int error;
         if (entry->mDone != 0) {
-            ShopItem_unk* item = fn_80211480(entry->mItem);
+            ItemParamEntry_unk* item = fn_80211480(entry->mItem);
             if (item != 0 && fn_80211648(item) == 0) {
                 error = 3;
             } else if (fn_804444E8(Inventory::instance_, entry->mItem) <= 0) {
@@ -498,7 +488,7 @@ void ShopIdentify::fn_80589AF4() {
         if (index < (int)mItems.size()) {
             ShopIdentifyEntry_unk* entry = &mItems[index];
             int icon;
-            ShopItem_unk* item = fn_80211480(entry->mItem);
+            ItemParamEntry_unk* item = fn_80211480(entry->mItem);
             if (entry->mDone != 0) {
                 mList[i]->SetText_unk("itemName", item->mName);
                 mList[i]->SetValue0_unk("showPrice", 0.0f);
@@ -510,9 +500,9 @@ void ShopIdentify::fn_80589AF4() {
                     mList[i]->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
                 }
             } else {
-                ShopWeapon_unk* weapon = fn_80206C50(entry->mItem);
+                WeaponParamEntry_unk* weapon = fn_80206C50(entry->mItem);
                 if (weapon != 0) {
-                    mList[i]->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    mList[i]->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB));
                 } else {
                     mList[i]->SetText_unk("itemName", lbl_8087E690 + 3);
                 }
@@ -534,7 +524,7 @@ void ShopIdentify::fn_80589AF4() {
 void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
     mContent->mFlags &= ~4;
     ((atn::D2A_Task*)mContent)->SetNumber_unk("myMoney", Inventory::instance_->mMoney, 0);
-    ShopItem_unk* item = fn_80211480(entry->mItem);
+    ItemParamEntry_unk* item = fn_80211480(entry->mItem);
     if (entry->mDone == 0 || (item != 0 && fn_80211648(item) == 0)) {
         SetPaneFloat_unk(&mContent->mData.m10, "showSell", 0.0f);
     } else {
@@ -554,7 +544,7 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
     SetPaneValue_unk(&mContent->mData.m10, "pos0009", 0, 175.0f - width - 16.0f);
     if (help) {
         if (entry->mDone != 0) {
-            ShopItem_unk* info = fn_80211480(entry->mItem);
+            ItemParamEntry_unk* info = fn_80211480(entry->mItem);
             if (info != 0) {
                 MenuCommonTask::sInstance->fn_804A3C24(info->mText, 0);
             }
@@ -572,11 +562,11 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
 // the temporaries differ and the registers of the inlined SetPaneText_unk are swapped
 void ShopIdentify::fn_8058A0F0(ShopIdentifyEntry_unk* entry) {
     mResult->mFlags &= ~4;
-    ShopItem_unk* item = fn_80211480(entry->mItem);
-    ShopWeapon_unk* weapon = fn_80206C50(entry->mItem);
+    ItemParamEntry_unk* item = fn_80211480(entry->mItem);
+    WeaponParamEntry_unk* weapon = fn_80206C50(entry->mItem);
     std::basic_string<wchar_t> name;
     if (weapon != 0) {
-        name = lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB);
+        name = lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB);
     }
     SetPaneText_unk(&mResult->mData.m10, "before", fn_801170C8(0, 0x2760, name.data()));
     SetPaneText_unk(&mResult->mData.m10, "after", item->mName);

@@ -22,7 +22,7 @@ extern "C" void* fn_800F52F8();
 extern "C" float fn_802F0998(void* settings); void* fn_801404F8();
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" int fn_801A03F4(void* obj); // inferred: the hit object is a character
+extern "C" int fn_801A03F4(atn::ColliBase* obj); // inferred: the hit object is a character (chr/ControlStickByQuark.cpp)
 extern "C" float fn_801A03E8(const atn::Vector3* a, const atn::Vector3* b); // inferred: dot product
 // inferred: effect manager (class unknown)
 struct ArrowEffectMgr_unk;

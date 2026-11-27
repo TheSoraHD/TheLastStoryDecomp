@@ -77,7 +77,7 @@ extern "C" void* lbl_8087EE90;
 extern "C" void fn_8006BA54(unsigned char lang);
 extern "C" void fn_80071220();
 extern "C" void fn_800713D4(void* obj, int w, int h);
-extern "C" void fn_80089620();
+extern "C" void fn_80089620(void* owner);
 extern "C" void fn_800B95C4();
 extern "C" void fn_800696C8();
 extern "C" void fn_800BC798();
@@ -215,7 +215,8 @@ void fn_8047A4C8() {
     fn_800713D4(lbl_8087EEE0, 640, 448);
     OSReport("0\n");
     lbl_8087F530 = new ((MemoryTag)1, "", "", 0) atn::Task(0);
-    fn_80089620();
+    // inferred: the owner of the debug menu is the task just created (r3 still holds it in the original)
+    fn_80089620(lbl_8087F530);
     fn_800B95C4();
     fn_80363CE4();
     lbl_8087F420->m18 = 1;

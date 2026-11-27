@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "game/Input_unk.h"
 #include "game/TownTask.h"
+#include "db/ItemParam_unk.h"
 
 extern "C" int rand();
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
@@ -14,17 +15,8 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 
-// inferred: item data (fn_802114E0 returns the item of an index, fn_802114D8 the count)
-struct ItemData_unk {
-    unsigned char m00[0x4];
-    int m04; // inferred: id
-    unsigned char m08[0xBC - 0x08];
-    short mBC; // inferred: kind (9: sold in the market)
-    unsigned char mBE[0xC8 - 0xBE];
-    int mC8;
-};
-extern "C" ItemData_unk* fn_802114E0(int index);
-extern "C" ItemData_unk* fn_80211480(int id);           // inferred: item of an id
+extern "C" ItemParamEntry_unk* fn_802114E0(int index);
+extern "C" ItemParamEntry_unk* fn_80211480(int id);           // inferred: item of an id
 extern "C" float fn_802179BC(int level, int step);      // inferred: price rate (percent)
 extern "C" int fn_802114D8();
 extern "C" int fn_802179B4(); // inferred: number of price levels
@@ -51,9 +43,9 @@ MarketTask::MarketTask(atn::Task* parent)
         if (m58.size() >= 30) {
             break;
         }
-        ItemData_unk* item = fn_802114E0(i);
+        ItemParamEntry_unk* item = fn_802114E0(i);
         if (item->mBC == 9 && item->mC8 > 0) {
-            m58.push_back(MarketItem_unk(item->m04, flag, flag2, flag3));
+            m58.push_back(MarketItem_unk(item->mId, flag, flag2, flag3));
             flag++;
             flag2++;
             flag3++;
@@ -130,7 +122,7 @@ void MarketTask::fn_804A233C() {
 }
 
 // inferred: item data of `id` (ids <= 0 have none)
-static inline ItemData_unk* __GetItem_unk(int id) {
+static inline ItemParamEntry_unk* __GetItem_unk(int id) {
     return id > 0 ? fn_80211480(id) : 0;
 }
 
@@ -142,7 +134,7 @@ int MarketTask::fn_804A24C4(int id) {
 }
 
 int MarketTask::fn_804A251C(int id) {
-    ItemData_unk* data = __GetItem_unk(id);
+    ItemParamEntry_unk* data = __GetItem_unk(id);
     if (data != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {

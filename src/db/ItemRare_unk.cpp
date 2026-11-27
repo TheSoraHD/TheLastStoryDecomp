@@ -1,6 +1,9 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/Array_unk.h"
+#include "db/WeaponParam_unk.h"
+#include "db/EquipParam_unk.h"
+#include "db/ItemParam_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -17,31 +20,6 @@ extern "C" void fn_8046DD20(atn::Loader* mgr, void* data);
 
 extern "C" void fn_80216AFC(const char* id, int* a, int* b, int* c); // inferred: splits an id
 
-// inferred: tables of other files (only the members read here)
-struct ItemData_unk {
-    int m00;
-    int m04; // inferred: id of the weapon / equipment
-    char m08[0xC2 - 0x08];
-    signed char mC2;
-};
-struct WeaponData_unk {
-    char m00[0x78];
-    int m78;
-    int m7C;
-    int m80;
-    char m84[0x114 - 0x84];
-    int m114;
-};
-struct EquipData_unk {
-    char m00[0x78];
-    int mKind;
-    int mId;
-};
-extern "C" ItemData_unk* fn_80211480(int id);
-extern "C" int fn_80206B9C(int id);
-extern "C" WeaponData_unk* fn_80206C50(int id);
-extern "C" int fn_8020EF04(int code);
-extern "C" EquipData_unk* fn_8020EFEC(int code);
 
 // inferred: one item of a rare table row: kind (1 "ws"/"wg", 2 "qu"/"ql", 0 other, 3 none), sub kind,
 // number and the number after '_' (upper bound of a range)
@@ -208,46 +186,46 @@ static inline int HasItem2_unk(RareEntry_unk* entry, int kind, int value, int su
 // inferred: whether an item is rare for a row
 // The int index compared as unsigned gives the register order of the original
 extern "C" bool fn_80213B78(int id, int kind, int sub, int num) {
-    ItemData_unk* item = fn_80211480(id);
+    ItemParamEntry_unk* item = fn_80211480(id);
     bool result;
     if (item == 0) {
         result = false;
-    } else if (fn_80206B9C(item->m04)) {
-        WeaponData_unk* weapon = fn_80206C50(item->m04);
+    } else if (fn_80206B9C(item->mId)) {
+        WeaponParamEntry_unk* weapon = fn_80206C50(item->mId);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-        result = weapon->m114 != 0 || (entry != 0 && HasItem_unk(entry, 1, weapon->m78, weapon->m80));
-    } else if (fn_8020EF04(item->m04)) {
-        EquipData_unk* equip = fn_8020EFEC(item->m04);
+        result = weapon->m114 != 0 || (entry != 0 && HasItem_unk(entry, 1, weapon->mKind, weapon->mId));
+    } else if (fn_8020EF04(item->mId)) {
+        EquipParamEntry_unk* equip = fn_8020EFEC(item->mId);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
         result = entry != 0 && HasItem_unk(entry, 2, equip->mKind, equip->mId);
     } else {
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-        result = item->mC2 != 0 || (entry != 0 && HasItem_unk(entry, 0, 0, item->m04));
+        result = item->mC2 != 0 || (entry != 0 && HasItem_unk(entry, 0, 0, item->mId));
     }
     return result;
 }
 
 // inferred: field getters of the item tables (the getters load the arguments right to left)
-static inline int GetSub_unk(const WeaponData_unk* w) { return w->m78; }
-static inline int GetValue_unk(const WeaponData_unk* w) { return w->m80; }
-static inline int GetSub_unk(const EquipData_unk* e) { return e->mKind; }
-static inline int GetValue_unk(const EquipData_unk* e) { return e->mId; }
+static inline int GetSub_unk(const WeaponParamEntry_unk* w) { return w->mKind; }
+static inline int GetValue_unk(const WeaponParamEntry_unk* w) { return w->mId; }
+static inline int GetSub_unk(const EquipParamEntry_unk* e) { return e->mKind; }
+static inline int GetValue_unk(const EquipParamEntry_unk* e) { return e->mId; }
 
 // inferred: as fn_80213B78 for item data
-extern "C" bool fn_80213E60(ItemData_unk* item, int kind, int sub, int num) {
+extern "C" bool fn_80213E60(ItemParamEntry_unk* item, int kind, int sub, int num) {
     if (item == 0) {
         return false;
     }
-    if (fn_80206B9C(item->m04)) {
-        WeaponData_unk* weapon = fn_80206C50(item->m04);
+    if (fn_80206B9C(item->mId)) {
+        WeaponParamEntry_unk* weapon = fn_80206C50(item->mId);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
         return weapon->m114 != 0 || (entry != 0 && HasItem2_unk(entry, 1, GetValue_unk(weapon), GetSub_unk(weapon)));
     }
-    if (fn_8020EF04(item->m04)) {
-        EquipData_unk* equip = fn_8020EFEC(item->m04);
+    if (fn_8020EF04(item->mId)) {
+        EquipParamEntry_unk* equip = fn_8020EFEC(item->mId);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
         return entry != 0 && HasItem2_unk(entry, 2, GetValue_unk(equip), GetSub_unk(equip));
     }
     RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-    return item->mC2 != 0 || (entry != 0 && HasItem2_unk(entry, 0, item->m04, 0));
+    return item->mC2 != 0 || (entry != 0 && HasItem2_unk(entry, 0, item->mId, 0));
 }

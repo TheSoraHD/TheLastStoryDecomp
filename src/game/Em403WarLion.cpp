@@ -1559,12 +1559,6 @@ static inline PlayerTask* FirstOf_unk(PlayerManager* players) {
 inline CharaTask* NextChara_unk(CharaTask* chara) {
     return static_cast<PlayerTask*>(chara)->mNext;
 }
-// inferred: object hit by a ray (the character is at 0x0C, as in game/CharaTask.cpp)
-struct CollObj_unk {
-    unsigned char m00[0x08];
-    unsigned int m08;
-    CharaTask* m0C;
-};
 
 // NONMATCHING: 99.25% - the state test: the original compares m560 with 4 and 5 (no range check) through
 // a copy of the pointer from an inline (`Val_unk(c)->m560 == 4` gives 100 %, not kept: identity helper)
@@ -1603,8 +1597,8 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &c->mColli, 0) == 0) {
                 continue;
             }
-            CollObj_unk* obj = (CollObj_unk*)result.m38;
-            if ((obj->m08 & 2) != 2 || obj->m0C != this) {
+            atn::ColliBase* obj = result.m38; // inferred: the shape hit; flags bit 1 = a character, m0C its owner
+            if ((obj->mFlags & 2) != 2 || obj->m0C != this) {
                 continue;
             }
             target = mPos;

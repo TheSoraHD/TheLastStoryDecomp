@@ -5,6 +5,7 @@
 #include "game/Inventory.h"
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
+#include "db/ItemParam_unk.h"
 
 // inferred: character task of a multiplayer player; only the flags used here
 struct MpCharaTask_unk : public atn::Task {
@@ -90,14 +91,9 @@ struct MpCharaInfo_unk {
 };
 extern "C" MpCharaInfo_unk* fn_8020924C(int id);
 
-// inferred: item data
-struct MpItem_unk {
-    unsigned char m00[0x8];
-    const wchar_t* mName;
-};
 typedef atn::Vector4_unk MpUV_unk; // inferred: texture rectangle
-extern "C" MpItem_unk* fn_80211480(int id);
-extern "C" int fn_80444BE8(void* mgr, MpItem_unk* item);
+extern "C" ItemParamEntry_unk* fn_80211480(int id);
+extern "C" int fn_80444BE8(void* mgr, ItemParamEntry_unk* item);
 extern "C" MpUV_unk fn_80444C50(void* mgr, int icon);
 
 extern "C" GameTask* lbl_8087F430;
@@ -853,7 +849,7 @@ void D2AMpMenuResult::fn_804C822C() {
                 SetPaneText_unk(&mA0[i]->mData.m10, "string0028(1)(1)", str);
                 mA0[i]->SetText_unk("string0029(1)", (int)"");
                 if (fn_804EB480(lbl_8087F610, player) == 0 && item > 0) {
-                    MpItem_unk* data = fn_80211480(item);
+                    ItemParamEntry_unk* data = fn_80211480(item);
                     int icon = fn_80444BE8(Inventory::instance_, data);
                     if (data != 0) {
                         fn_800DD3FC(text, L"%s\0", data->mName);

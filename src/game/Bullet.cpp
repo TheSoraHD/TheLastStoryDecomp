@@ -170,7 +170,7 @@ void Bullet::fn_8010F018(const BulletShot_unk* shot, const atn::Vector3* pos, co
     if (record != 0 && lbl_8087F430->m5590 != 0) {
         ReplayEvent_unk ev;
         ev.mKind = 0;
-        *(BulletShot_unk*)&ev.mShot = *shot;
+        static_cast<BulletShot_unk&>(ev.mShot) = *shot;
         ev.mPos = *pos;
         ev.mDir = *dir;
         ev.mOwner = m88;

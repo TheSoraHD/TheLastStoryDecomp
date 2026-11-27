@@ -3098,7 +3098,7 @@ int BattleCharaTask::fn_800EE794(SkillEffect* effect) {
             state.m0C.y -= 5.0f;
         }
         SetState_unk(state);
-        mC58.m110 = (CharaD68_unk*)effect;
+        mC58.m110 = effect;
         mC58.m2B8 = 150;
         return 1;
     }

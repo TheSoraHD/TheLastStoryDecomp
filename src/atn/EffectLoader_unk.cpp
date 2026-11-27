@@ -8,7 +8,7 @@
 
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" unsigned int fn_802386FC(struct EffectResData_unk* res, int frames); // inferred: (atn/EffectRes_unk.cpp)
-extern "C" void fn_80234A8C();
+extern "C" void fn_80234A8C(int strips, int models, int buf, int verts);
 
 
 // inferred: byte reverse of a 32-bit value (the stores of it are compiled as stwbrx)
@@ -379,6 +379,7 @@ extern "C" void fn_802396A0(EffectResData_unk* res) {
     }
 }
 
-extern "C" void fn_80239794() {
-    fn_80234A8C();
+// inferred: a tail call that passes the four sizes of main through r3-r6 unchanged
+extern "C" void fn_80239794(int strips, int models, int buf, int verts) {
+    fn_80234A8C(strips, models, buf, verts);
 }

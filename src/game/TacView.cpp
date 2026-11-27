@@ -1069,7 +1069,7 @@ void TacView::fn_805AA94C(atn::Vector3* pos, atn::Vector3* move, int free, int r
                     best = dist;
                     sel.m04 = 0;
                     sel.mState = 1;
-                    sel.mTarget = (TacViewTarget_unk*)e;
+                    sel.mTarget = e;
                 }
             }
             for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
@@ -1327,7 +1327,7 @@ void TacView::fn_805AB828(int mode) {
     }
 }
 
-extern "C" HitInfo_unk* fn_80219344(CharaTask* chara); // inferred: default skill of the character
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int kind); // db/PlayerParam_unk.cpp
 
 // inferred: the gauge of `chara` is full (players only check the ratio; nonzero 0x4 state never) (name invented)
 inline bool IsGaugeFull_unk(CharaTask* chara) {
@@ -1519,7 +1519,9 @@ void TacView::fn_805ABE74() {
                 if (slot >= 0) {
                     m54.m54[i] = chara->mStatus.m2CC[slot].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2CC[slot].m[0]) : 0;
                 } else {
-                    m54.m54[i] = fn_80219344(chara);
+                    // inferred: the definition takes (chara, kind) and r4 still holds `type` here (cmpwi r4, 6
+                    // above): the original passes it without a move (the port crashed with the kind left out)
+                    m54.m54[i] = fn_80219344(chara, type);
                 }
             } else {
                 int slot = m54.m74[i];
@@ -1819,7 +1821,7 @@ void TacView::fn_805ADF50(CharaTask* chara) {
     }
 }
 
-void TacView::fn_805AE034(TacViewTarget_unk* target) {
+void TacView::fn_805AE034(SkillEffect* target) {
     if (target != 0) {
         TacViewSel_unk old = mAim.mCursor;
         if (old.mState == 2 || (old.mState == 1 && old.mTarget != target)) {

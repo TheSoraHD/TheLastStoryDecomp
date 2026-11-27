@@ -1,17 +1,13 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "db/ItemParam_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
-// inferred: item data (db/ItemParam_unk); only the member used here
-struct TreasureItemData_unk {
-    unsigned char m00[0xBC];
-    short mKind; // inferred: 0xBC
-};
-extern "C" TreasureItemData_unk* fn_80211480(int id); // inferred: item data by id
+extern "C" ItemParamEntry_unk* fn_80211480(int id); // inferred: item data by id
 extern "C" int fn_80206B9C(int id);                   // inferred: item test (db/WeaponParam_unk)
 extern "C" int fn_8020EF04(int id);                   // inferred: item test (db/EquipParam_unk)
 
@@ -192,13 +188,13 @@ static inline bool IsGil_unk(int id) {
     return false;
 }
 
-static inline TreasureItemData_unk* GetItemData_unk(int id) {
+static inline ItemParamEntry_unk* GetItemData_unk(int id) {
     return id > 0 ? fn_80211480(id) : 0;
 }
 
 static inline bool IsKind_unk(int id, int kind) {
-    TreasureItemData_unk* data = GetItemData_unk(id);
-    if (data != 0 && data->mKind == kind) {
+    ItemParamEntry_unk* data = GetItemData_unk(id);
+    if (data != 0 && data->mBC == kind) {
         return true;
     }
     return false;

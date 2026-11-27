@@ -25,15 +25,16 @@ struct BulletShot_unk {
 
 // inferred: event recorded by the replay (0x44 bytes; kind 0: shot, 1: removed, 2: homing shot,
 // 3: homing removed). Names invented.
-struct ReplayShot_unk {
-    ReplayShot_unk() : m00(0.1f), m04(0), m08(0), m10(0), m14(0.0f), m18(1.0f) {}
-    float m00;
-    int m04;
-    int m08;
-    HitInfo_unk* m0C;
-    int m10;
-    float m14;
-    float m18;
+// The shot of the event is a BulletShot_unk (Bullet::fn_8010F018 copies the shot over it) with defaults.
+struct ReplayShot_unk : public BulletShot_unk {
+    ReplayShot_unk() {
+        m00 = 0.1f;
+        m04 = 0;
+        m08 = 0;
+        m10 = 0;
+        m14 = 0.0f;
+        m18 = 1.0f;
+    }
 };
 struct ReplayEvent_unk {
     int mKind;

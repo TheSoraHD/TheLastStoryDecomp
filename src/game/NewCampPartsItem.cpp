@@ -12,6 +12,8 @@
 #include "game/MslSort_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
+#include "db/ItemParam_unk.h"
+#include "db/WeaponParam_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 struct Pad_unk;
@@ -22,17 +24,7 @@ extern "C" atn::SoundRef fn_80117228(int id);                // inferred: plays 
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: message text
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: item data returned by fn_80211480 (only the members used here)
-struct NewCampItemData_unk {
-    unsigned char m00[0x04];
-    int mCountId;         // 0x04: inferred: id counted by fn_804444E8
-    const wchar_t* mName; // 0x08
-    const wchar_t* mHelp; // 0x0C
-    unsigned char m10[0xBC - 0x10];
-    short mKind; // 0xBC: inferred: item kind (as MenuItem_unk of game/MenuCommon_unk.cpp)
-};
-extern "C" NewCampItemData_unk* fn_80211480(int id); // inferred: item data
-extern "C" bool fn_8021175C(NewCampItemData_unk* item); // inferred: the item has no count (key items)
+extern "C" bool fn_8021175C(ItemParamEntry_unk* item); // inferred: the item has no count (key items)
 // inferred: creates a d2anime task (atn/D2A_Task.h declares it with the D2A_Task type; not included: its
 // D2A_Data.h gives a warning)
 extern "C" NewCampItemD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
@@ -363,21 +355,12 @@ void NewCampPartsItem::vf30() {
     fn_8051B164();
 }
 
-struct NewCampWeapon_unk {
-    unsigned char m00[0x78];
-    int mOrder; // 0x78: inferred: order of the weapons in the item list
-    unsigned char m7C[0xB8 - 0x7C];
-    int mKind; // 0xB8
-};
-extern "C" NewCampWeapon_unk* fn_80206C50(int code);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-extern "C" NewCampItemData_unk* fn_802114E0(int index); // inferred: entry of the item table by index
-extern "C" int fn_8011728C(int category, NewCampItemData_unk* item); // inferred: the item is in the category
-extern "C" int fn_801173A8(NewCampItemData_unk* item);               // inferred: category of the item
+extern "C" int fn_8011728C(int category, ItemParamEntry_unk* item); // inferred: the item is in the category
+extern "C" int fn_801173A8(ItemParamEntry_unk* item);               // inferred: category of the item
 extern "C" int fn_8021150C(int id);                                   // inferred: order of the item in its table
 extern "C" int fn_8044D560(Inventory* party);                         // inferred: number of items to identify
 extern "C" int fn_8044D500(Inventory* party, int index);              // inferred: item to identify
-extern "C" bool fn_80206B9C(int code);                                // inferred: whether an item code is a weapon
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...);   // inferred: swprintf
 extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
@@ -399,15 +382,15 @@ static void CopyBaseName_unk(wchar_t* dst, const wchar_t* name) {
 // NONMATCHING: 99.85% (out-of-line copy 0x80519948) - r29/r30 of the two names of the last compare
 struct NewCampCategoryLess_unk {
     bool operator()(const NewCampItemEntry_unk& a, const NewCampItemEntry_unk& b) const {
-        NewCampItemData_unk* da = (NewCampItemData_unk*)a.m10;
-        NewCampItemData_unk* db = (NewCampItemData_unk*)b.m10;
+        ItemParamEntry_unk* da = (ItemParamEntry_unk*)a.m10;
+        ItemParamEntry_unk* db = (ItemParamEntry_unk*)b.m10;
         int ca = fn_801173A8(da);
         int cb = fn_801173A8(db);
         if (ca != cb) {
             return ca < cb;
         }
-        short kb = db->mKind;
-        short ka = da->mKind;
+        short kb = db->mBC;
+        short ka = da->mBC;
         if (ka != kb) {
             return ka < kb;
         }
@@ -420,24 +403,24 @@ struct NewCampCategoryLess_unk {
         if (a.m08 == 0 && b.m08 != 0) {
             return false;
         }
-        NewCampWeapon_unk* wa = 0;
-        NewCampWeapon_unk* wb = 0;
+        WeaponParamEntry_unk* wa = 0;
+        WeaponParamEntry_unk* wb = 0;
         if (fn_80206B9C(a.mId)) {
             wa = fn_80206C50(a.mId);
         }
         if (fn_80206B9C(b.mId)) {
             wb = fn_80206C50(b.mId);
         }
-        if (wa != 0 && wb != 0 && wa->mOrder != wb->mOrder) {
-            return wa->mOrder < wb->mOrder;
+        if (wa != 0 && wb != 0 && wa->mKind != wb->mKind) {
+            return wa->mKind < wb->mKind;
         }
         const wchar_t* na = da->mName;
         if (a.m08 == 0 && wa != 0) {
-            na = lbl_8087F1E4->GetPair_unk(wa->mKind + 0xEB);
+            na = lbl_8087F1E4->GetPair_unk(wa->mType + 0xEB);
         }
         const wchar_t* nb = db->mName;
         if (b.m08 == 0 && wb != 0) {
-            nb = lbl_8087F1E4->GetPair_unk(wb->mKind + 0xEB);
+            nb = lbl_8087F1E4->GetPair_unk(wb->mType + 0xEB);
         }
         wchar_t sa[64];
         CopyBaseName_unk(sa, na);
@@ -486,12 +469,12 @@ void NewCampPartsItem::fn_80517B3C() {
         if (item == 0 || item->mCount <= 0) {
             continue;
         }
-        NewCampItemData_unk* data = fn_802114E0(i);
+        ItemParamEntry_unk* data = fn_802114E0(i);
         if (!fn_8011728C(mE0, data)) {
             continue;
         }
         NewCampItemEntry_unk entry;
-        entry.mId = data->mCountId;
+        entry.mId = data->mId;
         entry.m04 = item->m08;
         entry.m06 = item->mCount;
         entry.m08 = 1;
@@ -539,9 +522,9 @@ inline void NewCampPartsItem::SetState_unk(int state) {
 // inferred: help text and item view of an entry; name invented
 static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
     if (entry->m08 != 0) {
-        NewCampItemData_unk* data = fn_80211480(entry->mId);
+        ItemParamEntry_unk* data = fn_80211480(entry->mId);
         if (data != 0) {
-            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mText, 0);
         }
     } else {
         MenuCommonTask* menu = MenuCommonTask::sInstance;
@@ -555,7 +538,7 @@ static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
 // inferred: icon and weapon data (as in game/ShopIdentify.cpp)
 typedef atn::Vector4_unk NewCampItemUV_unk; // inferred: texture rectangle
 extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
-extern "C" int fn_80444BE8(Inventory* party, NewCampItemData_unk* item);
+extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" NewCampItemUV_unk fn_80444C50(Inventory* party, int icon);
 
@@ -569,22 +552,22 @@ void NewCampPartsItem::fn_8051B164() {
         int index = mE8 + i;
         if (index < (int)mList.size()) {
             NewCampItemEntry_unk* entry = &mList[index];
-            NewCampItemData_unk* item = fn_80211480(entry->mId);
+            ItemParamEntry_unk* item = fn_80211480(entry->mId);
             if (item != 0) {
                 int icon;
                 if (entry->m08 != 0) {
                     if (fn_8021175C(item)) {
                         task->SetText_unk("num", L"--");
                     } else {
-                        task->SetNumber_unk("num", fn_804444E8(Inventory::instance_, item->mCountId), 0);
+                        task->SetNumber_unk("num", fn_804444E8(Inventory::instance_, item->mId), 0);
                     }
                     task->SetText_unk("item", item->mName);
                     icon = fn_80444BE8(Inventory::instance_, item);
                     NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);
                 } else {
-                    NewCampWeapon_unk* weapon = fn_80206C50(item->mCountId);
+                    WeaponParamEntry_unk* weapon = fn_80206C50(item->mId);
                     task->SetText_unk("num", L"1");
-                    task->SetText_unk("item", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    task->SetText_unk("item", lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB));
                     icon = fn_80444C48(Inventory::instance_);
                 }
                 NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);

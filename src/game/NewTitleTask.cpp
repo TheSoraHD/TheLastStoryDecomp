@@ -121,7 +121,7 @@ static const int sItems1[1] = {1};
 
 // inferred: value of a pane track at frame 0 (as D2A_Task::GetTrack_unk of game/GameUI.cpp)
 inline float GetTrackValue_unk(atn::D2A_Task* layout, const char* name) {
-    return fn_801F0544((char*)fn_801FEB9C(&layout->mData.m10, name) + 4, 0);
+    return fn_801F0544(((atn::D2A_Track_unk*)fn_801FEB9C(&layout->mData.m10, name))->mTables, 0);
 }
 
 NewTitleTask* fn_80531ED0(atn::Task* parent, int arg) {

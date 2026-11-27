@@ -7,6 +7,7 @@
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
 #include "game/MenuCommonTask.h"
+#include "db/ItemParam_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -37,18 +38,11 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 
-// inferred: item data (fn_80211480)
-struct ShopItem_unk {
-    unsigned char m00[0x04];
-    int mCountId;          // 0x04: inferred: id counted by fn_804444E8
-    const wchar_t* mName;  // 0x08
-    const wchar_t* mText;  // 0x0C
-};
-extern "C" ShopItem_unk* fn_80211480(int id);
+extern "C" ItemParamEntry_unk* fn_80211480(int id);
 // inferred: party data (Inventory::instance_)
 extern "C" int fn_804444E8(void* party, int id); // inferred: number of items
 extern "C" void fn_8044441C(void* party, int id, int num); // inferred: removes items
-extern "C" int fn_80444BE8(void* party, ShopItem_unk* item);
+extern "C" int fn_80444BE8(void* party, ItemParamEntry_unk* item);
 extern "C" ShopUV_unk fn_80444C50(void* party, int icon);
 extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
                             int end);
@@ -314,7 +308,7 @@ void ShopColor::fn_80587E3C() {
         ShopColorEntry_unk* entry = &mColors[mCursor];
         int error = fn_80588004(entry);
         if (error == 0) {
-            ShopItem_unk* item = fn_80211480(entry->mId);
+            ItemParamEntry_unk* item = fn_80211480(entry->mId);
             if (item != 0) {
                 wchar_t text[0x40];
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x353), item->mName);
@@ -338,8 +332,8 @@ int ShopColor::fn_80588004(ShopColorEntry_unk* entry) {
         return 2;
     }
     for (int i = 0; i < 3; i++) {
-        ShopItem_unk* item = fn_80211480(entry->mMat[i]);
-        if (item != 0 && entry->mNum[i] > fn_804444E8(Inventory::instance_, item->mCountId)) {
+        ItemParamEntry_unk* item = fn_80211480(entry->mMat[i]);
+        if (item != 0 && entry->mNum[i] > fn_804444E8(Inventory::instance_, item->mId)) {
             return 14;
         }
     }
@@ -368,10 +362,10 @@ void ShopColor::fn_805880F0() {
         mList[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mScroll.mTop;
         if (index < (int)mColors.size()) {
-            ShopItem_unk* item = fn_80211480(mColors[index].mId);
+            ItemParamEntry_unk* item = fn_80211480(mColors[index].mId);
             if (item != 0) {
                 mList[i]->SetText_unk("itemName", item->mName);
-                int num = fn_804444E8(party, item->mCountId);
+                int num = fn_804444E8(party, item->mId);
                 mList[i]->SetValue0_unk("showPrice", 0.0f);
                 mList[i]->SetValue0_unk("showNum2", 0.0f);
                 mList[i]->SetNumber_unk("needNum", num, 0);
@@ -399,7 +393,7 @@ void ShopColor::fn_805880F0() {
 
 void ShopColor::fn_805883D8(ShopColorEntry_unk* entry) {
     void* party = Inventory::instance_;
-    ShopItem_unk* item = fn_80211480(entry->mId);
+    ItemParamEntry_unk* item = fn_80211480(entry->mId);
     if (item != 0) {
         MenuCommonTask::sInstance->fn_804A3C24(item->mText, 0);
     }
@@ -411,14 +405,14 @@ void ShopColor::fn_805883D8(ShopColorEntry_unk* entry) {
         mNeed[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         if (entry->mMat[i] != 0) {
             mNeed[i]->mFlags &= ~4;
-            ShopItem_unk* mat = fn_80211480(entry->mMat[i]);
+            ItemParamEntry_unk* mat = fn_80211480(entry->mMat[i]);
             if (mat != 0) {
                 mNeed[i]->SetValue0_unk("showNum2", 1.0f);
                 mNeed[i]->SetNumber_unk("needNum", entry->mNum[i], 0);
-                mNeed[i]->SetNumber_unk("num", fn_804444E8(party, mat->mCountId), 0);
+                mNeed[i]->SetNumber_unk("num", fn_804444E8(party, mat->mId), 0);
                 mNeed[i]->SetValue0_unk("faceOn", 0.0f);
                 mNeed[i]->SetText_unk("itemName", mat->mName);
-                if (entry->mNum[i] <= fn_804444E8(party, mat->mCountId)) {
+                if (entry->mNum[i] <= fn_804444E8(party, mat->mId)) {
                     mNeed[i]->SetValue0_unk("colorOn", 0.0f);
                     mNeed[i]->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
                     mNeed[i]->SetValue0_unk("subColorR", 180.0f);

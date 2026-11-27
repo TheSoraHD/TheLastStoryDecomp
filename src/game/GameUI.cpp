@@ -1447,7 +1447,7 @@ inline void atn::D2A_Task::SetLayoutText_unk(const char* name, const wchar_t* te
 
 // inferred: keys of a layout track (8-byte entries after a header word); weak copy 0x803D7270
 struct GameUITrackKey_unk {
-    unsigned char m00[8];
+    void* m00[2]; // inferred: atn::D2A_ParamTable (a pointer and a count, 8-byte aligned: the keys start at 8)
 };
 extern "C" float fn_801F0544(GameUITrackKey_unk* key, int frame); // inferred: value of a key
 struct GameUITrack_unk {
@@ -2956,13 +2956,6 @@ struct GameUISkill_unk {
 };
 extern "C" GameUISkill_unk* fn_8021AF50(int bit); // inferred: skill of a status bit
 extern "C" PlayerParam_unk* fn_80219160(int member, int level); // db/PlayerParam_unk.cpp
-// inferred: object aimed at by AIManager::m458 (only the members read here; a scale and a radius)
-struct GameUIAimTarget_unk {
-    unsigned char m00[0x28];
-    float m28;
-    unsigned char m2C[0x5C - 0x2C];
-    float m5C;
-};
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: starts the effects of owner
 extern "C" bool fn_803E4DD4(CharaTask* chara); // inferred: filter of the enemies with icons
 extern "C" void fn_801F465C(atn::D2A_Task* task, int arg);
@@ -2987,10 +2980,10 @@ inline bool IsFieldPlaying_unk() {
     return r;
 }
 // inferred: target of an AI target, null for type 4 (name invented)
-inline GameUIAimTarget_unk* GetAimTarget_unk(AiTarget* t) {
-    GameUIAimTarget_unk* r = 0;
+inline SkillEffect* GetAimTarget_unk(AiTarget* t) {
+    SkillEffect* r = 0;
     if (t->m08 != 4) {
-        r = (GameUIAimTarget_unk*)t->m0C;
+        r = (SkillEffect*)t->m0C; // inferred: a magic circle (scale m28, radius m5C)
     }
     return r;
 }
@@ -3173,7 +3166,7 @@ void GameUI::fn_803D83A8() {
 
             // inferred: aim lines from the head of every player to the target of the AI
             AiTarget* aim = &lbl_8087EE68->m458;
-            GameUIAimTarget_unk* target = GetAimTarget_unk(aim);
+            SkillEffect* target = GetAimTarget_unk(aim);
             if (target != 0) {
                 if (m1170 != target) {
                     lbl_8087F3C0->mSystem.mLayer = 5;
@@ -3611,7 +3604,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
                         const atn::Color& add = *(const atn::Color*)&addC;
                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, add.ToU32(), 0, (int)&mE04, 0, -12.0f);
                         lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, mul.ToU32(), 0, (int)&mDD4, 0, -13.0f);
-                        lbl_8087F9F8->fn_805AE034((TacViewTarget_unk*)best);
+                        lbl_8087F9F8->fn_805AE034(best);
                     } else {
                         mulC = m2698;
                         addC = m26A8;

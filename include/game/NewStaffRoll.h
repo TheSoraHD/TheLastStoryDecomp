@@ -8,17 +8,9 @@
 #include "atn/Texture_unk.h"
 #include "game/ResHandle.h"
 
-// inferred: atn::FadeColor returned by atn::FadeColor::Create (0x8006A250); names invented
-struct StaffRollFade_unk {
-    unsigned char m00[0x48];
-    int m48;
-    unsigned char m4C[0x58 - 0x4C];
-    int m58;
-    unsigned char m5C[0x68 - 0x5C];
-    int m68;
-    unsigned char m6C[0x74 - 0x6C];
-    float m74;
-};
+namespace atn {
+class FadeColor;
+}
 
 // inferred from __vt__12NewStaffRoll (0x80793888): scrolls the staff roll read from
 // "database/staffroll/staffroll_type1_xx.u16" (one line per CSV row)
@@ -58,7 +50,7 @@ public:
     int mDrawOff;    // 0x74: inferred: debug switch "DrawOff"
     ResHandle mMenu; // 0x78: inferred: debug menu "StaffRoll"
     atn::Texture_unk mLogo; // 0x7C: inferred: "ui_logo_nm.texture"
-    StaffRollFade_unk* mFade; // 0xAC
+    atn::FadeColor* mFade; // 0xAC: inferred: fade of the end (atn::FadeColor::Create, 0x8006A250)
 };
 
 #endif

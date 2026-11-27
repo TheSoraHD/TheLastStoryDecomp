@@ -2078,12 +2078,6 @@ extern "C" inline void fn_800F8290(MtxPtr mtx, float x, float y, float z) {
     __MtxCopy(mtx, t);
 }
 // inferred: the hit object of a collision result
-struct CollObj_unk {
-    int m00;
-    int m04;
-    unsigned int m08;
-    CharaTask* m0C; // inferred: owner
-};
 extern "C" inline EnemyManager* fn_801A03E0() {
     return EnemyManager::sInstance;
 }
@@ -2096,7 +2090,8 @@ extern "C" inline EnemyTask* fn_801A03EC(EnemyTask* chara) {
 // inferred: asserts of the debug build, empty in release: they only count for the inline budget (with them
 // ControlReflectLaser::vf0C goes over it and calls every inline out of line, as the original)
 #define LASER_ASSERT_UNK(x) ((void)0)
-extern "C" inline int fn_801A03F4(CollObj_unk* obj) {
+// inferred: the object hit by a ray (atn::ColliResult_unk::m38): bit 1 of its flags = a character
+extern "C" inline int fn_801A03F4(atn::ColliBase* obj) {
     LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
     LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
     LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
@@ -2127,10 +2122,11 @@ extern "C" inline int fn_801A03F4(CollObj_unk* obj) {
     LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
     LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
     LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
-    return (obj->m08 >> 1) & 1; // inferred: the object is a character
+    return (obj->mFlags >> 1) & 1;
 }
-extern "C" inline CharaTask* fn_801A0400(CollObj_unk* obj) {
-    return obj->m0C;
+// inferred: the character owning the shape
+extern "C" inline CharaTask* fn_801A0400(atn::ColliBase* obj) {
+    return (CharaTask*)obj->m0C;
 }
 extern "C" inline EnemyTask* fn_801A0408(EnemyManager* mgr) {
     return mgr->mHead;
@@ -2237,9 +2233,9 @@ int ControlReflectLaser::vf0C() {
         atn::Vector3 from(pos);
         atn::Vector3 to = pos + mDir * 1000.0f;
         if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 6, mChara->GetColli_unk(), 0)) {
-            CollObj_unk* obj = (CollObj_unk*)result.m38;
+            atn::ColliBase* obj = result.m38;
             if (obj != 0 && fn_801A03F4(obj)) {
-                CharaTask* hit = fn_801A0400((CollObj_unk*)result.m38);
+                CharaTask* hit = fn_801A0400(result.m38);
                 if (hit != 0 && hit->fn_8013A158() && hit->CanAct_unk()) {
                     fn_8013A194()->fn_800FAB80(mChara, fn_80219E6C(0x76F), fn_8013A194()->fn_800F8548(), &result.m04,
                                 &lbl_807C7030, 0, 0x1E, -1, -1, 0.0f, 1.0f);

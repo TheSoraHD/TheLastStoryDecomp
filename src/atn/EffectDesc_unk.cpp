@@ -91,7 +91,7 @@ struct EffectStrip_unk {
     atn::Vector3 mCenter;       // 0x2C
     float m38;
     atn::Matrix3x4 mMtx;        // 0x3C
-    int m6C;
+    atn::Scene* mScene;         // 0x6C: inferred: scene of the strip (its fog is set before drawing it)
 };
 
 // inferred: queued model (0x5C bytes)
@@ -162,7 +162,7 @@ extern "C" void fn_80234A8C(int strips, int models, int buf, int verts) {
 }
 
 EffectStrip_unk::EffectStrip_unk()
-    : mDepth(0.0f), mNext(0), mFlags(0), m0C(0), m10(0), mVerts(0), mCount(0), m38(0.0f), m6C(0) {}
+    : mDepth(0.0f), mNext(0), mFlags(0), m0C(0), m10(0), mVerts(0), mCount(0), m38(0.0f), mScene(0) {}
 
 EffectModelItem_unk::EffectModelItem_unk() : mDepth(0.0f), mNext(0), mFlags(0), mModel(0), m58(0) {}
 
@@ -487,7 +487,7 @@ extern "C" void fn_80234CD8() {
                             (forceCenter != 0 || useCenter != 0) ? &item->mCenter : 0, 1);
             }
             if ((item->mFlags & 0x10) == 0x10) {
-                atn::RenderManager::instance_->fn_800C06B0(&((atn::Scene*)item->m6C)->mFog); // inferred: m6C is the scene
+                atn::RenderManager::instance_->fn_800C06B0(&item->mScene->mFog);
             } else {
                 atn::RenderManager::instance_->fn_800C08B0();
             }
@@ -755,7 +755,7 @@ inline float GetFadeNear_unk(unsigned int flags) {
 
 // inferred: queues a strip of `count` vertices
 extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b, const float* color,
-                            unsigned int flags, int useCenter, const atn::Matrix3x4* view, float f, int c) {
+                            unsigned int flags, int useCenter, const atn::Matrix3x4* view, float f, atn::Scene* scene) {
     if (sStripCount >= sMaxStrips) {
         return;
     }
@@ -809,7 +809,7 @@ extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b
     s->mCenter = center;
     s->m38 = f;
     s->mMtx = *view;
-    s->m6C = c;
+    s->mScene = scene;
     if (sStripNear > depth) {
         sStripNear = depth;
     }

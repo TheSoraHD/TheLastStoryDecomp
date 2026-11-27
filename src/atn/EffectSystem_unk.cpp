@@ -729,7 +729,7 @@ extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 // inferred: vertex buffer and draw queue of the effects (atn/EffectDesc_unk.cpp)
 extern "C" EffectVertex_unk* fn_80234C84(int count);
 extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b, const float* color,
-                            unsigned int flags, int useCenter, const atn::Matrix3x4* view, float f, int c);
+                            unsigned int flags, int useCenter, const atn::Matrix3x4* view, float f, atn::Scene* scene);
 extern "C" void fn_80236FFC(const atn::Matrix3x4* mtx, void* model, const float* color, unsigned int flags,
                             const float* uv, const atn::Matrix3x4* view, int arg);
 
@@ -1017,7 +1017,7 @@ extern "C" void fn_8022DD1C(EffectInst_unk* inst, EffectSlot_unk* slot, atn::Mat
             }
             u += du;
         }
-        fn_80236B84(count, verts, slot->m08, (void*)slot->m0C, &color.r, slot->m10, 1, view, param->m68, (int)scene);
+        fn_80236B84(count, verts, slot->m08, (void*)slot->m0C, &color.r, slot->m10, 1, view, param->m68, scene);
         return;
     }
 
@@ -1055,7 +1055,7 @@ extern "C" void fn_8022DD1C(EffectInst_unk* inst, EffectSlot_unk* slot, atn::Mat
     PSMTXMultVec(mtx.m, &verts[1].mPos, &verts[1].mPos);
     PSMTXMultVec(mtx.m, &verts[2].mPos, &verts[2].mPos);
     PSMTXMultVec(mtx.m, &verts[3].mPos, &verts[3].mPos);
-    fn_80236B84(4, verts, slot->m08, (void*)slot->m0C, &color.r, slot->m10, useCenter, view, param->m68, (int)scene);
+    fn_80236B84(4, verts, slot->m08, (void*)slot->m0C, &color.r, slot->m10, useCenter, view, param->m68, scene);
 }
 
 // inferred: owner and group of a particle (name invented)

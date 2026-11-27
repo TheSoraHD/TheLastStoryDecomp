@@ -8,7 +8,7 @@
 #include "atn/SoundRef.h"
 #include <string.h>
 
-class SkillEffect;
+struct SkillEffect;
 namespace atn {
 class D2A_Task;
 template <int N, int M>
@@ -55,17 +55,11 @@ struct TacViewChara_unk {
 // AiTargetList_unk)
 class TacViewCharaList_unk : public atn::FixedArray_unk<TacViewChara_unk, 16> {};
 
-// inferred: object aimed at by the cursor of TacView (names invented); m08 is a character
-struct TacViewTarget_unk {
-    int m00;
-    int m04;
-    CharaTask* m08;
-};
 // inferred: cursor state of TacView (1 on a target, 2 none; names invented)
 struct TacViewSel_unk {
     int mState;
     CharaTask* m04; // inferred: character (TacView::m48, compared by GameUI)
-    TacViewTarget_unk* mTarget;
+    SkillEffect* mTarget; // inferred: magic circle aimed at (owner m08)
 };
 
 // inferred: cursor state cleared by its constructor (TacView + 0x15F0 and TacViewSlot_unk); name invented
@@ -158,7 +152,7 @@ public:
     HitInfo_unk* fn_805ADD3C(CharaTask* chara); // inferred: hit of the active entry of the character
     void fn_805ADD80(CharaTask* chara, HitInfo_unk* hit); // inferred: marks the entries as finished
     void fn_805ADDD4(CharaTask* chara);
-    void fn_805AE034(TacViewTarget_unk* target); // inferred: moves the cursor to `target` (sound when it changes) // inferred: passes the hits of the active entries on, then clears the states
+    void fn_805AE034(SkillEffect* target); // inferred: moves the cursor to `target` (sound when it changes) // inferred: passes the hits of the active entries on, then clears the states
     void fn_805ADF50(CharaTask* chara); // inferred: removes the entries of the character (all with null)
 
     // inferred: state 0 (inlined by GameUI::fn_803DCA84); name invented

@@ -15,7 +15,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 using atn::ColliBase;
 using atn::ColliCapsuleShape_unk;
-using atn::ColliGrid_unk;
 using atn::ColliResult_unk;
 using atn::ColliSphereShape_unk;
 using atn::ColliTree;
@@ -79,7 +78,7 @@ struct ColliManager_unk {
     ColliPtrArray_unk mAll;    // 0x0000: every shape
     ColliPtrArray_unk mActive; // 0x2004: shapes with flag 1 (rebuilt by fn_8004D124)
     ColliResult_unk mResults[0x100]; // 0x4008
-    ColliTreeBounds_unk mBounds; // 0x9008: grid of the collision trees (also read as ColliGrid_unk)
+    ColliTreeBounds_unk mBounds; // 0x9008: grid of the collision trees and of the shapes
     float m902C;   // inferred: height limit of the segment hits (used when m9030 is set)
     int m9030;
     int m9034;     // inferred: sets flag 1 of the floor hits
@@ -124,10 +123,10 @@ extern "C" void fn_8004CBB0(ColliManager_unk* mgr, ColliBase* colli) {
 extern "C" int fn_8004CCA0(ColliManager_unk* mgr, ColliResult_unk* results, int max, const ColliSphereShape_unk* sphere,
                            unsigned int mask, ColliBase* ignore, int attr) {
     ColliCell_unk cell;
-    const ColliGrid_unk* grid = (const ColliGrid_unk*)&mgr->mBounds;
+    const ColliTreeBounds_unk* grid = &mgr->mBounds;
     float size = grid->mCellSize;
     float inv = 1.0f / size;
-    Vector3 c = sphere->mCenter - grid->mOrigin;
+    Vector3 c = sphere->mCenter - grid->mMin;
     c *= inv;
     cell.x = (int)c.x;
     cell.z = (int)c.z;
@@ -271,7 +270,7 @@ extern "C" void fn_8004D124(ColliManager_unk* mgr) {
         if ((c->mFlags & 1) == 1) {
             mgr->mActive.PushBack_unk(c);
             if (mgr->mBounds.m00 != 0) {
-                c->vf1C((const ColliGrid_unk*)&mgr->mBounds);
+                c->vf1C(&mgr->mBounds);
             } else {
                 c->m10 = -1;
                 c->m14 = -1;
@@ -283,7 +282,7 @@ extern "C" void fn_8004D124(ColliManager_unk* mgr) {
 
 namespace atn {
 
-void ColliBase::vf1C(const ColliGrid_unk* grid) {
+void ColliBase::vf1C(const ColliTreeBounds_unk* grid) {
 }
 
 } // namespace atn
@@ -316,9 +315,9 @@ void ColliBase::vf18(int a, int b, int c, int d) {
 inline int QuerySegment_unk(ColliManager_unk* mgr, ColliResult_unk* results, int max, const ColliSegment_unk& s,
                             unsigned int mask, ColliBase* ignore, int attr) {
     ColliCell_unk cell;
-    const ColliGrid_unk* grid = (const ColliGrid_unk*)&mgr->mBounds;
-    Vector3 a = s.mStart - grid->mOrigin;
-    Vector3 b = s.mEnd - grid->mOrigin;
+    const ColliTreeBounds_unk* grid = &mgr->mBounds;
+    Vector3 a = s.mStart - grid->mMin;
+    Vector3 b = s.mEnd - grid->mMin;
     Vector3 c = (b + a) * 0.5f;
     float r = (s.mStart - s.mEnd).Length_unk() * 0.5f;
     float size = grid->mCellSize;
@@ -487,10 +486,10 @@ extern "C" int fn_8004D388(ColliManager_unk* mgr, ColliResult_unk* result, const
             Vector3 prev = sphere.mCenter;
             sphere.mCenter += mv;
             ColliCell_unk cell;
-            const ColliGrid_unk* grid = (const ColliGrid_unk*)&mgr->mBounds;
+            const ColliTreeBounds_unk* grid = &mgr->mBounds;
             float size = grid->mCellSize;
             float inv = 1.0f / size;
-            Vector3 c = sphere.mCenter - grid->mOrigin;
+            Vector3 c = sphere.mCenter - grid->mMin;
             c *= inv;
             cell.x = (int)c.x;
             cell.z = (int)c.z;

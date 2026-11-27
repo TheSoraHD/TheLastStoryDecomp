@@ -139,7 +139,7 @@ void ColliSphere::vf18(int a, int b, int c, int d) {
     lbl_8087EEB0->fn_80063D3C(mSphere.mCenter, mSphere.mRadius, 0.0f, 0xFF00FF00);
 }
 
-void ColliSphere::vf1C(const ColliGrid_unk* grid) {
+void ColliSphere::vf1C(const ColliTreeBounds_unk* grid) {
     SetCell_unk(mSphere, grid);
 }
 
@@ -196,11 +196,11 @@ void ColliCapsule::vf18(int a, int b, int c, int d) {
 }
 
 // NONMATCHING: 84.74% - orden de carga del 0.5f y de los stores muertos de a/b (planificacion)
-void ColliCapsule::vf1C(const ColliGrid_unk* grid) {
+void ColliCapsule::vf1C(const ColliTreeBounds_unk* grid) {
     float size = grid->mCellSize;
     float inv = 1.0f / size;
-    Vector3 a = m3C - grid->mOrigin;
-    Vector3 b = m48 - grid->mOrigin;
+    Vector3 a = m3C - grid->mMin;
+    Vector3 b = m48 - grid->mMin;
     Vector3 c = (a + b) * 0.5f;
     c *= inv;
     m10 = (int)c.x;
@@ -353,7 +353,7 @@ inline Vector3 GetTransY_unk(const Matrix3x4& m) {
     return Vector3(m.m[0][3], y, m.m[2][3]);
 }
 
-void ColliBox::vf1C(const ColliGrid_unk* grid) {
+void ColliBox::vf1C(const ColliTreeBounds_unk* grid) {
     SetCell_unk(GetBound_unk(), grid);
 }
 
@@ -454,7 +454,7 @@ int ColliObject::fn_800584D8(int a, int b, int n, ColliObjNode_unk* node, int c,
     return n;
 }
 
-void ColliObject::vf1C(const ColliGrid_unk* grid) {
+void ColliObject::vf1C(const ColliTreeBounds_unk* grid) {
     SetCell_unk(mBound, grid);
 }
 

@@ -417,7 +417,7 @@ public:
     Actor* m1BC; // inferred: actor of the current character section (fn_80550A78)
     Action* m1C0; // inferred: action that holds the sequence (its vf08 returned 3; fn_805501DC)
     atn::LH_Binary m1C4;
-    int m1CC;  // inferred: size of the event data when it is owned (m98_0)
+    unsigned long m1CC; // inferred: size of the event data when it is owned (m98_0), written by fn_8006BA8C
     void* m1D0; // inferred: event data when it is owned
     GameMessageList m1D4;
     GameMessageWindow* m1EC;

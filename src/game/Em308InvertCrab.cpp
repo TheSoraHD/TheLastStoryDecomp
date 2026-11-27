@@ -78,21 +78,8 @@ struct CrabDamage_unk {
 };
 extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStatus* status, CharaStatus* owner,
                             unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
-// inferred: tutorial message request (as DropTutorial_unk of gmk/DropItem.cpp)
-struct CrabTutorial_unk {
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-};
-struct CrabMessage_unk {
-    unsigned char m000[0x764];
-    CrabTutorial_unk m764;
-};
-extern "C" CrabMessage_unk* lbl_8087F490;
+// inferred: the tutorial request is the GameUIElem1C_unk of the HUD (GameUI::m764)
+#include "game/GameUI.h"
 struct Pad_unk;
 extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
@@ -395,7 +382,7 @@ void Em308InvertCrab::vf10() {
         if ((mPos - player->mPos).Length_unk() < 40.0f && !player->mFlag6 && !player->mFlag31 &&
             !(player->m55C == 6 && player->m560 != 4)) {
             if (lbl_8087F490 != 0) {
-                CrabTutorial_unk tutorial;
+                GameUIElem1C_unk tutorial;
                 tutorial.m00 = 6;
                 tutorial.m04 = 17;
                 tutorial.m08 = -1;

@@ -10,6 +10,9 @@
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
 #include "game/MenuCommonTask.h"
+#include "db/ItemParam_unk.h"
+#include "db/WeaponParam_unk.h"
+#include "db/EquipParam_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -45,45 +48,11 @@ inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
     return D2A_TaskInstance32_unk::Create(parent, path);
 }
 
-// inferred: item data (fn_80211480)
-struct ShopItem_unk {
-    unsigned char m00[0x04];
-    int mCountId;          // 0x04: inferred: id counted by fn_804444E8
-    const wchar_t* mName;  // 0x08
-    const wchar_t* mText;  // 0x0C
-    unsigned char m10[0xBC - 0x10];
-    short mKind;           // 0xBC
-};
-extern "C" ShopItem_unk* fn_80211480(int id);
-// inferred: weapon data (fn_80206C50); names invented
-struct ShopWeapon_unk {
-    float mPower;   // 0x00
-    float mMagic;   // 0x04
-    unsigned char m08[0x78 - 0x08];
-    int mHand;      // 0x78: inferred: 1 for the second hand
-    unsigned char m7C[0xB8 - 0x7C];
-    int mKind;      // 0xB8
-};
-extern "C" int fn_80206B9C(int id); // inferred: nonzero for a weapon
-extern "C" ShopWeapon_unk* fn_80206C50(int id);
-extern "C" ShopWeapon_unk* fn_80206B14(int hand, int id); // inferred: weapon of this hand and id
-extern "C" int fn_80206D18(ShopWeapon_unk* weapon, int member, int hand); // inferred: can be equipped
-// inferred: armour data (fn_8020EFEC); names invented
-struct ShopArmor_unk {
-    unsigned char m00[0x08];
-    float mDefense; // 0x08
-    float mResist;  // 0x0C
-    unsigned char m10[0x78 - 0x10];
-    int mPart;      // 0x78
-};
-extern "C" int fn_8020EF04(int id); // inferred: nonzero for an armour
-extern "C" ShopArmor_unk* fn_8020EFEC(int id);
-extern "C" ShopArmor_unk* fn_8020ED84(int part, int id);
-extern "C" int fn_8020EF4C(ShopArmor_unk* armor);
+extern "C" int fn_80206D18(WeaponParamEntry_unk* weapon, int member, int hand); // inferred: can be equipped
 extern "C" int fn_80219544(int member); // inferred: character id
 extern "C" int fn_80444564(Inventory* party, int id);
 extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
-extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
+extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
 extern "C" GameTask* lbl_8087F430;
@@ -497,7 +466,7 @@ void ShopBuySell::fn_8058621C() {
         int index = i + mScroll.mTop;
         if (index < mF8) {
             entry = &mEntries64[index];
-            ShopItem_unk* item = fn_80211480(entry->m00);
+            ItemParamEntry_unk* item = fn_80211480(entry->m00);
             int icon;
             if (entry->m54 != 0) {
                 std::basic_string<wchar_t> text(item->mName);
@@ -508,9 +477,9 @@ void ShopBuySell::fn_8058621C() {
                 mAC[i]->SetNumber_unk("num", fn_80444564(party, entry->m00), 0);
                 icon = fn_80444BE8(Inventory::instance_, item);
             } else {
-                ShopWeapon_unk* weapon = fn_80206C50(entry->m00);
+                WeaponParamEntry_unk* weapon = fn_80206C50(entry->m00);
                 if (weapon != 0) {
-                    mAC[i]->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    mAC[i]->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB));
                 } else {
                     mAC[i]->SetText_unk("itemName", L"WEAPON");
                 }
@@ -533,8 +502,8 @@ void ShopBuySell::fn_8058621C() {
 }
 
 void ShopBuySell::fn_80586620(int id) {
-    ShopItem_unk* item = fn_80211480(id);
-    if (item != 0 && (item->mKind == 2 || item->mKind == 3 || item->mKind == 6)) {
+    ItemParamEntry_unk* item = fn_80211480(id);
+    if (item != 0 && (item->mBC == 2 || item->mBC == 3 || item->mBC == 6)) {
         mStatusBase->mFlags &= ~4;
         int slot = 0;
         fn_805866F4(id, 0, slot++);
@@ -582,18 +551,18 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     int show = 0;
     memset(diff, 0, sizeof(diff));
     if (fn_80206B9C(id)) {
-        ShopWeapon_unk* weapon = fn_80206C50(id);
-        if (weapon != 0 && fn_80206D18(weapon, member, weapon->mHand == 1)) {
+        WeaponParamEntry_unk* weapon = fn_80206C50(id);
+        if (weapon != 0 && fn_80206D18(weapon, member, weapon->mKind == 1)) {
             SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
-            now = fn_80206B14(weapon->mHand, equip->mWeapons[weapon->mHand == 1].mId);
+            now = fn_80206B14(weapon->mKind, equip->mWeapons[weapon->mKind == 1].mId);
             next = weapon;
             show = 1;
         } else {
             SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 1.0f);
         }
         if (now != 0 && next != 0) {
-            diff[0] = (int)((ShopWeapon_unk*)next)->mPower - (int)((ShopWeapon_unk*)now)->mPower;
-            diff[1] = (int)((ShopWeapon_unk*)next)->mMagic - (int)((ShopWeapon_unk*)now)->mMagic;
+            diff[0] = (int)((WeaponParamEntry_unk*)next)->m00 - (int)((WeaponParamEntry_unk*)now)->m00;
+            diff[1] = (int)((WeaponParamEntry_unk*)next)->m04 - (int)((WeaponParamEntry_unk*)now)->m04;
             diff[2] = 0;
         }
         void* layout = &base->mData.m10;
@@ -603,21 +572,21 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
         }
     } else if (fn_8020EF04(id)) {
         SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
-        ShopArmor_unk* armor = fn_8020EFEC(id);
+        EquipParamEntry_unk* armor = fn_8020EFEC(id);
         float dx = 0.0f;
         float dy = dx;
         if (armor != 0) {
-            int part = armor->mPart;
+            int part = armor->mKind;
             next = armor;
             show = 1;
             int cur = equip->mProtectors[part].mId;
             now = fn_8020ED84(part, cur);
-            if (fn_8020EF4C((ShopArmor_unk*)now) && cur >= 1000) {
-                ShopArmor_unk* a = fn_8020ED84(0, cur);
-                ShopArmor_unk* b = fn_8020ED84(0, cur % 1000);
+            if (fn_8020EF4C((EquipParamEntry_unk*)now) && cur >= 1000) {
+                EquipParamEntry_unk* a = fn_8020ED84(0, cur);
+                EquipParamEntry_unk* b = fn_8020ED84(0, cur % 1000);
                 if (a != 0 && b != 0) {
-                    dx = a->mDefense - b->mDefense;
-                    dy = a->mResist - b->mResist;
+                    dx = a->m08 - b->m08;
+                    dy = a->m0C - b->m0C;
                 }
                 if (part == 0) {
                     dx *= -0.5f;
@@ -629,8 +598,8 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
             }
         }
         if (now != 0 && next != 0) {
-            diff[0] = (int)((ShopArmor_unk*)next)->mDefense - (int)(((ShopArmor_unk*)now)->mDefense + dx);
-            diff[1] = (int)((ShopArmor_unk*)next)->mResist - (int)(((ShopArmor_unk*)now)->mResist + dy);
+            diff[0] = (int)((EquipParamEntry_unk*)next)->m08 - (int)(((EquipParamEntry_unk*)now)->m08 + dx);
+            diff[1] = (int)((EquipParamEntry_unk*)next)->m0C - (int)(((EquipParamEntry_unk*)now)->m0C + dy);
             diff[2] = 0;
         }
         void* layout = &base->mData.m10;

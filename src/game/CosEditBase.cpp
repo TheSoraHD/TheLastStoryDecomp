@@ -22,6 +22,7 @@
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "db/WeaponParam_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -47,16 +48,9 @@ extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
                             void* func, void* arg);
 extern "C" int fn_80219558(int id); // inferred: party member of a character id (negative for others)
-// inferred: item data returned by fn_80206C50 / fn_80206B14 (names invented)
-struct CosEditItemData_unk {
-    unsigned char m00[0x78];
-    int m78; // inferred: passed to CharaTask::fn_8014F5D4
-    int m7C;
-    int m80; // inferred: equipped id
-};
-extern "C" CosEditItemData_unk* fn_80206C50(int item); // inferred: item data
-extern "C" CosEditItemData_unk* fn_80206B14(int second, int item); // inferred: weapon data
-extern "C" int fn_80206BE4(CosEditItemData_unk* item);            // inferred: item id
+extern "C" WeaponParamEntry_unk* fn_80206C50(int item); // inferred: item data
+extern "C" WeaponParamEntry_unk* fn_80206B14(int second, int item); // inferred: weapon data
+extern "C" int fn_80206BE4(WeaponParamEntry_unk* item);            // inferred: item id
 extern "C" void* fn_8020ED84(int slot, int item);  // inferred: armor data
 extern "C" void* fn_8044D034(Inventory* inv, int index); // inferred: equipment data
 extern "C" void fn_8044D184(Inventory* inv, int slot, int item, int a, int member);
@@ -788,12 +782,12 @@ static inline int PartOf_unk(CharaTask* c) {
 
 // inferred: equips weapon `item` in `slot` of `member` (and on every character using the same model)
 int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk* item, int slot, int add, int remove) {
-    CosEditItemData_unk* data = fn_80206C50(item->mId);
+    WeaponParamEntry_unk* data = fn_80206C50(item->mId);
     if (!data) {
         return 0;
     }
     Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
-    CosEditItemData_unk* cur;
+    WeaponParamEntry_unk* cur;
     if (member == 0 && slot == 1) {
         cur = fn_80206B14(1, equip->mWeapons[slot].mId);
     } else {
@@ -808,12 +802,12 @@ int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk
             Inventory::instance_->AddItem(id, 1, 1, 0, 0, 0, 0);
         }
     }
-    fn_8044D184(Inventory::instance_, slot, data->m80, -1, member);
+    fn_8044D184(Inventory::instance_, slot, data->mId, -1, member);
     if (chara) {
         if (chara->mType == 0 || chara->mType == 3) {
             int part = PartOf_unk(chara);
             chara->fn_8014EEC4(1);
-            chara->fn_8014F5D4(slot, data->m78, data->m80);
+            chara->fn_8014F5D4(slot, data->mKind, data->mId);
             if (part >= 0) {
                 chara->fn_8014DEE4(part, 0, 1);
             } else if (slot == 1) {
@@ -864,7 +858,7 @@ int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk
         if (p->IsFlag_unk(2) && p != chara && strstr(p->GetModel_unk()->fn_8008B130(), prefix.c_str())) {
             int part = p->m674;
             p->fn_8014EEC4(1);
-            p->fn_8014F5D4(slot, data->m78, data->m80);
+            p->fn_8014F5D4(slot, data->mKind, data->mId);
             if (part >= 0) {
                 p->fn_8014DEE4(part, 0, 1);
             }
@@ -879,7 +873,7 @@ int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk
         if (p->IsFlag_unk(2) && p != chara && strstr(p->GetModel_unk()->fn_8008B130(), prefix.c_str())) {
             int part = p->m674;
             p->fn_8014EEC4(1);
-            p->fn_8014F5D4(slot, data->m78, data->m80);
+            p->fn_8014F5D4(slot, data->mKind, data->mId);
             if (part >= 0) {
                 p->fn_8014DEE4(part, 0, 1);
             }

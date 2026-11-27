@@ -126,11 +126,11 @@ NewStaffRoll::NewStaffRoll(atn::Task* parent)
 
 NewStaffRoll::~NewStaffRoll() {
     if (lbl_8087F430 != 0) {
-        mFade = (StaffRollFade_unk*)atn::FadeColor::Create((atn::Task*)lbl_8087F430, 15, 0xFF000000, 0);
-        mFade->m58 = 99999;
-        mFade->m74 = 10.0f;
-        mFade->m68 = 1;
-        mFade->m48 = 1;
+        mFade = atn::FadeColor::Create((atn::Task*)lbl_8087F430, 15, 0xFF000000, 0);
+        mFade->mDelay = 99999;
+        mFade->mZ = 10.0f;
+        mFade->mDeleteAtEnd = 1;
+        mFade->mActive = 1;
     }
 }
 

@@ -8,6 +8,7 @@
 #include "atn/SoundRef.h"
 #include "game/GameUI.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/D2A_Data.h"
 #include "game/GameVoice.h"
 #include "game/GameEventScript.h"
 #include "game/CharaTask.h"
@@ -597,11 +598,11 @@ void GameMessageWindow::fn_803B5974() {
     float size = 20.0f;
     void* track = mLayout->GetTrack_unk("textWidth");
     if (track != 0) {
-        width = fn_801F0544((char*)track + 4, 0);
+        width = fn_801F0544(((atn::D2A_Track_unk*)track)->mTables, 0);
     }
     track = mLayout->GetTrack_unk("fontSize_text");
     if (track != 0) {
-        size = fn_801F0544((char*)track + 4, 0);
+        size = fn_801F0544(((atn::D2A_Track_unk*)track)->mTables, 0);
     }
     std::basic_string<wchar_t> text(mMessage->mText);
     fn_803B3D2C(&text);
@@ -894,11 +895,11 @@ void GameTextMessageWindow::fn_803B710C() {
     float size = 20.0f;
     void* track = mLayout->GetTrack_unk("textWidth");
     if (track != 0) {
-        width = fn_801F0544((char*)track + 4, 0);
+        width = fn_801F0544(((atn::D2A_Track_unk*)track)->mTables, 0);
     }
     track = mLayout->GetTrack_unk("fontSize_text");
     if (track != 0) {
-        size = fn_801F0544((char*)track + 4, 0);
+        size = fn_801F0544(((atn::D2A_Track_unk*)track)->mTables, 0);
     }
     std::basic_string<wchar_t> text(mMessage->mText);
     fn_803B3D2C(&text);
