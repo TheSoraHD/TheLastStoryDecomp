@@ -81,7 +81,6 @@ extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_8036FE74(void* field, atn::Vector3* pos, atn::Vector3* rot); // inferred: start of the player
 extern "C" void fn_803EC374(atn::Task* parent, gs::Gimmick* gimmick); // inferred: creates a gimmick of the scene
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index); // inferred: creates a gimmick
-extern "C" void fn_8047E5DC(void* mgr, int id);
 // inferred: entry of the save data (8 bytes, game/GameSaveData_unk.cpp)
 struct SaveEntry_unk {
     int m00;
@@ -349,7 +348,7 @@ int GameScene::vf0C() {
     } else if (m48 == 1 && fn_800D3FA4() && !m11C.fn_803B3CA8() && GameBgm::sInstance->mState != 2) {
         for (unsigned int i = 0; i < m180.size(); i++) {
             if (m180[i] >= 0) {
-                fn_8047E5DC(lbl_8087F540, m180[i]);
+                lbl_8087F540->fn_8047E5DC(m180[i]);
             }
         }
         if (ArenaTask::sInstance != 0) {
