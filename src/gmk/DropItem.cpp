@@ -76,23 +76,15 @@ extern "C" void fn_804DB1C4(DropArena_unk* arena, PlayerTask* player, int count)
 extern "C" GameConfig_unk* lbl_8087F0A8;
 #include "atn/net/Manager.h"
 #include "db/ItemParam_unk.h"
+#include "db/WeaponParam_unk.h"
+#include "db/EquipParam_unk.h"
 extern "C" atn::net::Manager* lbl_8087F628;
 // inferred: items
-struct DropWeapon_unk {
-    unsigned char m00[0x78];
-    int m78; // inferred: kind
-    unsigned char m7C[0x80 - 0x7C];
-    int m80;
-};
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
 extern "C" int fn_80444EFC(CharaTask* chara);
 extern "C" int fn_8021E4E4(int* itemId, int* num, int id, unsigned int flags);
 extern "C" int fn_80450B84(int table, int arg1, int arg2);
 extern "C" int fn_80450B60(int item);
-extern "C" int fn_80206B9C(int id);
-extern "C" DropWeapon_unk* fn_80206C50(int id);
-extern "C" int fn_8020EF04(int id);
-extern "C" DropWeapon_unk* fn_8020EFEC(int id);
 extern "C" int fn_8040B394(int item);
 
 // inferred: as in gmk/Item.cpp (the local static is shared with the copy in CharaTask.cpp)
@@ -620,8 +612,8 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         m190 = 0;
         if (lbl_8087F610 != 0 && mData != 0 && fn_80206B9C(mData->mId)) {
             m17C = 1;
-            DropWeapon_unk* weapon = fn_80206C50(mData->mId);
-            if (weapon != 0 && weapon->m78 == 0) {
+            WeaponParamEntry_unk* weapon = fn_80206C50(mData->mId);
+            if (weapon != 0 && weapon->mKind == 0) {
                 m190 = 1;
             }
         }
@@ -695,14 +687,14 @@ void DropItem::fn_8040B200() {
         return;
     }
     PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
-    DropWeapon_unk* weapon = fn_80206C50(mData->mId);
+    WeaponParamEntry_unk* weapon = fn_80206C50(mData->mId);
     fn_80239DAC(lbl_8087F3C0, this, 0, 0);
     fn_800C31F4(sGetSound, 0, -1, 1.0f);
     fn_80232B7C(this, 1);
     fn_8023A8B4(lbl_8087F3C0, &mEfpGet, 0, 0, m6C, lbl_807C7030, mColor, -1, -1, 1, 1.0f);
     mSlot.fn_80450778();
     if (m190 != 0 && player != 0 && weapon != 0) {
-        player->fn_8014F698(weapon->m78, weapon->m80, 1);
+        player->fn_8014F698(weapon->mKind, weapon->mId, 1);
     }
     if (lbl_8087F610 != 0) {
         switch (mData->mId) {
@@ -729,18 +721,18 @@ extern "C" int fn_8040B394(int item) {
     int ret = 6;
     ItemParamEntry_unk* data = item > 0 ? fn_80211480(item) : 0;
     if (fn_80206B9C(item)) {
-        DropWeapon_unk* weapon = fn_80206C50(item);
+        WeaponParamEntry_unk* weapon = fn_80206C50(item);
         if (weapon != 0) {
-            if (weapon->m78 == 0) {
+            if (weapon->mKind == 0) {
                 ret = 0;
             } else {
                 ret = 1;
             }
         }
     } else if (fn_8020EF04(item)) {
-        DropWeapon_unk* armour = fn_8020EFEC(item);
+        EquipParamEntry_unk* armour = fn_8020EFEC(item);
         if (armour != 0) {
-            if (armour->m78 == 0 || armour->m78 == 2) {
+            if (armour->mKind == 0 || armour->mKind == 2) {
                 ret = 2;
             } else {
                 ret = 3;
