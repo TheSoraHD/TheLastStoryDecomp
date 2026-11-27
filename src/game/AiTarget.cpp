@@ -1165,7 +1165,8 @@ extern "C" int fn_80018C80(AIManager* ai, CharaTask* chara, int arg4, int arg5, 
     return ret;
 }
 
-// NONMATCHING: 99.5% - registers of the scene (r28/r27) and stack slots of the front vector
+// inferred: the scene through TableOf_unk, the front vector assigned from a temporary and the distance by
+// VecAssign_unk (Val_unk probe and the stack slots of the original)
 // inferred: random move point seen from `pos` facing `dir` (cone of `range` degrees) between the distances
 // min and max, linked to the nearest point (weighted by m1C when arg4 >= 0)
 int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg4, int arg5, int mask, int arg7,
@@ -1177,8 +1178,8 @@ int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg
         atn::Vector3 origin = scene->m98[start - 1].mPos;
         Mtx rot;
         PSMTXRotRad(rot, 'y', dir);
-        atn::Vector3 axis(0.0f, 0.0f, 1.0f);
-        atn::Vector3 front = axis;
+        atn::Vector3 front;
+        front = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(rot, &front, &front);
         float limit = cos(0.017453292f * (0.5f * range));
         int sum = 0;
@@ -1250,7 +1251,7 @@ int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg
     return result;
 }
 
-// NONMATCHING: 99.2% - register allocation (as fn_80018D5C)
+// NONMATCHING: 99.66% - register allocation (the forms of fn_80018D5C give 99.2 -> 99.66)
 // inferred: as fn_80018D5C from the move point `point` (the nearest one to `pos` when 0); when no point is
 // in the cone, any linked point closer than `max` (game/CrowdSimulation)
 extern "C" int fn_80019254(AIManager* ai, int point, const atn::Vector3* pos, int group, int arg3, int arg4,
@@ -1264,8 +1265,8 @@ extern "C" int fn_80019254(AIManager* ai, int point, const atn::Vector3* pos, in
         atn::Vector3 origin = scene->m98[point - 1].mPos;
         Mtx rot;
         PSMTXRotRad(rot, 'y', dir);
-        atn::Vector3 axis(0.0f, 0.0f, 1.0f);
-        atn::Vector3 front = axis;
+        atn::Vector3 front;
+        front = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(rot, &front, &front);
         float limit = cos(0.017453292f * (0.5f * range));
         int sum = 0;
