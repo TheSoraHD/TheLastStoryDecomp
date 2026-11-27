@@ -97,15 +97,9 @@ struct ColliResult_unk {
     Vector3 m44;        // inferred: position of a special attribute (0x1000/0x2000/0x4000)
 };
 
-// inferred: grid of the collision manager (argument of vf1C, which updates the cell of the shape)
-struct ColliGrid_unk {
-    int m00;
-    Vector3 mOrigin;  // 0x04
-    unsigned char m10[0x1C - 0x10];
-    float mCellSize;  // 0x1C
-};
 
-// inferred: bounds of the collision trees (argument of ColliTree::fn_80058EE4)
+// inferred: bounds of the collision trees (argument of ColliTree::fn_80058EE4); also the grid of the shapes (argument
+// of vf1C, which updates the cell of the shape: origin mMin, cell size mCellSize)
 struct ColliTreeBounds_unk {
     void* m00;      // inferred: first tree added
     Vector3 mMin;   // 0x04
@@ -129,7 +123,7 @@ public:
                      int arg);
     virtual int vf14(ColliResult_unk* results, int max, const void* box, unsigned int mask, int arg);
     virtual void vf18(int a, int b, int c, int d); // inferred: debug drawing
-    virtual void vf1C(const ColliGrid_unk* grid);  // inferred: updates the grid cell (m10-m18)
+    virtual void vf1C(const ColliTreeBounds_unk* grid);  // inferred: updates the grid cell (m10-m18)
 
     // inferred: bit 0 of mFlags = the shape takes part in the tests (names invented); defined in
     // atn/ColliFlags_unk.h (member inlines: the original reloads mFlags before each write)
@@ -140,11 +134,11 @@ public:
     int fn_80056EB0(const int* cell) const; // inferred: the shape is in the cell range (x, z, size)
     // inferred: cell of a bounding sphere (inlined by the vf1C of the sphere, box and object; name
     // invented)
-    void SetCell_unk(const ColliSphereShape_unk& s, const ColliGrid_unk* grid) {
+    void SetCell_unk(const ColliSphereShape_unk& s, const ColliTreeBounds_unk* grid) {
         float inv;
         float size = grid->mCellSize;
         inv = 1.0f / size;
-        Vector3 c = s.mCenter - grid->mOrigin;
+        Vector3 c = s.mCenter - grid->mMin;
         c *= inv;
         m10 = (int)c.x;
         m14 = (int)c.z;
@@ -176,7 +170,7 @@ public:
                      int arg);
     virtual int vf14(ColliResult_unk* results, int max, const void* box, unsigned int mask, int arg);
     virtual void vf18(int a, int b, int c, int d);
-    virtual void vf1C(const ColliGrid_unk* grid);
+    virtual void vf1C(const ColliTreeBounds_unk* grid);
 
     Sphere_unk mSphere; // 0x3C
 };
@@ -191,7 +185,7 @@ public:
                      int arg);
     virtual int vf14(ColliResult_unk* results, int max, const void* box, unsigned int mask, int arg);
     virtual void vf18(int a, int b, int c, int d);
-    virtual void vf1C(const ColliGrid_unk* grid);
+    virtual void vf1C(const ColliTreeBounds_unk* grid);
 
     Vector3 m3C; // inferred: first point of the segment, other end of the capsule (CharaTask::vf20, vf64)
     Vector3 m48; // inferred: position (chr::ControlAppear); second point of the segment
@@ -212,7 +206,7 @@ public:
                      int arg);
     virtual int vf14(ColliResult_unk* results, int max, const void* box, unsigned int mask, int arg);
     virtual void vf18(int a, int b, int c, int d);
-    virtual void vf1C(const ColliGrid_unk* grid);
+    virtual void vf1C(const ColliTreeBounds_unk* grid);
 
     // inferred: sets the box (center, rotation, half size) and builds the triangles
     void fn_800575BC(const Vector3* pos, const Vector3* rot, const Vector3* size);
@@ -240,7 +234,7 @@ public:
                      int arg);
     virtual int vf14(ColliResult_unk* results, int max, const void* box, unsigned int mask, int arg);
     virtual void vf18(int a, int b, int c, int d);
-    virtual void vf1C(const ColliGrid_unk* grid);
+    virtual void vf1C(const ColliTreeBounds_unk* grid);
 
     void fn_80058078(const char* path); // inferred: starts loading the object
     int fn_800580BC();                  // inferred: nonzero while loading

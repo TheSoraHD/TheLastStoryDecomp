@@ -1006,21 +1006,8 @@ void MenuCommonTask::fn_804A65A0(const wchar_t* text) {
     m5C = 1;
 }
 
-// inferred: event of an anime element (only the members used here)
-struct MenuAnimeEvent_unk {
-    int m00;
-    unsigned int mHash;  // 0x04: inferred: hash of the element name
-    int m08;
-    int m0C;
-    unsigned int mFlags; // 0x10
-};
-// inferred: object with the menu colors (lbl_8087F490); only the members used here
-struct MenuColors_unk {
-    unsigned char m00[0x288C];
-    float mText[4];   // 0x288C: inferred: text color
-    float mShadow[4]; // 0x289C: inferred: second color
-};
-extern "C" MenuColors_unk* lbl_8087F490;
+// inferred: the colours of the menu text are the ones of the HUD (GameUI OnCursor m288C, OnCursorShadow m289C)
+#include "game/GameUI.h"
 
 // inferred: 8-bit color packed as ARGB (names invented)
 inline unsigned int ColorByte_unk(float f) {
@@ -1061,11 +1048,11 @@ inline void ApplyColors_unk(const float* color, float* outColor, float* outColor
         rgb == MenuColor_unk(MenuColor4_unk(1.0f, 1.0f, 1.0f, 0.0f).v).mColor ||
         rgb == MenuColor_unk(MenuColor4_unk(0.84313726f, 0.8784314f, 0.91764706f, 0.0f).v).mColor) {
         if (lbl_8087F490 != 0) {
-            MenuColor_unk c(lbl_8087F490->mText, alpha);
+            MenuColor_unk c(&lbl_8087F490->m288C.r, alpha);
             c.Get_unk(outColor);
         }
         if (outColor2 != 0 && lbl_8087F490 != 0) {
-            MenuColor_unk(lbl_8087F490->mShadow).Get_unk(outColor2);
+            MenuColor_unk(&lbl_8087F490->m289C.r).Get_unk(outColor2);
         }
     }
 }
@@ -1073,7 +1060,7 @@ inline void ApplyColors_unk(const float* color, float* outColor, float* outColor
 // inferred: event of a d2anime: recolors the registered elements (entries with the anime in m00)
 void MenuCommonTask::fn_804A660C(void* anime, atn::D2A_Common* element, atn::D2A_DrawColor* drawColor,
                                  void* outlineColor) {
-    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)element;
+    const atn::D2A_Common* event = element; // inferred: hash of the element name m04, flags m10
     float* color = (float*)drawColor;
     float* color2 = (float*)outlineColor;
     if (anime == 0 || event == 0) {
@@ -1085,11 +1072,11 @@ void MenuCommonTask::fn_804A660C(void* anime, atn::D2A_Common* element, atn::D2A
     for (unsigned int i = 0; i < m9C; entry++, i++) {
         if ((void*)entry->m00 == anime) {
             if (entry->m08.mText[0] == 0) {
-                if ((event->mFlags & 2) == 2) {
+                if ((event->m10 & 2) == 2) {
                     found = 1;
                 }
             } else {
-                hash = event->mHash;
+                hash = (unsigned int)event->m04;
                 if (hash == fn_800DC6B4(entry->m08.mText)) {
                     found = 1;
                 }
@@ -1108,7 +1095,7 @@ void MenuCommonTask::fn_804A660C(void* anime, atn::D2A_Common* element, atn::D2A
 // inferred: same as fn_804A660C for a layout anime (entries with the layout in m04)
 void MenuCommonTask::fn_804A71F0(void* layout, atn::D2A_Common* element, atn::D2A_DrawColor* drawColor,
                                  void* outlineColor) {
-    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)element;
+    const atn::D2A_Common* event = element; // inferred: hash of the element name m04, flags m10
     float* color = (float*)drawColor;
     float* color2 = (float*)outlineColor;
     if (layout == 0 || event == 0) {
@@ -1120,11 +1107,11 @@ void MenuCommonTask::fn_804A71F0(void* layout, atn::D2A_Common* element, atn::D2
     for (unsigned int i = 0; i < m9C; entry++, i++) {
         if ((void*)entry->m04 == layout) {
             if (entry->m08.mText[0] == 0) {
-                if ((event->mFlags & 2) == 2) {
+                if ((event->m10 & 2) == 2) {
                     found = 1;
                 }
             } else {
-                hash = event->mHash;
+                hash = (unsigned int)event->m04;
                 if (hash == fn_800DC6B4(entry->m08.mText)) {
                     found = 1;
                 }
