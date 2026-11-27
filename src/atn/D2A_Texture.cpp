@@ -127,7 +127,16 @@ inline unsigned int fn_ToU8(const float& f) {
 
 namespace atn {
 
-// NONMATCHING: 99.83% - two saved-register moves are emitted in the opposite order.
+// inferred: current values of an animation at frame `frame` (as UpdateAnim_unk of atn/D2A_Common.cpp)
+template <int N>
+static inline void TexUpdateAnim_unk(D2A_Anim_unk<N>& anim, int frame) {
+    for (int i = 0; i < N; i++) {
+        anim.mValues[i] = fn_801F0544(&anim.mTables[i], frame);
+    }
+}
+
+// NONMATCHING: 99.88% - two saved-register moves are emitted in the opposite order (the loops of the
+// current values through TexUpdateAnim_unk, as UpdateAnim_unk of D2A_Common, fix their counters).
 D2A_Texture::D2A_Texture(D2A_Data* owner, unsigned short id) : D2A_Common(owner, id) {
     mType = 0;
 
@@ -138,16 +147,7 @@ D2A_Texture::D2A_Texture(D2A_Data* owner, unsigned short id) : D2A_Common(owner,
     mTexRect.mTables[1].fn_801F04FC(0, 1, 0.0f);
     mTexRect.mTables[2].fn_801F04FC(0, 1, 1.0f);
     mTexRect.mTables[3].fn_801F04FC(0, 1, 1.0f);
-    int tableOffset = 0;
-    int i = 0;
-    int valueOffset = 0;
-    while (i < 4) {
-        *(float*)((char*)this + 0x150 + valueOffset) =
-            fn_801F0544((D2A_ParamTable*)((char*)this + 0x130 + tableOffset), 0);
-        i++;
-        tableOffset += 8;
-        valueOffset += 4;
-    }
+    TexUpdateAnim_unk(mTexRect, 0);
 
     sprintf(name, lbl_8073E57C + 8, id);
     mTexScale.mName = fn_800DC6B4(name);
@@ -155,16 +155,7 @@ D2A_Texture::D2A_Texture(D2A_Data* owner, unsigned short id) : D2A_Common(owner,
     mTexScale.mTables[1].fn_801F04FC(0, 1, 0.0f);
     mTexScale.mTables[2].fn_801F04FC(0, 1, 1.0f);
     mTexScale.mTables[3].fn_801F04FC(0, 1, 1.0f);
-    i = 0;
-    tableOffset = 0;
-    valueOffset = 0;
-    while (i < 4) {
-        *(float*)((char*)this + 0x184 + valueOffset) =
-            fn_801F0544((D2A_ParamTable*)((char*)this + 0x164 + tableOffset), 0);
-        i++;
-        tableOffset += 8;
-        valueOffset += 4;
-    }
+    TexUpdateAnim_unk(mTexScale, 0);
 }
 
 D2A_Texture::~D2A_Texture() {
