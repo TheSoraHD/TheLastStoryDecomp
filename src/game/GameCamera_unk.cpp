@@ -15,6 +15,7 @@
 #include "chr/CharaEquip_unk.h"
 #include "math/VecAssign_unk.h"
 #include "game/SetConfig.h"
+#include "game/CameraConfig_unk.h"
 #include "game/HitInfo_unk.h"
 #include "game/ChaseManager.h"
 #include "game/Input_unk.h"
@@ -3534,17 +3535,6 @@ extern "C" inline ChaseManager* fn_803903C4() {
 }
 extern "C" inline int fn_803903CC(ChaseManager* mgr) {
     return mgr->mState != 0;
-}
-// inferred: camera part of SetConfig (from mAttackTurnSpeed; as in Event/Path.cpp, weak copies 0x801156C4 and
-// 0x801156D8); names invented
-struct CameraConfig_unk {
-    float m00; // inferred: SetConfig::mAttackTurnSpeed
-};
-inline SetConfig* GetSetConfig_unk() {
-    return SetConfig::sInstance;
-}
-inline CameraConfig_unk* GetCameraConfig_unk(SetConfig* config) {
-    return (CameraConfig_unk*)&config->mAttackTurnSpeed;
 }
 // inferred: settings (lbl_8087F0A8) and field (lbl_8087F430) accessors of other files
 extern "C" GameConfig_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8
