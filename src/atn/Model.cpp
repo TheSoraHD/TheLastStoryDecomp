@@ -1620,9 +1620,8 @@ inline Material_unk* FindMaterial_unk(Model* model, unsigned int hash) {
 // inferred: index of the node edit of a node (the size is read once)
 inline int FindEdit_unk(const SimpleVector<Model::NodeEdit_unk>& v, unsigned int hash) {
     int index = -1;
-    unsigned int n = v.mSize;
-    for (unsigned int i = 0; i < n; i++) {
-        if (hash == v.mData[i].m00) {
+    for (unsigned int i = 0; i < v.mSize; i++) {
+        if (hash == v[i].m00) {
             index = i;
             break;
         }
@@ -2033,6 +2032,30 @@ void ModelBase::fn_80093158(ModelLod_unk* lod) {
             sprintf(msg, "LOD Node '%s' not found in model %s", joint->m10, mLods[0].mHandle.fn_80473F18());
             lbl_8087EEB8->fn_800697D8(msg);
         }
+    }
+}
+
+// inferred: debug code without callers that the linker removes: in the original its strings stay in the
+// pool between "LOD Node..." and "eye_L" (0x1A6-0x24C of @stringBase0: a range check of std::string, the
+// names of the material flags and a range check of std::vector). Name and body invented.
+void ModelDebugFlags_unk(DebugMessages_unk* out, unsigned int pos, unsigned int size, unsigned int n) {
+    if (pos > size) {
+        __msl_error("basic_string: out_of_range");
+    }
+    out->fn_800697D8("color");
+    out->fn_800697D8("outline_LS");
+    out->fn_800697D8("Flags");
+    out->fn_800697D8("Shadow Caster");
+    out->fn_800697D8("Shadow Receiver");
+    out->fn_800697D8("Coverage Receiver");
+    out->fn_800697D8("Reflect");
+    out->fn_800697D8("Refract");
+    out->fn_800697D8("Force Reflect/Refract");
+    out->fn_800697D8("Occluder");
+    out->fn_800697D8("Inverted");
+    out->fn_800697D8("Shadow Proj");
+    if (n > size) {
+        __msl_error("vector length error");
     }
 }
 
@@ -3348,5 +3371,20 @@ __declspec(noinline) void ModelPose_unk::fn_8009A584(const atn::Matrix3x4& root)
 __declspec(noinline) void ModelPose_unk::fn_8009A5A8(const atn::Matrix3x4& root, const atn::MotionBuffer* motion) {
     if (m00->m44 > 0) {
         fn_8009ADA4(this, 0, motion, &root, 0);
+    }
+}
+
+// inferred: the last strings of the pool of the original (after "spine") are the range checks of std::map
+// and std::string instantiations that the linker removes; written as one function without callers. Name and
+// body invented.
+void ModelLengthErrors_unk(unsigned int n, unsigned int max) {
+    if (n > max) {
+        __msl_error("tree::insert length error");
+    }
+    if (n > max - 1) {
+        __msl_error("basic_string::reserve length_error");
+    }
+    if (n > max - 2) {
+        __msl_error("basic_string: length_error");
     }
 }
