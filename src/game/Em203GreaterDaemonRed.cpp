@@ -901,8 +901,8 @@ static inline atn::Vector3 TargetPosOf_unk(const Em203GreaterDaemonRed* self) {
 }
 
 // inferred: state 8 (casts the flare)
-// NONMATCHING: 96.31% - flare message; stack slots and register allocation (target position through
-// TargetPosOf_unk, Val_unk probe: 92.62 -> 96.31)
+// NONMATCHING: 99.16% - flare message; target copy and dir swap stack slots (target position through
+// TargetPosOf_unk, Val_unk probe: 92.62 -> 96.31; dir declared, then assigned: 99.16)
 void Em203GreaterDaemonRed::fn_80297114() {
     if (m14B4 == 0) {
         if (Chant_unk() && mMotion.mTracks[0].m08 >= 28.0f) {
@@ -922,7 +922,8 @@ void Em203GreaterDaemonRed::fn_80297114() {
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD5), m60->m04);
             lbl_8087F048->fn_80109828(text);
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
-            atn::Vector3 dir = TargetPosOf_unk(this) - pos;
+            atn::Vector3 dir;
+            dir = TargetPosOf_unk(this) - pos;
             PSVECNormalize(&dir, &dir);
             mStatus.mParamB.m2C = 7.0f;
             m12CC = 0.0f;
