@@ -16,6 +16,10 @@
 // Everything below is inferred from Event::DialogHead (0x802251F8..0x802280B4); names are invented.
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
+// inferred: weak getter of lbl_8087F0A8
+extern "C" inline GameConfig_unk* fn_800F52F8() {
+    return lbl_8087F0A8;
+}
 // inferred: graphics device (lbl_8087EEE0, atn/GraphicsDevice.cpp)
 namespace atn {
 struct GraphicsDevice_unk;
@@ -65,10 +69,15 @@ inline EquipItemData* GetItem_unk(CharaTask* chara, int i) {
     return i < (int)chara->m6A4.mSize ? chara->m6A4.mData[i] : 0;
 }
 
+// inferred: bit `i` of the shown equipment mask
+inline bool IsEquipShown_unk(CharaTask* chara, unsigned int i) {
+    return ((1u << i) & chara->m6A0) == (1u << i);
+}
+
 namespace Event {
 
 inline DialogSide_unk* DialogHead::GetSide_unk() {
-    return m1620 ? m1620 : &lbl_8087F0A8->mDialog.mLeft;
+    return m1620 ? m1620 : &fn_800F52F8()->mDialog.mLeft;
 }
 
 DialogHead* DialogHead::fn_802251F8(atn::Task* parent, CharaTask* chara) {
@@ -249,8 +258,9 @@ void DialogHead::vf18(atn::RenderManager* view) {
     GetModel_unk()->vf18(view);
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
-        if (*p != 0 && (m6A0 & (1U << i)) == (1U << i) && (*p)->m000 < 4) {
-            (*p)->GetModel_unk()->vf18(view);
+        chr::CharaEquip_unk* equip = *p;
+        if (equip != 0 && ((1u << i) & m6A0) == (1u << i) && equip->m000 < 4) {
+            equip->GetModel_unk()->vf18(view);
         }
     }
     for (unsigned int i = 0; i < m6A4.mSize; i++) {
@@ -278,8 +288,8 @@ void DialogHead::vf10(atn::RenderManager* view) {
     GetModel_unk()->vf10(view);
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
-        if (*p != 0 && (m6A0 & (1U << i)) == (1U << i) && (*p)->m000 < 4) {
-            (*p)->GetModel_unk()->vf10(view);
+        if (*p != 0 && IsEquipShown_unk(this, i) && (*p)->m000 < 4) {
+            (*p)->m024.vf10(view);
         }
     }
     for (unsigned int i = 0; i < m6A4.mSize; i++) {
