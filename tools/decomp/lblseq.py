@@ -20,7 +20,9 @@ ours.sort()
 def oval(t,v):
     if t=='float': return struct.pack('>f',float(v))
     if t=='double': return struct.pack('>d',float(v))
-    if t=='4byte': return struct.pack('>I',int(v,16))
+    if t=='4byte':
+        try: return struct.pack('>I',int(v,16))
+        except ValueError: return ('rel',v)
     return None
 A=[oval(t,v) for a,n,t,v in orig]; B=[r for _,_,r in ours]
 sm=difflib.SequenceMatcher(None,A,B,autojunk=False)
