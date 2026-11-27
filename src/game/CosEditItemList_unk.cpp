@@ -19,6 +19,8 @@
 #include "game/NewCampPairs_unk.h"
 #include "macros.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "db/ItemParam_unk.h"
+#include "db/WeaponParam_unk.h"
 
 // Third file of CosEditProtector (inferred file name, game/CosEditProtector.cpp and
 // game/CosEditPalette_unk.cpp have the rest): the equipment lists of the costume menu (states 0, 2,
@@ -35,12 +37,6 @@ extern "C" GameTask* lbl_8087F430;                            // inferred: field
 // inferred: not used by this file (only its __sinit is left; as game/CosEditPalette_unk.cpp)
 static atn::Vector3 sHidePos(0.0f, -600.0f, 0.0f);
 
-// inferred: item data (only the help text is read)
-struct CosEditListItem_unk {
-    unsigned char m00[0x0C];
-    const wchar_t* mHelp; // 0x0C
-};
-extern "C" CosEditListItem_unk* fn_80211480(int id);    // inferred: item data
 extern "C" int fn_80206BE4(void* item);                  // inferred: item id of a protector
 extern "C" int fn_8020EF80(void* entry);                 // inferred: item id of an equipment entry
 extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int arg); // inferred: shows a protector
@@ -56,9 +52,9 @@ void CosEditProtector::fn_801D80BC() {
         int slot = m1B98 != 0;
         void* item = fn_801CFA5C(fn_801CF334()->mFace, slot);
         fn_801E7D78(mSelect, item, 1);
-        CosEditListItem_unk* data = fn_80211480(fn_80206BE4(item));
+        ItemParamEntry_unk* data = fn_80211480(fn_80206BE4(item));
         if (data != 0) {
-            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mText, 0);
         }
         break;
     }
@@ -72,9 +68,9 @@ void CosEditProtector::fn_801D80BC() {
         }
         void* entry = fn_801CFAA8(fn_801CF334()->mFace, slot);
         fn_801E7EA8(mSelect, entry, 1);
-        CosEditListItem_unk* data = fn_80211480(fn_8020EF80(entry));
+        ItemParamEntry_unk* data = fn_80211480(fn_8020EF80(entry));
         if (data != 0) {
-            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mText, 0);
         }
         break;
     }
@@ -189,14 +185,6 @@ struct CosEditCharaInfo_unk {
 };
 extern "C" CosEditCharaInfo_unk* fn_8020924C(int id); // inferred: character data
 extern "C" int fn_80219558(int id);            // inferred: party member of a character id
-// inferred: protector data (only the kind is read)
-struct CosEditProtData_unk {
-    unsigned char m00[0x80];
-    int m80; // 0x80: inferred: equipment index given to fn_80134800
-    unsigned char m84[0xB8 - 0x84];
-    int mKind; // 0xB8
-};
-extern "C" CosEditProtData_unk* fn_80206C50(int id); // inferred: protector data of an item id
 
 // inferred: state 2, the list of the equipments of the slot m1E4: A equips the item (taking it
 // from the member who has it), B goes back, the two shoulder buttons sort the list
@@ -206,9 +194,9 @@ void CosEditProtector::fn_801D8560() {
         CosEditItem_unk* e = &mB34[m1E4][m80];
         if (e != 0) {
             fn_801E7EA8(mSelect, e->mItem, 1);
-            CosEditListItem_unk* data = fn_80211480(fn_8020EF80(e->mItem));
+            ItemParamEntry_unk* data = fn_80211480(fn_8020EF80(e->mItem));
             if (data != 0) {
-                MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(data->mText, 0);
             }
         }
     }
@@ -348,9 +336,9 @@ void CosEditProtector::fn_801D8CC4() {
         CosEditWeaponItem_unk* e = &mB4C[m80];
         void* item = fn_80206C50(e->mId);
         fn_801E7D78(mSelect, item, e->mIndex < 0);
-        CosEditListItem_unk* data = fn_80211480(fn_80206BE4(item));
+        ItemParamEntry_unk* data = fn_80211480(fn_80206BE4(item));
         if (data != 0) {
-            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mText, 0);
         }
     }
     void* pad = lbl_8087EF70;
@@ -483,13 +471,6 @@ void CosEditProtector::fn_801D9388() {
     vf34(0);
 }
 
-// inferred: entry of the item table (db/ItemParam_unk; only the item code is read)
-struct CosEditListParam_unk {
-    unsigned char m00[0x04];
-    int mId; // 0x04
-};
-extern "C" int fn_802114D8();                          // inferred: number of entries of the item table
-extern "C" CosEditListParam_unk* fn_802114E0(int index); // inferred: entry by index
 extern "C" bool fn_8020F0AC(EquipParamEntry_unk* entry, int member); // inferred: whether the member can wear it
 extern "C" int fn_804444E8(Inventory* inv, int id);                   // inferred: number of items
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
@@ -737,7 +718,7 @@ void CosEditProtector::fn_801D94D0() {
         m1C90.clear();
         m1C9C.clear();
         for (int k = 0; k < fn_802114D8(); k++) {
-            CosEditListParam_unk* param = fn_802114E0(k);
+            ItemParamEntry_unk* param = fn_802114E0(k);
             if (param == 0 || !fn_8020EF04(param->mId)) {
                 continue;
             }
@@ -1365,7 +1346,7 @@ void CosEditProtector::fn_801DD26C(int member) {
                 if (Inventory::Order() == 0) {
                     continue;
                 }
-                CosEditListParam_unk* param = fn_802114E0(k);
+                ItemParamEntry_unk* param = fn_802114E0(k);
                 if (param == 0 || !fn_8020EF04(param->mId)) {
                     continue;
                 }
@@ -1447,7 +1428,6 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 
 // inferred: order of the equipment list (std::sort predicate): items worn first (by member), then
 // by name without the "+n" suffix, the shorter name first; names invented
-extern "C" bool fn_80206B9C(int code);                 // inferred: whether an item code is a weapon
 extern "C" int fn_8044453C(Inventory* inv, int index); // inferred: number of items of an entry of the item table
 // inferred: weapon data (only the attack values are read)
 struct CosEditWeaponStat_unk {
@@ -1600,11 +1580,11 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
         if (Inventory::Order() == 0) {
             continue;
         }
-        CosEditListParam_unk* param = fn_802114E0(k);
+        ItemParamEntry_unk* param = fn_802114E0(k);
         if (param == 0 || !fn_80206B9C(param->mId)) {
             continue;
         }
-        CosEditProtData_unk* weapon = fn_80206C50(param->mId);
+        WeaponParamEntry_unk* weapon = fn_80206C50(param->mId);
         if (weapon == 0 || !fn_80206D18(weapon, member, slot)) {
             continue;
         }
@@ -1747,7 +1727,7 @@ void CosEditProtector::fn_801E6B10() {
         if (index >= 0 && index < (int)mB4C.size()) {
             CosEditWeaponItem_unk* e = &mB4C[index];
             CosEditListName_unk* data = (CosEditListName_unk*)fn_80211480(e->mId);
-            CosEditProtData_unk* prot = fn_80206C50(e->mId);
+            WeaponParamEntry_unk* prot = fn_80206C50(e->mId);
             if (data != 0 && prot != 0) {
                 int icon;
                 if (e->mIndex < 0) {
@@ -2024,12 +2004,12 @@ void CosEditProtector::fn_801E75F8(int member, CharaStatus* status, atn::D3Anime
             StatDiff_unk(diff, values, cur, next);
         }
     } else if (m7C == 3) {
-        CosEditProtData_unk* prot = 0;
+        WeaponParamEntry_unk* prot = 0;
         if (mB4C.size() != 0 && m80 < (int)mB4C.size()) {
             prot = fn_80206C50(mB4C[m80].mId);
         }
         if (prot != 0) {
-            CharaParam_unk next = fn_80134800(status, member, 1, m1E4, prot->m80, 0, 0, 0);
+            CharaParam_unk next = fn_80134800(status, member, 1, m1E4, prot->mId, 0, 0, 0);
             StatDiff_unk(diff, values, cur, next);
         }
     }

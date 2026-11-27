@@ -23,7 +23,7 @@ struct ItemParamEntry_unk : public BulletParam_unk {
     short mBE;
     unsigned char mItemKind; // inferred: index in sKinds
     unsigned char mUser;  // inferred: index in sUsers
-    unsigned char mC2;
+    signed char mC2; // inferred: rarity (signed: ItemRare_unk and GameUI test it with extsb)
     unsigned char mC3;
     int mC4;
     int mC8; // inferred: price
