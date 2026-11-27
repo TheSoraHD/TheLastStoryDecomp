@@ -678,9 +678,9 @@ void Em403WarLion::vf24() {
     float dt = lbl_8087EFA8->m3A4;
     GetMotionLength_unk(&mMotion, m484[1]);
     GetMotionLength_unk(&mMotion, m484[3]);
-    float rate = m570 / dt;
     float walkMin = m500;
     float dashMin = m508;
+    float rate = m570 / dt;
     float blend;
     float walkSpeed;
     float dashSpeed;
