@@ -460,10 +460,16 @@ int WaitObject::vf40(GimmickMsg_unk* msg) {
     return m54;
 }
 
+// inferred: current state of the object (name invented; read through an inline, found with the Val_unk probe)
+static inline int StateOf_unk(const WaitObject* self) {
+    return self->m54;
+}
+
 // inferred: a bullet with enough power switches the state (type 5 trigger) and, when the trigger has a
 // bullet id, fires that bullet from the collision target
-// NONMATCHING: 91.8% - the original reloads the collision pointer of the state for the position copy
-// (one more lwz) and schedules the copy differently
+// NONMATCHING: 96.3% - the original reloads the collision pointer of the state for the position copy through the
+// state address of the test (one more lwz) and schedules the copy differently; StateOf_unk in the test (Val_unk
+// probe: 91.8 -> 96.3)
 int WaitObject::vf44(GimmickHitMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -473,7 +479,7 @@ int WaitObject::vf44(GimmickHitMsg_unk* msg) {
     }
     for (unsigned int i = 0; i < mNumTriggers; i++) {
         WaitTrigger_unk* t = &mTriggers[i];
-        if (t->mState != m54 || t->mType != 5 || GetColli_unk(m54) == 0) {
+        if (t->mState != StateOf_unk(this) || t->mType != 5 || GetColli_unk(StateOf_unk(this)) == 0) {
             continue;
         }
         WaitHitBullet_unk* hit = *(WaitHitBullet_unk**)&msg->m2C[0];

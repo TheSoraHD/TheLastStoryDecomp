@@ -307,9 +307,24 @@ void QuadrupedTask::fn_80566FB4() {
 
 
 // inferred: chooses the move of the AI state (mC58) from the distance to its target
-// NONMATCHING: 90.6% - the original keeps &target->mC58.m0C in r27 from the start (one more saved GPR)
+// inferred: route table of the game task; base and random range of the wait of the AI (names invented; read
+// through inlines, found with the Val_unk probe)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
+static inline int WaitBaseOf_unk(const QuadrupedTask* self) {
+    return self->m150C;
+}
+
+static inline int WaitRangeOf_unk(const QuadrupedTask* self) {
+    return self->m1510;
+}
+
+// NONMATCHING: 96.9% - the original keeps &target->mC58.m0C in r27 from the start (one more saved GPR) and calls
+// rand before reading the wait; the table and the wait through accessors (Val_unk probe; 90.6 -> 96.9)
 int QuadrupedTask::fn_80567424(CharaTask* target) {
-    GameScene* table = lbl_8087F430->m10D8;
+    GameScene* table = TableOf_unk(lbl_8087F430);
     if (table == 0) {
         return 0;
     }
@@ -328,7 +343,7 @@ int QuadrupedTask::fn_80567424(CharaTask* target) {
             case 0:
                 mC58.fn_8011C044(3);
                 if (mC58.mBC <= 0) {
-                    mC58.mBC = m150C + rand() % m1510;
+                    mC58.mBC = WaitBaseOf_unk(this) + rand() % WaitRangeOf_unk(this);
                 }
                 break;
             case 1:
