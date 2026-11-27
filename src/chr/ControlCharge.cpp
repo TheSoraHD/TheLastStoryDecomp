@@ -341,29 +341,23 @@ boost::function<void()> ControlCharge::vf10() const {
     if (m30 != 0) {
         HitInfo_unk* hit = mChara->m638;
         if (hit->m01 == 1) {
-            ControlChargeAttack* next = new ((MemoryTag)0, "", "", 0) ControlChargeAttack(mChara, m08, m38 == 0);
-            return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+            return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara,
+                               new ((MemoryTag)0, "", "", 0) ControlChargeAttack(mChara, m08, m38 == 0));
         }
         if ((hit->m04 == 0x1788 || hit->m04 == 0x1791) && (hit->mAC & 0x40000) == 0x40000) {
             ControlQuarkSeirenAttack* next =
                 new ((MemoryTag)0, "", "", 0) ControlQuarkSeirenAttack(mChara, m08, 150.0f, m38 == 0);
             return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
         }
-        switch (mChara->m50) {
-        case 700001:
-        case 700002:
-        case 700013:
-        case 700014: {
+        int id = mChara->m50;
+        if (id == 700001 || id == 700002 || id == 700013 || id == 700014) {
             ControlHighJumpAttack* next =
                 new ((MemoryTag)0, "", "", 0) ControlHighJumpAttack(mChara, m08, 10.0f, m38 == 0);
             return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
         }
-        default: {
-            ControlHighJumpAttack* next =
-                new ((MemoryTag)0, "", "", 0) ControlHighJumpAttack(mChara, m08, 150.0f, m38 == 0);
-            return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
-        }
-        }
+        ControlHighJumpAttack* next =
+            new ((MemoryTag)0, "", "", 0) ControlHighJumpAttack(mChara, m08, 150.0f, m38 == 0);
+        return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
     }
     return ControlBase::vf10();
 }
