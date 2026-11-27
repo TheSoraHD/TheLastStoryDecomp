@@ -2,6 +2,8 @@
 // effect start/stop functions are reconstructed so far.
 #include "game/BattleTask.h"
 #include "game/BattleTarget_unk.h"
+#include "db/ItemParam_unk.h"
+#include "db/WeaponParam_unk.h"
 #include "game/DamageResult_unk.h"
 #include "atn/Memory.h"
 #include "atn/EffectManager.h"
@@ -3156,14 +3158,6 @@ struct BattleMsg_unk {
     const wchar_t* mText[1];
 };
 extern "C" BattleMsg_unk* lbl_8087F1E4;
-// inferred: item data (its name at +8, as MpItem_unk of MP/D2AMpMenuResult.cpp); names invented
-struct BattleItem_unk {
-    unsigned char m00[0x8];
-    const wchar_t* mName;
-    unsigned char m0C[0xEC - 0xC];
-    ArmsCond_unk mConds[2]; // 0xEC: inferred: status conditions of the arrow (fn_8010B398)
-};
-extern "C" BattleItem_unk* fn_80211480(int id);
 
 // inferred: the character is one of sNoHead_unk (inlined; name invented)
 inline bool IsNoHead_unk(CharaTask* chara) {
@@ -3285,7 +3279,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
                         int rest = 0;
                         Inventory::instance_->mDB10 = 0;
                         if (fn_80444020(Inventory::instance_, item, 0, num, 0, 0, &got, &count, &rest)) {
-                            BattleItem_unk* data = fn_80211480(got > 0 ? got : -1);
+                            ItemParamEntry_unk* data = fn_80211480(got > 0 ? got : -1);
                             if (got > 0 && count > 0 && data != 0) {
                                 entry->m92E = 1;
                                 fn_80109864((SpEffect_unk*)attacker->mStatus.fn_80133EE8(0x3C), attacker);
@@ -5956,18 +5950,11 @@ void BattleTask::fn_80108F38(const atn::Vector3* pos, int status) {
     }
 }
 
-// inferred: weapon data (only the kind is read; its name is the entry 0xEB + kind of the message table)
-struct BattleWeapon_unk {
-    unsigned char m00[0xB8];
-    int mKind;
-};
 // inferred: status effect data (its name at +0xC)
 struct BattleState_unk {
     unsigned char m00[0xC];
     const wchar_t* mName;
 };
-extern "C" BattleItem_unk* fn_80211480(int id);
-extern "C" BattleWeapon_unk* fn_80206C50(int id);
 extern "C" BattleState_unk* fn_8021AF50(int id);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
@@ -5994,7 +5981,7 @@ void BattleTask::fn_801092C8(int id, CharaTask* chara, int value, int arg) {
         break;
     case 1: {
         level = 1;
-        BattleItem_unk* item = fn_80211480(value);
+        ItemParamEntry_unk* item = fn_80211480(value);
         if (item != 0) {
             fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), item->mName, arg);
         } else {
@@ -6004,9 +5991,9 @@ void BattleTask::fn_801092C8(int id, CharaTask* chara, int value, int arg) {
     }
     case 2: {
         level = 1;
-        BattleWeapon_unk* weapon = fn_80206C50(value);
+        WeaponParamEntry_unk* weapon = fn_80206C50(value);
         if (weapon != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB),
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB),
                         arg);
         } else {
             fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x17), value);
@@ -6739,10 +6726,11 @@ int BattleTask::fn_8010B398(BattleCalcParam_unk* param) {
         }
     }
     if (attacker->mType == 0 && attacker->fn_8014FCE8() && CrossbowMenuTask::sInstance != 0) {
-        BattleItem_unk* arrow =
+        ItemParamEntry_unk* arrow =
             fn_80211480(CrossbowMenuTask::sInstance->m4C.mData[CrossbowMenuTask::sInstance->m150]);
         if (arrow != 0) {
-            ArmsCond_unk* cond = arrow->mConds;
+            // inferred: ItemParamFive_unk has the layout of ArmsCond_unk (status conditions of the arrow)
+            ArmsCond_unk* cond = (ArmsCond_unk*)arrow->mEC;
             for (int i = 0; i < 2; i++, cond++) {
                 if (Arms::fn_80044FBC(cond, kind, (int)&pos, flags, attacker, chara, 0) && cond->m10 > rand() % 100) {
                     status->mEntries.push_back(*(CharaStatusEntry_unk*)cond);
@@ -7144,7 +7132,7 @@ void BattleTask::fn_8010CF28(int kind, CharaTask* chara, CharaTask* target) {
         }
         entry->m92E = 1;
         wchar_t text[256];
-        BattleItem_unk* data = fn_80211480(got);
+        ItemParamEntry_unk* data = fn_80211480(got);
         if (data != 0) {
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), chara->GetInfo_unk()->m04, data->mName, count);
         } else {
