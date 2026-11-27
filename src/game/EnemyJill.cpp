@@ -565,8 +565,13 @@ void EnemyJill::fn_8032F6A8() {
     }
 }
 
-// NONMATCHING: 93.8% - registers and order of the ring buffer updates (load of the count of the history before
-// its head, r6/r5 of the modulo constant) and the 0.2f product (9 variants: Pop_unk/Next_unk, locals, while/for)
+// inferred: number of entries of a ring (name invented; read through an inline, found with the Val_unk probe)
+static inline unsigned int CountOf_unk(const JillRing_unk& ring) {
+    return ring.mCount;
+}
+
+// NONMATCHING: 99.59% - registers of the second ring update (head/count r4/r3) and of the 0.2f product; the count
+// of the history read through CountOf_unk (Val_unk probe; 93.8 -> 99.34) and Pop_unk in the first update
 void EnemyJill::fn_8032F828() {
     float weights[5];
     float one = 1.0f;
@@ -585,7 +590,7 @@ void EnemyJill::fn_8032F828() {
     } else {
         float rate = 0.7f;
         unsigned int i = 0;
-        while (i < m15E4.mCount) {
+        while (i < CountOf_unk(m15E4)) {
             int k = m15E4.mData[(m15E4.mHead + i++) % 10];
             weights[k] *= rate;
             rate *= 0.8f;
@@ -596,10 +601,8 @@ void EnemyJill::fn_8032F828() {
     for (i = 0; i < 5; i++) {
         if (rand() % 1001 / 1000.0f < weights[i]) {
             m15B4.Push_unk(i);
-            if (m15E4.mCount >= 10) {
-                unsigned int head = m15E4.mHead + 1;
-                m15E4.mCount--;
-                m15E4.mHead = head % 10;
+            if (CountOf_unk(m15E4) >= 10) {
+                m15E4.Pop_unk();
             }
             m15E4.Push_unk(i);
             break;
@@ -613,15 +616,14 @@ void EnemyJill::fn_8032F828() {
             }
         }
         m15B4.Push_unk(best);
-        if (m15E4.mCount >= 10) {
+        if (CountOf_unk(m15E4) >= 10) {
             unsigned int head = m15E4.mHead + 1;
-                m15E4.mCount--;
-                m15E4.mHead = head % 10;
+            m15E4.mCount--;
+            m15E4.mHead = head % 10;
         }
         m15E4.Push_unk(best);
     }
 }
-
 // NONMATCHING: 86.3% - the original keeps `this`, the index and the byte offset of the event in three saved
 // registers and rebuilds the element address each iteration (here the offset is folded into `this`); 9 variants
 // (element pointer/reference, while loop, operator[], helper, reversed comparison)
