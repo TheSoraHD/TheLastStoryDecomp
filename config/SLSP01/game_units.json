@@ -839,7 +839,7 @@
    "chr::ControlSwatTurn",
    "chr::ControlDive"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlDraggingStart.cpp",

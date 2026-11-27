@@ -80,13 +80,15 @@ ControlDive::ControlDive(Chara_unk* chara, const atn::Vector3& dir) : ControlBas
     }
 }
 
+// inferred: kind of route point the character walks to (name invented; read through an inline)
+static inline int RouteTypeOf_unk(const CharaTask* chara) { return chara->mC58.m0C.mA0; }
 // inferred: nearest route point for the group of the character (name invented)
 static inline int FindRoutePoint_unk(const atn::Vector3& pos, int type, int group, CharaTask* chara, GameScene* scene) {
     return scene->fn_803C1560(&pos, chara->fn_80179D44(), group, type, 1, -1.0f);
 }
 
-// NONMATCHING: 99.89% - pos/type of the route point in r30/r29 (original r29/r30). The original loads the arguments of fn_803C1560 before calling
-// fn_80179D44 (r27-r31 saved, larger frame) and loads 1.5f after the prologue.
+// inferred: the route point through FindRoutePoint_unk (arguments loaded before fn_80179D44) and its kind
+// through RouteTypeOf_unk (Val_unk probe)
 int ControlDive::vf0C() {
     int ret = 0;
     Motion_unk* motion = mChara->GetModel_unk();
@@ -95,7 +97,7 @@ int ControlDive::vf0C() {
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0) - 5.0f) {
         if (mChara->m564 == 2) {
-            mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(*mChara->fn_8013C38C(), mChara->mC58.m0C.mA0, mChara->mC58.mB4, mChara,
+            mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(*mChara->fn_8013C38C(), RouteTypeOf_unk(mChara), mChara->mC58.mB4, mChara,
                                                              (GameScene*)lbl_8087F430->m10D8);
         }
         mChara->mStatus.m18 &= ~0x20000;
