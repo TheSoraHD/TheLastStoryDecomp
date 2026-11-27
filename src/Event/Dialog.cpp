@@ -585,15 +585,39 @@ int Dialog::vf0C() {
 
 #define DIALOG_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 
-// NONMATCHING: 89.06% - scheduling/registers of the fog and bloom copies and the .sdata2 order
-// (98.93% with docs/enlazar2-20261117-qF-dialog297ac.patch: lerp inline with the target by reference,
-// fog built in an inline, local pointer to the pad; left: the 1 of mEnable and lbl_8087EFA8 swap r3/r8)
+// inferred: a + t * (b - a) with the target by reference (name invented)
+static inline float LerpF_unk(float a, const float& b, float t) {
+    return a + t * (b - a);
+}
+
+// inferred: fog of the render settings faded from `src` to the dialog fog (name invented)
+static inline void FadeFog_unk(const DialogFog_unk& src, float t) {
+    DialogFog_unk fog;
+    fog.m04 = src.m04;
+    fog.m08 = src.m08;
+    fog.m0C = src.m0C;
+    fog.m20 = src.m20;
+    fog.m24 = src.m24;
+    fog.mEnable = 1;
+    fog.m10 = LerpF_unk(src.m10, lbl_8087DBB8, t);
+    fog.m14 = LerpF_unk(src.m14, lbl_8087DBBC, t);
+    fog.m18 = LerpF_unk(src.m18, lbl_8087DBC0, t);
+    fog.m1C = LerpF_unk(src.m1C, lbl_8087DBC4, t);
+    fog.m28 = LerpF_unk(src.m28, lbl_8087DBC8, t);
+    fog.m2C = LerpF_unk(src.m28, lbl_8087DBCC, t);
+    lbl_8087EFA8->mFog = fog;
+}
+
+// NONMATCHING: 98.93% - the 1 of mEnable and lbl_8087EFA8 swap r3/r8 (89.06 -> 98.93 with the parche of
+// enlazar2-20261117 qF: the lerp with the target by reference, the fog built in FadeFog_unk and a local pointer
+// to the pad)
 void Dialog::fn_802297AC() {
     if (!m10C->IsFlag_unk(4) && m10C->mSpeed < 0.0f && m10C->mFrame <= 1.0f) {
         m10C->mFlags |= 4;
     }
     if (lbl_8087F0A8 != 0) {
-        ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
+        Input_unk* input = &lbl_8087F0A8->mInput;
+        ButtonUv_unk uv = input->fn_80124C6C(0);
         m10C->SetParam2_unk("btnUv", uv);
         m10C->SetParam2_unk("btnUvMask", uv);
     }
@@ -604,20 +628,7 @@ void Dialog::fn_802297AC() {
     }
     if (m150 >= 0 && ++m150 <= 30) {
         float t = DIALOG_MIN_UNK(1.0f, m150 / 30.0f);
-        DialogFog_unk fog;
-        fog.mEnable = 1;
-        fog.m04 = mFog.m04;
-        fog.m08 = mFog.m08;
-        fog.m0C = mFog.m0C;
-        fog.m10 = mFog.m10 + t * (lbl_8087DBB8 - mFog.m10);
-        fog.m14 = mFog.m14 + t * (lbl_8087DBBC - mFog.m14);
-        fog.m18 = mFog.m18 + t * (lbl_8087DBC0 - mFog.m18);
-        fog.m1C = mFog.m1C + t * (lbl_8087DBC4 - mFog.m1C);
-        fog.m20 = mFog.m20;
-        fog.m24 = mFog.m24;
-        fog.m28 = mFog.m28 + t * (lbl_8087DBC8 - mFog.m28);
-        fog.m2C = mFog.m28 + t * (lbl_8087DBCC - mFog.m28);
-        lbl_8087EFA8->mFog = fog;
+        FadeFog_unk(mFog, t);
         DialogBloom_unk bloom = lbl_8087EFA8->mBloom;
         bloom.mEnable = 1;
         bloom.m48 = 1;
