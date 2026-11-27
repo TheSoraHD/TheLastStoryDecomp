@@ -1139,7 +1139,8 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
                 v.y = 0.0f;
                 v.z = 0.1f;
             }
-            atn::Vector3 move = v.GetNormalize() * step;
+            atn::Vector3 move;
+            move = v.GetNormalize() * step;
             if (fn_8004D388(lbl_8087EE98, &result, &p, &move, 0x80000008, 0, 0, 3.5f)) {
                 hits++;
                 p.x = result.m10.x;

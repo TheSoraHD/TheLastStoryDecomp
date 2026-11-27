@@ -1981,7 +1981,8 @@ void Em203GreaterDaemon::fn_802915F4(CharaTask* chara, int index, int kind) {
     PSVECNormalize(&m1674[index].m00, &m1674[index].m00);
     m1674[index].m00 *= 30.0f;
     m1674[index].m0C.SetIdentity();
-    atn::Vector3 rot = m1674[index].m00.ToRotation_unk();
+    atn::Vector3 rot;
+    rot = m1674[index].m00.ToRotation_unk();
     atn::Matrix3x4 r = fn_800109E0(rot);
     Mtx t;
     PSMTXConcat(m1674[index].m0C.m, r.m, t);

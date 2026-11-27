@@ -1463,7 +1463,8 @@ int Em301LShade::fn_802D6004() {
         if ((c->mStatus.m0C & 0x100) == 0x100) {
             ShadeTarget_unk t;
             t.mChara = c;
-            atn::Vector3 hips = GetNodePos_unk(c->mMotion.GetNodeMtx_unk("hips"));
+            atn::Vector3 hips;
+            hips = GetNodePos_unk(c->mMotion.GetNodeMtx_unk("hips"));
             t.m10 = hips;
             t.m04 = hips;
             m15AC.push_back(t);
