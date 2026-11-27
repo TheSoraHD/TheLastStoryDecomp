@@ -2990,8 +2990,7 @@ static inline const int* RemapOf_unk(const atn::ModelLod_unk& lod) { return lod.
 
 // inferred: samples the fading track 3 from the "spine" node (an upper body motion); while it fades out
 // the previous motion is sampled
-// NONMATCHING: 99.96% - "spine" is at another offset of the string pool (registers fixed reading the remap
-// through RemapOf_unk)
+// inferred: the remap read through RemapOf_unk (registers) and the pool order of patch mixto2-20261120 qM
 void Model::fn_80098DD8(int advance) {
     Track_unk* t = &mTracks[3];
     Res_unk* res;
