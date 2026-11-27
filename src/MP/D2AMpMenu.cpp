@@ -668,8 +668,18 @@ void D2AMpMenu::fn_804B12F8() {
     }
 }
 
-// NONMATCHING: 99.5% - the pane name of m64 is computed before its layout in the original; the pad gets r28
-// (r29 in the original)
+// inferred: a pane of the layout of a task
+static inline void* Pane_unk(MpD2A_unk* task, const char* name) {
+    return fn_801FEC74(&task->mData.m10, name);
+}
+
+// inferred: the value track of a pane of the layout of a task
+static inline void* Track_unk(MpD2A_unk* task, const char* name) {
+    return fn_801FEC08(&task->mData.m10, name);
+}
+
+// NONMATCHING: 99.97% - the pad gets r28 (r29 in the original); 99.5 -> 99.97 with the pane and track
+// lookups in Pane_unk/Track_unk (patch mixto2-20261120 qA3)
 // inferred: input of the match selection (state 9)
 void D2AMpMenu::fn_804B1528() {
     if (D2ACommonDialog::sInstance->m4C != 0) {
@@ -686,8 +696,8 @@ void D2AMpMenu::fn_804B1528() {
             for (int i = 0; i < sizeof(m58) / sizeof(m58[0]); i++) {
                 Play_unk(m58[i], 1, 1.0f);
             }
-            float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(fn_801FEC74(&m64->mData.m10, "string0001(1)(1)"), 0, 0).data(), 0.0f, 1, 1);
-            w += fn_801F0544((char*)fn_801FEC08(&m64->mData.m10, "pos0001") + 4, 0);
+            float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(Pane_unk(m64, "string0001(1)(1)"), 0, 0).data(), 0.0f, 1, 1);
+            w += fn_801F0544((char*)Track_unk(m64, "pos0001") + 4, 0);
             SetPaneValue_unk(&m64->mData.m10, "pos0008(2)", 0, w);
             Play_unk(m64, 0, 1.0f);
             D2AMpMenuRankMark::sInstance->fn_804B4678(0, 1.0f, 0);
