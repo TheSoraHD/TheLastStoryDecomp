@@ -101,6 +101,7 @@ struct XsfKeyIter_unk {
         XsfKeyNode_unk::Prev_unk(mNode);
         return *this;
     }
+    XsfKeyPair_unk& operator*() const { return mNode->mValue; }
     XsfKeyNode_unk* mNode;
 };
 
@@ -530,32 +531,35 @@ static inline const T& Max_unk(const T& a, const T& b) {
     return a < b ? b : a;
 }
 
+// inferred: the size of a channel read through an inline (name invented)
+static inline unsigned int SizeOf_unk(const XsfCurveSet_unk::Channel_unk& ch) { return ch.mSize; }
+
 // inferred: time range of the keys of all the channels
-// NONMATCHING: 79.2% - the original selects the std::min/std::max reference with a preloaded pointer
-// (one arm), indexes the channels with i * 16 and checks the size twice; tried if/return, operand
-// orders, MIN/MAX macros, a named reference and the inline fn_805BF1E8.
+// NONMATCHING: 95.97% - the original tests the size == 0 twice on the same compare (we reload mSize) and
+// its decrement of end() reloads node->mLeft (the form `node = node->mLeft`, which takes fn_805BF214 off
+// 100 %); 79.2 -> 95.97 with the size accessor, the dereference of the iterator and mLength = mEnd - mStart.
 void XsfCurveSet_unk::fn_805BF660() {
     float start = 3.4028235e38f;
     float end = 1.1754944e-38f;
     for (int i = 0; i < 13; i++) {
         if (mChannels[i].mSize != 0) {
             if (mChannels[i].mSize == 0) {
-            } else if (mChannels[i].mSize == 1) {
-                XsfKeyNode_unk* first = mChannels[i].Begin_unk();
-                start = Min_unk(first->mValue.first, start);
-                end = Max_unk(first->mValue.first, end);
+            } else if (SizeOf_unk(mChannels[i]) == 1) {
+                XsfKeyIter_unk first(mChannels[i].Begin_unk());
+                start = Min_unk((*first).first, start);
+                end = Max_unk((*first).first, end);
             } else {
-                XsfKeyIter_unk last(mChannels[i].End_unk());
-                XsfKeyNode_unk* first = mChannels[i].Begin_unk();
-                --last;
-                start = Min_unk(first->mValue.first, start);
-                end = Max_unk(last.mNode->mValue.first, end);
+                XsfKeyNode_unk* last = mChannels[i].End_unk();
+                XsfKeyIter_unk first(mChannels[i].Begin_unk());
+                XsfKeyNode_unk::Prev_unk(last);
+                start = Min_unk((*first).first, start);
+                end = Max_unk(last->mValue.first, end);
             }
         }
     }
     mStart = start;
     mEnd = end;
-    mLength = end - start;
+    mLength = mEnd - mStart;
 }
 
 template <class Node>
