@@ -15,12 +15,12 @@ extern "C" SoundEngineSe_unk* lbl_8087EE90;
 
 extern "C" int fn_80049D74(SoundEngineSe_unk* engine, const char* group);  // inferred: group id
 extern "C" int fn_800489F4(SoundEngineSe_unk* engine, const char* group);  // inferred: loads a group
-extern "C" void fn_80048F8C(SoundEngineSe_unk* engine, int arg);
-extern "C" void fn_80049268(SoundEngineSe_unk* engine, int arg);
+extern "C" int fn_80048F8C(SoundEngineSe_unk* engine, const char* group);
+extern "C" int fn_80049268(SoundEngineSe_unk* engine, const char* group);
 extern "C" void fn_8004937C(SoundEngineSe_unk* engine, const char* group); // inferred: releases a group
 extern "C" void fn_80049654(SoundEngineSe_unk* engine);
 extern "C" int fn_800496C0(SoundEngineSe_unk* engine, const char* group);
-extern "C" void fn_800498A4(SoundEngineSe_unk* engine);
+extern "C" int fn_800498A4(SoundEngineSe_unk* engine);
 extern "C" void fn_800498D4(SoundEngineSe_unk* engine);
 extern "C" unsigned int fn_80049B74(SoundEngineSe_unk* engine, const char* name); // inferred: sound id of a name
 extern "C" int fn_80049C3C(SoundEngineSe_unk* engine, const char* name);
@@ -39,12 +39,13 @@ extern "C" int fn_800C3094(const char* group) {
     return 0;
 }
 
-extern "C" void fn_800C310C(int arg) {
-    fn_80048F8C(lbl_8087EE90, arg);
+// inferred: returns what the engine returns (a tail call; callers test it)
+extern "C" int fn_800C310C(const char* group) {
+    return fn_80048F8C(lbl_8087EE90, group);
 }
 
-extern "C" void fn_800C3118(int arg) {
-    fn_80049268(lbl_8087EE90, arg);
+extern "C" int fn_800C3118(const char* group) {
+    return fn_80049268(lbl_8087EE90, group);
 }
 
 extern "C" void fn_800C3124(const char* group) {
@@ -68,8 +69,8 @@ extern "C" int fn_800C3184(const char* group) {
     return 0;
 }
 
-extern "C" void fn_800C31E4() {
-    fn_800498A4(lbl_8087EE90);
+extern "C" int fn_800C31E4() {
+    return fn_800498A4(lbl_8087EE90);
 }
 
 extern "C" void fn_800C31EC() {

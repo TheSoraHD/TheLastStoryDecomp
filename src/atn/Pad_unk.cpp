@@ -27,7 +27,7 @@ extern "C" float fn_800DEF7C(WPad_unk* wpad, int port, int button);   // inferre
 extern "C" float fn_800DEF94(WPad_unk* wpad, int port, int axis);     // inferred: stick axis
 extern "C" int fn_800DEFAC(WPad_unk* wpad, int port, int axis, float threshold);
 extern "C" void fn_800DF16C(WPad_unk* wpad, int sensitivity);
-extern "C" void fn_800DF1D0(WPad_unk* wpad);
+extern "C" int fn_800DF1D0(WPad_unk* wpad);
 
 // inferred: port, button and axis translation tables
 static const int sPortMap[4] = {0, 1, 2, 3};
@@ -170,8 +170,9 @@ void fn_800A5B30(Pad_unk* pad, int sensitivity) {
     fn_800DF16C(lbl_8087F018, sensitivity);
 }
 
-void fn_800A5B38(Pad_unk* pad) {
-    fn_800DF1D0(lbl_8087F018);
+// inferred: battery level of the remote (a tail call; Loader tests it)
+int fn_800A5B38(Pad_unk* pad) {
+    return fn_800DF1D0(lbl_8087F018);
 }
 
 }
