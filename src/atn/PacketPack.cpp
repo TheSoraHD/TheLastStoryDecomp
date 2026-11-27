@@ -2407,7 +2407,7 @@ MP::Manager2::~Manager2() {
 
 MP::ManagerMP::~ManagerMP() {}
 
-extern "C" int fn_800C310C(int arg);
+extern "C" int fn_800C310C(const char* group); // inferred: nonzero while the sound group loads (0: any)
 // inferred: MP::Manager2::vf0C (vtable 0x807916E0): waits for the resources, then shows the menu
 int MP::Manager2::vf0C() {
     PPManager2_unk* mgr = this;
