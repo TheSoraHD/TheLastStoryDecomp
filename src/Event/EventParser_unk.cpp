@@ -13,7 +13,7 @@
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" bool fn_800696B4();            // inferred: the platform is little endian (game/IffChunkFile_unk)
-extern "C" void* fn_8006BA8C(const char* path, int* size, int flag); // inferred: loads a file
+extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
 
 namespace Event {
 
