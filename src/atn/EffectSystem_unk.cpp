@@ -1348,7 +1348,8 @@ extern "C" int fn_80230780(void* owner, EffectInst_unk* inst, EffectParam_unk* p
         return 0;
     }
     fn_80233D74(slot, param);
-    int emitter = param - inst->mData->mParams;
+    EffectAnimData_unk* d = inst->mData;
+    int emitter = param - d->mParams;
     Vector3 ofs;
     fn_80233348(&ofs, slot, emitter, inst);
     ofs.x *= inst->mA8;
