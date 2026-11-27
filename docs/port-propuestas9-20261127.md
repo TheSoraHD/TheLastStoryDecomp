@@ -85,7 +85,7 @@ layouts distintos, queda pendiente de entender cual es el real).
 
 ## Quinta parte: `port-propuestas9e-20261127`
 
-Las tres vistas de objeto que la propuesta 9b dejo fuera por las etiquetas, ahora con el re-emparejado adecuado.
+Las vistas de objeto que la propuesta 9b dejo fuera por las etiquetas, ahora con el re-emparejado adecuado.
 Mismas comprobaciones (`main.dol: OK`, lost 0, sin bajadas, labelcheck y poolcheck iguales):
 
 | Commit | Que |
@@ -101,6 +101,19 @@ tamano) comprobado con `lblval.py` (0 distintas, 0 sin pareja). Despues, `config
 
 Fuera: Em201ZanGurgFinal `ZanWeapon_unk` (el escudo es `WeaponParamEntry_unk`, pero el mismo objeto llega por
 `CharaPart_unk::m274`, que es `chr::CharaPartData_unk`, otra vista: hay que unificar esas cabeceras primero).
+
+## Sexta parte: `port-propuestas9f-20261127`
+
+Mismo metodo que la 9e (`pd.sh`, `lblseq.py --apply`, `lblval.py`), mismas comprobaciones:
+
+| Commit | Que |
+|---|---|
+| `0187b235` | CosEditProtector: `ItemParamEntry_unk` en vez de `CosEditItemData_unk`; el re-emparejado por secuencia arregla ademas un float de `.sdata2` emparejado con otro valor (`lblval`: 2 distintas y 1 sin pareja antes, 1 distinta despues, la de siempre de `@wstringBase0`) |
+| `30506d60` | DropItem: `WeaponParamEntry_unk` y `EquipParamEntry_unk` (`mKind`, `mId`) en vez de `DropWeapon_unk`; `fn_80206B9C` (`bool`) y `fn_8020EF04` declaradas solo en las cabeceras de `db/` |
+
+Queda: ShopBase `ShopWeapon_unk`/`ShopArmor_unk` (el codigo trata los cuatro primeros floats de armas, armaduras y
+bonus como un mismo `ShopParams_unk*`, y las habilidades como `ShopSkill_unk`: con las clases reales seguirian siendo
+casts).
 
 ## Fuera, y por qué
 
