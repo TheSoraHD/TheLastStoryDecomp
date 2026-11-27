@@ -1296,7 +1296,7 @@ void Em309Ghoul::fn_80301DDC() {
                 __MtxCopy(pa->m, txa);
             }
             PSMTXMultVec(ma.m, &a, &a);
-            PSMTXRotRad(ra, 'y', 0.017453292f * (-m16A4 * 0.5f));
+            PSMTXRotRad(ra, 'y', 0.017453292f * (-m16A4 / 2.0f));
             PSMTXMultVec(ra, &a, &a);
             atn::Vector3 b(0.0f, 0.0f, m16AC);
             atn::Matrix3x4* pb = &mb;
@@ -1317,7 +1317,7 @@ void Em309Ghoul::fn_80301DDC() {
                 __MtxCopy(pb->m, txb);
             }
             PSMTXMultVec(mb.m, &b, &b);
-            PSMTXRotRad(rb, 'y', 0.017453292f * (m16A4 * 0.5f));
+            PSMTXRotRad(rb, 'y', 0.017453292f * (m16A4 / 2.0f));
             PSMTXMultVec(rb, &b, &b);
             lbl_8087EEB0->fn_80063764(mPos, a + mPos, 100.0f, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32());
             lbl_8087EEB0->fn_80063764(mPos, b + mPos, 100.0f, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f).ToU32());
