@@ -1121,12 +1121,17 @@ void Em203GreaterDaemonRedMp::fn_802A16A4() {
     }
 }
 
-// inferred: state 15 (moves from m157C to m1588 in 54 frames, then hovers)
-// NONMATCHING: 99.13% - float registers of the interpolation off by one
+// inferred: frame of the first motion track (name invented, as in game/Em203GreaterDaemon.cpp)
+static inline float FrameOf_unk(const atn::Model& model) {
+    return model.mTracks[0].m08;
+}
+
+// inferred: state 15 (moves from m157C to m1588 in 54 frames, then hovers); the frame test through FrameOf_unk
+// (Val_unk probe)
 void Em203GreaterDaemonRedMp::fn_802A17CC() {
     float t = mMotion.mTracks[0].m08 / 54.0f;
     mPos = LerpV_unk(m157C, m1588, 1.0f < t ? 1.0f : t);
-    if (mMotion.mTracks[0].m08 > 70.0f && mMotion.mTracks[0].m08 < 80.0f) {
+    if (FrameOf_unk(mMotion) > 70.0f && FrameOf_unk(mMotion) < 80.0f) {
         mMotion.mTracks[0].m08 = 190.0f;
     }
     float end = mMotion.mTracks[0].m08;
