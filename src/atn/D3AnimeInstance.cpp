@@ -104,11 +104,9 @@ inline float GetScaleY_unk(const Matrix3x4& m) { return PSVECMag(&Vector3(m.m[0]
 inline float GetScaleZ_unk(const Matrix3x4& m) { return PSVECMag(&Vector3(m.m[0][2], m.m[1][2], m.m[2][2])); }
 
 // inferred: 1 / x, or 0 when x is too small (inline, name invented)
+inline Vector3 GetPos_unk(const Matrix3x4& m) { float y = m.m[1][3]; return Vector3(m.m[0][3], y, m.m[2][3]); }
 inline float SafeInv_unk(float x) {
-    if (Abs_unk(x) < 1.1920929e-7f) {
-        return 0.0f;
-    }
-    return 1.0f / x;
+    return Abs_unk(x) < 1.1920929e-7f ? 0.0f : 1.0f / x;
 }
 
 // inferred: visibility test of the billboard (inline, name invented)
@@ -145,7 +143,7 @@ void D3AnimeInstance::SetMatrix(const Matrix3x4& m) {
     float sy = GetScaleY_unk(m);
     float sx = GetScaleX_unk(m);
     mScale = Vector3(sx, sy, sz);
-    mPos = Vector3(m.m[0][3], m.m[1][3], m.m[2][3]);
+    mPos = GetPos_unk(m);
     mRot = m;
     mRot.m[0][3] = 0.0f;
     mRot.m[1][3] = 0.0f;
