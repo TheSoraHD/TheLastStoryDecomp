@@ -176,7 +176,18 @@ static inline TeamCmd_unk* PrevCmd_unk(TeamRing_unk<TeamCmd_unk, 32>& ring, Team
     return &ring.mData[i];
 }
 
-// NONMATCHING: 97.87% - register allocation (r25-r31) and the copy of the next node of the finished events
+// inferred: route table of the game task and its event script (names invented; read through an inline, found
+// with the Val_unk probe)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
+
+static inline GameEventScript* ScriptOf_unk(GameScene* scene) {
+    return scene->m134;
+}
+
+// NONMATCHING: 98.72% - register allocation (r25-r31: the game task and the loop counters swapped) and the copy
+// of the next node of the finished events; the table and the script through TableOf_unk/ScriptOf_unk
 // inferred: collects the flags, the work values, the map, the open events, the team orders that write values,
 // the chase, the characters of the scene and the draw flags of the map parts
 void GameSaveFlags_unk::fn_803B9804() {
@@ -192,8 +203,8 @@ void GameSaveFlags_unk::fn_803B9804() {
     mMap = map->mType;
     mPoint = map->mId;
     mArea = map->mSubId;
-    GameScene* scene = field->m10D8;
-    GameEventScript* script = scene->m134;
+    GameScene* scene = TableOf_unk(field);
+    GameEventScript* script = ScriptOf_unk(scene);
     int count = 0;
     for (ScriptDoneNode_unk* node = script->mDone.mFirst; node != script->mDone.End_unk(); node = NextDone_unk(node)) {
         if (script->fn_803ACD50(node->mValue.first) == 0) {
