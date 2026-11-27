@@ -82,6 +82,11 @@ inline void vector<boost::shared_ptr<Event::Cut> >::__push_unk(size_type n, cons
     }
     __vec_sp_unk<boost::shared_ptr<Event::Cut> >::__push_slow_unk(*this, x);
 }
+// inferred: destroy loop of ~vector<shared_ptr<Cut>> (0x8053D4D0) as that of the reallocation buffer
+template <>
+inline void __vec_storage_unk<boost::shared_ptr<Event::Cut> >::__shrink_unk(unsigned int newSize) {
+    __vec_sp_unk<boost::shared_ptr<Event::Cut> >::__destroy_back_unk(this->mData + this->mSize, this->mSize, newSize);
+}
 } // namespace std
 
 namespace Event {
