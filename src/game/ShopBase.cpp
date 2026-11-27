@@ -12,6 +12,7 @@
 #include "game/MslSort_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
+#include "db/ItemParam_unk.h"
 
 // inferred: TextTable_unk::GetPair_unk written with an if (as the original allocates it here)
 inline const wchar_t* GetText_unk(TextTable_unk* table, int id) {
@@ -69,18 +70,7 @@ extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // i
 
 // inferred: texture rectangle (as in game/ShopIdentify.cpp)
 typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
-// inferred: item data (fn_80211480)
-struct ShopItem_unk {
-    unsigned char m00[0x04];
-    int mCountId;          // 0x04
-    const wchar_t* mName;  // 0x08
-    const wchar_t* mText;  // 0x0C
-    unsigned char m10[0xBC - 0x10];
-    short mKind;           // 0xBC: inferred: 9 for a material sold at the market price
-    unsigned char mBE[0xC8 - 0xBE];
-    int mPrice;            // 0xC8
-};
-extern "C" ShopItem_unk* fn_80211480(int id);
+extern "C" ItemParamEntry_unk* fn_80211480(int id);
 // inferred: weapon data (fn_80206C50)
 // inferred: skill slot of a weapon or an armour (0x14 bytes)
 struct ShopSkill_unk {
@@ -126,12 +116,12 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" unsigned long strlen(const char* s);
 extern "C" ShopWeapon_unk* fn_80206C50(int id);
 extern "C" void fn_8044D6AC(Inventory* party, int money); // inferred: pays money
-extern "C" int fn_80211648(ShopItem_unk* item); // inferred: nonzero if the item can be sold
+extern "C" int fn_80211648(ItemParamEntry_unk* item); // inferred: nonzero if the item can be sold
 extern "C" int fn_8021150C(int code);           // inferred: index of an item code in the bag
-extern "C" int fn_8011728C(int kind, ShopItem_unk* item); // inferred: the shop of kind `kind` deals the item
+extern "C" int fn_8011728C(int kind, ItemParamEntry_unk* item); // inferred: the shop of kind `kind` deals the item
 extern "C" int fn_8044D560(Inventory* party);           // inferred: number of items to identify
 extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
-extern "C" int fn_801173A8(ShopItem_unk* item); // inferred: sort group of an item
+extern "C" int fn_801173A8(ItemParamEntry_unk* item); // inferred: sort group of an item
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
@@ -145,17 +135,17 @@ extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
 namespace {
 struct ShopEntryLess_unk {
     bool operator()(const ShopEntry5C_unk& a, const ShopEntry5C_unk& b) const {
-        ShopItem_unk* ia = (ShopItem_unk*)a.m54;
-        ShopItem_unk* ib = (ShopItem_unk*)b.m54;
+        ItemParamEntry_unk* ia = (ItemParamEntry_unk*)a.m54;
+        ItemParamEntry_unk* ib = (ItemParamEntry_unk*)b.m54;
         int ga = fn_801173A8(ia);
         int gb = fn_801173A8(ib);
         if (ga != gb) {
             return ga < gb;
         }
-        if (ia->mKind != ib->mKind) {
-            return ia->mKind < ib->mKind;
+        if (ia->mBC != ib->mBC) {
+            return ia->mBC < ib->mBC;
         }
-        if (ia->mKind != 2 && ib->mKind != 2 && ia->mKind != 3 && ib->mKind != 3) {
+        if (ia->mBC != 2 && ib->mBC != 2 && ia->mBC != 3 && ib->mBC != 3) {
             return a.m58 < b.m58;
         }
         if (a.m48 != 0 && b.m48 == 0) {
@@ -227,7 +217,7 @@ class Font_unk;
 extern "C" atn::Font_unk* lbl_8087EEC8;                // inferred: font
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
-extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
+extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
 // inferred: debug menu items (atn/MindowsCommon.h: AddBool, AddInt)
@@ -596,7 +586,7 @@ void ShopBase::fn_805807A4() {
         int index = i + mScroll.mTop;
         if (index < m32FC) {
             ShopEntry5C_unk* entry = &mEntries5C[index];
-            ShopItem_unk* item = fn_80211480(entry->m00);
+            ItemParamEntry_unk* item = fn_80211480(entry->m00);
             int icon;
             if (entry->m48 != 0) {
                 mAC[i]->SetText_unk("itemName", item->mName);
@@ -803,11 +793,11 @@ void ShopBase::fn_805811DC(int id) {
 }
 
 void ShopBase::fn_80581570(int id, int flag) {
-    ShopItem_unk* item = fn_80211480(id);
+    ItemParamEntry_unk* item = fn_80211480(id);
     if (item != 0) {
-        if (fn_80206B9C(item->mCountId)) {
+        if (fn_80206B9C(item->mId)) {
             if (flag) {
-                ShopWeapon_unk* weapon = fn_80206C50(item->mCountId);
+                ShopWeapon_unk* weapon = fn_80206C50(item->mId);
                 if (weapon != 0) {
                     MenuCommonTask::sInstance->fn_804A3C24(weapon->mHelp, 0);
                 }
@@ -815,8 +805,8 @@ void ShopBase::fn_80581570(int id, int flag) {
                 MenuCommonTask* menu = MenuCommonTask::sInstance;
                 menu->fn_804A3C24(fn_80116FC0(1, 0x15B), 0);
             }
-        } else if (fn_8020EF04(item->mCountId)) {
-            ShopArmor_unk* armor = fn_8020EFEC(item->mCountId);
+        } else if (fn_8020EF04(item->mId)) {
+            ShopArmor_unk* armor = fn_8020EFEC(item->mId);
             if (armor != 0) {
                 MenuCommonTask::sInstance->fn_804A3C24(armor->mHelp, 0);
             }
@@ -906,14 +896,14 @@ void ShopBase::fn_80581964(int show, int message, int arg) {
 }
 
 // inferred: price of `num` items at the rate `rate` (inlined in vf38)
-inline int GetPrice_unk(ShopItem_unk* item, int num, float rate) {
+inline int GetPrice_unk(ItemParamEntry_unk* item, int num, float rate) {
     if (item == 0) {
         return 0;
     }
-    if (item->mKind == 9 && MarketTask::sInstance != 0) {
-        return rate * (num * MarketTask::sInstance->fn_804A251C(item->mCountId));
+    if (item->mBC == 9 && MarketTask::sInstance != 0) {
+        return rate * (num * MarketTask::sInstance->fn_804A251C(item->mId));
     }
-    return rate * (item->mPrice * num);
+    return rate * (item->mC8 * num);
 }
 
 void ShopBase::vf38(const char* data, int size) {
@@ -941,7 +931,7 @@ void ShopBase::vf38(const char* data, int size) {
         } else if (*token == 0) {
             entry.Reset_unk();
             entry.m00 = fn_800DC12C(csv.fn_8005B9CC());
-            ShopItem_unk* item = fn_80211480(entry.m00);
+            ItemParamEntry_unk* item = fn_80211480(entry.m00);
             if (item == 0 || !fn_8011728C(m25B00, item)) {
                 continue;
             }
@@ -991,7 +981,7 @@ void ShopBase::fn_80581FD8() {
     for (int i = 0; i < 0x600; i++) {
         Inventory::Item_unk* bag = Inventory::instance_->fn_80444804(i);
         if (bag != 0) {
-            ShopItem_unk* item;
+            ItemParamEntry_unk* item;
             int id = bag->mCode;
             item = fn_80211480(id);
             if (item != 0 && fn_8011728C(m25B00, item) && bag->mCount > 0) {
@@ -1009,7 +999,7 @@ void ShopBase::fn_80581FD8() {
     }
     int num = fn_8044D560(Inventory::instance_);
     for (int i = 0; i < num; i++) {
-        ShopItem_unk* item;
+        ItemParamEntry_unk* item;
         int id = fn_8044D500(Inventory::instance_, i);
         item = fn_80211480(id);
         if (item != 0 && fn_8011728C(m25B00, item)) {
@@ -1134,32 +1124,32 @@ void ShopBase::fn_80584D78(ShopEntry5C_unk* entry, int num) {
 }
 
 int ShopBase::fn_80584DD8(void* data, int num, float a, float b, float c) {
-    ShopItem_unk* item = (ShopItem_unk*)data;
+    ItemParamEntry_unk* item = (ItemParamEntry_unk*)data;
     if (item == 0) {
         return 0;
     }
-    if (item->mKind == 9) {
+    if (item->mBC == 9) {
         if (MarketTask::sInstance != 0) {
-            return c * (a * MarketTask::sInstance->fn_804A251C(item->mCountId));
+            return c * (a * MarketTask::sInstance->fn_804A251C(item->mId));
         }
-        return c * (item->mPrice * a);
+        return c * (item->mC8 * a);
     }
     if (num == 0) {
-        ShopWeapon_unk* weapon = fn_80206C50(item->mCountId);
+        ShopWeapon_unk* weapon = fn_80206C50(item->mId);
         if (weapon != 0) {
             return weapon->mPrice * a;
         }
         return 10;
     }
-    return b * (0.5f * item->mPrice * a);
+    return b * (0.5f * item->mC8 * a);
 }
 
 int ShopBase::fn_80584F44(void* data, float rate) {
-    ShopItem_unk* item = (ShopItem_unk*)data;
+    ItemParamEntry_unk* item = (ItemParamEntry_unk*)data;
     if (item == 0) {
         return 0;
     }
-    ShopWeapon_unk* weapon = fn_80206C50(item->mCountId);
+    ShopWeapon_unk* weapon = fn_80206C50(item->mId);
     if (weapon != 0) {
         return weapon->mPrice * rate;
     }
