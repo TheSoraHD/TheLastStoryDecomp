@@ -792,11 +792,8 @@ void EnemyTasha::vf104() {
         } else if (!mControl) {
             if (mFlag31) {
                 if (PSVECSquareMag(&diff) < m14FC * m14FC) {
-                    int n = 2;
                     int attack = m16C4;
-                    if (m14D4 >= 1) {
-                        n = 4;
-                    }
+                    int n = m14D4 >= 1 ? 4 : 2;
                     if (attack == -1) {
                         attack = rand() % n;
                     }
