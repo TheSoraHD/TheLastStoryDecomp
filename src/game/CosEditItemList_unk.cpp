@@ -891,11 +891,6 @@ void CosEditProtector::fn_801D94D0() {
 
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
-// inferred: equipment entry (only the kind is read here)
-struct CosEditEquip2_unk {
-    unsigned char m00[0xA8];
-    int mKind; // 0xA8
-};
 // inferred: equipment data (only the kind and the name are read)
 struct CosEditEquip_unk {
     unsigned char m00[0x78];
@@ -993,7 +988,7 @@ void CosEditProtector::fn_801DC8C8(int member, int slot, int id) {
         if (record != 0) {
             *record = -1;
         }
-    } else if (cur != 0 && next != 0 && ((CosEditEquip2_unk*)cur)->mKind != ((CosEditEquip2_unk*)next)->mKind) {
+    } else if (cur != 0 && next != 0 && cur->mA8 != next->mA8) { // inferred: EquipParamEntry_unk::mA8, the kind
         int* record = fn_8044D034(Inventory::instance_, index);
         if (record != 0) {
             *record = -1;
