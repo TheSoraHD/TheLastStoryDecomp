@@ -14,13 +14,8 @@ class D2A_TaskInstanceBase;
 }
 typedef atn::D2A_TaskInstanceBase<32, 8> DropLayout_unk;
 
-// inferred: item data returned by fn_80211480 (only the members used here)
-struct DropItemData_unk {
-    unsigned char m00[0x04];
-    int mCode; // 0x04: inferred: item code (weapon/armour tables)
-    unsigned char m08[0xBC - 0x08];
-    short mBC; // inferred: kind (5: accessory?)
-};
+// the item data returned by fn_80211480 (db/ItemParam_unk.h)
+struct ItemParamEntry_unk;
 
 namespace gmk {
 
@@ -70,7 +65,7 @@ public:
     int m154; // inferred: drop table (set by vf68)
     int mItem;  // 0x158
     int mCount; // 0x15C
-    DropItemData_unk* mData; // 0x160
+    ItemParamEntry_unk* mData; // 0x160
     float mAlpha;            // 0x164: inferred: alpha of the prompt
     int m168;                // inferred: effect of the item kind (fn_8040B394)
     float mColor[4];         // 0x16C
