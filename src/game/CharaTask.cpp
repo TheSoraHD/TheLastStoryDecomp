@@ -11099,7 +11099,7 @@ void CharaTask::fn_80178A6C() {
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_8021A9A8(HitInfo_unk* hit);
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float, int frames); // inferred: fades the volume (atn/SoundManager.cpp)
 
 // NONMATCHING: ~86% (100/717 lines) - register allocation of the summary loop (it/timer/end), of the
 // inlined arena test (the original materializes the IsArenaMode_unk bool) and of the side tests;
@@ -11250,12 +11250,12 @@ void CharaTask::fn_80178BFC() {
             if (m1414.mPtr == 0) {
                 m1414 = fn_800C31F4(sSoundNames_unk[6], 0, -1, 1.0f);
             } else {
-                fn_800CB5B4(&m1414, 10);
+                fn_800CB5B4(&m1414, m1410, 10);
             }
         } else {
             m1410 = MIN(MAX(m1410 - 1.0f / 30.0f, 0.0f), 1.0f);
             if (m1410 > 0.0f) {
-                fn_800CB5B4(&m1414, 10);
+                fn_800CB5B4(&m1414, m1410, 10);
             } else if (m1414.mPtr != 0) {
                 fn_800CB5C8(&m1414, 0, 0);
             }
