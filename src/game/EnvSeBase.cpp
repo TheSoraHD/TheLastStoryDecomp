@@ -132,17 +132,21 @@ void EnvSeBase::fn_8036102C(int value) {
     mTimer = 30;
 }
 
-// NONMATCHING: 93.1% - the original reloads lbl_8087EFE8 before the distance and rereads mData after
-// PSVECSquareMag (this in r31); 86 -> 93.1 reading mData through DataOf_unk in the mute test. Tried locals,
-// inlines for the listener position and the range test.
+// NONMATCHING: 97.4% - the original reloads lbl_8087EFE8 for the distance (we keep it from the first test);
+// 86 -> 97.4 reading mData through DataOf_unk in the mute test and the distance in SqDist_unk. Tried early
+// returns, inlines for the mute and range tests and for the listener position.
 static inline EnvSeData_unk* DataOf_unk(const EnvSeBase* se) { return se->mData; } // inferred: name invented
+// inferred: squared distance of two points (name invented; its d is a local of the inline)
+static inline float SqDist_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECSquareMag(&d);
+}
 int EnvSeBase::vf20() {
     if (lbl_8087EFE8 != 0) {
         if (DataOf_unk(this)->m40 == 1 && lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
             return 0;
         }
-        atn::Vector3 d = lbl_8087EFE8->mListener.mPos - mData->mPos;
-        if (PSVECSquareMag(&d) <= mData->mDistance * mData->mDistance) {
+        if (SqDist_unk(lbl_8087EFE8->mListener.mPos, mData->mPos) <= mData->mDistance * mData->mDistance) {
             return 1;
         }
     }
