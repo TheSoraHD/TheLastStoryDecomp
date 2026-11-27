@@ -1397,7 +1397,7 @@ void Em403WarLion::fn_8032943C() {
             mMotion.mTracks[0].m0C = 1.5f;
             mMotion.fn_80097C08(0, 0x20, 1, 1, 1, 0.0f, 0.1f);
             mRot = m1518;
-            m150C = (m1500 - mPos).GetNormalize() * 100.0f;
+            atn::VecAssign_unk(m150C, (m1500 - mPos).GetNormalize() * 100.0f);
             m150C *= 1.0f / mMotion.fn_80097D7C(0);
             m14C4 = 1;
         } else {
