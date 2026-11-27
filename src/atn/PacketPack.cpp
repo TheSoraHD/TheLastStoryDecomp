@@ -1551,7 +1551,7 @@ extern "C" void fn_800F7FA8(void* mgr, void* owner, int id);
 extern "C" atn::RenderConfig* fn_802F0990();
 extern "C" atn::Task* fn_8036635C();
 extern "C" inline void* fn_80122550(void* field) {
-    return (char*)field + 0x6C;
+    return &((GameTask*)field)->mCamera; // inferred: GameTask::mCamera (as game/PlayerInput_unk.cpp)
 }
 extern "C" void* lbl_8087F8A0;
 extern "C" inline void* fn_8000D9E8() {
