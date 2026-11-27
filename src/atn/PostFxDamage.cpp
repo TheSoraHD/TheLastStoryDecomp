@@ -41,6 +41,11 @@ inline void SetBlurMtx_unk(float m[3][4], float sx, float sy, float angle) {
 // NONMATCHING: 97.93% - stack slots/order of the K colors and registers of the TEV loop (~8 variants)
 // inferred: rotating/zooming blur pass: draws `src` five times with growing scale and rotation and copies
 // the result to `dst` (same TEV setup as fn_800A981C of atn/PostFxBloom.cpp)
+// inferred: sets the two konstant colors of the blur (the second one is copied before the first call)
+static inline void SetKColors_unk(GXColor k0, GXColor k1) {
+    GXSetTevKColor(0, k0);
+    GXSetTevKColor(1, k1);
+}
 extern "C" void fn_800AB774(GXTexObj* src, void* dst, int width, int height, int format, const float* weights,
                             float angle, float length) {
     float defWeights[5] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
@@ -55,16 +60,15 @@ extern "C" void fn_800AB774(GXTexObj* src, void* dst, int width, int height, int
         sum += weights[i];
     }
     float inv = 1.0f / sum;
-    int c0 = 255.0f * weights[0] * inv;
     GXColor k1 = {0, 0, 0, 0};
     GXColor k0 = {(unsigned char)(255.0f * weights[0] * inv), (unsigned char)(255.0f * weights[1] * inv),
                   (unsigned char)(255.0f * weights[2] * inv), (unsigned char)(255.0f * weights[3] * inv)};
     k1.r = (unsigned char)(255.0f * weights[4] * inv);
     // inferred: the rounding error of the five weights goes to the first one
     GXColor k = k0;
+    int c0 = 255.0f * weights[0] * inv;
     k.r += (unsigned char)(-c0 * 5 + 255);
-    GXSetTevKColor(0, k);
-    GXSetTevKColor(1, k1);
+    SetKColors_unk(k, k1);
     GXSetNumTevStages(5);
     GXSetNumChans(1);
     GXSetNumIndStages(0);
