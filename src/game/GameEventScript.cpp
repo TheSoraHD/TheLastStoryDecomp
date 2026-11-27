@@ -769,10 +769,7 @@ inline int GameEventScript::HasPointEvent_unk(const gs::NpcSetPoint& point) {
     for (unsigned int j = 0; j < point.m140.size(); j++) {
         int event = FindEvent_unk(point.m140[j]);
         if (event != 0) {
-            if (any != 0 && fn_80398530(event)) {
-                return 1;
-            }
-            if (any == 0 && CanStartArg_unk(event, 1)) {
+            if ((any != 0 && fn_80398530(event)) || (any == 0 && CanStartArg_unk(event, 1))) {
                 return 1;
             }
         }
@@ -6167,6 +6164,11 @@ static inline gs::EventBox* FindBoxIn_unk(GameScene* scene, int id) {
     return 0;
 }
 
+// inferred: the event box of the running event (m9C 5: event mA0) (name invented)
+static inline gs::EventBox* RunningBox_unk(GameEventScript* self) {
+    return FindBoxIn_unk(self->mScene, self->m9C == 5 ? self->mA0 : -1);
+}
+
 // NONMATCHING: 99.2% - registers of the angle (PI + rotation) and the store of `wait` in SetNext_unk
 // inferred: steps of the opening of a chest or gimmick by a character (m10/m14): m20 flags 0x2 walk to the
 // front of the gimmick (stopped by walls), 0x4 face it, 0x8 locks the leader, 0x10 the chest of the running
@@ -6175,7 +6177,7 @@ static inline gs::EventBox* FindBoxIn_unk(GameScene* scene, int id) {
 void GameEventScript::fn_803A9DBC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     CharaTask* chara = GetChara_unk(args->m10, args->m14);
-    gs::EventBox* box = FindBoxIn_unk(mScene, m9C == 5 ? mA0 : -1);
+    gs::EventBox* box = RunningBox_unk(this);
     if (!(box != 0 && box->m30 != 0 && box->m34 > 0) && ((unsigned int)args->m20 & 0x10) != 0x10) {
         box = FindBoxIn_unk(mScene, args->m1C);
     }
