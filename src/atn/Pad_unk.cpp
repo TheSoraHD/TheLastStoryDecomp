@@ -33,7 +33,7 @@ extern "C" int fn_800DEF54(WPad_unk* wpad, int port, int button);     // inferre
 extern "C" float fn_800DEF7C(WPad_unk* wpad, int port, int button);   // inferred: analog value
 extern "C" float fn_800DEF94(WPad_unk* wpad, int port, int axis);     // inferred: stick axis
 extern "C" int fn_800DEFAC(WPad_unk* wpad, int port, int axis, float threshold);
-extern "C" void fn_800DF16C(WPad_unk* wpad);
+extern "C" void fn_800DF16C(WPad_unk* wpad, int sensitivity);
 extern "C" void fn_800DF1D0(WPad_unk* wpad);
 
 // inferred: port, button and axis translation tables
@@ -172,8 +172,9 @@ bool fn_800A5AA4(Pad_unk* pad, int port) {
     return false;
 }
 
-void fn_800A5B30(Pad_unk* pad) {
-    fn_800DF16C(lbl_8087F018);
+// inferred: a tail call that passes the caller's second argument (GameTask: 5, 10) in r4 unchanged
+void fn_800A5B30(Pad_unk* pad, int sensitivity) {
+    fn_800DF16C(lbl_8087F018, sensitivity);
 }
 
 void fn_800A5B38(Pad_unk* pad) {
