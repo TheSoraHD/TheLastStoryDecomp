@@ -12,6 +12,7 @@ Each mutation is one natural rewrite (no asm, no volatile, no dead code):
   decl   - move a declaration without initializer one statement up/down
   mulsplit/divsplit/idx/ifid/ld/swret/cref - see mutations2 (barrido-20261121)
   inlc - a call of a short inline of the same file written in place (accesores-20261126)
+  inle - a call of a one-line `return E;` inline of the same file replaced by (E) (accesores-20261126)
   lentmp - `Vector3 d = E; PSVECMag(&d)` -> `(E).Length_unk()` (bloqueos-20261122)
   valb   - the base pointer of one `p->mX` through `Val_unk(p)` (bloqueos-20261122)
   val    - one or two member reads of a line through `Val_unk(...)` (bloqueos-20261122)
@@ -262,6 +263,7 @@ def mutations(lines, a, b):
         out.append(("splitor %d" % (i + 1), new))
     out += mutations2(lines, a, b)
     out += mutations_inl(lines, a, b)
+    out += mutations_inle(lines, a, b)
     return out
 
 # ---- kinds added in barrido-20261121 (retouches that closed functions in grandes-20261120) ----
@@ -616,6 +618,63 @@ def mutations_inl(lines, a, b):
         out.append(("inlc %d:%s" % (i + 1, m.group(2)), new))
         new = lines[:i] + [ind + "{"] + ["    " + x for x in nb] + [ind + "}"] + lines[i + 1:]
         out.append(("inlc %d:%s{}" % (i + 1, m.group(2)), new))
+    return out
+
+# inle (accesores-20261126): a call `Name(args)` (free function or member of this, no object) of an inline of
+# the same file whose body is a single `return EXPR;` is replaced by `(EXPR)` with the parameters substituted:
+# the inverse of the accessor probes (a read the original did not make through an inline).
+INLDEF1 = re.compile(r"^(?:static\s+)?inline\s+[\w:<>*& ]+?\b(?:\w+::)?(\w+)\s*\(([^)]*)\)\s*(?:const\s*)?\{\s*(?:return\s+(.+?);\s*\})?\s*(?://.*)?$")
+def mutations_inle(lines, a, b):
+    out = []
+    defs = {}
+    for i, l in enumerate(lines):
+        if i in range(a, b):
+            continue
+        m = INLDEF1.match(l)
+        if not m:
+            continue
+        expr = m.group(3)
+        if expr is None:
+            if i + 2 < len(lines) and lines[i + 2].startswith("}"):
+                mm = re.match(r"^\s*return\s+(.+?);\s*$", lines[i + 1])
+                if not mm:
+                    continue
+                expr = mm.group(1)
+            else:
+                continue
+        params = []
+        for q in [x.strip() for x in m.group(2).split(",") if x.strip() and x.strip() != "void"]:
+            mm = re.search(r"(\w+)\s*$", q)
+            params.append(mm.group(1) if mm else None)
+        if None in params:
+            continue
+        defs[m.group(1)] = (params, expr)
+    if not defs:
+        return out
+    R = re.compile(r"(?<![\w.>:])(%s)\(" % "|".join(map(re.escape, defs)))
+    for i in range(a, b):
+        for mm in list(R.finditer(lines[i]))[:4]:
+            name = mm.group(1)
+            k = mm.end(); depth = 1
+            while k < len(lines[i]) and depth:
+                if lines[i][k] == "(":
+                    depth += 1
+                elif lines[i][k] == ")":
+                    depth -= 1
+                k += 1
+            if depth:
+                continue
+            inner = lines[i][mm.end():k - 1]
+            args_ = [x.strip() for x in split_args(inner)] if inner.strip() else []
+            params, expr = defs[name]
+            if len(args_) != len(params):
+                continue
+            e = expr
+            for pn, av in zip(params, args_):
+                e = re.sub(r"\b%s\b" % pn, av if re.match(r"^[\w.>-]+$", av) else "(" + av + ")", e)
+            new = lines[:]
+            new[i] = lines[i][:mm.start()] + "(" + e + ")" + lines[i][k:]
+            out.append(("inle %d:%s@%d" % (i + 1, name, mm.start()), new))
     return out
 
 def split_args(t):
