@@ -1614,14 +1614,14 @@ struct AIScriptInsertResult_unk {
     bool second;
 };
 
-extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value) {
+static inline void InsertValue_unk(void* result, void* tree, const AIStringWithAllocator_unk* value) {
     const AIScriptMapValue_unk& v = *(const AIScriptMapValue_unk*)value;
     AIScriptMapNode_unk* pred;
-    bool leftmost;
     bool left;
+    bool leftmost;
     AIScriptMapNode_unk* parent = fn_8003E530(tree, (const std::string*)&value->mString, &pred, &left, &leftmost);
     AIScriptInsertResult_unk r;
-    if (pred == 0 || pred->mValue.first.compare(v.first) < 0) {
+    if (pred == 0 || StrLess_unk(pred->mValue.first, v.first)) {
         r.first = ((AIScriptMap_unk*)tree)->InsertNode_unk(parent, left, leftmost, v);
         r.second = lbl_8087D6F0;
     } else {
@@ -1629,6 +1629,10 @@ extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocato
         r.second = lbl_8087D6F1;
     }
     *(AIScriptInsertResult_unk*)result = r;
+}
+
+extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value) {
+    InsertValue_unk(result, tree, value);
 }
 
 namespace AI {
@@ -1767,7 +1771,8 @@ AI_return_guard01::AI_return_guard01() {} // 0x8001E720
 // after the loop and for each call) and one more saved register
 // inferred: empties the script map: deletes the factories in key order, then the nodes
 extern "C" void fn_8001E730() {
-    for (AIScriptMapNode_unk* x = lbl_807C6B84.mFirst; x != lbl_807C6B84.End_unk();) {
+    AIScriptMapNode_unk* end = lbl_807C6B84.End_unk();
+    for (AIScriptMapNode_unk* x = lbl_807C6B84.mFirst; x != end;) {
         operator delete(x->mValue.second);
         if (x->mRight != 0) {
             AIScriptMapNode_unk* y = x->mRight;
