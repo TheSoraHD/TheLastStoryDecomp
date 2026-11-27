@@ -270,6 +270,14 @@ inline void Em209SmallGolem::StartRevive_unk(CharaTask* by) {
     m154C = (int)by;
 }
 
+// inferred: throws the needle from the node `node` to m14D8 (name invented)
+static inline void GolemThrow_unk(Em209SmallGolem* self, const char* node) {
+    atn::Vector3 pos = GetNodePos_unk(self->mMotion.GetNodeMtx_unk(node));
+    self->m14CC = (self->m14D8 - pos).GetNormalize();
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800F8574(self, fn_80219E6C(self->m1514), &pos, &self->m14CC, 0, 0, 0, 0.0f, 1.0f);
+}
+
 // NONMATCHING: 99.53% - stack slots of the HUD hint temporary and of the needle and state-9 temporaries (the
 // original keeps them below the colors of the materials), r0/r3 of the counter of m14C0 and of the two
 // loads of the skill call; 12 variants (helpers, temporaries, named colors, reversed arguments)
@@ -306,10 +314,7 @@ void Em209SmallGolem::vf10() {
                 SetState_unk(0);
             }
             if ((float)__fabs(mMotion.mTracks[0].m08 - 28.0f) < 1.1920929e-7f) {
-                atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
-                m14CC = (m14D8 - pos).GetNormalize();
-                BattleTask* mgr = lbl_8087F048;
-                mgr->fn_800F8574(this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
+                GolemThrow_unk(this, "rightwepoint");
             }
         } else if (m58C == 2) {
             vfEC();
@@ -326,10 +331,7 @@ void Em209SmallGolem::vf10() {
                     SetState_unk(0);
                 }
                 if ((float)__fabs(mMotion.mTracks[0].m08 - 28.0f) < 1.1920929e-7f) {
-                    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
-                    m14CC = (m14D8 - pos).GetNormalize();
-                    BattleTask* mgr = lbl_8087F048;
-                    mgr->fn_800F8574(this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
+                    GolemThrow_unk(this, "rightwepoint");
                 }
             }
             break;
