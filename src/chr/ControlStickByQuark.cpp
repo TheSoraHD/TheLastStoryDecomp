@@ -1172,7 +1172,8 @@ int ControlMatHoldDamage::vf0C() {
         CharaTask::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
         fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, mChara->GetColli_unk(), 0, sphere.mRadius);
         atn::Vector3 pos = result.m10;
-        pos -= mChara->m5A4;
+        CharaTask* o = mChara;
+        pos -= o->m5A4;
         pos.y -= sphere.mRadius;
         mChara->mPos = pos;
     }
@@ -1180,7 +1181,9 @@ int ControlMatHoldDamage::vf0C() {
         DamageResult_unk damage;
         damage.mDamage = 10000;
         damage.mType = 1;
-        lbl_8087F048->fn_80108C10(&damage, mChara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), 0, mChara, 0, 0);
+        atn::Vector3 pos = mChara->mPos;
+        pos += atn::Vector3(0.0f, 15.0f, 0.0f);
+        lbl_8087F048->fn_80108C10(&damage, pos, 0, mChara, 0, 0);
         mChara->vf44();
         return 1;
     }
