@@ -456,12 +456,19 @@ int ControlThrust::vf0C() {
     return frame >= m->fn_80097D7C(0);
 }
 
+// inferred: point of the thrust above the crab (name invented; the offset stays out of the stack)
+static inline atn::Vector3 CrabTarget_unk(const Chara_unk* crab) {
+    atn::Vector3 t(0.0f, -20.451f, 0.0f);
+    t += crab->mPos;
+    return t;
+}
+
 // NONMATCHING: 89% - the original keeps the offset vector out of the stack (frame 0x170)
 // inferred: thrust at a crab (control id 0x4C); faces the crab
 ControlThrustForCrab::ControlThrustForCrab(Chara_unk* chara, Chara_unk* crab) : ControlBase(chara) {
     chara->m58C = 0;
     mChara->SetControlId_unk(0x4C);
-    atn::Vector3 target = atn::Vector3(0.0f, -20.451f, 0.0f) + crab->mPos;
+    atn::Vector3 target = CrabTarget_unk(crab);
     mStep = atn::Vector3(target - mChara->mPos) * 0.025f * 1.5f;
     mBack = atn::Vector3(mChara->mPos - target) * 0.04f;
     atn::Vector3 rot = mChara->mRot;
