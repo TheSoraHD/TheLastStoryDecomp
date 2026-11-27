@@ -59,9 +59,10 @@ MapInstance_unk::MapInstance_unk(const char* path, MapLocator_unk* loc) : mInst(
     mInst.fn_8009EE30(mtx);
     MapLod_unk* lod = loc->mLod;
     mInst.m70 = lod->m0C;
+    const char* name = loc->mName;
     mInst.m74 = (-1.0f * lod->m04) / mInst.m70;
     mInst.m78 = 1.0f - (lod->m08 + mInst.m70) / mInst.m70;
-    mHash = fn_800DC6B4(loc->mName);
+    mHash = fn_800DC6B4(name);
 }
 
 // NONMATCHING: 93.1% - same scheduling differences as the other constructor.
