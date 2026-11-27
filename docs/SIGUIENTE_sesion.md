@@ -2,7 +2,7 @@
 
 > Sesion `accesores-20261126` (secuencial, sin agentes; barridos de fondo en dos worktrees) del 2026-11-26 23:10 al 2026-11-27 ~11:55 (cierre desde las 11:10). Notas: `docs/accesores-20261126.md`. Port: `claude/port-accesores-20261126.md` (proyecto).
 
-Estado: **16418 / 18113**, lost 0, rep100 y labelcheck iguales o mejores que la referencia, `main.dol: OK`. Codigo **66,59 %**, **757** unidades completas (chr/ControlDive enlaza).
+Estado: **16418 / 18113**, lost 0, rep100 6 (antes 10), labelcheck igual, 387 avisos, `main.dol: OK`. Codigo **66,59 %**, datos **77,02 %**, **757** unidades completas (chr/ControlDive enlaza).
 
 ## Decisiones pendientes del usuario
 

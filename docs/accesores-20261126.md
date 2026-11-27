@@ -51,9 +51,25 @@ Objetivo: subir `matched_code_percent` cerrando funciones al 100 % con accesores
 ## Decisiones
 
 - Inlines con nombre como accesores (`HeadOf_unk`, `AimPointOf_unk`, `RotOf_unk`, `CharaOf_unk`, `DataOf_unk`, `DrawOrderOf_unk`, `FrameOf_unk`, `CountOf_unk`, `RotYOf_unk`, `MovePointAt_unk`/`HidePointAt_unk`, `UpperIntervalOf_unk`, `FovyOf_unk`, `CenterOf_unk`, `FrameSpeedOf_unk`, `TableOf_unk`, `ScriptOf_unk`...) y de bloque (`FogColorOf_unk`, `BindTextures_unk`, `FaceMotion_unk`, `ColLen_unk`/`MaxScale_unk`, `SideDir_unk`, `EggLerpV_unk`): `static inline` en el `.cpp`, con `// inferred:`. La identidad `Val_unk` no queda en el codigo.
+- Bajadas de fuzzy aceptadas: ninguna (fuzzdrop 0 contra la referencia del inicio).
+- ControlAttackBase: `RenderSetting_unk::GetFrameSpeed_unk` definida fuera de `namespace chr` (quita el aviso 10580; mismo codigo).
+- Parches viejos revertidos por bajadas: qE3-eventparser, qM-getres; EnemyQuarkSecond (forma de declaracion) y Em203GreaterDaemonRed vf10 tambien.
 - gmk/CharaPathMove: funcion inventada `CharaPathMovePool_unk` (sin llamadores, el enlazador la quita) para el orden de `.sdata2` (excepcion aprobada de la regla 2, como LayerOcclusionPool_unk).
 - Em203GreaterDaemon fn_8028F1D0: argumentos de fn_8023A8B4 corregidos a -1, -1, 1 (el fuente tenia -1, 1, -1): cambio de logica para el port.
 
 ## Commits
 
+112 commits en la rama `accesores-20261126` (un commit por funcion o grupo pequeno; los parches viejos uno por parche).
+
 ## Cambios de splits
+
+- `config/SLSP01/game_units.json`: `chr/ControlDive` con `matching: true` (todas sus funciones al 100 %, build limpio `main.dol: OK`, `poolcheck`/`poolorder` sin avisos).
+- `config/SLSP01/symbols.txt`: solo renombrados de `pd.sh`/`refmap2.py` (y `lbl_8087D6E8/EC` devueltos a su nombre tras el fallo de `pairdata --relabel`). `splits.txt` sin cambios.
+
+## Resumen
+
+Inicio 2026-11-26 23:10, fin ~11:55 (cierre desde las 11:10). Funciones **16400 -> 16418 / 18113** (+18), codigo **66,40 -> 66,59 %** (+14 380 B de funciones cerradas), datos 76,94 -> **77,02 %**, unidades **756 -> 757** (chr/ControlDive), lost 0, sin bajadas, rep100 10 -> 6, labelcheck igual (15 lineas; Em302Kraken 32 -> 3 etiquetas sin pareja), 387 avisos, `poolcheck` de las 83 unidades tocadas igual que con el fuente de main, build limpio `main.dol: OK`.
+
+Cierres (bytes): fase 1: RenderManager fn_800C06B0 (512), GameUI fn_803DE89C (1416); fase 3 (mirrorscan/inline de bloque): Model fn_8008B978 (608), DrawEntry_unk ctor (612); fase 2 (accesores de los barridos): Em203GreaterDaemon fn_8028F1D0 (732), Em203GreaterDaemonRedMp fn_802A17CC (484), GameSavePlayers_unk fn_803BA408 (536), PathChara_unk fn_8043E770 (756), NewCampTask fn_80530174 (440), Em203GreaterDaemonRed fn_80299A7C (1148) y vfEC (432), EnemyQuarkSecond fn_803402C0 (768), ControlAttackLastOne vf0C (1460), ModelInstance fn_8009F4AC (476), AIManager fn_80018D5C (1272), ControlDive vf0C (728); parches viejos: Event fn_8047C1D8 (1432), Model fn_80098DD8 (568). Total 14 380 B.
+
+Barridos (bandas, aciertos que subieron): val/valb v97 (97-98 %, 159 funciones), vs60 (95-100 %, 60-200 B, 28), v90/v90b (90-96,3 %, 306), v85, v80, vs85, v70, v60, vct (CharaTask 90-97): ~15 subidas, 6 cierres; todos los kinds 99,5-100 % (vall): 2 cierres; 99-99,5 % (vall2): a medias; inlc 85-100 %: 3 subidas; mlsweep SqDist (47 casos: 2), copia + `*=` (37: 1), ml_ctor (949 casos >= 97 %: 4 subidas), ml_asg (2224 >= 97 %: 9 subidas), ml_asg2 (93-97 %, cortado a las 11:10: 7 subidas).
