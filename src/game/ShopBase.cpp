@@ -694,7 +694,7 @@ void ShopBase::fn_80580DE0() {
 }
 
 // inferred: parameter rows of the skill window: message ids and the parameter shown in each row
-static const struct {
+static const struct ShopParamRows_unk {
     int mMessages[5];
     int mWeapon[3];
     int mArmor[3];
@@ -730,6 +730,7 @@ void ShopBase::fn_80581008(int id) {
 // NONMATCHING: the original loads the address of sParamRows at the entry (kept in r31 for the whole
 // function); every register after it is shifted
 void ShopBase::fn_805811DC(int id) {
+    const ShopParamRows_unk* rows = &sParamRows;
     if (fn_80211480(id) == 0) {
         return;
     }
@@ -737,15 +738,18 @@ void ShopBase::fn_805811DC(int id) {
         return;
     }
     m94->MeltTask();
+    int isWeapon;
+    ShopArmor_unk* armor;
+    ShopWeapon_unk* weapon;
     ShopPoint_unk pos;
+    char name[0x40];
     for (int i = 0; i < 2; i++) {
-        char name[0x40];
         sprintf(name, "skill_point%d", i + 1);
         pos = GetPanePos_unk(m94, name);
         m98[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
     }
-    ShopArmor_unk* armor = fn_8020EFEC(id);
-    ShopWeapon_unk* weapon = fn_80206C50(id);
+    armor = fn_8020EFEC(id);
+    weapon = fn_80206C50(id);
     for (int i = 0; i < 2; i++) {
         const ShopSkill_unk* skill = 0;
         if (armor != 0) {
@@ -761,7 +765,6 @@ void ShopBase::fn_805811DC(int id) {
     }
     ShopParams_unk* params;
     ShopParams_unk* bonus = 0;
-    int isWeapon;
     if (armor != 0) {
         params = &armor->mParams;
         if (fn_8020EF4C(armor)) {
@@ -787,11 +790,13 @@ void ShopBase::fn_805811DC(int id) {
         values[3] += (int)bonus->m0C;
         values[4] += (int)bonus->m04;
     }
+    const int* messages = rows->mMessages;
+    const int* weaponRows = rows->mWeapon;
+    const int* armorRows = rows->mArmor;
     for (int i = 0; i < 3; i++) {
-        int row = isWeapon ? sParamRows.mWeapon[i] : sParamRows.mArmor[i];
-        char name[0x40];
+        int row = isWeapon ? weaponRows[i] : armorRows[i];
         sprintf(name, "param%02d", i);
-        SetPaneText_unk(&m94->mData.m10, name, fn_80116FC0(0, sParamRows.mMessages[row]));
+        SetPaneText_unk(&m94->mData.m10, name, fn_80116FC0(0, messages[row]));
         sprintf(name, "param%02d_before", i);
         ((atn::D2A_Task*)m94)->SetNumber_unk(name, values[row], 0);
     }
