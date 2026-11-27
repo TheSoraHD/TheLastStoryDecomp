@@ -83,6 +83,25 @@ incluyen `GameConfig_unk.h`; se usa una inline local de ChaseManager); renombrar
 atn/EffectRes_unk.cpp (su `mRes` es el `EffectRes_unk*` de `atn/EffectManager.h`: dos vistas del mismo objeto con
 layouts distintos, queda pendiente de entender cual es el real).
 
+## Quinta parte: `port-propuestas9e-20261127`
+
+Las tres vistas de objeto que la propuesta 9b dejo fuera por las etiquetas, ahora con el re-emparejado adecuado.
+Mismas comprobaciones (`main.dol: OK`, lost 0, sin bajadas, labelcheck y poolcheck iguales):
+
+| Commit | Que |
+|---|---|
+| `05c02cd4` | GameUI: `ItemParamEntry_unk` en vez de `GameUIItem_unk` (`m64`, `mB4`, `mB8`, `mBC`, `mC2` son los de `BulletParam_unk`/`ItemParamEntry_unk`) |
+| `bfdeac94` | BattleTask: `ItemParamEntry_unk` y `WeaponParamEntry_unk` en vez de `BattleItem_unk`/`BattleWeapon_unk`; el `mKind` de la vista es `mType`; las condiciones de la flecha son `ItemParamEntry_unk::mEC` leidas como `ArmsCond_unk` (mismo layout de cinco enteros) |
+| `d42c6156` | ItemSlotAnime: `ItemParamEntry_unk` en vez de `ItemSlotData_unk` |
+
+Como se re-emparejan las etiquetas: `pd.sh` y despues, para los floats de `.sdata2` con el mismo nombre en varias
+direcciones (valores repetidos), `lblseq.py <unidad> --apply` (alinea por secuencia de valores; ahora admite
+`4byte` con reubicacion en vez de cifra), y para las cadenas de `.rodata`, `datafix.py` (mismo offset y
+tamano) comprobado con `lblval.py` (0 distintas, 0 sin pareja). Despues, `configure.py` con las rutas de `pd.sh`.
+
+Fuera: Em201ZanGurgFinal `ZanWeapon_unk` (el escudo es `WeaponParamEntry_unk`, pero el mismo objeto llega por
+`CharaPart_unk::m274`, que es `chr::CharaPartData_unk`, otra vista: hay que unificar esas cabeceras primero).
+
 ## Fuera, y por qué
 
 - **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas
