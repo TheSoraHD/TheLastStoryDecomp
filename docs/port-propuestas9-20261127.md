@@ -115,6 +115,16 @@ Queda: ShopBase `ShopWeapon_unk`/`ShopArmor_unk` (el codigo trata los cuatro pri
 bonus como un mismo `ShopParams_unk*`, y las habilidades como `ShopSkill_unk`: con las clases reales seguirian siendo
 casts).
 
+## Septima parte: `port-propuestas9g-20261127`
+
+Firmas reales de llamadas de cola, desde `sigcheck.py` del port (definicion `void`, otras unidades la declaran con
+resultado y lo usan): en la Wii un envoltorio `void` que acaba en un `b` devuelve el r3 de la funcion llamada; en PC
+el llamador lee un valor sin definir.
+
+| Commit | Que |
+|---|---|
+| `5c01fce3` | Se_unk `fn_800C310C`/`fn_800C3118`/`fn_800C31E4` devuelven lo que devuelve el motor de sonido (NewTitleTask, Sequence, PacketPack, GameScene, los Em202 y EnvSeManager lo comprueban) y el grupo es `const char*` (en AudioDevice ya lo era; PacketPack lo declaraba `int`); Pad_unk `fn_800A5B38` devuelve el nivel de bateria de `fn_800DF1D0` (Loader lo comprueba). Mismo codigo (`b`), mnemcheck limpio |
+
 ## Fuera, y por qué
 
 - **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas
