@@ -1648,7 +1648,8 @@ void Em201ZanGurgFinal::fn_802692B4() {
             Mtx m;
             atn::Vector3 dir;
             PSMTXRotRad(m, 'y', (float)i * (6.2831855f / (float)(int)n));
-            atn::Vector3 front = FrontR_unk(mRot);
+            atn::Vector3 front;
+            front = FrontR_unk(mRot);
             dir = front;
             PSMTXMultVec(m, &dir, &dir);
             dir.y += 0.4f;
@@ -2386,7 +2387,8 @@ void Em201ZanGurgFinal::fn_8026D0F8(int mode) {
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 side;
         PSVECCrossProduct(&dir, &up, &side);
-        atn::Vector3 n = side - dir;
+        atn::Vector3 n;
+        n = side - dir;
         PSVECNormalize(&n, &n);
         to += n * 40.0f;
         m1678 = to;
