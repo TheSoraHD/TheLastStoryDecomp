@@ -125,6 +125,12 @@ el llamador lee un valor sin definir.
 |---|---|
 | `5c01fce3` | Se_unk `fn_800C310C`/`fn_800C3118`/`fn_800C31E4` devuelven lo que devuelve el motor de sonido (NewTitleTask, Sequence, PacketPack, GameScene, los Em202 y EnvSeManager lo comprueban) y el grupo es `const char*` (en AudioDevice ya lo era; PacketPack lo declaraba `int`); Pad_unk `fn_800A5B38` devuelve el nivel de bateria de `fn_800DF1D0` (Loader lo comprueba). Mismo codigo (`b`), mnemcheck limpio |
 
+## Octava parte: `port-propuestas9h-20261127`
+
+| Commit | Que |
+|---|---|
+| `f96d129f` | CharaTask `fn_80178BFC`: `fn_800CB5B4(&m1414, m1410, 10)` con el volumen, como lo define SoundManager (`SoundCore::fn_800CA0AC(float, int)`). El original no carga f1 porque `m1410` ya esta ahi; declarada sin el float, en Win64 el llamador ponia los frames en la casilla del volumen. Mismo codigo; el parametro sin nombre en la declaracion (con nombre consume un `@N` y renumera 130 etiquetas) |
+
 ## Fuera, y por qué
 
 - **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas
