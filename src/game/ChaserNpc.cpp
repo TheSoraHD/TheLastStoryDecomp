@@ -342,7 +342,7 @@ void ChaserNpc::fn_80181A64() {
         int dest = ((GameScene*)table)->fn_803C1560(&place->mPos, fn_80179D44(), 0, 0, 1, -1.0f);
         bool ok = true;
         count++;
-        int next = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (point - 1) * 8), dest - 1);
+        int next = fn_803CD958(&table->mA0.mData[point - 1], dest - 1);
         atn::Vector3 dir = (table->m98.mData[next - 1].mPos - mPos).GetNormalize();
         float angle = acos(PSVECDotProduct(&dir, &away));
         while (next != 0 && next != dest) {
@@ -350,7 +350,7 @@ void ChaserNpc::fn_80181A64() {
                 ok = false;
                 break;
             }
-            next = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (next - 1) * 8), dest - 1);
+            next = fn_803CD958(&table->mA0.mData[next - 1], dest - 1);
         }
         if (ok) {
             if (best == -1 || bestAngle < angle) {

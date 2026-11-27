@@ -376,8 +376,8 @@ void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name)
     fn_800C5644();
     fn_8007A100();
 
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     unsigned int size = GXGetTexBufferSize((unsigned short)width, (unsigned short)height, 0x13, 0, 0);
     m79C = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
     m74C.fn_800D5B58(width, height, 6, 1, "FrameBuffer");
@@ -841,8 +841,8 @@ static inline void DrawQuad_unk(atn::RenderManager* self, const atn::Color& c, u
 void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
     // inferred: full screen quad of one color
     atn::Color c(color);
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     DrawQuad_unk(this, c, width, height, a, b);
 }
 
@@ -940,8 +940,8 @@ void atn::RenderManager::fn_800BFCB4(atn::Color color0, atn::Color color1, atn::
 }
 
 void atn::RenderManager::fn_800C0508(int clear) {
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
     GXSetTexCopyDst((unsigned short)width, (unsigned short)height, 6, 0);
     GXCopyTex(m74C.mImage, (unsigned char)clear);
@@ -950,8 +950,8 @@ void atn::RenderManager::fn_800C0508(int clear) {
 
 void atn::RenderManager::fn_800C0590(int clear, int format) {
     // inferred: copies the frame buffer into m79C and rebuilds its texture object m77C
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
     GXSetTexCopyDst((unsigned short)width, (unsigned short)height, format, 0);
     GXCopyTex(m79C, (unsigned char)clear);
