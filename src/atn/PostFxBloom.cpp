@@ -18,8 +18,14 @@ static inline atn::Matrix3x4 MakeTrans_unk(const atn::Vector3& v) {
     return m;
 }
 
-// NONMATCHING: 96.87% - register allocation (k1 kept in a register across the first GXSetTevKColor,
-// loop counters in r25/r26)
+// inferred: the two konstant colors of the blur (name invented; patch datos-20261119 qH)
+static inline void SetKColors_unk(GXColor k0, GXColor k1) {
+    GXSetTevKColor(0, k0);
+    GXSetTevKColor(1, k1);
+}
+
+// NONMATCHING: 99.99% - the stack copies of the two colors for GXSetTevKColor are swapped (0x8/0xC);
+// 96.87 -> 99.99 setting them in SetKColors_unk
 // inferred: directional blur pass: draws `src` five times with offsets of (dx, dy) and copies the
 // result to `dst`
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, const float* weights,
@@ -40,8 +46,7 @@ extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int
                   (unsigned char)(255.0f * weights[2] * inv), (unsigned char)(255.0f * weights[3] * inv)};
     GXColor k1 = {0, 0, 0, 0};
     k1.r = (unsigned char)(255.0f * weights[4] * inv);
-    GXSetTevKColor(0, k0);
-    GXSetTevKColor(1, k1);
+    SetKColors_unk(k0, k1);
     GXSetNumTevStages(5);
     GXSetNumChans(1);
     GXSetNumIndStages(0);
