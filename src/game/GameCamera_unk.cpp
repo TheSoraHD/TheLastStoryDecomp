@@ -3238,8 +3238,10 @@ void GameCamera::fn_8038DDE0(const CharaTask* chara) {
     fn_80389678(chara);
 }
 
-// NONMATCHING: 84.9% - stack slots and registers of the temporaries
+// NONMATCHING: 89.3% - float registers of the two blends (84.9 -> 89.3 with the lerp inlines)
 // inferred: blends over 30 frames from the camera saved on the first frame to the default mode
+static inline atn::Vector3 LerpPosV_unk(const atn::Vector3& a, const atn::Vector3& b, float t) { return (b - a) * t + a; } // inferred: name invented
+static inline float LerpFovy_unk(float a, float b, float t) { return t * (b - a) + a; } // inferred: name invented
 void GameCamera::fn_8038DF5C(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -3252,11 +3254,11 @@ void GameCamera::fn_8038DF5C(const CharaTask* chara) {
     m8F0 = 0;
     float t = (float)m808 / 30.0f;
     float k = 0.5f * (1.0f + (float)sin(3.1415927f * t - 1.5707964f));
-    atn::Vector3 pos = (mCamera.mPos - m80C) * k + m80C;
-    atn::Vector3 target = (mCamera.mTarget - m818) * k + m818;
+    atn::Vector3 pos = LerpPosV_unk(m80C, mCamera.mPos, k);
+    atn::Vector3 target = LerpPosV_unk(m818, mCamera.mTarget, k);
     mCamera.SetPosition(pos);
     mCamera.SetTarget_unk(target);
-    mCamera.mFovy = k * (mCamera.mFovy - m830) + m830;
+    mCamera.mFovy = LerpFovy_unk(m830, mCamera.mFovy, k);
     mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
     if (++m808 >= 30) {
