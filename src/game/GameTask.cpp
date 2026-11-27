@@ -4556,8 +4556,9 @@ void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {
 }
 
 
-// NONMATCHING: 93.4% - scheduling of the second copy of the colour matrix (the constants of the camera blend are
-// loaded earlier in the original) and registers of the frames of the finish camera
+// NONMATCHING: 98.6% - scheduling of the second copy of the colour matrix (the constants of the camera blend are
+// loaded earlier in the original) and the operands of the frame test of the finish camera (93.4 -> 98.6 with
+// SetMotionBlur_unk and the frames as a literal)
 // inferred: starts the replay of the finishing blow (field state 7): freezes the field, rewinds the replay buffer
 // m5598 frames, starts the finish camera, lowers the sound and switches the render settings to monochrome
 void GameTask::fn_803731E8() {
@@ -4570,8 +4571,7 @@ void GameTask::fn_803731E8() {
         mFinish.fn_80378610(1, lbl_8087F8A0->mHead, atn::Vector3(0.0f, 0.0f, 0.0f));
     }
     mFinish.m394 = 1;
-    int frames = 30;
-    mFinish.fn_803786FC(lbl_8087F8A0->mHead == mFinish.mChara ? 0 : frames);
+    mFinish.fn_803786FC(mFinish.mChara == lbl_8087F8A0->mHead ? 0 : 30);
     ((atn::Task*)lbl_8087F048)->FreezeTask();
     lbl_8087F8A0->FreezeTask();
     EnemyManager::sInstance->FreezeTask();
@@ -4620,7 +4620,7 @@ void GameTask::fn_803731E8() {
     if (ArenaTask::sInstance != 0) {
         ArenaTask::sInstance->fn_80043D58(2);
     }
-    lbl_8087EFA8->m240.mEnabled = 1;
+    lbl_8087EFA8->SetMotionBlur_unk(1);
     ColorMatrixParam_unk cm(*lbl_8087EFA8->GetColorMatrix_unk());
     m55C4 = cm;
     cm.mEnabled = 1;
