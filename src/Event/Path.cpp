@@ -9,6 +9,7 @@
 #include "Event/Sequence.h"
 #include "atn/Model_unk.h"
 #include "game/SetConfig.h"
+#include "game/CameraConfig_unk.h"
 #include "atn/SoundCore.h"
 #include "atn/SoundManager.h"
 #include "game/Input_unk.h"
@@ -58,27 +59,9 @@ extern "C" Pad_unk* lbl_8087EF70;
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" int fn_800A58D0(void* pad, int port);                     // inferred: second stick available
 
-// inferred: camera part of SetConfig (from mAttackTurnSpeed); names invented
-struct CameraConfig_unk {
-    // inferred: weak copies 0x801156CC, 0x801156E0 and 0x801156F8
-    int IsInvertX_unk() { return (m10 & 4) == 4; }
-    float GetRotScale_unk() { return 0.3f * (m0C - 1.0f) + 1.0f; }
-    int IsInvertY_unk() { return (m10 & 8) == 8; }
-    float m00;
-    float m04;
-    float m08;
-    float m0C; // inferred: SetConfig::mCameraRotSpeed
-    unsigned int m10;
-};
-// inferred: weak copies 0x801156BC, 0x801156C4 and 0x801156D8
+// inferred: weak copy 0x801156BC (GetSetConfig_unk and GetCameraConfig_unk: game/CameraConfig_unk.h)
 inline void* GetPad_unk() {
     return lbl_8087EF70;
-}
-inline SetConfig* GetSetConfig_unk() {
-    return SetConfig::sInstance;
-}
-inline CameraConfig_unk* GetCameraConfig_unk(SetConfig* config) {
-    return (CameraConfig_unk*)&config->mAttackTurnSpeed;
 }
 // inferred: fabs (weak copy of another file)
 extern "C" inline float fn_80011220(float x) {

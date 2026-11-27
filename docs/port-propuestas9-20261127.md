@@ -131,6 +131,12 @@ el llamador lee un valor sin definir.
 |---|---|
 | `f96d129f` | CharaTask `fn_80178BFC`: `fn_800CB5B4(&m1414, m1410, 10)` con el volumen, como lo define SoundManager (`SoundCore::fn_800CA0AC(float, int)`). El original no carga f1 porque `m1410` ya esta ahi; declarada sin el float, en Win64 el llamador ponia los frames en la casilla del volumen. Mismo codigo; el parametro sin nombre en la declaracion (con nombre consume un `@N` y renumera 130 etiquetas) |
 
+## Novena parte: `port-propuestas9i-20261127`
+
+| Commit | Que |
+|---|---|
+| `0b9d53d6` | Un solo `CameraConfig_unk` (la parte de camara de `SetConfig` desde `mAttackTurnSpeed`, con sus inline debiles 0x801156C4-0x801156F8) en `include/game/CameraConfig_unk.h`; Event/Path tenia la vista de 0x14 bytes y GameCamera_unk una de 4 (`views.py`: mismo nombre, distinto tamano). Floats de GameCamera_unk re-emparejados con `lblseq.py` y dos a mano (`lblval`: de 4 distintas y 5 sin pareja a 0/0); fnstat igual |
+
 ## Fuera, y por qué
 
 - **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas
