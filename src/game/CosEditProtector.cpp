@@ -7,6 +7,7 @@
 #include "game/MenuCommonTask.h"
 #include "game/CharaStatus.h"
 #include "db/EquipParam_unk.h"
+#include "db/ItemParam_unk.h"
 #include "math/Vec.h"
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
@@ -29,16 +30,10 @@ extern "C" GameTask* lbl_8087F430; // inferred: field
 extern "C" int fn_80117214(int index); // inferred: palette slot of a colour index
 extern "C" int fn_8020BE40(int id);    // inferred: cell of a palette colour
 extern "C" int fn_8020BF20(int mark);  // inferred: cell of a colour mark
-// inferred: item data (fn_80211480)
-struct CosEditItemData_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName; // 0x08
-};
-extern "C" CosEditItemData_unk* fn_80211480(int id);
 extern "C" int fn_80206BE4(void* item);                   // inferred: item id
 extern "C" int fn_8020EF80(EquipParamEntry_unk* entry);    // inferred: item id of an equipment entry
 extern "C" int fn_80444B64(Inventory* inv, int id);       // inferred: icon of an item
-extern "C" int fn_80444BE8(Inventory* inv, CosEditItemData_unk* item);
+extern "C" int fn_80444BE8(Inventory* inv, ItemParamEntry_unk* item);
 extern "C" int fn_80444C48(Inventory* inv);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
@@ -796,7 +791,7 @@ void CosEditProtector::vf64() {
         if (cell != 0) {
             CosEditPaletteName_unk* palette = fn_8020BCEC(cell->mId);
             int code = fn_80444828(Inventory::instance_, cell->mId);
-            CosEditItemData_unk* item = fn_80211480(code);
+            ItemParamEntry_unk* item = fn_80211480(code);
             if (palette != 0 && item != 0 && fn_804444E8(Inventory::instance_, code) > 0) {
                 SetText_unk(mColorPalette->GetTask(), "colorName", palette->mName);
                 SetText_unk(mColorPalette->GetTask(), "colorNameSub", palette->mName);
@@ -815,7 +810,7 @@ void CosEditProtector::vf64() {
         if (cell != 0) {
             CosEditPaletteName_unk* palette = fn_8020BD14(cell->mId);
             int code = fn_8044493C(Inventory::instance_, cell->mId);
-            CosEditItemData_unk* item = fn_80211480(code);
+            ItemParamEntry_unk* item = fn_80211480(code);
             if (cell->mId == 0x1F) {
                 SetText_unk(mEffectPalette->GetTask(), "colorName", fn_80116FC0(0, 0x2740));
                 SetText_unk(mEffectPalette->GetTask(), "colorNameSub", fn_80116FC0(0, 0x2740));
@@ -1510,7 +1505,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
         if ((unsigned int)mode <= 1) {
             void* item = fn_801CFA5C(member, mode);
             if (item != 0) {
-                CosEditItemData_unk* data = fn_80211480(fn_80206BE4(item));
+                ItemParamEntry_unk* data = fn_80211480(fn_80206BE4(item));
                 uv = fn_80444C50(Inventory::instance_, fn_80444BE8(Inventory::instance_, data));
                 if (data != 0) {
                     name = data->mName;
@@ -1527,7 +1522,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
                 entry = (EquipParamEntry_unk*)fn_801CFAA8(member, 0);
             }
             int id = fn_8020EF80(entry);
-            CosEditItemData_unk* data = fn_80211480(id);
+            ItemParamEntry_unk* data = fn_80211480(id);
             uv = fn_80444C50(Inventory::instance_, fn_80444B64(Inventory::instance_, id));
             if (data != 0) {
                 name = data->mName;
@@ -1537,7 +1532,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
             name = L"\x2015\x2015\x2015\x2015";
         } else {
             int id = fn_8020EF80((EquipParamEntry_unk*)fn_801CFAA8(member, 2));
-            CosEditItemData_unk* data = fn_80211480(id);
+            ItemParamEntry_unk* data = fn_80211480(id);
             uv = fn_80444C50(Inventory::instance_, fn_80444B64(Inventory::instance_, id));
             if (data != 0) {
                 name = data->mName;
