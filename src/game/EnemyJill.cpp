@@ -290,8 +290,7 @@ void EnemyJill::vf10() {
                     if (m14E8 != 0) {
                         atn::Vector3* rot = GetRot_unk();
                         atn::Vector3 pos = *mC58.mC4->fn_8013C38C() + mC58.mC4->fn_8014052C();
-                        int id = fn_8013A194()->fn_800F8548();
-                        fn_8013A194()->fn_800FAB80(this, m14E8, id, &pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
+                        fn_8013A194()->fn_800FAB80(this, m14E8, (fn_8013A194()->fn_800F8548()), &pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
                     }
                 }
                 m1570 = -1;
