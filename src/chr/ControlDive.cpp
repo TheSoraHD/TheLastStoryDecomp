@@ -80,24 +80,28 @@ ControlDive::ControlDive(Chara_unk* chara, const atn::Vector3& dir) : ControlBas
     }
 }
 
-// NONMATCHING: 85.0% - the original loads the arguments of fn_803C1560 before calling
+// inferred: nearest route point for the group of the character (name invented)
+static inline int FindRoutePoint_unk(const atn::Vector3& pos, int type, int group, CharaTask* chara, GameScene* scene) {
+    return scene->fn_803C1560(&pos, chara->fn_80179D44(), group, type, 1, -1.0f);
+}
+
+// NONMATCHING: 99.89% - pos/type of the route point in r30/r29 (original r29/r30). The original loads the arguments of fn_803C1560 before calling
 // fn_80179D44 (r27-r31 saved, larger frame) and loads 1.5f after the prologue.
 int ControlDive::vf0C() {
     int ret = 0;
-    Motion_unk* motion = &mChara->mMotion;
+    Motion_unk* motion = mChara->GetModel_unk();
     float speed = lbl_8087F048->fn_8010CA3C(mChara, 1.5f);
     motion->mTracks[0].m0C = speed / 1.5f;
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0) - 5.0f) {
         if (mChara->m564 == 2) {
-            mChara->mC58.m0C.mDestPoint = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&mChara->mPos, mChara->fn_80179D44(),
-                                                      mChara->mC58.mB4, mChara->mC58.m0C.mA0, 1, -1.0f);
+            mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(*mChara->fn_8013C38C(), mChara->mC58.m0C.mA0, mChara->mC58.mB4, mChara,
+                                                             (GameScene*)lbl_8087F430->m10D8);
         }
         mChara->mStatus.m18 &= ~0x20000;
         ret = 1;
     }
-    atn::Vector3 rot = m08.ToRotation_unk();
-    mChara->fn_8013CB68(rot, 0, 1.0f, speed);
+    mChara->fn_8013CB68(m08.ToRotation_unk(), 0, 1.0f, speed);
     return ret;
 }
 
