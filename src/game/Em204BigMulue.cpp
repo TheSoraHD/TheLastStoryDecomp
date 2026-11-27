@@ -988,10 +988,10 @@ int Em204BigMulue::fn_802B07F0(int range) {
     if (fn_802B12D8(&m1500, 1.0f, 90.0f, 0.0f)) {
         atn::Vector3 d = m1500 - mPos;
         m150C = -1;
-        target = mPos - d;
+        atn::VecAssign_unk(target, mPos - d);
     } else {
         m150C = 1;
-        target = m1500;
+        __VecCopy(&target.x, &m1500.x);
     }
     if (fn_802B12D8(&target, 1.0f, 15.0f, 0.0f)) {
         m150C = 0;
