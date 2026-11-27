@@ -68,6 +68,21 @@ Fuera: los `PORT_OFF` de rellenos de struct (menus MP: son tamanos, no lecturas)
 Fallaban o bajaban y se quedan: D2A_Task, D2A_Texture, EffectManager, ModelInstance, TextureComposite, EnemyJill,
 NewCampPartsStatus, MapLift.
 
+## Cuarta parte: `port-propuestas9d-20261127`
+
+Rama desde `main` con 9c (`d1551ca7`), mismas comprobaciones (`main.dol: OK`, lost 0, sin bajadas, labelcheck y
+poolcheck iguales). Con los datos del disco el port ya llega al primer combate; esto sale de `port/link/views.txt`:
+
+| Commit | Que |
+|---|---|
+| `9ff9ec2f` | ChaseManager lee los ajustes de la persecucion de `GameConfig_unk::m4DC` (`mReleaseSwingCount`, `mCapturedTime`, `m50`-`m58` como vector con una inline local, `m5C`) en vez de la vista `ChaseSettings_unk` con offsets de la Wii |
+| `5976b143` | Un tipo por nombre: los structs locales de evento de BattleTask y CharaTask pasan a `HitEffectEvent_unk` y `HitReactEvent_unk` (`HitEvent_unk` es el de `game/HitEvent_unk.h`); `__ct__17HitReactEvent_unkFv` renombrado en `symbols.txt` |
+
+Probadas y fuera: un accesor `inline` dentro de `GameConfig4DC_unk` (renumera las etiquetas de las ~140 unidades que
+incluyen `GameConfig_unk.h`; se usa una inline local de ChaseManager); renombrar el `EffectRes_unk` local de
+atn/EffectRes_unk.cpp (su `mRes` es el `EffectRes_unk*` de `atn/EffectManager.h`: dos vistas del mismo objeto con
+layouts distintos, queda pendiente de entender cual es el real).
+
 ## Fuera, y por qué
 
 - **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas
