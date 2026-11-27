@@ -1327,7 +1327,7 @@ void TacView::fn_805AB828(int mode) {
     }
 }
 
-extern "C" HitInfo_unk* fn_80219344(CharaTask* chara); // inferred: default skill of the character
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int kind); // db/PlayerParam_unk.cpp
 
 // inferred: the gauge of `chara` is full (players only check the ratio; nonzero 0x4 state never) (name invented)
 inline bool IsGaugeFull_unk(CharaTask* chara) {
@@ -1519,7 +1519,9 @@ void TacView::fn_805ABE74() {
                 if (slot >= 0) {
                     m54.m54[i] = chara->mStatus.m2CC[slot].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2CC[slot].m[0]) : 0;
                 } else {
-                    m54.m54[i] = fn_80219344(chara);
+                    // inferred: the definition takes (chara, kind) and r4 still holds `type` here (cmpwi r4, 6
+                    // above): the original passes it without a move (the port crashed with the kind left out)
+                    m54.m54[i] = fn_80219344(chara, type);
                 }
             } else {
                 int slot = m54.m74[i];
