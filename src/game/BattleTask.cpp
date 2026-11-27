@@ -5655,12 +5655,16 @@ static inline CharaTask* GetBattleChara_unk(BattleTask* battle, int id) {
     return chara;
 }
 
+// inferred: hate rate of a character of the battle (name invented)
+static inline float RateOf_unk(const BattleChara_unk& c) { return c.m248; }
+
 // inferred: hate of this entry toward the entry `id`. For a friend that follows the AI (m118 1) without the 0x800
 // status: the base value plus closeness to its leader (within 120) and half of the recorded hits, minus the hate
 // of the players; else the base value plus the recent damage m24C, the hits, the 0x800 and m48C bonuses, minus
 // the players' hate outside multiplayer, scaled by m128. Outside multiplayer the result is scaled by m248 and
 // m6E4 of the other entry, plus m80C
-// NONMATCHING: 93.7% - register allocation (the config in r31 in the original) and scheduling of the scale
+// NONMATCHING: 97.3% - register allocation (the config in r31 in the original); 93.7 -> 97.3 reading the
+// rate of the other entry through RateOf_unk
 int BattleChara_unk::fn_801083D8(int id) {
     int result = -1;
     if (id >= 0) {
@@ -5687,7 +5691,7 @@ int BattleChara_unk::fn_801083D8(int id) {
             hate = MAX(hate - config->mPlayerMinusHate, 0);
         }
         if (lbl_8087F048 != 0) {
-            hate = (int)(hate * (lbl_8087F048->mCharas[id].m248 * (1.0f - m6E4[id])));
+            hate = (int)(hate * (RateOf_unk(lbl_8087F048->mCharas[id]) * (1.0f - m6E4[id])));
         }
         return hate;
     }
@@ -5719,7 +5723,7 @@ int BattleChara_unk::fn_801083D8(int id) {
     int value = MAX(hate + other->mStatus.fn_80134168(0x33, -1), 0);
     value = (int)(value * m128[id] + 0.1f);
     if (lbl_8087F048 != 0 && lbl_8087F610 == 0) {
-        value = (int)(value * (lbl_8087F048->mCharas[id].m248 * (1.0f - m6E4[id])));
+        value = (int)(value * (RateOf_unk(lbl_8087F048->mCharas[id]) * (1.0f - m6E4[id])));
     }
     result = value + m80C[id];
     }
