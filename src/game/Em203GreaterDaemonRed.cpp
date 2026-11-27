@@ -1335,16 +1335,22 @@ void Em203GreaterDaemonRed::fn_802997B8() {
     }
 }
 
+// inferred: centre point of the arena (name invented; read through an inline, found with the Val_unk probe)
+static inline atn::Vector3 CenterOf_unk(const Em203GreaterDaemonRed* self) {
+    return self->m1558;
+}
+
 // inferred: state 21 (walks to the centre of the arena, then casts the thunder)
-// NONMATCHING: 97.38% - register allocation of the walk vectors
+// inferred: the centre through CenterOf_unk into a local (Val_unk probe) and the distance test as 10 < dist
 void Em203GreaterDaemonRed::fn_80299A7C() {
-    atn::Vector3 dir = m1558 - mPos;
+    atn::Vector3 center = CenterOf_unk(this);
+    atn::Vector3 dir = center - mPos;
     dir.y = 0.0f;
     float dist = dir.Length_unk();
     float frame = mMotion.mTracks[0].m08;
     if (frame > 21.0f && frame <= 38.0f) {
         mRot.y += atn::WrapAngle_unk(m1548 - m1544) / 17.0f;
-        if (dist > 10.0f) {
+        if (10.0f < dist) {
             dir.Normalize_unk();
             mPos += dir * 50.0f * 0.2f;
         }
