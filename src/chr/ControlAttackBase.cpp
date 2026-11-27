@@ -92,6 +92,11 @@ static inline bool InRange_unk(float v, float lo, float hi) {
     return lo <= v && v <= hi;
 }
 
+// inferred: frame speed (as the other units that read it through the accessor)
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
+
 namespace chr {
 
 inline void ControlAttackBase::LoadTable_unk() {
@@ -980,10 +985,6 @@ ControlAttackLastOne::ControlAttackLastOne(Chara_unk* chara, const atn::Vector3&
 
 // inferred: lbl_8087EFA8 through a reference (the original reloads it for the store; name invented)
 static inline RenderSetting_unk*& RenderSettingRef_unk() { return *(RenderSetting_unk**)&lbl_8087EFA8; }
-// inferred: frame speed (as the other units that read it through the accessor)
-inline float RenderSetting_unk::GetFrameSpeed_unk() const {
-    return m3A4;
-}
 // inferred: position of a character (name invented)
 static inline const atn::Vector3& PosOf_unk(const CharaTask* c) { return c->mPos; }
 
