@@ -200,8 +200,10 @@ void GameSoundControl::fn_803CDF84() {
     }
     if (((GameTask*)lbl_8087F430)->fn_80375184() && ((GameTask*)lbl_8087F430)->fn_803761FC() && lbl_8087F048 != 0) {
         BattleTask* state = lbl_8087F048;
-        if (state->m38CCC != state->m38CD0) {
-            switch (state->m38CCC) {
+        int cur = state->m38CCC;
+        int prev = state->m38CD0;
+        if (prev != cur) {
+            switch (cur) {
             case 1:
                 GameBgm::sInstance->fn_8037D4C0(0x6C, 0, 1, 0, 1.0f);
                 break;
