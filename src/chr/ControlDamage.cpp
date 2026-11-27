@@ -16,6 +16,7 @@
 #include "std/string_members.h"
 #include <boost/bind.hpp>
 #include "game/BattleTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: arena mode object (lbl_8087F610, as in chr/ControlCharge.cpp)
 struct Arena_unk {
@@ -754,8 +755,10 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
     }
 }
 
-// NONMATCHING: 92.4% - the inlined fn_801B0260 loads mChara again (the original keeps a second
-// model pointer, so r30/r31 are swapped), and side * 2 is computed before the second front direction.
+// NONMATCHING: 99.6% - register allocation only: the outer model pointer gets r30 and the bool of the
+// inlined fn_801B0260 r31 (original r31/r30). Tried: model after the call, bool/int local for the
+// result, == true/false, reference or GetModel_unk accessor, helper written in place (mChara is then
+// not reloaded), result declared first / single return / switch in the helper.
 int ControlDamageLastOne::vf0C() {
     Motion_unk* model = &mChara->mMotion;
     if (fn_801B0260()) {
@@ -774,15 +777,17 @@ int ControlDamageLastOne::vf0C() {
             if (model->mTracks[0].m08 >= 23.0f) {
                 model->fn_80097C08(0, 0x30, 0, 1, 1, 0.0f, 0.2f);
                 atn::Vector3 side = Cross_unk(FrontDir_unk(mChara->mRot), atn::Vector3(0.0f, 1.0f, 0.0f));
-                side = -FrontDir_unk(mChara->mRot) * 6.0f - (side * 2.0f);
+                atn::VecAssign_unk(side, -FrontDir_unk(mChara->mRot) * 6.0f - (side * 2.0f));
                 mChara->m6B8 = side;
             }
         }
         break;
     case 11:
         if (model->mTracks[0].m08 > 30.0f && model->mTracks[0].m08 < 54.0f) {
-            mChara->m6B8 = m08;
-            mChara->m574 = atn::Vector3(0.0f, 0.0f, 0.0f);
+            CharaTask* c1 = mChara;
+            c1->m6B8 = m08;
+            CharaTask* c2 = mChara;
+            c2->m574 = atn::Vector3(0.0f, 0.0f, 0.0f);
         }
         break;
     }
