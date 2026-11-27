@@ -126,6 +126,7 @@ Em305VampireMp::~Em305VampireMp() {}
 
 // NONMATCHING: 98.9% - registers of the inlined std::vector push_back of the two routes (size/capacity
 // loads swapped, known open case)
+inline void AddDoor_unk(std::vector<VampireDoor_unk>& list, const VampireDoor_unk& door) { list.push_back(door); }
 int Em305VampireMp::vf0C() {
     if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&
         m157C.IsLoading() == 0 && m1588.IsLoading() == 0 && m14D4.fn_80473F50() == 0 &&
@@ -149,7 +150,7 @@ int Em305VampireMp::vf0C() {
                     int b = fn_800DC12C(csv.fn_8005B9CC());
                     int c = fn_800DC12C(csv.fn_8005B9CC());
                     int d = fn_800DC12C(csv.fn_8005B9CC());
-                    m14DC.push_back(VampireDoor_unk(a, b, c, d));
+                    AddDoor_unk(m14DC, VampireDoor_unk(a, b, c, d));
                 }
                 if (strcmp(key, "weaken_time") == 0) {
                     m15E4[0] = atoi(csv.fn_8005B9CC());
