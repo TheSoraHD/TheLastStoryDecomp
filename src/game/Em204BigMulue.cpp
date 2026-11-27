@@ -91,6 +91,10 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
+static inline atn::Vector3 GetNodePos2_unk(MtxPtr m) {
+    float y = m[1][3]; float x = m[0][3]; return atn::Vector3(x, y, m[2][3]);
+}
+
 // inferred: plays an effect on the model (as in game/Em302Kraken.cpp; names invented)
 inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
@@ -166,6 +170,13 @@ Em204BigMulue::Em204BigMulue(atn::Task* parent, EnemyInfo_unk* info)
 inline void CapsulesOff_unk(Em204BigMulue* self) {
     for (unsigned int i = 0; i < self->m1558.size(); i++) {
         self->m1564[i].mFlags &= ~1;
+    }
+}
+
+// inferred: counterpart of CapsulesOff_unk (name invented)
+inline void CapsulesOn_unk(Em204BigMulue* self) {
+    for (unsigned int i = 0; i < self->m1558.size(); i++) {
+        self->m1564[i].mFlags |= 1;
     }
 }
 
@@ -286,9 +297,7 @@ template void std::vector<BigMulueSphere_unk>::push_back(const BigMulueSphere_un
 void Em204BigMulue::vf10() {
     if (m14E8 == 0) {
         m14E8 = 1;
-        for (unsigned int i = 0; i < m1558.size(); i++) {
-            m1564[i].mFlags |= 1;
-        }
+        CapsulesOn_unk(this);
         lbl_8087F430->fn_80370320(0x68, 1, 0);
     }
     if (!mFlag2 || !CanAct_unk()) {
@@ -305,7 +314,7 @@ void Em204BigMulue::vf10() {
     if (!CharaTask::mFlag2 && m1A40 != 0 && mC58.mC0 > 0) {
         fn_802AE954();
         for (unsigned int i = 0; i < m1A34.size(); i++) {
-            m1A34[i].m14 = GetNodePos_unk(mMotion.GetNodeMtx_unk(m1A34[i].mNode.data()));
+            m1A34[i].m14 = GetNodePos2_unk(mMotion.GetNodeMtx_unk(m1A34[i].mNode.data()));
         }
     }
     fn_8014C540();
@@ -319,13 +328,8 @@ void Em204BigMulue::vf10() {
             (player->m55C != 6 || player->m560 == 4)) {
             GameUI* ui = lbl_8087F490;
             if (ui != 0) {
-                GameUIElem1C_unk hint;
-                hint.m00 = 6;
+                GameUIElem1C_unk hint(6);
                 hint.m04 = 0x11;
-                hint.m08 = -1;
-                hint.m0C = 0;
-                hint.m10 = 0;
-                hint.m14 = 0;
                 hint.m18 = 1;
                 ui->m764 = hint;
             }
