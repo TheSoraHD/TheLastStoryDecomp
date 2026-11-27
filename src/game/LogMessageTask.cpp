@@ -166,12 +166,12 @@ inline const wchar_t* CStr_unk(const wchar_t* s) {
 }
 
 
-// NONMATCHING: 89.7% - the parameters take r25-r28 in the original (loop registers above them), and the
+// NONMATCHING: 92.0% - the parameters take r25-r28 in the original (loop registers above them), and the
 // c_str checks of the temporary text are not CSE-d there (pointer kept in r24).
 void LogMessageTask::fn_8047961C(const wchar_t* text, int kind, int flags, int level) {
     if (lbl_8087F0A8->m06C > 0 && level >= lbl_8087F0A8->mLogMessageLimitLevel && text != 0) {
         if (HasFlag_unk(flags, 2) && mAlpha > 0.25f) {
-            bool same = mEntries.mSize != 0 &&
+            bool same = mEntries.size() != 0 &&
                         mEntries.mData[mEntries.mSize - 1].mText == text;
             if (same) {
                 return;
