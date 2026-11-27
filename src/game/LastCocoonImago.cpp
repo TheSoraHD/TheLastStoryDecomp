@@ -274,7 +274,8 @@ void LastCocoonImago::vf10() {
                     atn::Vector3 hand = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("righthand"))->GetTrans_unk();
                     atn::Vector3 hips =
                         ((atn::Matrix3x4*)m14FC->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
-                    atn::Vector3 dir = hips - hand;
+                    atn::Vector3 dir;
+                    dir = hips - hand;
                     dir.Normalize_unk();
                     BattleTask* mgr = lbl_8087F048;
                     mgr->fn_800F8574(this, fn_80219E6C(0x5B7), &hand, &dir, 0, 0x24, 0, 0.0f, 1.0f);

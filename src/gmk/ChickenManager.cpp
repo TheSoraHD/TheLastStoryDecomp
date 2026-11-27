@@ -224,7 +224,8 @@ void Chicken_unk::fn_8040C058() {
     Chicken_unk* other = mOwner->FindNear_unk(pos);
     if (other != 0) {
         atn::Vector3 op = other->mPos;
-        atn::Vector3 d = op - mPos;
+        atn::Vector3 d;
+        d = op - mPos;
         d.y = 0.0f;
         atn::Vector3 n = d;
         PSVECNormalize(&n, &n);
@@ -287,7 +288,8 @@ void Chicken_unk::fn_8040C610() {
     Chicken_unk* other = mOwner->FindNear_unk(pos);
     if (other != 0) {
         atn::Vector3 op = other->mPos;
-        atn::Vector3 d = op - mPos;
+        atn::Vector3 d;
+        d = op - mPos;
         d.y = 0.0f;
         atn::Vector3 n = d;
         PSVECNormalize(&n, &n);
