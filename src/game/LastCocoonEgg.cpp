@@ -1091,10 +1091,33 @@ void LastCocoonEgg::fn_80456F94() {
 
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: *mtx = *mtx * rot(axis, rad) when the angle is not zero (name invented)
-static inline void EggRotate_unk(atn::Matrix3x4& mtx, char axis, float rad) {
+static inline void EggRotate_unk(atn::Matrix3x4& mtx, char axis, const float& rad) {
     if (0.0f != rad) {
         atn::Matrix3x4::RotateAxis_unk(mtx, axis, rad);
     }
+}
+
+// inferred: rotations y, x, z of `r` applied to `rot` (name invented)
+static inline void EggRotateYXZ_unk(atn::Matrix3x4& rot, const atn::Vector3& r) {
+    EggRotate_unk(rot, 'y', r.y);
+    EggRotate_unk(rot, 'x', r.x);
+    EggRotate_unk(rot, 'z', r.z);
+}
+// inferred: *a = *a * b (name invented)
+static inline void EggMulMtx_unk(atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 t;
+    PSMTXConcat(a.m, b.m, t.m);
+    a = t;
+}
+// inferred: `out` = `trans` * rotations y, x, z of m18F8 (name invented)
+static inline void EggSetMtx_unk(LastCocoonEgg* egg, atn::Matrix3x4& out, const atn::Matrix3x4& trans) {
+    out = trans;
+    atn::Matrix3x4 r;
+    r.SetIdentity();
+    EggRotate_unk(r, 'y', egg->m18F8.y);
+    EggRotate_unk(r, 'x', egg->m18F8.x);
+    EggRotate_unk(r, 'z', egg->m18F8.z);
+    EggMulMtx_unk(out, r);
 }
 
 // NONMATCHING: 91% - not iterated
@@ -1117,15 +1140,7 @@ void LastCocoonEgg::fn_804570F4(CharaTask* target) {
             m18F8 = dir.ToRotation_unk();
             atn::Matrix3x4 trans;
             PSMTXTrans(trans.m, m18EC.x, m18EC.y, m18EC.z);
-            m18BC = trans;
-            atn::Matrix3x4 rot;
-            rot.SetIdentity();
-            EggRotate_unk(rot, 'y', m18F8.y);
-            EggRotate_unk(rot, 'x', m18F8.x);
-            EggRotate_unk(rot, 'z', m18F8.z);
-            atn::Matrix3x4 t;
-            PSMTXConcat(m18BC.m, rot.m, t.m);
-            m18BC = t;
+            EggSetMtx_unk(this, m18BC, trans);
             m1914 = m1908->mPos;
             m1914 += dir * m14D0 * 2.0f;
             m1914.y += 30.0f;
