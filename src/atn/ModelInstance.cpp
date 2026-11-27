@@ -55,6 +55,8 @@ struct InstModel_unk {
     unsigned int mFlags; // 0x04
     unsigned char m08[0x38 - 0x08];
     unsigned int mNodeCount; // 0x38
+    // inferred: matrices of the nodes (name invented; read through an inline, Val_unk probe)
+    atn::Matrix3x4* GetNodes_unk() const { return mNodeMtx; }
     atn::Matrix3x4* mNodeMtx; // 0x3C
     unsigned char m40[0x50 - 0x40];
     int mLod; // 0x50
@@ -92,7 +94,6 @@ struct InstData_unk {
 };
 
 extern "C" int fn_8009FFCC(InstData_unk* data); // inferred: nonzero while loading
-extern "C" void fn_80091684(InstModel_unk* model, void* view, void* lod);
 extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst, unsigned int count); // PSMTXMultVecArray
 extern "C" atn::AABB_unk fn_80070B60(const atn::AABB_unk* box, float scale); // inferred: scales a box
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -434,7 +435,8 @@ void ModelInstance::fn_8009F448(ModelInstance* instance, InstModel_unk* model) {
     }
 }
 
-// NONMATCHING: 99.58% - r28/r29 swapped (node array and offset)
+// inferred: the nodes read through GetNodes_unk (Val_unk probe) and the skinning built by the ModelBase method
+// (InstModel_unk is a view of the model)
 void ModelInstance::fn_8009F4AC(InstModel_unk* model) {
     Matrix3x4 base(mMtx);
     if ((mFlags & 0x400) == 0x400 && atn::RenderManager::instance_->m2F8 == 4) {
@@ -442,7 +444,7 @@ void ModelInstance::fn_8009F4AC(InstModel_unk* model) {
         PSMTXConcat(atn::RenderManager::instance_->mScene->mReflect.m, base.m, m.m);
         base = m;
     }
-    Matrix3x4* nodes = model->mNodeMtx;
+    Matrix3x4* nodes = model->GetNodes_unk();
     for (unsigned int i = 0; i < model->mNodeCount; i++) {
         lbl_8087EF40[i] = nodes[i];
         Matrix3x4* src;
@@ -455,7 +457,7 @@ void ModelInstance::fn_8009F4AC(InstModel_unk* model) {
         }
         nodes[i] = *src;
     }
-    fn_80091684(model, &atn::RenderManager::instance_->mCamera.mView, ((InstLod_unk*)((unsigned char*)model->mLods + model->mLod * 0x18))->mData);
+    ((atn::ModelBase*)model)->fn_80091684(atn::RenderManager::instance_->mCamera.mView.m, (const int*)((InstLod_unk*)((unsigned char*)model->mLods + model->mLod * 0x18))->mData);
     if (model == &mData->mModel && m7C != 0) {
         ((atn::Model*)model)->fn_800954DC(m7C, m74, m70);
     }
