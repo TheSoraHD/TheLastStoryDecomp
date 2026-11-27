@@ -98,7 +98,7 @@ void CrowdSimulation::vf10() {
                                                     mDesc->mGroups[walker->mGroup].mRoute, 0, 1, walker->mDir.y,
                                                     360.0f, 100.0f, 10000.0f);
                         if (walker->mDest != 0 && walker->mPoint != walker->mDest) {
-                            walker->mNext = ((GameScene*)table)->fn_803C11A4(fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (walker->mPoint - 1) * 8),
+                            walker->mNext = ((GameScene*)table)->fn_803C11A4(fn_803CD958(&table->mA0.mData[walker->mPoint - 1],
                                                    walker->mDest - 1));
                             walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         }
@@ -108,7 +108,7 @@ void CrowdSimulation::vf10() {
                         float limit = radius * next->m14;
                         if (LengthSq_unk(walker->mNext - walker->mPos) < limit) {
                             walker->mPoint = fn_803CD958(
-                                (U16Table_unk*)((char*)table->mA0.mData + (walker->mPoint - 1) * 8), walker->mDest - 1);
+                                &table->mA0.mData[walker->mPoint - 1], walker->mDest - 1);
                             walker->mNext = ((GameScene*)table)->fn_803C11A4(walker->mPoint);
                             walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         } else {

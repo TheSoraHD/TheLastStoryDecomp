@@ -1551,7 +1551,7 @@ extern "C" void fn_800F7FA8(void* mgr, void* owner, int id);
 extern "C" atn::RenderConfig* fn_802F0990();
 extern "C" atn::Task* fn_8036635C();
 extern "C" inline void* fn_80122550(void* field) {
-    return (char*)field + 0x6C;
+    return &((GameTask*)field)->mCamera; // inferred: GameTask::mCamera (as game/PlayerInput_unk.cpp)
 }
 extern "C" void* lbl_8087F8A0;
 extern "C" inline void* fn_8000D9E8() {
@@ -3185,13 +3185,13 @@ void MP::Manager2::vf10() {
                 continue;
             }
             int lives = fn_804D6420(mgr);
-            ((int*)player->mRef.mChara->GetStatus_unk())[0x224 / 4] = lives;
+            player->mRef.mChara->GetStatus_unk()->m224 = lives;
             if (mgr->m604 != 0) {
-                int hp = ((int*)player->mRef.mChara->GetStatus_unk())[0x160 / 4];
+                int hp = player->mRef.mChara->GetStatus_unk()->mParamB.m78;
                 if ((unsigned int)mgr->mMode <= 1) {
-                    ((float*)player->mRef.mChara->GetStatus_unk())[0x1B0 / 4] = 60 - hp;
+                    player->mRef.mChara->GetStatus_unk()->m1A8.m08 = 60 - hp;
                 } else if (mgr->mMode == 2) {
-                    ((float*)player->mRef.mChara->GetStatus_unk())[0x1B0 / 4] = 80 - hp;
+                    player->mRef.mChara->GetStatus_unk()->m1A8.m08 = 80 - hp;
                 }
                 CharaInfo_unk* info = (CharaInfo_unk*)fn_804D1694()->vf14(player->mAid);
                 if (info != 0 && fn_804EB3CC(mgr, i) == 0) {
@@ -3202,7 +3202,7 @@ void MP::Manager2::vf10() {
                 }
                 PPCharaData_unk* data = fn_804D63D8(player->mRef.mChara);
                 if (data != 0 && data->mC8 >= 0) {
-                    sprintf(name, "%s\0", ((const char**)player->mRef.mChara->GetInfo_unk())[0x14 / 4]);
+                    sprintf(name, "%s\0", player->mRef.mChara->GetInfo_unk()->m14);
                     int len = strlen(name);
                     if (mgr->mMode == 1) {
                         name[len - 3] += 1;
@@ -3221,8 +3221,8 @@ void MP::Manager2::vf10() {
                 player->mRef.mChara->GetStatus_unk()->fn_8012B988();
                 player->mRef.mChara->GetStatus_unk()->fn_8012D8B8();
             }
-            fn_800F530C(player->mRef.mChara)[0xC0 / 4] = 1;
-            fn_800F530C(player->mRef.mChara)[0xB4 / 4] = 0;
+            player->mRef.mChara->mC58.mC0 = 1;
+            player->mRef.mChara->mC58.mB4 = 0;
             ((BattleCharaTask*)player->mRef.mChara)->SetFlagC26_unk(0);
             player->mRef.mChara->SetSide_unk(player->mFlags.m22);
             if (player->mB0 == 12 || player->mB0 == 21) {
@@ -3234,7 +3234,7 @@ void MP::Manager2::vf10() {
                         if (route->m2C != 0) {
                             unsigned int team = player->mFlags.m22;
                             if ((team == 1 && route->m24 > 50) || (team == 2 && route->m24 < 50)) {
-                                fn_800F530C(player->mRef.mChara)[0xB8 / 4] = route->m24;
+                                player->mRef.mChara->mC58.mB8 = route->m24;
                                 break;
                             }
                         }
@@ -3262,13 +3262,13 @@ void MP::Manager2::vf10() {
                 continue;
             }
             if (fn_804D63D8(entry->mRef.mChara)->mC8 >= 0) {
-                ((float*)entry->mRef.mChara->GetStatus_unk())[0x1B0 / 4] = level;
+                entry->mRef.mChara->GetStatus_unk()->m1A8.m08 = level;
             }
             entry->mRef.mChara->GetStatus_unk()->fn_8012B3E8();
             entry->mRef.mChara->GetStatus_unk()->fn_8012B988();
             entry->mRef.mChara->GetStatus_unk()->fn_8012D8B8();
-            fn_800F530C(entry->mRef.mChara)[0xC0 / 4] = 1;
-            fn_800F530C(entry->mRef.mChara)[0xB4 / 4] = 0;
+            entry->mRef.mChara->mC58.mC0 = 1;
+            entry->mRef.mChara->mC58.mB4 = 0;
             entry->mRef.mChara->fn_8014DEE4(0, 0, 0);
             if (entry->mRef.mChara->IsFrozen_unk() == 0) {
                 entry->mRef.mChara->fn_8016E4C4(1);

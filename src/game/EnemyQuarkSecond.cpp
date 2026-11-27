@@ -302,7 +302,7 @@ struct PlayerInput_unk {
     float m90C;
 };
 extern "C" inline PlayerInput_unk* fn_80122550(GameTask* field) {
-    return (PlayerInput_unk*)((char*)field + 0x6C);
+    return (PlayerInput_unk*)&field->mCamera; // inferred: GameTask::mCamera (0x6C on the Wii)
 }
 // inferred: starts a rumble (weak copy 0x8028CFB8 of game/Em203GreaterDaemon.cpp: toggles bit 0)
 extern "C" inline void fn_8028CFB8(PlayerInput_unk* input, int frames, float a, float b) {

@@ -46,7 +46,7 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
-class GameConfig_unk;
+#include "game/GameConfig_unk.h"
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
 struct HomingParam_unk;
 // inferred: hint of the HUD (GameUI::m764) built as a temporary (name invented)
@@ -294,7 +294,7 @@ void Em209SmallGolem::vf10() {
             if (ui != 0) {
                 ui->m764 = GolemUIHint_unk(6, 0x14, -1);
             }
-            if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801231D0(2) != 0) {
+            if (lbl_8087F0A8->mInput.fn_801231D0(2) != 0) {
                 StartRevive_unk(player);
                 fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {

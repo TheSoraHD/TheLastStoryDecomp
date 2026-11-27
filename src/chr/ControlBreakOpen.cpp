@@ -28,7 +28,7 @@ static inline void SetFixedParam_unk(GameTask* task, const CameraParam_unk& para
 }
 
 extern "C" GameTask* lbl_8087F430;
-class GameConfig_unk;
+#include "game/GameConfig_unk.h"
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 namespace chr {
@@ -65,7 +65,7 @@ int ControlBreakOpen::vf0C() {
     }
     case 1:
         lbl_8087F490->m738 = 1;
-        if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801231D0(0)) {
+        if (lbl_8087F0A8->mInput.fn_801231D0(0)) {
             if (--mWait <= 0) {
                 motion->fn_80097C08(0, 0x239, 0, 0, 1, 0.0f, 0.1f);
                 BreakMsg_unk msg;

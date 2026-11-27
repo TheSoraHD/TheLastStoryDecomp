@@ -204,7 +204,7 @@ void atn::RenderManager::fn_800BC618(GXTexObj* texture, int offset) {
     unsigned short* remap;
     unsigned int size;
     size = GXGetTexBufferSize(256, 256, 3, 0, 0);
-    remap = (unsigned short*)*(void**)((unsigned char*)this + 0x52C);
+    remap = (unsigned short*)m52C;
     if (remap == 0) {
         remap = (unsigned short*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6,
                                                "",
@@ -224,7 +224,7 @@ void atn::RenderManager::fn_800BC618(GXTexObj* texture, int offset) {
     GXInitTexObj(texture, remap, 256, 256, 3, 0, 1, 0);
     GXInitTexObjLOD(texture, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     DCFlushRange(remap, size);
-    *(void**)((unsigned char*)this + 0x52C) = remap;
+    m52C = remap;
 }
 
 extern "C" void fn_800BC798() {
@@ -376,8 +376,8 @@ void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name)
     fn_800C5644();
     fn_8007A100();
 
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     unsigned int size = GXGetTexBufferSize((unsigned short)width, (unsigned short)height, 0x13, 0, 0);
     m79C = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
     m74C.fn_800D5B58(width, height, 6, 1, "FrameBuffer");
@@ -609,7 +609,7 @@ void atn::RenderManager::fn_800BDBC8() {
     memset(mPassHeads, 0, sizeof(mPassHeads));
     memset(mPassCounts, 0, sizeof(mPassCounts));
     mQueueUsed = 0;
-    *(int*)((unsigned char*)lbl_8087EEB0 + 0xC) = 0;
+    lbl_8087EEB0->m04.m08 = 0; // inferred: used bytes of the 2D command buffer (0xC on the Wii)
     mResolveCount = 0;
     m54960 = 0;
     if (m8E0.mFunc != 0) {
@@ -841,8 +841,8 @@ static inline void DrawQuad_unk(atn::RenderManager* self, const atn::Color& c, u
 void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
     // inferred: full screen quad of one color
     atn::Color c(color);
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     DrawQuad_unk(this, c, width, height, a, b);
 }
 
@@ -940,18 +940,18 @@ void atn::RenderManager::fn_800BFCB4(atn::Color color0, atn::Color color1, atn::
 }
 
 void atn::RenderManager::fn_800C0508(int clear) {
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
     GXSetTexCopyDst((unsigned short)width, (unsigned short)height, 6, 0);
-    GXCopyTex(*(void**)((unsigned char*)this + 0x774), (unsigned char)clear);
+    GXCopyTex(m74C.mImage, (unsigned char)clear);
     GXPixModeSync();
 }
 
 void atn::RenderManager::fn_800C0590(int clear, int format) {
     // inferred: copies the frame buffer into m79C and rebuilds its texture object m77C
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
+    unsigned int width = lbl_8087EEE0->mWidth;
+    unsigned int height = lbl_8087EEE0->mHeight;
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
     GXSetTexCopyDst((unsigned short)width, (unsigned short)height, format, 0);
     GXCopyTex(m79C, (unsigned char)clear);
@@ -1023,11 +1023,11 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
 }
 
 void atn::RenderManager::fn_800C08B0() {
-    if (*(int*)((unsigned char*)this + 0x890) != 0) {
-        *(int*)((unsigned char*)this + 0x890) = 0;
+    if (m890 != 0) {
+        m890 = 0;
         unsigned int color = 0;
-        float farZ = *(float*)((unsigned char*)this + 0x1D0);
-        float nearZ = *(float*)((unsigned char*)this + 0x1CC);
+        float farZ = mCamera.mFar;
+        float nearZ = mCamera.mNear;
         GXSetFog(0, 0.0f, 0.0f, nearZ, farZ, &color);
     }
 }
@@ -1345,11 +1345,11 @@ void atn::RenderManager::AddResolveTexture(atn::Texture_unk* tex, int format) {
     volatile TextureFormatPair pair;
     pair.texture = tex;
     pair.format = format;
-    int* count = (int*)((unsigned char*)this + 0x910);
-    unsigned char* entry = (unsigned char*)this + 0x914 + *count * 8;
+    int* count = &mResolveCount;
+    unsigned char* entry = (unsigned char*)&mResolve[*count];
     if (entry != 0) {
         *(void**)entry = tex;
-        *(int*)(entry + 4) = format;
+        *(int*)(entry + sizeof(void*)) = format;
     }
     ++*count;
 }

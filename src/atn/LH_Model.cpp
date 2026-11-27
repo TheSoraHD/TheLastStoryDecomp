@@ -330,8 +330,8 @@ extern "C" void* fn_8047614C(atn::LH_Model* model, int mesh) {
 
 // inferred: vertex description of mesh `mesh` (index into a table of the texture manager)
 extern "C" void* fn_80476170(atn::LH_Model* model, int mesh) {
-    int index = ((int*)((atn::LoadModel*)model->mCore)->mTextures.mData)[mesh];
-    return *(void**)((char*)lbl_8087EEE0 + index * 8 + 0xE0);
+    int index = ((atn::LoadModel*)model->mCore)->mTextures.mData[mesh];
+    return lbl_8087EEE0->mVtxFormats[index].mFormat;
 }
 
 // inferred: 'omdl' chunk (occlusion meshes)

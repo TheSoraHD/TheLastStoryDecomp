@@ -271,7 +271,7 @@ void RouteWalker_unk::fn_80126214() {
                 break;
             }
             mDestPoint = mPointA;
-            mPointA = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (mDestPoint - 1) * 8), mPointB - 1);
+            mPointA = fn_803CD958(&table->mA0.mData[mDestPoint - 1], mPointB - 1);
             if (mPointA > 0) {
                 m4C = GetPointPosAt_unk(this, mPointA);
             } else {
@@ -529,7 +529,7 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
             m48 = arg;
             mPointB = start;
             mDestPoint = end;
-            mPointA = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (end - 1) * 8), start - 1);
+            mPointA = fn_803CD958(&table->mA0.mData[end - 1], start - 1);
             gs::MovePoint* point = &table->m98.mData[mDestPoint - 1];
             if (mPointA > 0) {
                 if (LengthSq_unk(point->mPos - *dest) >= point->m14 * point->m14) {

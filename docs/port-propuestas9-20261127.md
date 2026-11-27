@@ -49,6 +49,25 @@ Probadas y fuera por las etiquetas: `GameUIItem_unk` (GameUI), `ItemSlotData_unk
 (BattleTask) dan el mismo código, pero el `#include "db/ItemParam_unk.h"` renumera cadenas de `.rodata` que
 `pdbatch.sh` no vuelve a emparejar (labelcheck 6, 14 y 10 etiquetas más); se quedan como vistas.
 
+## Tercera parte: `port-propuestas9c-20261127`
+
+Rama desde `main` con 9b mergeada (`a33776be`), mismas comprobaciones (`main.dol: OK`, lost 0, sin bajadas de fuzzy,
+labelcheck y poolcheck iguales; las etiquetas renumeradas por cabeceras nuevas, con `pd.sh`/`pdbatch.sh`). Bloques
+`#if TARGET_PC` del port que leian por offsets de la Wii, pasados a miembros de la clase real:
+
+| Commit | Que |
+|---|---|
+| `c2454a93` | `chr::ControlMagic` en vez de tres vistas `ControlMagic_unk` (Em003LesserDaemon, Em101ElderZesya, Em101ElderZesyaSecond); miembros reales en PacketPack (Manager2::vf10 95,19 -> 95,74), LH_Model, RenderSystem_unk, Em203GreaterDaemon, Em302Kraken, Em309Ghoul, EnemyQuarkSecond, PlayerInput_unk, SpecialEnemyBase y em005_doppel_ganger |
+| `968573f8` | PacketPack: la camara del campo por `GameTask::mCamera` |
+| `72c344ca` | RenderSystem_unk: `m52C`, `m74C.mImage`, `m890`, `mCamera.mNear/mFar`, `mResolveCount`/`mResolve`; `RenderManager::m52C` pasa a `void*` (tabla de remapeo de fn_800BC618); fn_800BDBC8 98,37 -> 98,38 |
+| `fd65ab49` | `GameConfig_unk::mInput` en vez de `ajustes + 0x48C` en CharaTask, Em209SmallGolem, MarketTask y ControlBreakOpen |
+| `fbba5538` | `GraphicsDevice_unk::mWidth/mHeight` en RenderSystem_unk; filas de `GameScene::mA0` por indice en CrowdSimulation, RouteWalker_unk y ChaserNpc |
+
+Fuera: los `PORT_OFF` de rellenos de struct (menus MP: son tamanos, no lecturas), `CrowdSimulation` `mChara + 0x528`
+(el walker guarda `void*`; tiparlo pide `CharaTask.h` en la unidad) y CosEditProtector `m48 + 0x1228/0x126C` (bajaba).
+Fallaban o bajaban y se quedan: D2A_Task, D2A_Texture, EffectManager, ModelInstance, TextureComposite, EnemyJill,
+NewCampPartsStatus, MapLift.
+
 ## Fuera, y por qué
 
 - **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas

@@ -142,10 +142,12 @@ struct FieldCursor_unk {
     float m0C;
 };
 extern "C" inline FieldInput_unk* fn_80122550(GameTask* field) {
-    return (FieldInput_unk*)((char*)field + 0x6C);
+    // inferred: GameTask::mCamera at its PC offset; with the Wii offset (0x6C) the cursor below was read from the
+    // middle of the task: a zero m00 gave a NaN direction and the leader could not move (run motions of NaN)
+    return (FieldInput_unk*)&field->mCamera;
 }
 extern "C" inline FieldCursor_unk* fn_80122558(FieldInput_unk* input) {
-    return (FieldCursor_unk*)((char*)input + 0x51C);
+    return (FieldCursor_unk*)&((GameCamera*)input)->m51C;
 }
 extern "C" inline float fn_80122560(float x) {
     double d = __fabs(x);

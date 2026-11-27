@@ -53,11 +53,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); nonzero while the magic is active
-// inferred: current control while casting (as in game/Em101ElderZesya.cpp)
-struct ControlMagic_unk {
-    unsigned char m00[0x1D];
-    unsigned char m1D; // inferred: nonzero once the magic is fired
-};
 
 // inferred: sound effects of the barrier
 static const char* const sSounds_unk[] = {"SE_SP007_001", "SE_SP007_003"};
@@ -319,7 +314,7 @@ void Em101ElderZesyaSecond::vf10() {
         }
         default:
             if (m55C == 6) {
-                if (m560 == 30 && mControl && ((ControlMagic_unk*)mControl.get())->m1D != 0) {
+                if (m560 == 30 && mControl && (static_cast<chr::ControlMagic*>(mControl.get()))->m1D != 0) {
                     if (lbl_8087F430->fn_80370A78(0xEC) == 0) {
                         lbl_8087F430->fn_80370AE4(0xEC, 1);
                     }

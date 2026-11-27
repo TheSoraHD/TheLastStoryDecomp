@@ -213,7 +213,8 @@ int Em309Ghoul::vf0C() {
             m1438->fn_800D246C(0);
             m1438->mFlags |= 4;
         }
-        if (lbl_8087F430 != 0 && *(int*)((char*)lbl_8087F430 + 0x10D8) != 0) {
+        // inferred: by the member (0x10D8 is the Wii offset)
+        if (lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             m1518 = m150C[0];
         }
         mRoute.mA0 = 1;
@@ -1467,7 +1468,8 @@ struct GhoulShake_unk {
     float m978;
 };
 inline void GhoulShake_unk_Set(int frames, float a, float b) {
-    GhoulShake_unk* shake = (GhoulShake_unk*)((char*)lbl_8087F430 + 0x96C);
+    // inferred: GameCamera::mShake (the Wii offset 0x96C lands on other camera fields on PC)
+    GhoulShake_unk* shake = (GhoulShake_unk*)&((GameTask*)lbl_8087F430)->mCamera.mShake;
     shake->m96C = shake->m96C % 2;
     shake->m970 = frames;
     shake->m974 = a;
@@ -1725,7 +1727,7 @@ struct GhoulInput_unk {
     float m90C;
 };
 extern "C" inline GhoulInput_unk* fn_80122550(GameTask* field) {
-    return (GhoulInput_unk*)((char*)field + 0x6C);
+    return (GhoulInput_unk*)&field->mCamera; // inferred: GameTask::mCamera (0x6C on the Wii)
 }
 extern "C" inline void fn_8028CFB8(GhoulInput_unk* input, int frames, float a, float b) {
     input->m904 = frames;

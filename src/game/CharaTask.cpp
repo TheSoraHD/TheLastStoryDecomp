@@ -5770,7 +5770,7 @@ void CharaTask::fn_8014C540() {
         }
         if (mF84 > 0) {
             mF84--;
-            if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_8012476C(0x22)) {
+            if (lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
                 mF84 -= 10;
             }
             if (mF84 <= 0) {
@@ -10930,7 +10930,7 @@ void CharaTask::fn_80176E30() {
 // inferred: input direction of the stick, the rotation when it is not tilted
 atn::Vector3 CharaTask::fn_80178018() {
     atn::Vector3 dir;
-    if (((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801248DC(&dir) < 0.4f) {
+    if (lbl_8087F0A8->mInput.fn_801248DC(&dir) < 0.4f) {
         dir = mRot;
     }
     return dir;
@@ -10938,7 +10938,7 @@ atn::Vector3 CharaTask::fn_80178018() {
 
 // inferred: tilt of the stick
 float CharaTask::fn_80178078() {
-    return ((Input_unk*)((char*)lbl_8087F0A8 + 0x48C))->fn_801248DC(0);
+    return lbl_8087F0A8->mInput.fn_801248DC(0);
 }
 
 // inferred: position given by the running control, else the position

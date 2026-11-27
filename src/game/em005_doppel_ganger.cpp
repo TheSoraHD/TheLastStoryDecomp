@@ -216,7 +216,7 @@ int Em005DoppelGanger::vf0C() {
                 }
             } while (csv.fn_8005BBF8());
         }
-        *(CharaTask**)((char*)m14FC + 0x14B4) = m1504;
+        m14FC->m14B4 = m1504; // inferred: CopyRobotTask::m14B4 at its PC offset
         if (m1438 != 0) {
             m1438->fn_800D246C(0);
             m1438->mFlags |= 4;
