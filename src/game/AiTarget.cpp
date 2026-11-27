@@ -28,6 +28,11 @@
 #include "game/TacView.h"
 #include "game/TeamAIManager.h"
 #include "math/VecAssign_unk.h"
+// inferred: route table of the game task through a getter that takes the task (as in game/Em203GreaterDaemonRed.cpp;
+// name invented)
+static inline GameScene* TableOf_unk(GameTask* task) {
+    return task->m10D8;
+}
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -284,7 +289,7 @@ void AIManager::vf14() {
 
     if (m50 != 0) {
         atn::DrawHelper* dh = lbl_8087EEB0;
-        GameScene* scene = lbl_8087F430->m10D8;
+        GameScene* scene = TableOf_unk(lbl_8087F430);
         if (dh == 0 || scene == 0) {
             return;
         }
@@ -609,7 +614,7 @@ static inline int MoveWeight_unk(const gs::MovePoint* p) {
 }
 
 int AIManager::fn_80016C10(int group, boost::function<int(gs::MovePoint*)> filter) {
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     int total = 0;
     atn::SimpleArray<int> weights;
     weights.Resize_unk(scene->m74, 0);
@@ -712,7 +717,7 @@ inline CharaC58_unk* GetAi_unk(CharaTask* chara) {
 }
 
 int AIManager::fn_80017128(CharaTask* chara) {
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     CharaC58_unk* ai = GetAi_unk(chara);
     CharaRes_unk* res = chara->m64;
     if (scene == 0 || res == 0) {
@@ -842,7 +847,7 @@ int AIManager::fn_8001794C(CharaTask* chara) {
         chara->mC58.m04++;
         return 0;
     }
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     CharaC58_unk* ai = GetAi_unk(chara);
     CharaRes_unk* res = chara->m64;
     if (scene == 0 || res == 0) {
@@ -905,7 +910,7 @@ void AIManager::fn_80017E90(CharaTask* chara, CharaTask* target) {
 
 // inferred: gimmick `gimmick` of the current map (same loop as GimmickManager::fn_803EEE10); name invented
 static inline GimmickCommon* FindGimmick_unk(int gimmick, int arg) {
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     if (scene != 0 && scene->m64 != 0) {
         if (gimmick < 1000) {
             gimmick *= 1000;
@@ -962,7 +967,7 @@ extern "C" int fn_80051E90(const ColliSegment_unk* seg, const ColliBox_unk* box)
 
 // inferred: zero when a vertical segment through `chara` crosses an AI area of its group
 int AIManager::fn_80018078(CharaTask* chara) {
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     int ret = 0;
     if (scene != 0 && chara->mC58.mB8 > 0) {
         ColliSegment_unk seg;
@@ -1165,7 +1170,7 @@ extern "C" int fn_80018C80(AIManager* ai, CharaTask* chara, int arg4, int arg5, 
 // min and max, linked to the nearest point (weighted by m1C when arg4 >= 0)
 int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg4, int arg5, int mask, int arg7,
                            float dir, float range, float min, float max) {
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     int result = 0;
     if (scene != 0) {
         int start = scene->fn_803C1560(pos, mask, 0, 0, arg7, -1.0f);
@@ -1211,8 +1216,8 @@ int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg
             if (arg3 > 0 && p.m24 != arg3) {
                 continue;
             }
-            atn::Vector3 diff = p.mPos - origin;
-            atn::Vector3 d = diff;
+            atn::Vector3 d;
+            atn::VecAssign_unk(d, p.mPos - origin);
             float dist = PSVECSquareMag(&d);
             PSVECNormalize(&d, &d);
             if (dist < min * min || max * max < dist) {
@@ -1250,7 +1255,7 @@ int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg
 // in the cone, any linked point closer than `max` (game/CrowdSimulation)
 extern "C" int fn_80019254(AIManager* ai, int point, const atn::Vector3* pos, int group, int arg3, int arg4,
                            float dir, float range, float min, float max) {
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     int result = 0;
     if (scene != 0) {
         if (point == 0) {
@@ -1297,8 +1302,8 @@ extern "C" int fn_80019254(AIManager* ai, int point, const atn::Vector3* pos, in
             if (arg3 > 0 && p.m24 != arg3) {
                 continue;
             }
-            atn::Vector3 diff = p.mPos - origin;
-            atn::Vector3 d = diff;
+            atn::Vector3 d;
+            atn::VecAssign_unk(d, p.mPos - origin);
             float dist = PSVECSquareMag(&d);
             PSVECNormalize(&d, &d);
             if (max * max < dist) {
@@ -1378,7 +1383,7 @@ extern "C" int fn_800197A4(AIManager* ai, atn::Vector3* out, int* kind, CharaTas
     int bestLink = 0;
     int group = chara->mC58.mB4;
     int sub = chara->mC58.mB8;
-    GameScene* scene = lbl_8087F430->m10D8;
+    GameScene* scene = TableOf_unk(lbl_8087F430);
     float bestDist = 1.0e16f;
     float limit = cos(0.017453292f * angle);
     atn::Vector3 away = enemy - self;
