@@ -213,9 +213,6 @@ extern "C" void fn_80236938(int count, EffectVertex_unk* verts, const float* col
 // inferred: functions of the renderer and the camera (automatic names)
 extern "C" void fn_80071E04(EffectRender_unk* render);
 extern "C" void fn_80076760(EffectRender_unk* render, int state, int value);
-// inferred: functions of the models (automatic names)
-extern "C" void fn_80094F14(atn::Model* model, float a, float b);
-extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 
 // inferred: blend state of the renderer (bit fields set by fn_80234CD8, names invented)
 struct EffectBlend_unk {
@@ -245,7 +242,7 @@ struct EffectModelVt_unk {
 
 // inferred: name invented
 inline bool IsFar_unk(atn::RenderManager* camera) {
-    return camera->mCmds.mSize >= 0x1000;
+    return !(camera->mCmds.mSize < 0x1000);
 }
 
 #define EFFECT_MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -298,17 +295,18 @@ extern "C" void fn_80234CD8() {
         SortByDepth_unk((EffectModelItem_unk**)sBuckets, sModels, sModelCount, 0x400, sModelFar, sModelNear);
         fn_80071E04(lbl_8087EEE0);
         int restore = 0;
-        if (atn::RenderManager::instance_->m954 != 0 && !IsFar_unk(atn::RenderManager::instance_)) {
+        atn::RenderManager* view = atn::RenderManager::instance_;
+        if (view->m954 != 0 && !IsFar_unk(view)) {
             restore = 1;
         }
-        atn::RenderManager::instance_->m954 = 0;
+        fn_8008B964()->m954 = 0;
         for (int i = 0x3FF; i >= 0; i--) {
             for (EffectModelItem_unk* item = (EffectModelItem_unk*)sBuckets[i]; item != 0; item = item->mNext) {
                 atn::Model* model = (atn::Model*)item->mModel;
                 if (model == 0) {
                     continue;
                 }
-                fn_80094F14(model, item->m50, item->m54);
+                model->fn_80094F14(item->m50, item->m54);
                 *(atn::Matrix3x4*)model->mMtx.m = item->mMtx;
                 atn::Vector3 scale(Mag_unk(atn::Vector3(item->mMtx.m[0][0], item->mMtx.m[1][0], item->mMtx.m[2][0])),
                                    Mag_unk(atn::Vector3(item->mMtx.m[0][1], item->mMtx.m[1][1], item->mMtx.m[2][1])),
@@ -341,7 +339,7 @@ extern "C" void fn_80234CD8() {
                     blend = 3;
                     break;
                 }
-                fn_80094D88(model, blend, (flags >> 2) & 1, !((flags >> 4) & 1), (flags >> 7) & 1, (flags >> 3) & 1);
+                model->fn_80094D88(blend, (flags >> 2) & 1, !((flags >> 4) & 1), (flags >> 7) & 1, (flags >> 3) & 1);
                 if (atn::RenderManager::instance_->m2F8 == 4) {
                     model->mFlags |= 0x1400;
                 } else {
