@@ -202,6 +202,11 @@ static inline void TranslateXYZ_unk(atn::Matrix3x4& m, float x, float y, float z
 }
 
 // inferred: frame of track 0 (name invented)
+// inferred: the controlled character read again at each use (name invented)
+static inline CharaTask* Owner_unk(const ControlBase* self) {
+    return self->mChara;
+}
+
 static inline float Frame_unk(Motion_unk* m) {
     return m->mTracks[0].m08;
 }
@@ -738,24 +743,28 @@ int ControlThrustForGhoul::vf0C() {
     } else if (frame <= 80.0001f) {
         if (!m39) {
             atn::Vector3 back = Front_unk(mChara) * -25.0f;
-            mTarget = mChara->mPos + back;
+            mTarget = Owner_unk(this)->mPos + back;
             atn::Vector3 from = mChara->mPos;
             from.y += 10.0f;
             atn::Vector3 to = from + back;
             atn::ColliResult_unk result;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
                 back = Front_unk(mChara) * -25.0f;
-                RotY_unk(back, 0.9424779f);
-                mTarget = mChara->mPos + back;
+                atn::Matrix3x4 rl;
+                PSMTXRotRad(rl.m, 'y', 0.9424779f);
+                PSMTXMultVec(rl.m, &back, &back);
+                mTarget = Owner_unk(this)->mPos + back;
                 to = from + back;
                 if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
                     back = Front_unk(mChara) * -25.0f;
-                    RotY_unk(back, -0.9424779f);
-                    mTarget = mChara->mPos + back;
+                    atn::Matrix3x4 rr;
+                    PSMTXRotRad(rr.m, 'y', -0.9424779f);
+                    PSMTXMultVec(rr.m, &back, &back);
+                    mTarget = Owner_unk(this)->mPos + back;
                     to = from + back;
                     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
                         back = Front_unk(mChara) * -20.0f;
-                        mTarget = mChara->mPos + back;
+                        mTarget = Owner_unk(this)->mPos + back;
                     }
                 }
             }
@@ -770,8 +779,8 @@ int ControlThrustForGhoul::vf0C() {
             m39 = true;
         }
         float t = 1.0f - (m->mTracks[0].m08 - 65.0f) / 15.0f;
-        mChara->mPos = LerpTo_unk(mTarget, mStart, t);
-        m10 = LerpTo_unk(mChara->mPos, mOther->mPos, t);
+        Owner_unk(this)->mPos = LerpTo_unk(mTarget, mStart, t);
+        m10 = LerpTo_unk(Owner_unk(this)->mPos, mOther->mPos, t);
         m10.y += 20.0f * t;
     } else {
         m10 = mChara->mPos;
