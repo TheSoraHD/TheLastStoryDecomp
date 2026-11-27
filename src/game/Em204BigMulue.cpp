@@ -1017,7 +1017,8 @@ int Em204BigMulue::fn_802B07F0(int range) {
     return PSVECSquareMag(&d) < (float)(range * range);
 }
 
-// NONMATCHING: 99.48% - stack slots of the sphere and of the ray vectors
+// NONMATCHING: 99.77% - stack slots of the sphere and of the ray vectors (99.48 -> 99.77 with the yaw read
+// into a local and the debug distance by LengthSq_unk, from the mutation sweep)
 int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
     int result = 0;
     atn::Vector3 hits[4];
@@ -1026,7 +1027,8 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
         CharaTask::Sphere_unk s = fn_80176548(mPos);
         s.mCenter += mRot * s.mRadius;
         s.mRadius *= 0.5f;
-        float a = fmod(0.5f * (3.1415927f * (float)i) + mRot.y, 6.2831854820251465);
+        float yaw = mRot.y;
+        float a = fmod(0.5f * (3.1415927f * (float)i) + yaw, 6.2831854820251465);
         if (a > 3.1415927f) {
             a -= 6.2831855f;
         }
@@ -1067,11 +1069,10 @@ int Em204BigMulue::fn_802B0D90(atn::Vector3* out) {
     }
     if (m1AA0 != 0) {
         atn::Vector3 p(mPos);
-        p.y = 0.0f;
         atn::Vector3 c(m1AC4);
+        p.y = 0.0f;
         c.y = 0.0f;
-        atn::Vector3 d = p - c;
-        if (PSVECSquareMag(&d) < 2500.0f) {
+        if ((p - c).LengthSq_unk() < 2500.0f) {
             lbl_8087EEB0->fn_80063D3C(m1AC4, 20.0f, 0.0f, 0xFF0044AA);
         } else {
             lbl_8087EEB0->fn_80063D3C(m1AC4, 20.0f, 0.0f, 0xFFAA0000);
