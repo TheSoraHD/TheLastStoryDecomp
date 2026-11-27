@@ -11,6 +11,7 @@ cp config/SLSP01/symbols.txt ${TMPDIR:-/tmp}/pd_sym.bak
 ninja build/SLSP01/src/$u.o >/dev/null 2>&1
 b=$(python3 tools/decomp/fnstat.py $u --nobuild 2>/dev/null | tail -1 | awk '{print $2}' | cut -d/ -f1)
 python3 tools/decomp/pairdata.py $u --relabel --apply >/dev/null 2>&1
+python3 tools/decomp/symdups.py ${TMPDIR:-/tmp}/pd_sym.bak >/dev/null 2>&1
 if cmp -s config/SLSP01/symbols.txt ${TMPDIR:-/tmp}/pd_sym.bak; then echo "$u $b -> $b (sin cambios)"; exit 0; fi
 conf; ninja build/SLSP01/src/$u.o >/dev/null 2>&1
 a=$(python3 tools/decomp/fnstat.py $u --nobuild 2>/dev/null | tail -1 | awk '{print $2}' | cut -d/ -f1)

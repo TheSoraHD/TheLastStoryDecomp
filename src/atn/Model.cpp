@@ -2962,10 +2962,13 @@ void Model::fn_80098C90(int node, int siblings, int replace, Res_unk* res, Track
     }
 }
 
+// inferred: remap table of a level of detail (name invented; read through an inline, Val_unk probe)
+static inline const int* RemapOf_unk(const atn::ModelLod_unk& lod) { return lod.m10.mData; }
+
 // inferred: samples the fading track 3 from the "spine" node (an upper body motion); while it fades out
 // the previous motion is sampled
-// NONMATCHING: 99.5% - the remap pointer is kept in r27 instead of r24, and "spine" is at 0x5E of the pool
-// instead of 0x26C
+// NONMATCHING: 99.96% - "spine" is at another offset of the string pool (registers fixed reading the remap
+// through RemapOf_unk)
 void Model::fn_80098DD8(int advance) {
     Track_unk* t = &mTracks[3];
     Res_unk* res;
@@ -2976,7 +2979,7 @@ void Model::fn_80098DD8(int advance) {
         return;
     }
     res = (Res_unk*)mLods[m50].m08;
-    remap = mLods[m50].m10.mData;
+    remap = RemapOf_unk(mLods[m50]);
     motion = (t->m04 != 0) ? t->m04 : t->m24;
     float speed = lbl_8087EFA8->m3A4;
     float dt = m350 * speed;
