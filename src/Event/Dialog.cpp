@@ -608,7 +608,7 @@ static inline void FadeFog_unk(const DialogFog_unk& src, float t) {
     lbl_8087EFA8->mFog = fog;
 }
 
-// NONMATCHING: 98.93% - the 1 of mEnable and lbl_8087EFA8 swap r3/r8 (89.06 -> 98.93 with the parche of
+// NONMATCHING: 98.93% - the 1 of mEnable and lbl_8087EFA8 swap r3/r8 (89.06 -> 98.93 with the patch of
 // enlazar2-20261117 qF: the lerp with the target by reference, the fog built in FadeFog_unk and a local pointer
 // to the pad)
 void Dialog::fn_802297AC() {
