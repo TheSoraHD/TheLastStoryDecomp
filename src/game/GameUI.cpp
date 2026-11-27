@@ -1447,7 +1447,7 @@ inline void atn::D2A_Task::SetLayoutText_unk(const char* name, const wchar_t* te
 
 // inferred: keys of a layout track (8-byte entries after a header word); weak copy 0x803D7270
 struct GameUITrackKey_unk {
-    unsigned char m00[8];
+    void* m00[2]; // inferred: atn::D2A_ParamTable (a pointer and a count, 8-byte aligned: the keys start at 8)
 };
 extern "C" float fn_801F0544(GameUITrackKey_unk* key, int frame); // inferred: value of a key
 struct GameUITrack_unk {

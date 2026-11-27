@@ -592,7 +592,7 @@ extern "C" void fn_804A473C(MenuD2A_unk* anime, int pos, int count, int page) {
             fn_801FEDBC(&anime->mData.m10, fn_800DC6B4("col0001"), 0, 255.0f);
             void* track = GetPaneTrack_unk(&anime->mData.m10, "s_hightMax");
             if (track != 0) {
-                float max = fn_801F0544((char*)track + 4, 0);
+                float max = fn_801F0544(((atn::D2A_Track_unk*)track)->mTables, 0);
                 float unit = max / count;
                 float ratio = MIN(max, (float)count / page);
                 float bar = MIN(max, max / ratio);
@@ -624,7 +624,7 @@ extern "C" void fn_804A4934(MenuLayout_unk* layout, int pos, int count, int page
             layout->SetValue3_unk("col0001", 0, 255.0f);
             void* track = layout->GetTrack_unk("s_hightMax");
             if (track != 0) {
-                float max = fn_801F0544((char*)track + 4, 0);
+                float max = fn_801F0544(((atn::D2A_Track_unk*)track)->mTables, 0);
                 float unit = max / count;
                 float ratio = MIN(max, (float)count / page);
                 float bar = MIN(max, max / ratio);

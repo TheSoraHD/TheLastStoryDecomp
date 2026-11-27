@@ -697,7 +697,7 @@ void D2AMpMenu::fn_804B1528() {
                 Play_unk(m58[i], 1, 1.0f);
             }
             float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(Pane_unk(m64, "string0001(1)(1)"), 0, 0).data(), 0.0f, 1, 1);
-            w += fn_801F0544((char*)Track_unk(m64, "pos0001") + 4, 0);
+            w += fn_801F0544(((atn::D2A_Track_unk*)Track_unk(m64, "pos0001"))->mTables, 0);
             SetPaneValue_unk(&m64->mData.m10, "pos0008(2)", 0, w);
             Play_unk(m64, 0, 1.0f);
             D2AMpMenuRankMark::sInstance->fn_804B4678(0, 1.0f, 0);
