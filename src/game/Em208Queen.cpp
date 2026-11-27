@@ -677,7 +677,8 @@ void Em208Queen::fn_802CA490() {
 inline atn::Vector3 Em208Queen::GetFrontPoint_unk() {
     Mtx m;
     PSMTXRotRad(m, 'y', mRot.y);
-    atn::Vector3 front = atn::Vector3(0.0f, 15.0f, 40.0f);
+    atn::Vector3 front;
+    front = atn::Vector3(0.0f, 15.0f, 40.0f);
     PSMTXMultVec(m, &front, &front);
     return mPos + front;
 }

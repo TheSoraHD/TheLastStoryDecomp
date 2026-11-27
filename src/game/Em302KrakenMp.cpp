@@ -942,7 +942,8 @@ void Em302KrakenMp::fn_802E094C() {
         }
         m1504.x += 0.3f;
         m1504.z += 0.3f;
-        atn::Vector3 pos = m1504 + sOffset_unk;
+        atn::Vector3 pos;
+        pos = m1504 + sOffset_unk;
         BattleTask* mgr = lbl_8087F048;
         mgr->fn_800FAB80(this, fn_80219E6C(0x716), 0, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         PlayEffectAt_unk(this, 500, &m152C, m1504, 1.0f);

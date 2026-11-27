@@ -1198,7 +1198,8 @@ void Em301LShade::fn_802D4628() {
             lbl_8087F048->fn_80108C10(&damage, chara->vfAC(), this, chara, 0, 0);
             lbl_8087F048->fn_80107850((atn::Model*)&chara->mMotion);
             atn::Vector3 rot = chara->mRot.ToRotation_unk();
-            atn::Vector3 dir = rot * -1.0f;
+            atn::Vector3 dir;
+            dir = rot * -1.0f;
             dir.Normalize_unk();
             dir *= 0.01f;
             chara->fn_8015E7A0(dir, -1, 0);
