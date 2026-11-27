@@ -70,7 +70,6 @@ extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // 
 
 // inferred: cloud map shadow (scale, position, rate)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* fn_8001260C(Event::Actor* actor);        // inferred: collision of an actor
 struct ColliManager_unk;
 extern "C" ColliManager_unk* lbl_8087EE98;                                // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -1404,7 +1403,7 @@ int ActionCameraChange::vf08(Action* arg) {
                 EventCamera_unk* cam = &lbl_8087F540->mCameras[camera - 1];
                 void* ignore = 0;
                 if (cam->m240.mActor != 0) {
-                    ignore = fn_8001260C(cam->m240.mActor);
+                    ignore = cam->m240.mActor->fn_8001260C();
                 }
                 int a = fn_8004ECC0(lbl_8087EE98, &hit, &cam->mPos, &cam->mTarget, 0, ignore, 0);
                 int b = fn_8004ECC0(lbl_8087EE98, &hit, &cam->mTarget, &cam->mPos, 0, ignore, 0);
