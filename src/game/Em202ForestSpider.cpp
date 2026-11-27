@@ -311,7 +311,8 @@ void Em202ForestSpider::vf10() {
                             atn::Model* model = &t->m88->mMotion;
                             float radius = 0.7f * head->m638->m58;
                             MtxPtr m = model->GetNodeMtx_unk("spine");
-                            atn::Vector3 a(m[0][3], m[1][3], m[2][3]);
+                            atn::Vector3 a;
+                            a = atn::Vector3(m[0][3], m[1][3], m[2][3]);
                             MtxPtr hm = mMotion.GetNodeMtx_unk("head");
                             atn::Vector3 pos = head->mPos;
                             a.y = 0.0f;

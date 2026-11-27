@@ -730,7 +730,8 @@ void EventCamera_unk::fn_801157DC() {
             } else {
                 y = mPos.y + (m204.y - mPos.y) / posDiv;
             }
-            atn::Vector3 a = mPos - mTarget;
+            atn::Vector3 a;
+            a = mPos - mTarget;
             PSVECNormalize(&a, &a);
             atn::Vector3 b = m204 - m228;
             PSVECNormalize(&b, &b);

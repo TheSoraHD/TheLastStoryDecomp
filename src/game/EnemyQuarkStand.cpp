@@ -1572,7 +1572,8 @@ void EnemyQuarkStand::fn_8034C714() {
                     pos.y += dy;
                     pos.z += dz;
                     pos.x += QuarkRand_unk(-20.0f, 40.0f);
-                    atn::Vector3 dir(pos.x - at.x, pos.y - at.y, pos.z - at.z);
+                    atn::Vector3 dir;
+                    dir = atn::Vector3(pos.x - at.x, pos.y - at.y, pos.z - at.z);
                     PSVECNormalize(&dir, &dir);
                     float len = QuarkRand_unk(-10.0f, 30.0f);
                     atn::Vector3 from(at.x + dir.x * len, at.y + dir.y * len, at.z + dir.z * len);
