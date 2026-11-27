@@ -1069,7 +1069,7 @@ void TacView::fn_805AA94C(atn::Vector3* pos, atn::Vector3* move, int free, int r
                     best = dist;
                     sel.m04 = 0;
                     sel.mState = 1;
-                    sel.mTarget = (TacViewTarget_unk*)e;
+                    sel.mTarget = e;
                 }
             }
             for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
@@ -1821,7 +1821,7 @@ void TacView::fn_805ADF50(CharaTask* chara) {
     }
 }
 
-void TacView::fn_805AE034(TacViewTarget_unk* target) {
+void TacView::fn_805AE034(SkillEffect* target) {
     if (target != 0) {
         TacViewSel_unk old = mAim.mCursor;
         if (old.mState == 2 || (old.mState == 1 && old.mTarget != target)) {

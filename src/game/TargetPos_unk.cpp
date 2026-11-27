@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): AiTarget helpers (reset and aimed position); own 0.0f in .sdata2.
 #include "game/AiTarget.h"
 #include "game/CharaTask.h"
+#include "game/SkillEffectManager.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -24,7 +25,7 @@ atn::Vector3 AiTarget::fn_8003E950() const {
         return m10 + m1C;
     }
     if (m08 == 2 && m0C != 0) {
-        return ((AiTargetObj_unk*)m0C)->m10 + m1C;
+        return ((SkillEffect*)m0C)->m10 + m1C; // inferred: type 2 aims at a magic circle
     }
     return lbl_807C7030;
 }
