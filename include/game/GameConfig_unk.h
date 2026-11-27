@@ -85,10 +85,10 @@ struct GameConfig4DC_unk {
     float mCatchDamage;
     int mReleaseSwingCount;
     int mCapturedTime;
-    float m50;
+    float m50; // 0x50: inferred: offset of the chase camera (game/ChaseManager.cpp)
     float m54;
     float m58;
-    float m5C;
+    float m5C; // 0x5C: inferred: tilt of the chase camera
 };
 
 // inferred: 0x48 bytes at 0x53C, constructor 0x80184AD4; not in the debug menu. Chaser parameters:

@@ -1,4 +1,5 @@
 #include "game/GameTask.h"
+#include "game/GameConfig_unk.h"
 #include "game/EnvSeManager.h"
 #include "game/ChaseManager.h"
 #include "game/CharaTask.h"
@@ -19,15 +20,11 @@ class EffectManager;
 }
 extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
-// inferred: camera settings (only the members used here)
-struct ChaseSettings_unk {
-    unsigned char m000[0x524];
-    int m524;
-    int m528;
-    atn::Vector3 m52C; // inferred: camera offset
-    float m538;
-};
-extern "C" ChaseSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+// inferred: m50-m58 of the chase settings read as one vector (camera offset)
+inline atn::Vector3& ChaseCameraOffset_unk(GameConfig_unk* config) {
+    return *(atn::Vector3*)&config->m4DC.m50;
+}
 extern "C" GameTask* lbl_8087F430;
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
@@ -64,12 +61,12 @@ inline void ChaseManager::SetEffect_unk(int mode) {
     mEffect = mode;
     switch (mEffect) {
     case 0:
-        lbl_8087F0A8->m52C.Set_unk(0.0f, 11.5f, 8.0f);
-        lbl_8087F0A8->m538 = 0.0f;
+        ChaseCameraOffset_unk(lbl_8087F0A8).Set_unk(0.0f, 11.5f, 8.0f);
+        lbl_8087F0A8->m4DC.m5C = 0.0f;
         break;
     case 1:
-        lbl_8087F0A8->m52C.Set_unk(0.0f, 30.0f, 0.0f);
-        lbl_8087F0A8->m538 = 0.0f;
+        ChaseCameraOffset_unk(lbl_8087F0A8).Set_unk(0.0f, 30.0f, 0.0f);
+        lbl_8087F0A8->m4DC.m5C = 0.0f;
         break;
     }
 }
@@ -116,7 +113,7 @@ void ChaseManager::fn_80182788(ChaserGuard* guard, CharaTask* target) {
         m6C = 0;
         mState = 2;
         mCaught = target;
-        target->fn_801598B4(guard, lbl_8087F0A8->m524, lbl_8087F0A8->m528);
+        target->fn_801598B4(guard, lbl_8087F0A8->m4DC.mReleaseSwingCount, lbl_8087F0A8->m4DC.mCapturedTime);
         lbl_8087F430->m5660 = 1;
         for (unsigned int i = 0; i < mCharas.mSize; i++) {
             if (mCharas.mData[i] != mCaught) {
@@ -241,7 +238,7 @@ void ChaseManager::vf10() {
         if (mEffect == 1) {
             dir.y = 0.0f;
         }
-        atn::Vector3 offset = lbl_8087F0A8->m52C;
+        atn::Vector3 offset = ChaseCameraOffset_unk(lbl_8087F0A8);
         atn::Vector3 rot = dir.ToRotation_unk();
         atn::Matrix3x4 rotY;
         rotY.SetRotationY_unk(rot.y);
@@ -263,7 +260,7 @@ void ChaseManager::vf10() {
         atn::Vector3 axis;
         PSVECCrossProduct(&view, &up, &axis);
         Mtx tilt;
-        PSMTXRotAxisRad(tilt, &axis, lbl_8087F0A8->m538);
+        PSMTXRotAxisRad(tilt, &axis, lbl_8087F0A8->m4DC.m5C);
         Mtx trans;
         PSMTXTrans(trans, pos.x, pos.y, pos.z);
         Mtx t;
