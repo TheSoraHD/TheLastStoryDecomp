@@ -1,0 +1,3291 @@
+// inferred: Event::PostSequence and Event::SequenceRoot share one TU (their RTTI names are
+// packed together in .rodata). SequenceRoot is declared first: vtables are emitted in reverse
+// declaration order.
+#include "db/MapIdTable_unk.h"
+#include "game/BattleTask.h"
+#include "game/GameTask.h"
+#include "Event/SequenceRoot.h"
+#include "Event/PostSequence.h"
+#include "Event/Manager.h"
+#include "atn/DrawHelper.h"
+#include "atn/VideoTHP.h"
+#include "macros.h"
+#include "Event/Sequence.h"
+#include "atn/Light_unk.h"
+#include "atn/Scene.h"
+#include "game/GameConfig_unk.h"
+#include "Event/Behavior.h"
+#include "db/EventIdTable_unk.h"
+#include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
+#include "game/SkillEffectManager.h"
+#include "game/GameVoice.h"
+#include "atn/SoundCore.h"
+#include "atn/SoundManager.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include "atn/RenderSetting_unk.h"
+#include "game/CharaTask.h"
+#include "game/GameScene.h"
+#include "game/GimmickManager.h"
+#include "game/MapManager.h"
+#include "game/ColliAttrManager.h"
+#include "game/GameBgm.h"
+#include "game/EnvSeManager.h"
+#include "game/PlayerManager.h"
+#include "game/Inventory.h"
+#include "game/NpcManager.h"
+#include "game/CrowdManager.h"
+#include "game/NewStaffRoll.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/PlayerTask.h"
+#include "game/NpcTask.h"
+#include "game/FriendManager.h"
+#include "atn/FileList.h"
+#include "Event/Cut.h"
+#include "Event/Section.h"
+#include "Event/Channel.h"
+#include "Event/Action.h"
+#include "Event/StringData.h"
+#include "Event/Label.h"
+#include "atn/RenderManager.h"
+#include "atn/SceneColorMatrix_unk.h"
+#include "atn/Lerp_unk.h"
+#include "nw4r/math/triangular.h"
+#include "std/string_members.h"
+
+namespace std {
+// inferred: the light settings keep the push_back of std/vector.h before the change of the capacity read: their
+// slow path stays out of line (Event::fn_80481B9C calls expand_by 0x8049003C, construct 0x80482400 and the
+// reallocation 0x80490098)
+template <>
+inline void vector<Event::SceneSettingEntry_unk>::push_back(const Event::SceneSettingEntry_unk& x) {
+    size_type n = this->mSize;
+    if (n < this->mCap) {
+        this->__push_fast_unk(n, x);
+        return;
+    }
+    __push_back_slow_unk(x);
+}
+} // namespace std
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
+
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
+
+// inferred: zoom of the damage effect at the start and at the end of the event flash (fn_80481A20)
+float lbl_8087E088 = 0.05f;
+float lbl_8087E08C = -0.6f;
+extern "C" GameConfig_unk* lbl_8087F0A8;     // inferred: game settings
+extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
+extern "C" atn::Vec2_unk lbl_807C7028;    // inferred: zero 2D vector
+extern "C" void fn_8054E574();               // inferred: creates the action processors (Event/ActionActorBehavior.cpp)
+extern "C" void fn_8054F380();               // inferred: deletes the action processors (Event/ActionActorBehavior.cpp)
+extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen capture fade
+extern "C" void fn_800D2338(atn::Task* task);   // inferred: removes the task
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
+extern "C" char* fn_8006BA8C(const char* path, unsigned long* size, int arg); // inferred: loads a file
+extern "C" int fn_8006AA20(const char* path);                        // inferred: the file exists
+extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group (atn/Se_unk.cpp)
+struct DialogTextMgr_unk;
+extern "C" DialogTextMgr_unk* lbl_8087F008;                     // inferred: text renderer (Event/Dialog.cpp)
+extern "C" void fn_800DAA3C(DialogTextMgr_unk* mgr, int arg);
+extern "C" void fn_8004895C(atn::SoundEngine_unk* sound);
+extern "C" void fn_80049654(atn::SoundEngine_unk* sound);
+extern "C" void fn_8004829C(atn::SoundEngine_unk* sound, const char** groups, int count);
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+extern "C" Event::Manager* fn_8000DB1C();        // inferred: returns lbl_8087F540
+extern "C" void* fn_805381B8(void* action); // inferred: cut of the action (Event/Node.cpp)
+extern "C" void* fn_805381DC(void* action); // inferred: sequence of the action (Event/Node.cpp)
+extern "C" int fn_800CB6F8(atn::SoundRef* sound);                         // inferred: sound id
+extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* name); // inferred: id of a name
+extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
+extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
+extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
+extern "C" atn::Vec2_unk fn_800F84D8(const atn::Vec2_unk& a, const atn::Vec2_unk& b, float t);
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+extern "C" float fn_802A7964(float rad);
+extern "C" void* fn_802F0990();         // inferred: returns lbl_8087EFA8
+extern "C" float fn_802F0988(void* rs); // inferred: frame time (+0x3A4)
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;          // inferred: pad
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+// inferred: weak copies, as in Event/Path.cpp and game/GameUI.cpp
+inline void* GetPad_unk() {
+    return lbl_8087EF70;
+}
+inline atn::SoundManager* GetSoundMgr_unk() {
+    return lbl_8087EFE8;
+}
+inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
+    fn_801FECE0(&mData.m10, fn_800DC6B4(name), value);
+}
+inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, int index, float value) {
+    fn_801FED24(&mData.m10, fn_800DC6B4(name), index, value);
+}
+extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
+// inferred: inverse of a matrix (weak copy 0x80487BD0); name invented
+inline atn::Matrix3x4 Inverse_unk(const atn::Matrix3x4& m) {
+    atn::Matrix3x4 r(m);
+    PSMTXInverse(r.m, r.m);
+    return r;
+}
+// inferred: sets the layout value `name` (as atn::D2A_Task::SetLayoutValue_unk of game/GameUI.cpp, with
+// the layout taken first, as in Event/ActionEffectPlay.cpp)
+inline void SetLayoutValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+inline void SetLayoutValue_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" atn::SoundEngine_unk* lbl_8087EE90; // inferred: sound engine
+// inferred: items of the debug menu (atn/MindowsCommon.h)
+extern "C" void fn_80087994(void* folder, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* folder, const char* name, float* value, float min, float max, float step,
+                            void* func, void* arg);
+
+namespace Event {
+
+// inferred: same body as in Event/Sequence.cpp (declared inline in Event/Sequence.h)
+inline Cut* Sequence::FindCutByIndex_unk(int index) {
+    for (int i = 0; i < (int)mB8.size(); i++) {
+        if (index == mB8[i]->mIndex) {
+            return mB8[i].get();
+        }
+    }
+    return 0;
+}
+
+// inferred: target of a jump parameter (0x8000: start of the cut, otherwise a label); sets the cut
+// or the frame of the label in the cut itself (inlined three times in fn_8047B768)
+static inline void JumpTarget_unk(Sequence* seq, Cut* cut, ActionParam_unk* param, Cut*& result, int& frame) {
+    int value = param->m04.i;
+    if (value & 0x8000) {
+        int index = value & ~0x8000;
+        if (seq->FindCutByIndex_unk(index) != cut) {
+            result = seq->FindCutByIndex_unk(index);
+        }
+    } else {
+        Label* label = seq->fn_805412A8(value);
+        if (label->mCut != cut) {
+            result = label->mCut;
+        } else {
+            frame = label->mFrame;
+        }
+    }
+}
+
+// NONMATCHING: 99.3% - registers only (original: next cut r31, section r30, channel r29)
+// inferred: cut that follows `cut`: the first jump of the jump channels (kind 8 of the sections of
+// kind 1) to another cut, else the next cut. Names invented.
+Cut* fn_8047B768(Sequence* seq, Cut* cut) {
+    Cut* result = 0;
+    Cut* next = seq->FindCutByIndex_unk(cut->fn_8053B028());
+    int frame = 0;
+    for (int i = 0; i < (int)cut->mSections.size(); i++) {
+        Section* section = cut->GetSection_unk(i);
+        if (section->m14 != 0 && section->m0C == 1) {
+            for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                Channel* channel = section->GetChannel_unk(j);
+                if (channel->m10 != 0 && channel->m0C == 8) {
+                    for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                        Action* action = channel->GetAction_unk(k);
+                        if (action->m10 >= frame) {
+                            int type = action->GetParam_unk(0)->m04.i;
+                            if (type == 0) {
+                                JumpTarget_unk(seq, cut, action->GetParam_unk(1), result, frame);
+                            } else if (type == 1) {
+                                JumpTarget_unk(seq, cut, action->GetParam_unk(1), result, frame);
+                            } else if (type == 2 || type == 3) {
+                                JumpTarget_unk(seq, cut, action->GetParam_unk(5), result, frame);
+                            }
+                            if (result != 0) {
+                                break;
+                            }
+                        }
+                    }
+                    if (result != 0) {
+                        break;
+                    }
+                }
+            }
+            if (result != 0) {
+                break;
+            }
+        }
+    }
+    if (result == 0 && next != cut) {
+        result = next;
+    }
+    return result;
+}
+
+// inferred: one jump parameter of fn_8047BBBC (written out three times): a jump to another cut ends
+// the cut at the action, a jump to a label of the cut itself skips the frames up to the label
+#define JUMP_LENGTH_UNK(param)                                                                       \
+    {                                                                                                \
+        int value = (param)->m04.i;                                                                  \
+        if (value & 0x8000) {                                                                        \
+            int index = value & ~0x8000;                                                             \
+            if (seq->FindCutByIndex_unk(index) != cut) {                                             \
+                end = action->m10;                                                                   \
+                done = 1;                                                                            \
+                break;                                                                               \
+            }                                                                                        \
+        } else {                                                                                     \
+            Label* label = seq->fn_805412A8(value);                                                  \
+            if (label->mCut != cut) {                                                                \
+                end = action->m10;                                                                   \
+                done = 1;                                                                            \
+                break;                                                                               \
+            }                                                                                        \
+            frame = label->mFrame;                                                                   \
+            skipped += frame - action->m10;                                                          \
+        }                                                                                            \
+    }
+
+// inferred: number of frames played in `cut` (its length minus the frames skipped by jumps and
+// waits). Names invented.
+int fn_8047BBBC(Sequence* seq, Cut* cut) {
+    if (seq == 0 || cut == 0) {
+        return 0;
+    }
+    seq->FindCutByIndex_unk(cut->fn_8053B028());
+    int frame = 0;
+    int end = cut->m2C;
+    int skipped = 0;
+    int done = 0;
+    for (int i = 0; i < (int)cut->mSections.size(); i++) {
+        Section* section = cut->GetSection_unk(i);
+        if (section->m14 != 0 && section->m0C == 1) {
+            for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                Channel* channel = section->GetChannel_unk(j);
+                if (channel->m10 != 0 && (channel->m0C == 0x35 || channel->m0C == 8)) {
+                    for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                        Action* action = channel->GetAction_unk(k);
+                        if (action->m10 >= frame) {
+                            if (action->m0C == 8) {
+                                int type = action->GetParam_unk(0)->m04.i;
+                                if (type == 0) {
+                                    JUMP_LENGTH_UNK(action->GetParam_unk(1));
+                                } else if (type == 1) {
+                                    JUMP_LENGTH_UNK(action->GetParam_unk(1));
+                                } else if (type == 2 || type == 3) {
+                                    JUMP_LENGTH_UNK(action->GetParam_unk(5));
+                                }
+                            } else if (action->m0C == 0x35) {
+                                if (action->m14 - action->m10 <= 0) {
+                                    end = action->m10;
+                                    done = 1;
+                                    break;
+                                }
+                                skipped += action->m14 - action->m10;
+                                frame = action->m14;
+                            }
+                        }
+                    }
+                    if (done) {
+                        break;
+                    }
+                }
+            }
+            if (done) {
+                break;
+            }
+        }
+    }
+    return end - skipped;
+}
+#undef JUMP_LENGTH_UNK
+
+// inferred: the channel count is read in the loop test (a local count swaps the registers)
+// inferred: first action of kind 0x2B (channels of the sections of kind 1) whose first parameter is
+// 0, following the cuts from the current one. Names invented.
+Action* fn_8047BFF4(Sequence* seq) {
+    Cut* cut = seq != 0 ? seq->FindCutByIndex_unk(seq->m94) : 0;
+    while (cut != 0) {
+        int count = cut->mSections.size();
+        for (int i = 0; i < count; i++) {
+            Section* section = cut->GetSection_unk(i);
+            if (section->m0C == 1) {
+                for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                    Channel* channel = section->GetChannel_unk(j);
+                    if (channel->m0C == 0x2B) {
+                        for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                            Action* action = channel->GetAction_unk(k);
+                            if (action->GetParam_unk(0)->m04.i == 0) {
+                                return action;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        cut = fn_8047B768(seq, cut);
+    }
+    return 0;
+}
+
+} // namespace Event
+
+extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r, float t);
+extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
+
+// inferred: euler angles to a quaternion (inlined here; same code as
+// atn::Quaternion_unk::fn_801498F0 of game/CharaTask.cpp)
+static inline atn::Quaternion_unk EulerToQuat_unk(const atn::Vector3& rot) {
+    atn::Quaternion_unk q;
+    float rx = rot.x;
+    float ry = rot.y;
+    float rz = rot.z;
+    float cx, cy, cz;
+    float sx, sy, sz;
+    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
+    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
+    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
+    float cycz = cy * cz;
+    float sysz = sy * sz;
+    q.w = cx * cycz + sx * sysz;
+    q.x = sx * cycz - cx * sysz;
+    q.y = cz * (cx * sy) + sz * (sx * cy);
+    q.z = sz * (cx * cy) - cz * (sx * sy);
+    return q;
+}
+
+// inferred: name invented (same as in game/TutorialTask.cpp)
+static inline atn::Quaternion_unk Slerp_unk(const atn::Quaternion_unk& a, const atn::Quaternion_unk& b, float t) {
+    atn::Quaternion_unk q;
+    C_QUATSlerp(&a, &b, &q, t);
+    return q;
+}
+
+// NONMATCHING: 97.1% - stack layout: the original copies the slerp result (0xC8) into the dead slot of
+// qb (0xF0); here the copy gets a slot of its own (frame 0x270, not 0x260). Tried: no copy, RVO'd
+// helper, copy construction, by-value helper, nested temporaries.
+// inferred: direction between `a` and `b` (slerp of their rotations; names invented)
+atn::Vector3 fn_8047C1D8(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    atn::Quaternion_unk qa = EulerToQuat_unk(a.ToRotation_unk());
+    atn::Quaternion_unk qb = EulerToQuat_unk(b.ToRotation_unk());
+    atn::Quaternion_unk r;
+    r = Slerp_unk(qb, qa, t);
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXQuat(m, &r);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+
+namespace Event {
+
+void SceneSetting_unk::fn_8047C88C(atn::Scene* scene) {
+    *scene->GetFog() = mFog;
+    scene->GetAmbientLight() = mAmbient;
+    scene->GetLS_unk() = mLS;
+    *scene->fn_8047C778() = m3C;
+    *scene->fn_8047C780() = mGodRay;
+    *scene->fn_8047C7D4() = mShadow;
+    *scene->fn_8047C7DC() = mColorMatrix;
+    *scene->fn_8047C848() = mHaze;
+    scene->fn_8047CB6C(m148);
+    *scene->GetLight(0) = mLight;
+}
+
+void SceneSetting_unk::fn_8047CB74(atn::Scene* scene, float t) {
+    *scene->GetFog() = mFog;
+    scene->GetAmbientLight() = atn::Lerp_unk(mAmbient, scene->GetAmbientLight(), t);
+    scene->GetLS_unk() = atn::Lerp_unk(mLS, scene->GetLS_unk(), t);
+    *scene->fn_8047C778() = atn::Lerp_unk(m3C, *scene->fn_8047C778(), t);
+    scene->fn_8047C780()->mColor = atn::Lerp_unk(mGodRay.mColor, scene->fn_8047C780()->mColor, t);
+    scene->fn_8047C780()->mPos = atn::Lerp_unk<atn::Vector3>(mGodRay.mPos, scene->fn_8047C780()->mPos, t);
+    scene->fn_8047C780()->mRadialScale = fn_800F8524(&mGodRay.mRadialScale, &scene->fn_8047C780()->mRadialScale, t);
+    *scene->fn_8047C7D4() = mShadow;
+    for (unsigned int i = 0; i < 4; i++) {
+        scene->fn_8047C7DC()->mRows[i] = atn::Lerp_unk(mColorMatrix.mRows[i], scene->fn_8047C7DC()->mRows[i], t);
+    }
+    *scene->fn_8047C848() = mHaze;
+    scene->fn_8047CB6C(m148);
+    scene->GetLight(0)->SetDir_unk(fn_8047C1D8(*mLight.GetDir_unk(), *scene->GetLight(0)->GetDir_unk(), t));
+    scene->GetLight(0)->SetColor(atn::Lerp_unk(*mLight.GetColor_unk(), *scene->GetLight(0)->GetColor_unk(), t));
+}
+
+inline EventConfig_unk::EventConfig_unk()
+    : m88(1), m8C(0), m90(0), m94(1), m98(200.0f), m9C(500.0f), mA0(30.0f), mA4(10.0f), mA8(320), mAC(224),
+      mB0(1.5f), mB4(1.5f) {}
+
+// NONMATCHING: 91% - float constant registers and the stack slots of the atn::Color temporaries
+// inferred: constructor of the event manager (0x8047CF7C)
+Manager::Manager(atn::Task* parent)
+    : atn::Task(parent), m70(0), mB4(1.0f), mC4(0), m1A38(0), m1A3C(0), m1A40(0), m1A44(0), m1A48(0),
+      m1A4C(1), m1A50(0x3E), m1A54(0), m1A58(8.0f), m1A6C(0), m1A84(0.0f), m1A88(0), m1A8C(5), m1A90(0),
+      m1A94(0), m1A98(0), m1A9C(0), m1DC0(),
+      m1E74(0), m1E78(0), m1E88(0.0f),
+      m1E8C(0.0f), m1E90(0), m1EA4(0), m1EA8(0), m1EAC(0), m1EB0(0), m1EB4(30.0f), m1F1C(0), m1F34(0),
+      m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0),
+      m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
+      m2418(1.0f), m2448(0) {
+    fn_8054E574();
+    fn_8010D98C();
+    for (int i = 0; i < 16; i++) {
+        m74[i] = 0;
+    }
+    m1AB0.m00 = 0;
+    m1AB0.m01 = 0;
+    m1DE4 = -1;
+    m1DE8 = 0;
+    m1DF8 = 0;
+    m1DEC = 0;
+    m1DF0 = 0;
+    m1DF4 = 0;
+    m1A7C = fn_801F3FF8(this, "/data/d2anime/ui_c_black_mask.d2a", 0);
+    m1A7C->fn_800D246C(1);
+    m1A80 = fn_801F3FF8(this, "/event2/d2anime/ui_event_start_flash.d2a", 0);
+    m1A80->fn_800D246C(1);
+    m1AA8 = atn::FadeColor::Create(this, 0, 0, 0);
+    m1AA8->fn_800D246C(1);
+    m1AA0 = 0;
+    m1AA4 = 0;
+    m1AAC = 0;
+    SequenceRoot::Create_unk(this);
+    PostSequence::Create_unk(this);
+    fn_800D94F8(this);
+    void* folder = m1A5C.Load("Event");
+    fn_80087994(folder, "DebugCamera", &m1A40, 0, 0);
+    fn_80087994(folder, "DebugInfoDisplay", &m1A44, 0, 0);
+    fn_80087994(folder, "DrawViewEventSphere", &m1E90, 0, 0);
+    fn_80087994(folder, "SimulateWave", &m2384, 0, 0);
+    fn_80087994(folder, "FixEventDelay", &m2388, 0, 0);
+    fn_800874C8(folder, "MAStartOffset", &m1F60, 0, 9999, 1, 0, 0);
+    fn_800874C8(folder, "MAStartDelay", &m1F64, 0, 9999, 1, 0, 0);
+    fn_800874C8(folder, "Draw2DMode", &m238C, 0, 5, 1, 0, 0);
+    void* light = fn_8008937C(folder, "AutoLightFix");
+    fn_800874C8(light, "Type", &m240C, 0, 3, 1, 0, 0);
+    fn_8008771C(light, "Ratio", &m2410, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(light, "KeyIntensity", &m2414, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(light, "AmbientIntensity", &m2418, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(folder, "AcceptAnimeScale", &m5C, 0.0f, 10.0f, 0.1f, 0, 0);
+    fn_8008771C(folder, "AcceptAnimeSpeed", &m60, 0.0f, 10.0f, 0.1f, 0, 0);
+    fn_8008771C(folder, "FastForwardSpeed", &m1A58, 1.0f, 100.0f, 0.1f, 0, 0);
+    m1EB8.fn_800C1814("/data/texture/gm044_000a.texture");
+    m1EB8.m04 = atn::Vector2_unk(0.0f, 0.0f);
+    m1EB8.mSize = atn::Vector2_unk(0.0f, 0.0f);
+    m1D70.mRows[0] = RsVector4_unk(1.0f, 0.0f, 0.0f, 0.0f);
+    m1D70.mRows[1] = RsVector4_unk(0.0f, 1.0f, 0.0f, 0.0f);
+    m1D70.mRows[2] = RsVector4_unk(0.0f, 0.0f, 1.0f, 0.0f);
+    m1D70.mRows[3] = RsVector4_unk(0.0f, 0.0f, 0.0f, 0.0f);
+    m1EB8.m00 = 0;
+    m1F0C = 1;
+    m1D70.mEnabled = 0;
+    mMoviePlaying = 0;
+    m2404_1 = 0;
+    m2404_2 = 0;
+    m2404_3 = 0;
+    m2404_4 = 0;
+    m2404_5 = 0;
+    m23AC = fn_801F3FF8(this, "/data/d2anime/ev_gradation.d2a", 0);
+    m23AC->fn_800D246C(1);
+    m23B0 = fn_801F3FF8(this, "/data/d2anime/ev_gradation.d2a", 0);
+    m23B0->fn_800D246C(1);
+    m48 = fn_801F3FF8(this, "/data/d2anime/ui_aspect_event.d2a", 0);
+    m48->fn_800D246C(1);
+    m4C.mCenter = atn::Vector3(lbl_807C7030);
+    m5C = 5.0f;
+    m60 = 2.0f;
+    m241C = fn_801F3FF8(this, "/data/d2anime/ui_seek.d2a", 0);
+    m241C->fn_800D246C(1);
+    m2424 = lbl_807C7028;
+    m242C = lbl_807C7028;
+    m2434 = 0.0f;
+    m2438 = fn_801F3FF8(this, "/data/d2anime/ui_seek_arow.d2a", 0);
+    m2438->fn_800D246C(1);
+    m243C = atn::Vector3(0.0f, 0.0f, 1.0f);
+    m23B4 = 0;
+    if (lbl_8087F0A8->mPreloadEventMA == 0) {
+        m1F60 = 0;
+    }
+}
+
+// NONMATCHING: 97.6% - registers only (original: this in r29, the index in r31)
+Manager::~Manager() {
+    lbl_8087F540 = 0;
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        fn_8048D3A4(i);
+    }
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        fn_8048DE54(i);
+    }
+    m23A0.clear();
+    m2394.clear();
+    fn_8054F380();
+}
+
+Manager* Manager::fn_8047E4BC(atn::Task* parent) {
+    if (lbl_8087F540 == 0) {
+        lbl_8087F540 = new ((MemoryTag)4, "", "", 0) Manager(parent);
+    }
+    return lbl_8087F540;
+}
+
+inline Sequence* Manager::FindSequence_unk(int id) {
+    if (m70 != 0 && id == m70->m190) {
+        return m70;
+    }
+    for (int i = 0; i < (int)m64.size(); i++) {
+        if (id == m64[i]->m190) {
+            return m64[i];
+        }
+    }
+    return 0;
+}
+
+// inferred: removes every sequence
+void Manager::fn_8047E528() {
+    for (Sequence** it = m64.begin(); it != m64.end(); ++it) {
+        fn_800D2338(*it);
+    }
+    m64.clear();
+    for (int i = 0; i < 16; i++) {
+        m74[i] = 0;
+    }
+    m70 = 0;
+}
+
+
+// inferred: adds a sequence that is not there yet. Nothing calls it, so the linker drops it, but the
+// original has it here: its weak copy of Sequence::GetId_unk (0x8047E5D4) is emitted before
+// fn_8047E5DC and its "vector length error" is in the string pool before "event2/%s.event". Body
+// invented from those two traces.
+void Manager::AddSequence_unk(Sequence* seq) {
+    if (FindSequence_unk(seq->GetId_unk()) == 0) {
+        m64.push_back(seq);
+    }
+}
+
+// NONMATCHING: 99.2% - registers of the growth path of push_back (size/capacity loaded into r5/r4)
+// inferred: loads the sequence `id` ("event2/<name>.event") unless it is already there
+int Manager::fn_8047E5DC(int id) {
+    if (FindSequence_unk(id) == 0) {
+        EventIdEntry_unk* entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(id);
+        if (entry == 0) {
+            return 0;
+        }
+        char path[0x100];
+        sprintf(path, "event2/%s.event", entry->mName.c_str());
+        Sequence* seq = Sequence::fn_8053E86C(SequenceRoot::sInstance);
+        m64.push_back(seq);
+        seq->m190 = id;
+        seq->fn_80576030(path, 0);
+    }
+    return 1;
+}
+
+int Manager::fn_8047E964(int id, int queue) {
+    if (queue != 0 && m23B8.size() < 8) {
+        QueuedSequence_unk& entry = m23B8.Next_unk();
+        entry.mId = id;
+        entry.m04 = 0;
+        m23B8.mSize++;
+    } else {
+        Sequence* seq = FindSequence_unk(id);
+        if (seq == 0) {
+            return 0;
+        }
+        seq->fn_8053F6EC();
+    }
+    return 1;
+}
+
+// NONMATCHING: 98.8% - the original reloads the ring count in every test of the erase loop
+// inferred: starts the sequence `id` (the cut list and the queue are reset for the in-game kinds 1
+// and 3); names invented
+int Manager::fn_8047EA34(int id, atn::Vector3 pos, int arg, float rot) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 0;
+    }
+    if (seq->m50 == 1 || seq->m50 == 3) {
+        if (m70 != 0) {
+            return 0;
+        }
+        mB8.clear();
+        int first = 1;
+        mB8.push_back(first);
+        m70 = seq;
+        m1A38 = 0;
+        m1A3C = 0;
+        m1EA4 = 0;
+        m1EB0 = 0;
+        m1EA8 = 0;
+        if (seq->m50 == 1) {
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_801011B8();
+            }
+            if (lbl_8087F9E8 != 0) {
+                lbl_8087F9E8->fn_8059C32C(0);
+            }
+            lbl_8087F3C0->fn_8023A60C(0);
+            lbl_8087F3C0->fn_8023A60C(3);
+            lbl_8087F3C0->fn_8023A60C(5);
+        }
+        Sequence* cur = FindSequence_unk(id);
+        if (cur != 0 && cur->m98_14 != 1 && (cur->m50 == 1 || cur->m50 == 3)) {
+            if (lbl_8087F0A8->mPreloadEventMA != 0) {
+                m1F38.mStr[0] = 0;
+                m1F5C = 0;
+                fn_8048871C(cur, 0, 0, 0);
+            }
+            lbl_8087F540->fn_80488E00(cur);
+            Manager* mgr = lbl_8087F540;
+            if (lbl_8087F0A8->mPreloadEventVoice != 0 && lbl_8087EE90 != 0 && lbl_8087EE90->m04 != 0 &&
+                (mgr->m70 == 0 || mgr->m70->m190 != 0x151E)) {
+                if (lbl_8087F498 != 0) {
+                    lbl_8087F498->fn_803EB4A8(0, 0);
+                }
+                mgr->m2378 = -1;
+                if (mgr->mVoices.size() != 0) {
+                    mgr->fn_80489A50(mgr->mVoices[0].mAction, 1);
+                }
+                mgr->m237C = 1;
+            }
+            cur->m98_14 = 1;
+        }
+        for (int i = 0; i < (int)seq->mB8.size(); i++) {
+            Cut* cut = seq->IsCutIndex_unk(i) ? seq->mB8[i].get() : 0;
+            if (seq->m98_8 == 1) {
+                cut->mSkip = 0;
+            } else if ((int)seq->m144.size() > 0) {
+                if (cut->mSkip != 0) {
+                    cut->mSkip = 2;
+                }
+            } else if ((unsigned int)(cut->mSkip - 1) <= 1) {
+                cut->mSkip = 3;
+            }
+            if ((id == 0x2391 || id == 0x23F3) && cut->mSkip != 0) {
+                cut->mSkip = 0;
+            }
+        }
+        if (m1A90 != 0) {
+            m1A90 = 0;
+        }
+    } else {
+        for (int i = 0; i < 16; i++) {
+            if (m74[i] == 0) {
+                m74[i] = seq;
+                break;
+            }
+        }
+    }
+    seq->fn_80541244(seq->fn_80541198(seq->FindCutByIndex_unk(seq->m94)));
+    seq->m1AC = arg;
+    seq->fn_8054F9DC();
+    for (Ring_unk<QueuedSequence_unk, 8>::iterator it = m23B8.begin(); it != m23B8.end(); ++it) {
+        if (id == it->mId) {
+            m23B8.erase(it);
+            break;
+        }
+    }
+    return 1;
+}
+
+// inferred: stops the music of the event (inlined twice; name invented)
+inline void Manager::StopMusic_unk(Sequence* seq) {
+    if (m1E78 != 0 || m1F1C != 0) {
+        if (m1F1C & 0x200000) {
+            fn_80488534(seq, 60);
+        } else {
+            fn_80488534(seq, 15);
+        }
+    }
+    m1F20.fn_8004B1EC(60);
+    m1F20.mSound.Reset();
+}
+
+// inferred: clears the slot of `seq` (name invented)
+inline void RemoveSequence_unk(Sequence** list, Sequence* seq) {
+    for (int i = 0; i < 16; i++) {
+        if (list[i] == seq) {
+            list[i] = 0;
+            break;
+        }
+    }
+}
+
+// inferred: stops the sequence `id`
+int Manager::fn_8047EFD8(int id, int arg) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 0;
+    }
+    if (seq->m50 == 1 || seq->m50 == 3) {
+        m70 = 0;
+        mB8.clear();
+        if (m70 == 0) {
+            if (arg == 0) {
+                StopMusic_unk(seq);
+            }
+            m2378 = -1;
+            if (lbl_8087F498 != 0) {
+                lbl_8087F498->fn_803EB4A8(0, 1);
+            }
+            m237C = 0;
+            mVoices.clear();
+            m2378 = -1;
+        }
+    } else {
+        RemoveSequence_unk(m74, seq);
+    }
+    if (arg != 0) {
+        Sequence* other = FindSequence_unk(seq->m190);
+        if (other != 0 && (other->m50 == 1 || other->m50 == 3)) {
+            m2380 = seq->m190;
+        }
+    }
+    seq->fn_8054FB10(arg);
+    seq->vf10();
+    seq->fn_80540664(arg);
+    return 1;
+}
+
+int Manager::fn_8047F268(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 1;
+    }
+    return seq->m194 >= 5 || seq->m194 == 0;
+}
+
+int Manager::fn_8047F2EC(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 0;
+    }
+    return seq->m194 == 10;
+}
+
+int Manager::fn_8047F364(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 1;
+    }
+    return seq->fn_8047F400() || seq->m194 == 0;
+}
+
+// inferred: the sequence is ending (states 13 and 14)
+int Sequence::fn_8047F400() {
+    return m194 == 13 || m194 == 14;
+}
+
+int Manager::fn_8047F420(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 1;
+    }
+    return seq->m50 == 1;
+}
+
+int Manager::fn_8047F498(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 1;
+    }
+    return seq->m50 == 3;
+}
+
+int Manager::fn_8047F510(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 1;
+    }
+    return seq->m98_8;
+}
+
+// inferred: stops the sequence kept in m2380 (fn_8047EFD8)
+// inferred: name invented
+inline int KeptId_unk(const Manager* m) {
+    return m->m2380;
+}
+
+__declspec(noinline) int Manager::fn_8047F580() {
+    if (KeptId_unk(this) > 0) {
+        Sequence* seq = FindSequence_unk(m2380);
+        if (seq != 0) {
+            StopMusic_unk(seq);
+            seq->fn_8054FBC8();
+            seq->fn_805406A0();
+            if (seq == m70) {
+                m70 = 0;
+            }
+        }
+        m2380 = 0;
+        return 1;
+    }
+    return 0;
+}
+
+int Manager::fn_8047F6B0(int arg) {
+    m1AA4 = arg;
+    Step1AA0_unk();
+    return m1AA0;
+}
+
+void Manager::fn_8047F6E4() {
+    if (m1AAC == 0) {
+        return;
+    }
+    Step1AA0_unk();
+    if (m1AA0 == 3) {
+        m1AAC = 0;
+    }
+}
+
+// inferred: steps the screen capture fade (states of m1AA0: 1 capture, 3 start, 4 wait for the end)
+void Manager::fn_8047F730() {
+    atn::FadeCapture* fade = lbl_8087F430 != 0 ? lbl_8087F430->m5624 : m1A9C;
+    if (m1AA0 == 1) {
+        fade->mWait = 0;
+        fade->mDelay = 0;
+        fade->mColor0 = 0xFFFFFFFF;
+        fade->mColor1 = 0xFFFFFF;
+        fade->m78 = 0x12;
+        fade->mDuration = m1AA4;
+        fade->mStep = 1;
+        fade->Capture();
+        m1AA0 = 2;
+    } else if (m1AA0 == 3) {
+        fade->MeltTask();
+        fade->mFrame = 0;
+        fade->mZ = -100.0f;
+        fade->mActive = 1;
+        m1AA0 = 4;
+    } else if (m1AA0 == 4) {
+        float frame = mB4;
+        fade->mStep = (int)(0.2f + frame);
+        if (fade->IsEnd()) {
+            fade->mStep = 1;
+            fade->mActive = 0;
+            m1AA0 = 0;
+        }
+    }
+}
+
+void Manager::fn_8047F850(int a, int b, int c) {
+    m1AA8->mDuration = a;
+    m1AA8->mColor0 = b;
+    m1AA8->mColor1 = c;
+    m1AA8->mFrame = 0;
+    m1AA8->mActive = 1;
+    m1AA8->mDelay = 0;
+}
+
+void Manager::fn_8047F88C(int arg) {
+    if (arg > 0) {
+        m1AAC = 1;
+        m1AA4 = arg;
+    }
+}
+
+void Manager::fn_8047F8A4(float value) {
+    m1AA8->mZ = value;
+}
+
+void Manager::fn_8047F8B0() {
+    m1AA8->mActive = 0;
+}
+
+void Manager::fn_8047F8C0(int arg) {
+    if (m1AA8 != 0) {
+        m1AA8->fn_800D246C(arg);
+    }
+    if (m1A9C != 0) {
+        m1A9C->fn_800D246C(arg);
+    }
+}
+
+void Manager::fn_8047F91C() {
+    Sequence* seq = m70;
+    if (seq != 0) {
+        seq->fn_80550CE0();
+        fn_8047EFD8(seq->m190, 0);
+        seq->fn_8053E8C8(14);
+        fn_8048EC7C();
+    }
+}
+
+void Manager::fn_8047F984(float time) {
+    mB4 = time;
+    lbl_8087EFA8->m3A4 = time;
+}
+
+
+// inferred: adds a cut change (cut `cut`; `now` applies it at once). Event 0x19D (the ending) with
+// m194 of the game settings set fades the field out instead. Names invented.
+void Manager::fn_8047F994(int cut, int now) {
+    if (cut == 0 && lbl_8087F0A8->m194 != 0 && m70 != 0 && m70->m190 == 0x19D) {
+        lbl_8087F430->fn_80370B78(0xFFFFFFFF, 0, 0, 0.0f);
+        m70->fn_8053E8C8(11);
+    } else {
+        mB8.push_back(cut);
+        if (now != 0) {
+            fn_8047FCC0();
+        }
+    }
+}
+
+// inferred: stops a sound (callback of fn_8047FAD0)
+extern "C" void fn_8047FABC(atn::SoundCore& sound, int frames) {
+    sound.mHandle.Stop(frames);
+}
+
+// NONMATCHING: 97.7% - float registers and the stack slot of the motion blur temporary
+// inferred: end of an event: motion blur reset, normal speed, music and sounds stopped
+__declspec(noinline) void Manager::fn_8047FAD0() {
+    MotionBlurParam_unk blur;
+    blur.mEnabled = 1;
+    lbl_8087EFA8->m240 = blur;
+    fn_8047F984(m1A58);
+    mC4 = 1;
+    if (strlen(m1F38.c_str()) != 0) {
+        m1F20.fn_8004B1EC(30);
+        m1F20.mSound.Reset();
+        m1F34 = 0;
+    }
+    lbl_8087EFE8->fn_800D0DB0(boost::bind(&fn_8047FABC, _1, 10), 2);
+    if (lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EB4A8(1, 0);
+    }
+}
+
+// NONMATCHING: 97.7% - registers (command and sequence in r27/r29 swapped)
+// inferred: applies the pending cut changes of mB8 (0: next cut, 1: end of the fast forward, 2: skip
+// the sequence); names invented
+void Manager::fn_8047FCC0() {
+    while (mB8.size() != 0) {
+        int cmd = *mB8.begin();
+        mB8.erase(mB8.begin());
+        if (cmd == 2) {
+            fn_8047F91C();
+        } else if (cmd == 0) {
+            Sequence* seq = m70;
+            if (seq != 0 && seq->m50 == 1 && seq->m194 == 10) {
+                switch (seq->fn_80541210()->mSkip) {
+                case 1: {
+                    Sequence* cur = m70;
+                    if (cur != 0) {
+                        Cut* cut = cur->fn_80541210();
+                        if (cut != 0) {
+                            cur->fn_80541534(cur->fn_80541198(cut), cut->m2C);
+                        }
+                    }
+                    break;
+                }
+                case 2:
+                    fn_8047F91C();
+                    break;
+                case 3:
+                    fn_8047FAD0();
+                    break;
+                }
+                lbl_8087EFE8->fn_800CF680(3, 10, seq->fn_80541210()->mSkip == 3);
+            }
+        } else if (cmd == 1) {
+            if (mC4 != 0) {
+                lbl_8087EFA8->m240 = m1AB0.mB8;
+                fn_8047F984(1.0f);
+                mC4 = 0;
+                Sequence* seq = m70;
+                if (strlen(m1F38.c_str()) != 0) {
+                    if (seq == 0 || seq->m190 != 0x151B || seq->fn_80541210() == 0 ||
+                        (seq->fn_80541210()->mIndex != 7 && seq->fn_80541210()->mIndex != 8)) {
+                        fn_80488B5C(60);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// inferred: party members (ids 199900-199999: the member at that position of the order)
+extern "C" int fn_80219544(int member); // inferred: character id of a party member
+
+// inferred: character of the event: the leader of the party (kind 0) or a new NPC of type `kind`, placed at
+// `pos` facing `yaw`, and listed in m1A70
+CharaTask* Manager::fn_8047FF70(int kind, int id, float yaw, const atn::Vector3& pos) {
+    if (id >= 199900 && id <= 199999) {
+        id = fn_80219544(Inventory::Order()->mOrder[id % 100]);
+    }
+    CharaTask* chara;
+    if (kind == 0) {
+        chara = lbl_8087F8A0->m54;
+        if (m1A60.size() != 0) {
+            chara->fn_800D246C(0);
+        }
+    } else {
+        chara = NpcTask::fn_80547C28(NpcManager::sInstance, (void*)id);
+        chara->fn_8016DF3C(kind);
+        if (chara->m5C != 0) {
+            for (int i = 0; i < 4; i++) {
+                chara->fn_8014F2B4(chara->m5C->mD4[i], chara->m5C->mD8[i], -1);
+            }
+        }
+    }
+    if (chara == 0) {
+        return 0;
+    }
+    chara->mPos = pos;
+    chara->mRot = atn::Vector3(0.0f, yaw, 0.0f);
+    chara->mStatus.mParamB.m9C |= 1;
+    chara->fn_8016E970(9);
+    chara->mColli.mFlags |= 1;
+    m1A70.push_back(chara);
+    return chara;
+}
+
+int Manager::fn_804803A4() {
+    if (m1DE4 >= 0) {
+        return 0;
+    }
+    for (int i = 0; i < (int)m1A60.size(); i++) {
+        if (!m1A60[i]->IsFlag_unk(2)) {
+            return 0;
+        }
+    }
+    for (int i = 0; i < (int)m1A70.size(); i++) {
+        if (!m1A70[i]->IsFlag_unk(2)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+MapTask* Manager::fn_80480438() {
+    if (m1A60.size() != 0) {
+        return m1A60[0];
+    }
+    if (lbl_8087F430 != 0) {
+        return lbl_8087F430->GetCurrentMap();
+    }
+    return 0;
+}
+
+// inferred: the sequence changes the map: the characters (and, for another map, the maps and the
+// scene) of the event are removed
+void Manager::fn_80480468(Sequence* seq, unsigned int flags) {
+    int same = 0;
+    int sameMap = 0;
+    int area = m1DEC;
+    if (area == seq->GetState_unk().m02) {
+        if (m1DF0 == seq->GetState_unk().m00) {
+            sameMap = 1;
+        }
+    }
+    if (sameMap) {
+        if (m1DF4 == seq->GetState_unk().m03) {
+            same = 1;
+        }
+    }
+    if (same && area != 1) {
+        flags |= 0x10000000;
+    }
+    if (flags != 0) {
+        for (int i = 0; i < (int)m1A70.size(); i++) {
+            fn_800D2338(m1A70[i]);
+        }
+        m1A70.clear();
+        if (!(flags & 0x10000000)) {
+            if (m1A6C != 0) {
+                fn_800D2338(m1A6C);
+                m1A6C = 0;
+            }
+            for (int i = 0; i < (int)m1A60.size(); i++) {
+                fn_800D2338(m1A60[i]);
+            }
+            m1A60.clear();
+        }
+    }
+    m1DE4 = 2;
+    m1DE8 = seq;
+    m1DF8 = flags;
+}
+
+void Manager::fn_804805B4() {
+    m1A70.clear();
+    m23B8.clear();
+    fn_8047F580();
+}
+
+// inferred: path of the map file of the area `area`, map `map` and part `part`
+std::string fn_804805CC(int area, int map, int part) {
+    return fn_800DC980("map\\tw%02d\\tw%02d_%02d_%02d.map", area, area, map, part);
+}
+
+// NONMATCHING: 96.2% - registers (map loop keeps base+offset, push_back of m1A60, string temps)
+// inferred: loads what the sequence needs (flags: 0x10 scene, 0x100 maps, 0x200 keep the maps, 0x2000
+// party, 0x1000 npcs/enemies/friends, 0x4000 only the characters the sequence uses, 0x10000000 same
+// map). Names invented.
+void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
+    int area = seq->GetState_unk().m02;
+    int map = seq->GetState_unk().m00;
+    int part = seq->GetState_unk().m03;
+    MapId_unk* areaData = fn_8021771C(area, map, part);
+    if ((flags & 0x10) && !(flags & 0x10000000) && areaData != 0) {
+        char path[0x100];
+        char name[0x100];
+        MapTask::GetMapNameFromId(name, area, map, part);
+        sprintf(path, "/game_scene/%s.gs", name);
+        unsigned long size;
+        char* data = fn_8006BA8C(path, &size, 0);
+        m1A6C = GameScene::fn_803BEBAC(this, area, map, part);
+        m1A6C->FreezeTask();
+        m1A6C->fn_803C3894(data, size, 0);
+        atn::FileFreeBuffer(data, false);
+        if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
+            sprintf(path, "/game_scene/tw_subquest.gs");
+            if (fn_8006AA20(path) != 0) {
+                char* sub = fn_8006BA8C(path, &size, 0);
+                m1A6C->fn_803C3894(sub, size, 1);
+                atn::FileFreeBuffer(sub, false);
+            }
+            sprintf(path, "/game_scene/tw_hintnpc.gs");
+            if (fn_8006AA20(path) != 0) {
+                char* sub = fn_8006BA8C(path, &size, 0);
+                m1A6C->fn_803C3894(sub, size, 2);
+                atn::FileFreeBuffer(sub, false);
+            }
+        }
+        if (GimmickManager::instance_ == 0) {
+            GimmickManager::SetTask(this);
+        }
+        m1A6C->fn_803CA530();
+    }
+    if ((flags & 0x100) && !(flags & 0x10000000) && areaData != 0 && !(flags & 0x200)) {
+        atn::FixedArray_unk<MapTask*, 64>& parts = MapManager::GetInstance_unk()->mMaps;
+        for (int i = 0; i < (int)parts.size(); i++) {
+            MapManager::GetInstance_unk()->fn_80491440(parts[i]);
+        }
+        if (area == 1) {
+            std::string file = fn_800DC980("database\\map\\tw%02d_%02d.twn", map, part);
+            m1A60.push_back(MapTask::SetTask(this, file.c_str()));
+            m1A60[0]->mType = area;
+            m1A60[0]->mId = map;
+            m1A60[0]->mSubId = part;
+            for (int i = 0; i < (int)seq->m5C.size(); i++) {
+                file = fn_804805CC(map, seq->m5C[i * 2 + 1], seq->m5C[i * 2]);
+                m1A60.push_back(MapTask::SetTask(this, file.c_str()));
+            }
+        } else {
+            m1A60.push_back(MapTask::fn_8049D704(this, area, map, part));
+        }
+        if (lbl_8087EE90 != 0) {
+            fn_8004895C(lbl_8087EE90);
+            fn_80049654(lbl_8087EE90);
+            const char* groups[2] = {"GROUP_SYSTEM", "GROUP_PC001"};
+            fn_8004829C(lbl_8087EE90, groups, 2);
+        }
+        if (areaData != 0) {
+            fn_800C3094(areaData->m68);
+        }
+        if (ColliAttrManager::sInstance == 0) {
+            ColliAttrManager::fn_801839FC(this);
+        }
+        ColliAttrManager::sInstance->fn_80183D00(area, map, part);
+        if (GameBgm::GetInstance_unk() == 0) {
+            GameBgm::fn_8037C8C4(this);
+        }
+        if (lbl_8087F498 == 0) {
+            GameVoice::fn_803E836C(this);
+        }
+    }
+    if (flags & 0x4000) {
+        if (lbl_8087F8A0 == 0) {
+            PlayerManager::fn_80549D8C(this);
+        }
+        if (Inventory::Order() == 0) {
+            Inventory::fn_80442F10();
+        }
+        lbl_8087F8A0->fn_80549F14(area);
+        fn_8047FF70(0, 1, 0.0f, lbl_807C7030);
+    }
+    if (flags & 0x1000) {
+        if (NpcManager::sInstance == 0) {
+            NpcManager::fn_805477C8(this);
+        }
+        if (EnemyManager::sInstance == 0) {
+            EnemyManager::fn_80334B38(this);
+        }
+        if (FriendManager::sInstance == 0) {
+            FriendManager::fn_80365464(this);
+        }
+        if (Inventory::Order() == 0) {
+            Inventory::fn_80442F10();
+        }
+        GameScene* scene = m1A6C;
+        if (scene != 0) {
+            if (flags & 0x2000) {
+                for (int i = 0; i < (int)scene->m80.size(); i++) {
+                    if (seq->fn_80541CFC(1, scene->m80[i].mId) != 0) {
+                        gs::NpcSetPoint& p = scene->m80[i];
+                        fn_8047FF70(1, p.m20, p.m14, p.mPos)->m58 = scene->m80[i].mId;
+                    }
+                }
+                for (int i = 0; i < (int)scene->m88.size(); i++) {
+                    if (seq->fn_80541CFC(2, scene->m88[i].mId) != 0) {
+                        gs::NpcSetPoint& p = scene->m88[i];
+                        fn_8047FF70(2, p.m20, p.m14, p.mPos)->m58 = scene->m88[i].mId;
+                    }
+                }
+                for (int i = 0; i < (int)scene->m90.size(); i++) {
+                    if (seq->fn_80541CFC(3, scene->m90[i].mId) != 0) {
+                        gs::NpcSetPoint& p = scene->m90[i];
+                        fn_8047FF70(3, p.m20, p.m14, p.mPos)->m58 = scene->m90[i].mId;
+                    }
+                }
+            } else {
+                for (int i = 0; i < (int)scene->m80.size(); i++) {
+                    gs::NpcSetPoint& p = scene->m80[i];
+                    fn_8047FF70(1, p.m20, p.m14, p.mPos)->m58 = scene->m80[i].mId;
+                }
+                for (int i = 0; i < (int)scene->m88.size(); i++) {
+                    gs::NpcSetPoint& p = scene->m88[i];
+                    fn_8047FF70(2, p.m20, p.m14, p.mPos)->m58 = scene->m88[i].mId;
+                }
+                for (int i = 0; i < (int)scene->m90.size(); i++) {
+                    gs::NpcSetPoint& p = scene->m90[i];
+                    fn_8047FF70(3, p.m20, p.m14, p.mPos)->m58 = scene->m90[i].mId;
+                }
+            }
+        }
+    }
+}
+
+void Manager::fn_804814F8() {
+    Sequence* seq = m70;
+    Cut* cut = seq != 0 ? seq->fn_80541210() : 0;
+    if (cut != 0 && seq->m194 == 10) {
+        if (cut->mCinematic != 0 && m1A7C->IsFlag_unk(4)) {
+            if (m1A7C->IsFlag_unk(4) != 0) {
+                m1A7C->mFrame = 1.0f;
+                m1A7C->mSpeed = 1.0f;
+                m1A7C->MeltTask();
+            }
+        } else if (cut->mCinematic == 0 && !m1A7C->IsFlag_unk(4)) {
+            if (m1A90 == 0) {
+                m1A90 = 1;
+                m1A8C = 5;
+            }
+        }
+    }
+    if (!m1A7C->IsFlag_unk(4) && m1A7C->mSpeed < 0.0f && m1A7C->mFrame <= 1.0f) {
+        m1A7C->FreezeTask();
+    }
+    if (m1A90 != 0) {
+        if (m1A8C == -1) {
+            m1A90 = 0;
+            m1A7C->mSpeed = -1.0f;
+        } else {
+            m1A8C--;
+        }
+    }
+}
+
+int Manager::fn_80481654() {
+    return m1A7C->IsFrozen_unk() == 0;
+}
+
+int Manager::fn_80481668() {
+    int result = 0;
+    if (!m1A7C->IsFlag_unk(4)) {
+        if (m1A7C->mSpeed >= 0.0f) {
+            result = 1;
+        }
+    }
+    return result;
+}
+
+void Manager::fn_8048169C(int arg) {
+    if (arg == 0) {
+        if (m1A90 == 0) {
+            m1A90 = 1;
+            m1A8C = 5;
+        }
+    } else {
+        m1A7C->mFrame = 0.0f;
+        m1A7C->FreezeTask();
+        m1A90 = 0;
+        m1A8C = -1;
+    }
+}
+
+void Manager::fn_804816F4() {
+    if (m1A80->IsFlag_unk(4)) {
+        m1A80->mFrame = 0.0f;
+        m1A80->mSpeed = 1.0f;
+        m1A80->MeltTask();
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
+        damage.mEnabled = 1;
+        damage.mAngle = 0.0f;
+        damage.mColor.Set_unk(0.7f, 0.9f, 0.95f, 1.0f);
+        damage.mScale = -2.0f;
+        damage.mZoom = 0.05f;
+        DamageEffectParam_unk result = damage;
+        lbl_8087EFA8->m374 = result;
+    }
+}
+
+void Manager::fn_804817D4() {
+    if (!m1A80->IsFlag_unk(4)) {
+        m1A80->FreezeTask();
+        m1A88 = 1;
+    }
+}
+
+void Manager::fn_80481800(int on) {
+    m1EA4 = on;
+    if (on != 0) {
+        m1EB0 = 0;
+    }
+}
+
+void Manager::fn_80481818() {
+    if (m1A88 == 1) {
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
+        if (damage.mEnabled == 0) {
+            m1A88 = 0;
+        } else {
+            m1A88 = 2;
+            m1A84 = m70->m198;
+            if (m23B4 != 0) {
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+                m48->FreezeTask();
+                float scale = m5C;
+                atn::Vector2_unk center(320.0f, 224.0f);
+                atn::Vector2_unk size(scale, scale);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 0, center.x);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 1, center.y);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 2, size.x);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 3, size.y);
+                m48->mSpeed = m60;
+                m48->mFrame = 0.0f;
+                m48->mRepeat = 0;
+                m48->MeltTask();
+                m23B4 = 0;
+            }
+        }
+    }
+}
+void Manager::fn_80481A20() {
+    if (m1A88 == 2) {
+        float t = m70->m198 - m1A84;
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
+        if (damage.mEnabled == 0) {
+            m1A88 = 0;
+        } else {
+            float r = MIN(MAX(t / 20.0f, 0.0f), 1.0f);
+            damage.mZoom = lbl_8087E088 + r * (lbl_8087E08C - lbl_8087E088);
+            if (t >= 20.0f) {
+                m1A88 = 0;
+                damage.mEnabled = 0;
+            }
+            DamageEffectParam_unk result = damage;
+            RenderSetting_unk* rs = lbl_8087EFA8;
+            rs->m374 = result;
+        }
+    }
+}
+// inferred: inverse of fn_8047C88C; only inlined (fn_80481B9C), so the linker strips it
+void SceneSetting_unk::Get_unk(atn::Scene* scene) {
+    mFog = *scene->GetFog();
+    mAmbient = scene->GetAmbientLight();
+    mLS = scene->GetLS_unk();
+    m3C = *scene->fn_8047C778();
+    mGodRay = *scene->fn_8047C780();
+    mShadow = *scene->fn_8047C7D4();
+    mColorMatrix = *scene->fn_8047C7DC();
+    mHaze = *scene->fn_8047C848();
+    m148 = scene->mReflectChara;
+    mLight = *scene->GetLight(0);
+}
+
+// NONMATCHING: 96.0% - registers and stack slots; same shape as the original with include/std/vector.h (fast path
+// inlined, weak copies construct 0x80482400, __expand_by_unk 0x8049003C and __insert_realloc_unk 0x80490098)
+// inferred: adds the light settings of a map area to the event settings (callback, see 0x804834E4)
+void fn_80481B9C(MapArea* area, void* arg) {
+    EventConfig_unk* config = (EventConfig_unk*)arg;
+    SceneSettingEntry_unk entry;
+    entry.mSetting.Get_unk(&area->GetScene_unk());
+    entry.mId = area->mHash;
+    config->m110.push_back(entry);
+}
+
+// inferred: argument of fn_804827D8 and fn_80482E4C (built by fn_80483E80 and fn_80487BB4): the
+// event settings, the next entry (fn_80482E4C), blend or set, and the blend rate. Names invented.
+struct SceneApply_unk {
+    // inferred: weak copy 0x80483E80 (called by fn_80487490)
+    SceneApply_unk(EventConfig_unk* config) : mConfig(config), mIndex(0), mBlend(false) {}
+    // inferred: weak copy 0x80487BB4 (called by Manager::vf10)
+    SceneApply_unk(EventConfig_unk* config, float rate) : mConfig(config), mIndex(0), mBlend(true), mRate(rate) {}
+    EventConfig_unk* mConfig;
+    int mIndex;
+    bool mBlend; // 0x08
+    float mRate; // 0x0C
+};
+
+// inferred: applies (or blends) the light settings of the event to a map area (callback, 0x80487500)
+void fn_804827D8(MapArea* area, void* arg) {
+    SceneApply_unk* apply = (SceneApply_unk*)arg;
+    EventConfig_unk* config = apply->mConfig;
+    for (unsigned int i = 0; i < config->m110.size(); i++) {
+        if (area->mHash == config->m110[i].mId) {
+            if (apply->mBlend) {
+                config->m110[i].mSetting.fn_8047CB74(&area->GetScene_unk(), apply->mRate);
+            } else {
+                config->m110[i].mSetting.fn_8047C88C(&area->GetScene_unk());
+            }
+            return;
+        }
+    }
+}
+// inferred: sets the light of gmk::CharaLight on a map area (callback, as gmk fn_804225E0)
+void fn_80482B24(MapArea* part, void* light) {
+    part->mScene.m074 = (CharaLightData_unk*)light;
+    part->mScene.mLightOn = light != 0 || part->mScene.mLightOn != 0;
+    part->mScene.mLightMask = -1;
+}
+// inferred: argument of fn_80482B54: color matrices of the steps, the next step, the matrix it blends
+// with and the rate. Names invented.
+struct ColorMatrixBlend_unk {
+    // inferred: built by fn_80484088
+    ColorMatrixBlend_unk(float rate) : mIndex(0), mRate(rate) {}
+    std::vector<ColorMatrixParam_unk> mList;
+    int mIndex;                   // 0x0C
+    ColorMatrixParam_unk mTarget; // 0x10
+    float mRate;                  // 0x60
+};
+
+// NONMATCHING: 97.1% - float registers of the blend (1 - t in f10, not f6)
+// inferred: blends the next color matrix with the target and gives it to a map area (callback)
+void fn_80482B54(MapArea* area, void* arg) {
+    ColorMatrixBlend_unk* blend = (ColorMatrixBlend_unk*)arg;
+    if (blend->mIndex < (int)blend->mList.size()) {
+        ColorMatrixParam_unk cm = blend->mList[blend->mIndex];
+        ColorMatrixParam_unk target = blend->mTarget;
+        float t = blend->mRate;
+        for (int i = 0; i < 4; i++) {
+            cm.mRows[i].x = t * cm.mRows[i].x + (1.0f - t) * target.mRows[i].x;
+            cm.mRows[i].y = t * cm.mRows[i].y + (1.0f - t) * target.mRows[i].y;
+            cm.mRows[i].z = t * cm.mRows[i].z + (1.0f - t) * target.mRows[i].z;
+            cm.mRows[i].w = t * cm.mRows[i].w + (1.0f - t) * target.mRows[i].w;
+        }
+        area->mScene.mColorMatrix.Set_unk(cm);
+        blend->mIndex++;
+    }
+}
+
+
+// inferred: copies the direction and the color of a light to the first light of a map area (callback)
+void fn_80482D90(MapArea* area, void* arg) {
+    atn::Light* src = (atn::Light*)arg;
+    atn::Light* dst = area->GetScene_unk().GetLight(0);
+    dst->SetDir_unk(*src->GetDir_unk());
+    dst->SetColor(*src->GetColor_unk());
+}
+
+// inferred: copies the color and the blur of a god ray to a map area (callback)
+void fn_80482DF4(MapArea* area, void* arg) {
+    GodRayParam_unk* src = (GodRayParam_unk*)arg;
+    area->mScene.fn_8047C780()->mColor = src->mColor;
+    area->mScene.fn_8047C780()->mBlurHeight = src->mBlurHeight;
+    area->mScene.fn_8047C780()->mBlurWidth = src->mBlurWidth;
+}
+
+// inferred: sets the "LS" color of a map area (callback)
+void fn_80482E28(MapArea* area, void* arg) {
+    area->mScene.GetLS_unk() = *(atn::Color*)arg;
+}
+
+// inferred: sets the "LS" color of the next light setting to a map area (callback)
+void fn_80482E4C(MapArea* area, void* arg) {
+    SceneApply_unk* it = (SceneApply_unk*)arg;
+    if (it->mIndex < (int)it->mConfig->m110.size()) {
+        area->mScene.GetLS_unk() = atn::Color(it->mConfig->m110[it->mIndex].mSetting.mLS);
+        it->mIndex++;
+    }
+}
+
+// inferred: sets the ambient color of a map area (callback)
+void fn_80482EB4(MapArea* area, void* arg) {
+    area->mScene.GetAmbientLight() = *(atn::Color*)arg;
+}
+// inferred: map of the field, else the first map part (inlined in fn_80482ED8, fn_80483714,
+// fn_80487064 and fn_804870F4); name invented
+inline MapTask* GetCurrentMap_unk() {
+    MapTask* map = 0;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map = lbl_8087F430->GetCurrentMap();
+    }
+    if (map == 0 && MapManager::instance_ != 0 && MapManager::instance_->mMaps.size() != 0) {
+        map = MapManager::instance_->mMaps[0];
+    }
+    return map;
+}
+
+// NONMATCHING: 97.8% - scheduling of the default damage constants and registers of m110.clear()
+// inferred: saves the render settings, the light settings of the scene and of the map areas, the
+// map and the BGM before an event (once: m1AB0.m00)
+void Manager::fn_80482ED8() {
+    if (m1AB0.m00 != 0) {
+        return;
+    }
+    RenderSetting_unk* rs = lbl_8087EFA8;
+    atn::RenderManager* view = atn::RenderManager::instance_;
+    if (rs != 0 && view != 0) {
+        m1AB0.mBloom = rs->m054;
+        m1AB0.m88 = rs->mDof.mEnabled;
+        m1AB0.m8C = rs->mDof.mDebug;
+        m1AB0.m90 = rs->mDof.mView;
+        m1AB0.m94 = rs->mDof.mClearFar;
+        m1AB0.m98 = rs->mDof.mStart;
+        m1AB0.m9C = rs->mDof.mEnd;
+        m1AB0.mA0 = rs->mDof.mNearStart;
+        m1AB0.mA4 = rs->mDof.mNearEnd;
+        m1AB0.mA8 = rs->mDof.mWidth;
+        m1AB0.mAC = rs->mDof.mHeight;
+        m1AB0.mB0 = rs->mDof.mBlurWidth;
+        m1AB0.mB4 = rs->mDof.mBlurHeight;
+        m1AB0.mB8 = rs->m240;
+        m1AB0.mDC = rs->m374;
+        rs->m374 = DamageEffectParam_unk();
+        m1AB0.m100 = rs->m2AC;
+        m1BD0.Get_unk(view->fn_800C16B4());
+        m1AB0.m110.clear();
+        MapManager::instance_->fn_80491528(fn_80481B9C, &m1AB0);
+        m1AB0.m11C = atn::RenderManager::instance_->fn_800C16B4()->m074;
+        MapTask* map = GetCurrentMap_unk();
+        if (map != 0) {
+            m1D6C = map->m104;
+        }
+        m1D64 = GameBgm::sInstance != 0
+                    ? (GameBgm::sInstance->m84 != 0 ? GameBgm::sInstance->mNext.mId : GameBgm::sInstance->mReq.mId)
+                    : -1;
+        m1D68 = GameBgm::sInstance != 0 ? GameBgm::sInstance->mReq.mVolume : 0.0f;
+        m1AB0.m00 = 1;
+    }
+}
+// NONMATCHING: 98.5% - load order of the damage copy (m1AB0.mDC)
+// inferred: restores what fn_80482ED8 saved (b != 0: keep it saved); then fn_80483E94(a)
+void Manager::fn_80483714(int a, int b) {
+    if (m1AB0.m00 == 0) {
+        return;
+    }
+    RenderSetting_unk* rs = lbl_8087EFA8;
+    if (rs == 0) {
+        return;
+    }
+    atn::RenderManager* view = atn::RenderManager::instance_;
+    if (view == 0) {
+        return;
+    }
+    if (rs != 0) {
+        rs->m240 = m1AB0.mB8;
+    }
+    rs->m054 = m1AB0.mBloom;
+    rs->mDof.mEnabled = m1AB0.m88;
+    rs->mDof.mDebug = m1AB0.m8C;
+    rs->mDof.mView = m1AB0.m90;
+    rs->mDof.mClearFar = m1AB0.m94;
+    rs->mDof.mStart = m1AB0.m98;
+    rs->mDof.mEnd = m1AB0.m9C;
+    rs->mDof.mNearStart = m1AB0.mA0;
+    rs->mDof.mNearEnd = m1AB0.mA4;
+    rs->mDof.mWidth = m1AB0.mA8;
+    rs->mDof.mHeight = m1AB0.mAC;
+    rs->mDof.mBlurWidth = m1AB0.mB0;
+    rs->mDof.mBlurHeight = m1AB0.mB4;
+    DamageEffectParam_unk damage = m1AB0.mDC;
+    rs->m374 = damage;
+    rs->m2AC = m1AB0.m100;
+    m1AB0.m01 = 0;
+    m1BD0.fn_8047C88C(view->fn_800C16B4());
+    SceneApply_unk apply(&m1AB0);
+    MapManager::instance_->fn_80491528(fn_804827D8, &apply);
+    MapTask* map = GetCurrentMap_unk();
+    if (map != 0) {
+        map->m104 = m1D6C;
+    }
+    if (mC4 != 0) {
+        fn_8047F984(1.0f);
+        mC4 = 0;
+    }
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(m1AB0.m11C);
+    fn_800DAA3C(lbl_8087F008, 0);
+    if (b == 0) {
+        fn_80483E94(a);
+        m1AB0.m00 = 0;
+    }
+}
+// inferred: end of the saved state: restores the BGM (arg != 0), the sounds and the collision
+// attributes
+__declspec(noinline) void Manager::fn_80483E94(int arg) {
+    if (m1AB0.m00 != 0) {
+        if (arg != 0 && m1D64 != -1 && GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D4C0(m1D64, 60, 1, 0, m1D68);
+        }
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->fn_800CF680(3, 60, 0);
+        }
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_80360780(1, 4, 60);
+            lbl_8087F418->fn_803606CC(1, 4, 60);
+        }
+        if (ColliAttrManager::sInstance != 0 && ColliAttrManager::sInstance->mEnabled == 0) {
+            ColliAttrManager::sInstance->mEnabled = 1;
+        }
+        m1AB0.m00 = 0;
+    }
+}
+// inferred: color matrix of the map area at the target of the current camera, copied into the render
+// settings (uses the manager instance, not this)
+ColorMatrixParam_unk* Manager::fn_80483F70() {
+    Manager* manager = lbl_8087F540;
+    ColorMatrixParam_unk* dst = &lbl_8087EFA8->m324;
+    atn::Sphere sphere(manager->mCameras[manager->m1A38].mTarget, 30.0f);
+    if (MapManager::instance_ != 0) {
+        MapArea* area = MapManager::instance_->FindArea(sphere);
+        if (area != 0) {
+            *dst = *area->mScene.fn_8047C7DC();
+        }
+    }
+    return dst;
+}
+// NONMATCHING: 95.1% - growth path of std::vector::push_back (see docs/msl_cpp.md)
+// inferred: blends the color matrices of the light settings of the map areas with `target`
+void Manager::fn_80484088(ColorMatrixParam_unk* target, float rate) {
+    ColorMatrixBlend_unk blend(rate);
+    blend.mTarget = *target;
+    blend.mList.clear();
+    for (int i = 0; i < (int)m1AB0.m110.size(); i++) {
+        blend.mList.push_back(m1AB0.m110[i].mSetting.mColorMatrix);
+    }
+    MapManager::instance_->fn_80491528(fn_80482B54, &blend);
+}
+// inferred: sets the direction and the color (0xAARRGGBB) of the first light of the render scene and
+// of the map areas
+void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
+    atn::Light* light = atn::RenderManager::instance_->fn_800C16B4()->GetLight(0);
+    unsigned int c = color;
+    light->SetDir_unk(dir);
+    light->SetColor(atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                               (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24)));
+    MapManager::instance_->fn_80491528(fn_80482D90, light);
+}
+// inferred: first light of the scene of the render view (weak copy 0x804848C4); name invented
+inline atn::Light* GetViewLight_unk(atn::RenderManager* view) {
+    return view->mScene->GetLight(0);
+}
+
+// inferred: first light of the map area at the target of the current camera (else of the render scene)
+atn::Light Manager::fn_804848D0() {
+    MapTask* map = lbl_8087F540->fn_80480438(); // inferred: unused (the call stays)
+    atn::Sphere sphere(lbl_8087F540->mCameras[lbl_8087F540->m1A38].mTarget, 30.0f);
+    MapArea* area = MapManager::instance_->FindArea(sphere);
+    if (area != 0) {
+        return *area->GetScene_unk().GetLight(0);
+    }
+    return *GetViewLight_unk(atn::RenderManager::instance_);
+}
+
+// inferred: sets the ambient color (0xAARRGGBB) of the map areas
+void Manager::fn_80484A78(int color) {
+    unsigned int c = color;
+    atn::Color ambient((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                       (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+    MapManager::instance_->fn_80491528(fn_80482EB4, &ambient);
+}
+
+// inferred: uses the light of the manager (m1EB8) for the render scene and the map areas
+void Manager::fn_80484BF4() {
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&m1EB8);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLightMask_unk(-1);
+    MapManager::instance_->fn_80491528(fn_80482B24, &m1EB8);
+}
+// inferred: position, size and speed of the light of the manager
+void Manager::fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float rate) {
+    m1F08 = rate;
+    m1EB8.m04.x = pos.x;
+    m1EB8.m04.y = pos.y;
+    m1EB8.mSize = scale;
+}
+
+// inferred: scales a 2D vector (weak copy 0x80484E6C); name invented
+inline atn::Vector2_unk Scale_unk(const atn::Vector2_unk& v, float s) {
+    return atn::Vector2_unk(v.x * s, v.y * s);
+}
+// inferred: the same for the 2D vectors of the manager (Manager::vf10)
+inline atn::Vec2_unk Scale_unk(const atn::Vec2_unk& v, float s) {
+    return atn::Vec2_unk(v.x * s, v.y * s);
+}
+
+// inferred: moves the light and grows it towards `scale` (cloud map shown) or shrinks it
+void Manager::fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos) {
+    m1EB8.m04.x = pos.x;
+    m1EB8.m04.y = pos.y;
+    if (m1F0C != 0) {
+        if (m1EB8.mSize.x < scale.x && m1EB8.mSize.y < scale.y) {
+            atn::Vector2_unk d = Scale_unk(scale, m1F08);
+            m1EB8.mSize.x += d.x;
+            m1EB8.mSize.y += d.y;
+        } else {
+            m1EB8.mSize = scale;
+        }
+    } else if (m1EB8.mSize.x > 0.0f && m1EB8.mSize.y > 0.0f) {
+        atn::Vector2_unk d = Scale_unk(scale, m1F08);
+        m1EB8.mSize.x -= d.x;
+        m1EB8.mSize.y -= d.y;
+    } else {
+        atn::Vector2_unk d = Scale_unk(scale, 0.0f);
+        m1EB8.mSize.x -= d.x;
+        m1EB8.mSize.y -= d.y;
+    }
+}
+
+// inferred: removes the light of the manager from the render scene and from the map areas
+void Manager::fn_80484E88() {
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
+    if (MapManager::instance_ != 0) {
+        MapManager::instance_->fn_80491528(fn_80482B24, 0);
+    }
+}
+
+// inferred: removes the lights of the event
+void Manager::fn_80484FBC() {
+    int n = lbl_8087EEF8->mSize;
+    for (int i = 0; i < n; i++) {
+        lbl_8087EEF8->fn_8007A154(0);
+    }
+    m1F10.clear();
+}
+// inferred: the light is passed by value (the original copies it to a temporary before push_back)
+static inline void PushLight_unk(LightList_unk* list, atn::Light light) {
+    list->push_back(light);
+}
+
+// NONMATCHING: 95.1% - growth paths of the inlined std::vector::push_back: the original keeps the capacity in a
+// saved register and stores the 1 of __recommend_unk before the length check (std/vector.h)
+// inferred: adds the point light `id` of the event (replacing the one with the same id)
+void Manager::fn_80485028(int id, const atn::Vector3& pos, float radius, int color) {
+    for (int i = 0; i < (int)m1F10.size(); i++) {
+        if (id == m1F10[i]) {
+            m1F10.erase(m1F10.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+    m1F10.push_back(id);
+    atn::Light light;
+    unsigned int c = color;
+    light.fn_800791B4(pos, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
+                                     (1.0f / 255.0f) * (c >> 24)), radius);
+    PushLight_unk(lbl_8087EEF8, light);
+}
+
+// NONMATCHING: 96.1% - growth paths of the inlined std::vector::push_back (see fn_80485028)
+// inferred: adds the spot light of the event (id -1)
+void Manager::fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color) {
+    for (int i = 0; i < (int)m1F10.size(); i++) {
+        if (-1 == m1F10[i]) {
+            m1F10.erase(m1F10.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+    m1F10.push_back(-1);
+    atn::Light light;
+    unsigned int c = color;
+    light.fn_80079210(pos, dir, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
+                                     (1.0f / 255.0f) * (c >> 24)), a, b);
+    PushLight_unk(lbl_8087EEF8, light);
+}
+
+// NONMATCHING: 96.0% - growth paths of the inlined std::vector::push_back (see fn_80485028)
+// inferred: adds the directional light of the event (id -2)
+void Manager::fn_804862C4(const atn::Vector3& dir, int color) {
+    for (int i = 0; i < (int)m1F10.size(); i++) {
+        if (-2 == m1F10[i]) {
+            m1F10.erase(m1F10.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+    m1F10.push_back(-2);
+    atn::Light light;
+    unsigned int c = color;
+    light.fn_800790D0(dir, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
+                                     (1.0f / 255.0f) * (c >> 24)));
+    PushLight_unk(lbl_8087EEF8, light);
+}
+
+// inferred: sets the color (0xAARRGGBB) and the blur of the god ray of the render scene and of the
+// map areas
+void Manager::fn_80486BEC(int color, float blur) {
+    GodRayParam_unk* godRay = atn::RenderManager::instance_->fn_800C16B4()->fn_8047C780();
+    unsigned int c = color;
+    godRay->mColor = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+    godRay->mBlurWidth = blur;
+    godRay->mBlurHeight = blur;
+    MapManager::instance_->fn_80491528(fn_80482DF4, godRay);
+}
+
+// inferred: sets the "LS" color (0xAARRGGBB) of the render scene and of the map areas
+void Manager::fn_80486DAC(int color) {
+    atn::Color* ls = &atn::RenderManager::instance_->fn_800C16B4()->GetLS_unk();
+    unsigned int c = color;
+    *ls = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                     (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+    MapManager::instance_->fn_80491528(fn_80482E28, ls);
+}
+
+// inferred: gives each map area the "LS" color of its light setting, in order
+void Manager::fn_80486F50() {
+    SceneApply_unk apply(&m1AB0);
+    MapManager::instance_->fn_80491528(fn_80482E4C, &apply);
+}
+// inferred: sets MapTask::m104 (0-3) of the current map
+void Manager::fn_80487064(int mode) {
+    if (mode >= 0 && mode <= 3) {
+        MapTask* map = GetCurrentMap_unk();
+        if (map != 0) {
+            map->m104 = mode;
+        }
+    }
+}
+
+
+// inferred: restores MapTask::m104 of the current map (saved by fn_80482ED8)
+void Manager::fn_804870F4() {
+    MapTask* map = GetCurrentMap_unk();
+    if (map != 0) {
+        map->m104 = m1D6C;
+    }
+}
+// inferred: true when the tasks of the manager are loaded; then they are started, hidden
+int Manager::vf0C() {
+    if (lbl_8087F430 == 0 && m1A9C == 0) {
+        m1A9C = atn::FadeCapture::Create(this, 10, -1, 0xFFFFFF, 0);
+        m1A9C->fn_800D246C(1);
+        m1A9C->m78 = 0x12;
+    }
+    if (!m1A7C->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m1A80->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m1AA8->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (m1A9C != 0 && !m1A9C->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (m1EB8.fn_800C1990() != 0) {
+        return 0;
+    }
+    if (!m23AC->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m23B0->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m241C->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m2438->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m48->IsFlag_unk(2)) {
+        return 0;
+    }
+    m1A7C->fn_800D246C(0);
+    m1A7C->FreezeTask();
+    m1A7C->mRepeat = 0;
+    m1A80->fn_800D246C(0);
+    m1A80->FreezeTask();
+    m1A80->mRepeat = 0;
+    m1AA8->fn_800D246C(0);
+    m1AA8->mActive = 0;
+    m23AC->fn_800D246C(0);
+    m23AC->FreezeTask();
+    m23AC->mRepeat = 0;
+    m23B0->fn_800D246C(0);
+    m23B0->FreezeTask();
+    m23B0->mRepeat = 0;
+    m48->fn_800D246C(0);
+    m48->FreezeTask();
+    m48->mRepeat = 0;
+    if (m1A9C != 0) {
+        m1A9C->fn_800D246C(0);
+        m1A9C->FreezeTask();
+        m1A9C->mPauseAtEnd = 1;
+    }
+    m241C->fn_800D246C(0);
+    m241C->mRepeat = 0;
+    m241C->FreezeTask();
+    m2438->fn_800D246C(0);
+    m2438->mRepeat = 1;
+    m2438->FreezeTask();
+    return 1;
+}
+// Over the inlining budget (all the inlines out of line): the rotation matrix is built by
+// atn::Matrix3x4::fn_8013A13C, which returns it by value (no constructor call).
+// inferred: update of the manager: light settings blend (m1AB0.m01), pending map change, the check
+// sphere (m1EA4), the queue of sequences, the movie fade and a BGM of event 0xCE7
+void Manager::vf10() {
+    if (m1AB0.m01 != 0) {
+        m1AB0.m04 -= 0.1f;
+        if (m1AB0.m04 <= 0.0f) {
+            m1BD0.fn_8047C88C(fn_8008B964()->fn_800C16B4());
+            SceneApply_unk apply(&m1AB0);
+            MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
+            m1AB0.m01 = 0;
+        } else {
+            m1BD0.fn_8047CB74(fn_8008B964()->fn_800C16B4(), m1AB0.m04);
+            SceneApply_unk apply(&m1AB0, m1AB0.m04);
+            MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
+        }
+    }
+    if (m1DE8 != 0 && m1DE4 >= 0) {
+        if (m1DE4 == 0) {
+            m1DEC = m1DE8->GetState_unk().m02;
+            m1DF0 = m1DE8->GetState_unk().m00;
+            m1DF4 = m1DE8->GetState_unk().m03;
+            fn_804805F0(m1DE8, m1DF8);
+        }
+        m1DE4--;
+    }
+    if (m1EA4 != 0) {
+        m241C->MeltTask();
+        m2438->MeltTask();
+        m1EAC++;
+        atn::Vec2_unk stick(lbl_807C7028);
+        if (GetPad_unk() != 0) {
+            stick.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);
+            stick.y = fn_800A56A8(GetPad_unk(), 0, 1, 0);
+        }
+        if (m1EA8 != 0) {
+            m241C->SetLayoutValue_unk("colorR", 195.0f);
+            m241C->SetLayoutValue_unk("colorG", 65.0f);
+            m241C->SetLayoutValue_unk("colorB", 80.0f);
+            m241C->SetSpeed_unk(1.0f);
+            m242C = lbl_807C7028;
+        } else {
+            m241C->SetLayoutValue_unk("colorR", 104.0f);
+            m241C->SetLayoutValue_unk("colorG", 121.0f);
+            m241C->SetLayoutValue_unk("colorB", 166.0f);
+            m241C->SetSpeed_unk(-1.0f);
+            m242C = Scale_unk(stick, -6.0f);
+        }
+        m2424 = fn_800F84D8(m2424, m242C, 0.1f);
+        m241C->SetLayoutValue_unk("centerPos", 0, m2424.x);
+        m241C->SetLayoutValue_unk("centerPos", 1, m2424.y);
+        m2438->SetLayoutValue_unk("centerPos", 0, 320.0f + m2424.x);
+        m2438->SetLayoutValue_unk("centerPos", 1, 224.0f + m2424.y);
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        if (m1EAC >= 150) {
+            if (m1EA8 != 0) {
+                m2434 = MAX(0.0f, m2434 - 0.1f);
+            } else {
+                m2434 = MIN(1.0f, 0.1f + m2434);
+                Camera_unk* camera = fn_8008B964()->fn_800F7258();
+                atn::Vector3 target = fn_80383728(camera);
+                dir = m1E94.mCenter - *camera->GetPosition_unk();
+                if (dir.IsZero_unk()) {
+                    dir.Set_unk(0.0f, 0.0f, 1.0f);
+                }
+                dir.Normalize_unk();
+                atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(target.ToRotation_unk().y);
+                dir = dir - target;
+                dir.fn_80011410(Inverse_unk(rot));
+                dir.z = 0.0f;
+                if (dir.IsZero_unk()) {
+                    dir.Set_unk(0.0f, 1.0f, 0.0f);
+                }
+                dir.Normalize_unk();
+                dir.Set_unk(-dir.x, 0.0f, dir.y);
+            }
+        } else {
+            m2434 = MAX(0.0f, m2434 - 0.1f);
+        }
+        m2438->SetLayoutValue_unk("arrowA", m2434);
+        m243C = atn::Lerp_unk<atn::Vector3>(m243C, dir, 0.15f);
+        float angle = 0.0f;
+        if (!m243C.IsZero_unk()) {
+            angle = fn_802A7964(m243C.ToRotation_unk().y);
+        }
+        m241C->SetLayoutValue_unk("arrowRot", angle);
+        m2438->SetLayoutValue_unk("arrowRot", angle);
+        if (m1EB0 > 0) {
+            m1EB0++;
+            if (m1EB0 >= 3) {
+                m1EA4 = 0;
+            }
+        }
+    } else {
+        m241C->Rewind_unk();
+        m241C->FreezeTask();
+        m1EAC = 0;
+        m2424 = lbl_807C7028;
+        m242C = lbl_807C7028;
+        m2438->FreezeTask();
+        m2434 = 0.0f;
+        m243C = atn::Vector3(0.0f, 0.0f, 1.0f);
+    }
+    if (!m23B8.empty()) {
+        QueuedSequence_unk& entry = m23B8.front();
+        if (GetSoundMgr_unk() == 0 || GetSoundMgr_unk()->fn_800D089C(8, 0) <= 0) {
+            entry.m04++;
+        } else {
+            entry.m04 = 0;
+        }
+        if (entry.m04 > 10) {
+            fn_8047E964(entry.mId, 0);
+            m23B8.pop_front();
+        }
+    }
+    if (m1F6C > 0.0f) {
+        m1F6C -= fn_802F0988(fn_802F0990());
+        if (m1F6C <= 0.0f) {
+            m1F6C = 0.0f;
+        }
+    }
+    if (fn_80112F54() != 0 && fn_80112F54()->fn_8047F400() == 0 && fn_80112F54()->GetId_unk() == 0xCE7 &&
+        GameBgm::GetInstance_unk() != 0 && GameBgm::GetInstance_unk()->fn_8037D34C() == 0) {
+        GameBgm::GetInstance_unk()->fn_8037D3E8(1, 4, 0);
+    }
+}
+// inferred: states 11 and 12 of a sequence (a bool, not folded with the test of 10); name invented
+inline bool IsCutState_unk(Sequence* seq) {
+    return seq->m194 == 11 || seq->m194 == 12;
+}
+
+// NONMATCHING: 99.4% - registers of the inlined Camera_unk copy (frustum loop) and of seq/the camera offset
+// inferred: after the sequences: copies the camera m1A94, updates the cameras of a running cut and
+// the pending changes of the manager
+void PostSequence::vf10() {
+    if (lbl_8087F540->m1A94 != 0) {
+        (Camera_unk&)lbl_8087F540->mCameras[lbl_8087F540->m1A98] = *lbl_8087F540->m1A94;
+        lbl_8087F540->mCameras[lbl_8087F540->m1A98].fn_801162A4(1);
+    }
+    Sequence* seq = lbl_8087F540->m70;
+    if (seq != 0 && (seq->m194 == 10 || IsCutState_unk(seq))) {
+        for (int i = 0; i < 4; i++) {
+            lbl_8087F540->mCameras[i].fn_801162A4(i == lbl_8087F540->m1A38);
+        }
+        if (seq->m98_2 == 1) {
+            seq->fn_8054FAD4();
+            seq->m98_2 = 0;
+        }
+    }
+    lbl_8087F540->m1A3C = lbl_8087F540->m1A38;
+    lbl_8087F540->fn_8047FCC0();
+    lbl_8087F540->fn_804814F8();
+    lbl_8087F540->fn_8047F730();
+}
+
+// inferred: draw of the manager (debug information, check sphere)
+void Manager::vf14() {
+    if (m70 != 0) {
+        if (m1A44 != 0) {
+            m1DFC.fn_80221F54(m1E74);
+        }
+        if (m1A48 != m1A44) {
+            if (m1A48 != 0 && m1A44 == 0) {
+                lbl_8087F0A8->mDrawSystemInfo = 0;
+            }
+            m1A48 = m1A44;
+        }
+        if (m1E90 != 0 && m1EA4 != 0) {
+            lbl_8087EEB0->fn_80063D3C(m1E94.mCenter, m1E94.mRadius, 0.0f, 0xFFFFFF00);
+        }
+    }
+}
+// inferred: as in Event/ActionActorPosition.cpp (template member defined out of the class)
+template <class T>
+T* DataList_unk<T>::Find_unk(int id) {
+    for (int i = 0; i < (int)this->size(); i++) {
+        T* p = &this->mData[i];
+        if (id == p->m14) {
+            return p;
+        }
+    }
+    return 0;
+}
+
+// inferred: plays the stream named by the entry param 1 of the sequence (multi audio action)
+void Manager::fn_80488050(Sequence* seq, Action* action) {
+    if (seq == 0) {
+        seq = action->fn_805381C8();
+    }
+    int id = action->GetParam_unk(1)->m04.i;
+    float volume = action->GetParam_unk(2)->m04.f;
+    int stopBgm = action->GetParam_unk(3)->m04.i;
+    int a = action->GetParam_unk(4)->m04.i;
+    int b = action->GetParam_unk(5)->m04.i;
+    int c = action->GetParam_unk(6)->m04.i;
+    StringData* data = seq->m114.Find_unk(id);
+    if (data != 0) {
+        int fade = action->m18;
+        fn_804881B8(seq, data->m08.c_str(), fade, stopBgm, a, b, c, volume, 0, 0x200000);
+    }
+}
+// inferred: actor of a character (kinds 1 and 7); name invented
+inline bool IsCharaActor_unk(const Actor& actor) {
+    return actor.m20 == 1 || actor.m20 == 7;
+}
+
+// NONMATCHING: 97.5% - the first actor loop reloads the size each iteration in the original; stack slot
+// of the iterator tag of the string assignment
+// inferred: starts the music `name` of the sequence; the flags (or those already set) say what is
+// done once: stop the BGM, the environment sounds, the characters of the sequence or their sounds
+void Manager::fn_804881B8(Sequence* seq, const char* name, int fade, int stopBgm, int a, int b, int c,
+                          float volume, int d, int flags) {
+    if ((m1F1C & 0x80000000) && m2380 > 0) {
+        Sequence* prev = FindSequence_unk(m2380);
+        if (prev != 0) {
+            if (m1F1C & 0x200000) {
+                fn_80488534(prev, 60);
+            } else {
+                fn_80488534(prev, 15);
+            }
+        }
+    }
+    flags |= m1F1C;
+    if (fade <= 0) {
+        fade = 60;
+    }
+    if (!(flags & 0x80000000)) {
+        m1E78 = 1;
+        m1E7C = name;
+        m1E8C = 0.0f;
+        m1E88 = 0.0f;
+        flags |= 0x80000000;
+    }
+    if (!(flags & 1) && stopBgm != 0) {
+        if (GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D3E8(1, 4, fade);
+        }
+        flags |= 1;
+    }
+    if (!(flags & 2) && a != 0) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_80360780(0, 4, fade);
+        }
+        flags |= 2;
+    }
+    if (!(flags & 4) && b != 0) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_803606CC(0, 4, fade);
+        }
+        flags |= 4;
+    }
+    if (!(flags & 8) && c != 0) {
+        bool ready = true;
+        for (int i = 0; i < (int)seq->m164.size() && ready; i++) {
+            if (seq->m164[i].m20 == 0) {
+                ready = false;
+            }
+        }
+        if (ready) {
+            for (int i = 0; i < (int)seq->m164.size(); i++) {
+                if (IsCharaActor_unk(seq->m164[i])) {
+                    seq->m164[i].fn_80012774(0);
+                }
+            }
+            if (ColliAttrManager::sInstance != 0) {
+                ColliAttrManager::sInstance->mEnabled = 0;
+            }
+            flags |= 8;
+        }
+    }
+    if (!(flags & 0x10) && d != 0) {
+        for (PlayerTask* p = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0; p != 0; p = p->mNext) {
+            p->m1220.m11 = 0;
+        }
+        for (EnemyTask* e = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; e != 0; e = e->mNext) {
+            e->m1220.m11 = 0;
+        }
+        for (NpcTask* n = NpcManager::sInstance != 0 ? NpcManager::sInstance->mHead : 0; n != 0; n = n->mNext) {
+            n->m1220.m11 = 0;
+        }
+        if (ColliAttrManager::sInstance != 0) {
+            ColliAttrManager::sInstance->mEnabled = 0;
+        }
+        flags |= 0x10;
+    }
+    m1F1C = flags;
+}
+// inferred: undoes what fn_804881B8 did (flags m1F1C), except for the ending (event 0x19D) when
+// GameConfig_unk::m194 is set
+void Manager::fn_80488534(Sequence* seq, int fade) {
+    m1E78 = 0;
+    if (lbl_8087F0A8->m194 != 0 && seq->m190 == 0x19D) {
+        return;
+    }
+    int flags = m1F1C;
+    if (flags & 1) {
+        if (GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D3E8(0, 4, fade);
+        }
+    }
+    if (flags & 2) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_80360780(1, 4, fade);
+        }
+    }
+    if (flags & 4) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_803606CC(1, 4, fade);
+        }
+    }
+    if (flags & 8) {
+        if (ColliAttrManager::sInstance != 0) {
+            ColliAttrManager::sInstance->mEnabled = 1;
+        }
+        for (int i = 0; i < (int)seq->m164.size(); i++) {
+            if (IsCharaActor_unk(seq->m164[i])) {
+                seq->m164[i].fn_80012774(1);
+            }
+        }
+    }
+    if (flags & 0x10) {
+        if (ColliAttrManager::sInstance != 0) {
+            ColliAttrManager::sInstance->mEnabled = 1;
+        }
+        for (PlayerTask* p = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0; p != 0; p = p->mNext) {
+            p->m1220.m11 = 1;
+        }
+        for (EnemyTask* e = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; e != 0; e = e->mNext) {
+            e->m1220.m11 = 1;
+        }
+        for (NpcTask* n = NpcManager::sInstance != 0 ? NpcManager::sInstance->mHead : 0; n != 0; n = n->mNext) {
+            n->m1220.m11 = 1;
+        }
+    }
+    m1F1C = 0;
+}
+// inferred: frames from the current cut of the sequence to `end` (inlined in fn_8048871C and
+// fn_80488B5C); name invented
+inline int FramesTo_unk(Sequence* seq, Cut* end) {
+    int frames = 0;
+    Cut* cut = seq != 0 ? seq->FindCutByIndex_unk(seq->m94) : 0;
+    while (cut != 0 && cut != end) {
+        frames += fn_8047BBBC(seq, cut);
+        cut = fn_8047B768(seq, cut);
+    }
+    return frames;
+}
+
+// NONMATCHING: 98.6% - registers of the frame count and the cut, order of the sum of m1F58
+// inferred: starts the music `name` (null: the one of the multi audio action of the sequence, and its
+// stream if it starts within three frames)
+void Manager::fn_8048871C(Sequence* seq, const char* name, int fade, int start) {
+    if (name == 0) {
+        Action* action = fn_8047BFF4(seq);
+        if (action == 0) {
+            return;
+        }
+        int id = action->GetParam_unk(1)->m04.i;
+        StringData* data = seq->m114.Find_unk(id);
+        if (data == 0) {
+            return;
+        }
+        Cut* end = (Cut*)fn_805381B8(action);
+        int frames = FramesTo_unk(seq, end);
+        m1F58 = action->m10 + frames + m1F64;
+        if (m1F58 <= m1F64 + 3 && seq->m194 != 10) {
+            fn_80488050(seq, action);
+        }
+        name = data->m08.c_str();
+    }
+    if (m1F20.mSound.mPtr != 0) {
+        m1F20.fn_8004B1EC(fade);
+        m1F20.mSound.Reset();
+    }
+    fn_805A38F0(name, 4, 0);
+    lbl_8087EFE8->m34D0 = 4;
+    m1F20.m0C = 1;
+    m1F20.fn_8004AE84(name, start + m1F60);
+    lbl_8087EFE8->m34D0 = 0;
+    m1F34 = 1;
+    m1F38 = name;
+}
+// inferred: id of the sound (a call kept before the other operand); name invented
+inline unsigned int GetSoundId_unk(atn::SoundRef* sound) {
+    unsigned int id = fn_800CB6F8(sound);
+    return id;
+}
+
+// inferred: restarts the music of the multi audio action (if a stream is playing, it continues from
+// its position)
+void Manager::fn_80488A74(const char* name, int fade, float volume) {
+    atn::SoundEngine_unk* engine;
+    if (m1F20.mSound.mPtr == 0 || ((engine = lbl_8087EE90) != 0 && GetSoundId_unk(&m1F20.mSound) != fn_80049B74(engine, name))) {
+        fn_8048871C(m70, name, fade, 0);
+    }
+    m1F20.fn_8004B158(1.0f, 0);
+    if (m1F64 > 0) {
+        fn_800CB640(&m1F20.mSound, 1, 4, 0);
+        m1F68 = m1F64;
+    }
+    m1F5C = 0;
+}
+
+// NONMATCHING: 98.5% - registers of the frame count and the cut (as fn_8048871C)
+// inferred: starts the music of the multi audio again at the position of the next cut
+void Manager::fn_80488B5C(int fade) {
+    if (m70 == 0 || m70->fn_80541210() == 0 || strlen(m1F38.c_str()) == 0) {
+        return;
+    }
+    {
+        Cut* cur = m70->fn_80541210();
+        if (cur == 0) {
+            return;
+        }
+        m1F5C = 0;
+        Cut* next = fn_8047B768(m70, cur);
+        if (next != 0 && m70->m198 > cur->m2C - 60) {
+            next = fn_8047B768(m70, next);
+            m1F5C = 1;
+        }
+        if (next == 0) {
+            return;
+        }
+        int frames = FramesTo_unk(m70, next);
+        int start = (int)(1000.0f * (frames - m1F58) / 30.0f);
+        fn_8048871C(m70, m1F38.c_str(), fade, m1F60 + MAX(start, 0));
+        if (start >= 0) {
+            m1F20.fn_8004B158(1.0f, fade);
+            fn_800CB640(&m1F20.mSound, 1, 4, 0);
+        }
+    }
+}
+// inferred: unmutes the stream of the music (fn_80488A74 mutes it while m1F64 frames pass)
+void Manager::fn_80488D6C() {
+    fn_800CB640(&m1F20.mSound, 0, 4, 0);
+}
+
+// inferred: stops the music of the event
+void Manager::fn_80488D80(int fade) {
+    m1F20.fn_8004B1EC(fade);
+    m1F20.mSound.Reset();
+}
+
+// inferred: counts down the mute time of the stream (m1F68)
+void Manager::fn_80488DB8() {
+    if (m1F68 > 0.0f) {
+        float speed = lbl_8087EFA8->m3A4;
+        m1F68 -= speed;
+        if (m1F68 <= 0.0f) {
+            m1F68 = 0.0f;
+            fn_80488D6C();
+        }
+    }
+}
+// inferred: order of the voices (by start frame)
+struct VoiceLess_unk {
+    bool operator()(const ManagerEntry_unk& a, const ManagerEntry_unk& b) const { return a.mFrame < b.mFrame; }
+};
+
+template <class T>
+inline void Swap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
+template <class T>
+struct Ref_unk {
+    typedef T& type;
+};
+template <class T>
+struct Ref_unk<T&> {
+    typedef T& type;
+};
+
+// inferred: median of three of the quicksort below (MSL __sort; see game/CharaTask.cpp)
+template <class T, class Compare>
+void Median3_unk(T* a, T* b, T* c, Compare& comp) {
+    bool ca = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
+    if (ca && bc) {
+        return;
+    }
+    if (!ca && !bc) {
+        Swap_unk(*a, *b);
+    } else {
+        if (comp(*b, *a)) {
+            Swap_unk(*a, *b);
+        }
+        if (ca) {
+            Swap_unk(*b, *c);
+        } else {
+            Swap_unk(*a, *c);
+        }
+    }
+}
+
+template <class T, class Compare>
+inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
+    T* result = first;
+    if (first != last) {
+        for (it = first + 1; it != last; it++) {
+            if (comp(*it, *result)) {
+                result = it;
+            }
+        }
+    }
+    return result;
+}
+
+// NONMATCHING: 96.5% (both instantiations, as in atn/Loader.cpp)
+// inferred: MSL __sort (same reconstruction as atn/Loader.cpp and game/CharaTask.cpp): 0x80489280
+// (comparison by value) and 0x804895E4 (by reference, recursive part)
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp) {
+    typedef typename Ref_unk<Compare>::type CompareRef;
+    static int sOffset = -4; // inferred: lbl_8087E098 and lbl_8087E09C (one per instantiation)
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first != last) {
+                for (; first != last - 1; first++) {
+                    T* min = MinElement_unk(first, last, comp);
+                    if (min != first) {
+                        Swap_unk(*min, *first);
+                    }
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* i;
+        T* j;
+        T* pivot = last - 1;
+        Median3_unk(a, b, pivot, comp);
+        i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            i++;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            Swap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                Swap_unk(*i, *j);
+                i++;
+            }
+        }
+        if (i == first) {
+            T* back = last - 1;
+            Swap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    i++;
+                }
+                if (i < back) {
+                    Swap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        i++;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    Swap_unk(*i, *j);
+                    i++;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            Sort_unk<T, CompareRef>(first, i, comp);
+            first = i;
+        } else {
+            Sort_unk<T, CompareRef>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+
+// NONMATCHING: 94.6% - one more saved register in the original (the action loop has a first test)
+// inferred: collects the voices of the sequence (audio channels of the sections of kind 1), from the
+// current cut, with their start frames; the same stream twice in a row is kept once in event 0xE19
+void Manager::fn_80488E00(Sequence* seq) {
+    mVoices.clear();
+    m2378 = -1;
+    Cut* cut = seq->FindCutByIndex_unk(seq->m94);
+    int frame = 0;
+    while (cut != 0) {
+        for (int i = 0; i < (int)cut->mSections.size(); i++) {
+            Section* section = cut->GetSection_unk(i);
+            if (section->m14 != 0 && section->m0C == 1) {
+                for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                    Channel* channel = section->GetChannel_unk(j);
+                    if (channel->m10 != 0 && channel->m0C == 5) {
+                        for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                            Action* action = channel->GetAction_unk(k);
+                            StringData* data = seq->m114.Find_unk(action->GetParam_unk(0)->m04.i);
+                            if (data != 0 && data->GetName_unk().size() != 0 &&
+                                (lbl_8087EE90 == 0 || fn_80049B74(lbl_8087EE90, data->GetName_unk().c_str()) != 0)) {
+                                if (mVoices.size() == 0 || seq->m190 != 0xE19 ||
+                                    !(seq->m114.Find_unk(mVoices[mVoices.size() - 1].mAction->GetParam_unk(0)->m04.i)->GetName_unk() ==
+                                      data->GetName_unk())) {
+                                    mVoices.push_back(ManagerEntry_unk(action, frame + action->m10));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        frame += cut->m2C;
+        cut = fn_8047B768(seq, cut);
+    }
+    Sort_unk(mVoices.begin(), mVoices.end(), VoiceLess_unk());
+    m2378 = -1;
+}
+
+// inferred: stops the voice of the event
+void Manager::fn_80489A2C() {
+    m2378 = -1;
+    if (lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EB4A8(0, 1);
+    }
+}
+// inferred: prepares the next voice of the event: the one after `action` (null: after the current one,
+// m2378); `keep` leaves the current index
+void Manager::fn_80489A50(Action* action, int keep) {
+    if (lbl_8087F0A8->mPreloadEventVoice == 0 || lbl_8087EE90 == 0 || lbl_8087EE90->m04 == 0) {
+        return;
+    }
+    if (lbl_8087F498 != 0 && (lbl_8087F498->fn_803EB338() != 0 || lbl_8087F498->fn_803EBA54() == 0)) {
+        return;
+    }
+    if (m70 == 0) {
+        return;
+    }
+    Action* next = 0;
+    if (action == 0) {
+        int i = m2378;
+        if (i >= 0 || m237C != 0) {
+            i++;
+            if (i >= 0 && i < (int)mVoices.size()) {
+                next = mVoices[i].mAction;
+            }
+        }
+    } else {
+        ManagerEntry_unk* voice = mVoices.begin();
+        for (unsigned int j = 0; j < mVoices.size(); voice++, j++) {
+            if (action == voice->mAction) {
+                if (keep == 0) {
+                    m2378 = j;
+                }
+                int i = m2378 + 1;
+                if (i >= 0 && i < (int)mVoices.size()) {
+                    next = mVoices[i].mAction;
+                }
+                break;
+            }
+        }
+    }
+    if (next == 0) {
+        return;
+    }
+    int id = next->GetParam_unk(0)->m04.i;
+    StringData* data = ((Sequence*)fn_805381DC(next))->m114.Find_unk(id);
+    if (data == 0) {
+        return;
+    }
+    if (fn_805A38F0(data->m08.c_str(), 8, 0) == 0) {
+        return;
+    }
+    if (lbl_8087F498 != 0 && lbl_8087F498->fn_803EB338() == 0) {
+        if (lbl_8087F498->fn_803EB038(data->m08.c_str(), 0) != 0) {
+            m2378++;
+            if (m237C == 0) {
+                m237C = 1;
+            }
+        }
+    }
+}
+
+
+// inferred: skips to the end of the current cut
+void Manager::fn_80489C98() {
+    Cut* cut;
+    m2390 = 1;
+    Sequence* seq = m70;
+    if (seq != 0) {
+        cut = seq->fn_80541210();
+        if (cut != 0) {
+            seq->fn_80541534(seq->fn_80541198(cut), cut->m2C);
+        }
+    }
+}
+// inferred: integral of the curve between a and b (weak copy 0x8048A2BC); name invented
+inline float Integral_unk(atn::Curve* curve, float a, float b) {
+    atn::Curve* integral = curve->vf08();
+    float va = integral->vf10(a);
+    return integral->vf10(b) - va;
+}
+
+void Curve_unk::fn_80489D08(int type) {
+    if (m04 != 0) {
+        delete m04;
+        m04 = 0;
+    }
+    if (m08 != 0) {
+        delete m08;
+        m08 = 0;
+    }
+    if (m0C != 0) {
+        delete m0C;
+        m0C = 0;
+    }
+    switch (type) {
+    case 0:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.0f);
+        break;
+    case 1:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 0.0f);
+        break;
+    case 2:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 0.0f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(0.5f);
+        break;
+    case 3:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 3.1415927f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.5f);
+        break;
+    case 6:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 1.5707964f, 0.0f);
+        break;
+    case 5:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 1.5707964f, 1.5707964f);
+        break;
+    case 4:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, -1.5707964f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.0f);
+        break;
+    case 7:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 1.5707964f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.0f);
+        break;
+    default:
+        if (type >= 8) {
+            m0C = new ((MemoryTag)1, "", "", 0) EffectLists_unk;
+        }
+        break;
+    }
+    if (m04 != 0) {
+        if (m08 != 0) {
+            float a = Integral_unk(m04, 0.0f, 1.0f);
+            float b = Integral_unk(m08, 0.0f, 1.0f);
+            m04->vf14(1.0f / (a + b));
+            m08->vf14(1.0f / (a + b));
+        } else {
+            m04->vf14(1.0f / Integral_unk(m04, 0.0f, 1.0f));
+        }
+    } else if (m0C != 0 && fn_8000DB1C() != 0) {
+        Sequence* seq = fn_8000DB1C()->fn_80112F54();
+        if (seq != 0) {
+            EffectLists_unk* path = seq->fn_80543060(type - 8);
+            if (path != 0) {
+                std::vector<atn::Vector3> points;
+                for (int i = 0; i < path->GetCount_unk(); i++) {
+                    points.push_back(path->GetPoint_unk(i));
+                }
+                m0C->Set_unk(points);
+            }
+        }
+    }
+}
+
+// inferred: adds a time curve of type `type` with the next free id
+// NONMATCHING: 97.36% - inlined push_back (known family: size/capacity in r5/r4, stack slots of the
+// growth temporaries, order of the element copy) and the __allocate message (lbl_80790184)
+int Manager::fn_8048B048(int type) {
+    int id = 1;
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        if (m23A0[i].mId >= id) {
+            id = m23A0[i].mId + 1;
+        }
+    }
+    Curve_unk curve;
+    curve.mId = id;
+    curve.m04 = 0;
+    curve.m08 = 0;
+    curve.m0C = 0;
+    m23A0.push_back(curve);
+    m23A0[m23A0.size() - 1].fn_80489D08(type);
+    return id;
+}
+
+// inferred: adds a move curve of type `type` with the next free id
+// NONMATCHING: 97.36% - inlined push_back (known family: size/capacity in r5/r4, stack slots of the
+// growth temporaries, order of the element copy) and the __allocate message (lbl_80790184)
+int Manager::fn_8048B3B8(int type) {
+    int id = 1;
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        if (m2394[i].mId >= id) {
+            id = m2394[i].mId + 1;
+        }
+    }
+    Curve_unk curve;
+    curve.mId = id;
+    curve.m04 = 0;
+    curve.m08 = 0;
+    curve.m0C = 0;
+    m2394.push_back(curve);
+    m2394[m2394.size() - 1].fn_80489D08(type);
+    return id;
+}
+
+// inferred: value at `t` of a curve: integral over [0, t] of the curve (and of the second one), or the
+// height of the curve path where its first coordinate is `t` (bisection, ten steps)
+// NONMATCHING: 86.71% - scheduling and stack slots of the inlined Bezier point (the original evaluates the
+// third control point first and keeps 0.5 on the stack)
+float Manager::fn_8048B720(Curve_unk* curve, float t) {
+    float v = t;
+    if (curve->m04 != 0) {
+        v = Integral_unk(curve->m04, 0.0f, t);
+        if (curve->m08 != 0) {
+            v += Integral_unk(curve->m08, 0.0f, t);
+        }
+    } else if (curve->m0C != 0) {
+        float x = 0.5f;
+        float step = 0.5f;
+        atn::Vector3 p(0.0f, 0.0f, 0.0f);
+        for (int i = 0; i < 10; i++) {
+            p = curve->m0C->GetPos_unk(x);
+            if ((float)__fabs(v - p.x) < 0.001f) {
+                break;
+            }
+            step *= 0.5f;
+            if (v > p.x) {
+                x += step;
+            } else {
+                x -= step;
+            }
+        }
+        v = p.y;
+    }
+    return v;
+}
+
+// inferred: value at `t` of the time curve `id` (0 if there is none)
+float Manager::fn_8048BCA4(int id, float t) {
+    int index = -1;
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        if (id == m23A0[i].mId) {
+            index = i;
+        }
+    }
+    if (index == -1) {
+        return 0.0f;
+    }
+    return fn_8048B720(&m23A0[index], t);
+}
+
+// inferred: value at `t` of the move curve `id` (0 if there is none)
+float Manager::fn_8048BD04(int id, float t) {
+    int index = -1;
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        if (id == m2394[i].mId) {
+            index = i;
+        }
+    }
+    if (index == -1) {
+        return 0.0f;
+    }
+    return fn_8048B720(&m2394[index], t);
+}
+
+// inferred: releases the time curve `id` and removes it from the list
+// NONMATCHING: 33.12% - delete of the atn::Curve: depth of the inlined ~scoped_ptr -> checked_delete ->
+// ~Curve recursion (same blocker as the weak copies of atn/Curve.h)
+void Manager::fn_8048BD64(int id) {
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        if (id == m23A0[i].mId) {
+            if (m23A0[i].m04 != 0) {
+                delete m23A0[i].m04;
+                m23A0[i].m04 = 0;
+            }
+            if (m23A0[i].m08 != 0) {
+                delete m23A0[i].m08;
+                m23A0[i].m08 = 0;
+            }
+            if (m23A0[i].m0C != 0) {
+                delete m23A0[i].m0C;
+                m23A0[i].m0C = 0;
+            }
+            m23A0.erase(&m23A0[i]);
+            return;
+        }
+    }
+}
+
+// inferred: releases the move curve `id` and removes it from the list
+// NONMATCHING: 33.12% - delete of the atn::Curve: depth of the inlined ~scoped_ptr -> checked_delete ->
+// ~Curve recursion (same blocker as the weak copies of atn/Curve.h)
+void Manager::fn_8048C884(int id) {
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        if (id == m2394[i].mId) {
+            if (m2394[i].m04 != 0) {
+                delete m2394[i].m04;
+                m2394[i].m04 = 0;
+            }
+            if (m2394[i].m08 != 0) {
+                delete m2394[i].m08;
+                m2394[i].m08 = 0;
+            }
+            if (m2394[i].m0C != 0) {
+                delete m2394[i].m0C;
+                m2394[i].m0C = 0;
+            }
+            m2394.erase(&m2394[i]);
+            return;
+        }
+    }
+}
+
+// inferred: releases the curves of the time curve `index` (the entry stays in the list)
+// NONMATCHING: 30.81% - depth of the inlined ~Curve recursion (see fn_8048BD64)
+// inferred: noinline: called by ~Manager and fn_8048E904 (MWCC inlines it here because its ~Curve chain is
+// shallower than in the original)
+__declspec(noinline) void Manager::fn_8048D3A4(int index) {
+    if (m23A0[index].m04 != 0) {
+        delete m23A0[index].m04;
+        m23A0[index].m04 = 0;
+    }
+    if (m23A0[index].m08 != 0) {
+        delete m23A0[index].m08;
+        m23A0[index].m08 = 0;
+    }
+    if (m23A0[index].m0C != 0) {
+        delete m23A0[index].m0C;
+        m23A0[index].m0C = 0;
+    }
+}
+
+// inferred: releases the curves of the move curve `index` (the entry stays in the list)
+// NONMATCHING: 30.81% - depth of the inlined ~Curve recursion (see fn_8048BD64)
+// inferred: noinline: called by ~Manager and fn_8048E904 (MWCC inlines it here because its ~Curve chain is
+// shallower than in the original)
+__declspec(noinline) void Manager::fn_8048DE54(int index) {
+    if (m2394[index].m04 != 0) {
+        delete m2394[index].m04;
+        m2394[index].m04 = 0;
+    }
+    if (m2394[index].m08 != 0) {
+        delete m2394[index].m08;
+        m2394[index].m08 = 0;
+    }
+    if (m2394[index].m0C != 0) {
+        delete m2394[index].m0C;
+        m2394[index].m0C = 0;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// inferred: releases every curve and empties both lists
+// NONMATCHING: 62.28% - the original also calls size and clear (weak copies 0x8048B3B0 and 0x8048E994): it
+// is over the inline budget because fn_8048D3A4 is a large candidate there (ours is called through
+// __declspec(noinline), see the ~Curve recursion blocker in fn_8048BD64)
+void Manager::fn_8048E904() {
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        fn_8048D3A4(i);
+    }
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        fn_8048DE54(i);
+    }
+    m23A0.clear();
+    m2394.clear();
+}
+
+// inferred: movie shown by the event and its fade time
+void Manager::fn_8048E9A4(atn::VideoTHP* movie, int frames) {
+    m1F70 = movie;
+    m1F6C = 1.0f + (float)frames;
+}
+
+#define MOVIE_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
+#define MOVIE_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
+
+// inferred: start of a movie: stops the movie of the event, freezes the game tasks (keeping their state)
+// and raises the gamma for some events
+// NONMATCHING: 99.16% - registers of the gamma clamp (settings in r5, gamma in r3 in the original)
+void Manager::fn_8048E9E0() {
+    if (mMoviePlaying) {
+        return;
+    }
+    if (m1F70 != 0) {
+        m1F70->vf20();
+        m1F70->m08 = 3;
+    }
+    mMoviePlaying = 1;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        m2404_1 = lbl_8087F430->GetCurrentMap()->IsFrozen_unk();
+        lbl_8087F430->GetCurrentMap()->FreezeTask();
+    }
+    if (lbl_8087F8A0 != 0) {
+        m2404_2 = lbl_8087F8A0->IsFrozen_unk();
+        lbl_8087F8A0->FreezeTask();
+    }
+    if (EnemyManager::sInstance != 0) {
+        m2404_3 = EnemyManager::sInstance->IsFrozen_unk();
+        EnemyManager::sInstance->FreezeTask();
+    }
+    if (NpcManager::sInstance != 0) {
+        m2404_4 = NpcManager::sInstance->IsFrozen_unk();
+        NpcManager::sInstance->FreezeTask();
+    }
+    if (CrowdManager::sInstance != 0) {
+        m2404_5 = CrowdManager::sInstance->IsFrozen_unk();
+        CrowdManager::sInstance->FreezeTask();
+    }
+    if (lbl_8087F3C0 != 0) {
+        m2404_6 = lbl_8087F3C0->IsFrozen_unk();
+        lbl_8087F3C0->FreezeTask();
+    }
+    if (GimmickManager::instance_ != 0) {
+        m2404_7 = GimmickManager::instance_->IsFrozen_unk();
+        GimmickManager::instance_->FreezeTask();
+    }
+    m2408 = lbl_8087EFA8->m034;
+    m2405_0 = lbl_8087EFA8->m3AC != 0;
+    if (m70 != 0) {
+        switch (m70->m190) {
+        case 0x195:
+        case 0x1FB:
+        case 0x58D:
+        case 0x5E6:
+        case 0x26AD:
+            lbl_8087EFA8->m034 = MOVIE_MAX_UNK(lbl_8087EFA8->m034, MOVIE_MIN_UNK(lbl_8087EFA8->m034 + 1, 11));
+            break;
+        case 0x7D4:
+            lbl_8087EFA8->m034 = MOVIE_MAX_UNK(lbl_8087EFA8->m034, MOVIE_MIN_UNK(lbl_8087EFA8->m034 + 2, 12));
+            break;
+        }
+    }
+}
+
+// inferred: end of a movie: restores the frozen state of the game tasks and the render settings
+void Manager::fn_8048EC7C() {
+    if (!mMoviePlaying) {
+        return;
+    }
+    if (m1F70 != 0) {
+        m1F70 = 0;
+    }
+    mMoviePlaying = 0;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        lbl_8087F430->GetCurrentMap()->SetFrozen_unk(m2404_1);
+    }
+    if (lbl_8087F8A0 != 0) {
+        lbl_8087F8A0->SetFrozen_unk(m2404_2);
+    }
+    if (EnemyManager::sInstance != 0) {
+        EnemyManager::sInstance->SetFrozen_unk(m2404_3);
+    }
+    if (NpcManager::sInstance != 0) {
+        NpcManager::sInstance->SetFrozen_unk(m2404_4);
+    }
+    if (CrowdManager::sInstance != 0) {
+        CrowdManager::sInstance->SetFrozen_unk(m2404_5);
+    }
+    if (lbl_8087F3C0 != 0) {
+        lbl_8087F3C0->SetFrozen_unk(m2404_6);
+    }
+    if (GimmickManager::instance_ != 0) {
+        GimmickManager::instance_->SetFrozen_unk(m2404_7);
+    }
+    lbl_8087EFA8->m034 = m2408;
+    lbl_8087EFA8->m3AC = m2405_0;
+}
+
+// inferred: shows the gradation `index` (0: m23AC, 1: m23B0) with its color, position and size, rotation
+// and frame (a fraction of the animation)
+void Manager::fn_8048EE78(int index, float x, float y, float w, float h, float rot, int color, float frame) {
+    if ((unsigned int)index > 1) {
+        return;
+    }
+    if (index == 0) {
+        if (m23AC->IsFlag_unk(4)) {
+            m23AC->SetColor_unk("col0001(1)", color);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 0, x);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 1, y);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 2, w);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 3, h);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 4, 0.8f);
+            SetLayoutValue_unk(&m23AC->mData.m10, "rot0001(1)", rot);
+            m23AC->mSpeed = 0.0f;
+            m23AC->mFrame = m23AC->mData.mEndFrame * frame;
+            m23AC->MeltTask();
+        }
+    } else {
+        if (m23B0->IsFlag_unk(4)) {
+            m23B0->SetColor_unk("col0001(1)", color);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 0, x);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 1, y);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 2, w);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 3, h);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 4, 0.8f);
+            SetLayoutValue_unk(&m23B0->mData.m10, "rot0001(1)", rot);
+            m23B0->mSpeed = 0.0f;
+            m23B0->mFrame = m23B0->mData.mEndFrame * frame;
+            m23B0->MeltTask();
+        }
+    }
+}
+
+void Manager::fn_8048F184(int index) {
+    if ((unsigned int)index > 1) {
+        return;
+    }
+    if (index == 0) {
+        if (!m23AC->IsFlag_unk(4)) {
+            m23AC->FreezeTask();
+        }
+    } else {
+        if (!m23B0->IsFlag_unk(4)) {
+            m23B0->FreezeTask();
+        }
+    }
+}
+
+// inferred: argument of the AutoLightFix callbacks (fn_8048F1DC: direction, fn_8048F844: intensities).
+// Names invented.
+struct LightFixDir_unk {
+    LightFixDir_unk(EventCamera_unk* camera, EventConfig_unk* config, int type, float ratio)
+        : mCamera(camera), mConfig(config), mType(type), mRatio(ratio) {}
+    EventCamera_unk* mCamera;
+    EventConfig_unk* mConfig;
+    int mType;
+    float mRatio;
+};
+struct LightFixIntensity_unk {
+    LightFixIntensity_unk(EventConfig_unk* config, float key, float ambient, CutLightFlags_unk flags)
+        : mConfig(config), mKey(key), mAmbient(ambient), mFlags(flags) {}
+    EventConfig_unk* mConfig;
+    float mKey;
+    float mAmbient;
+    CutLightFlags_unk mFlags;
+};
+
+// inferred: AutoLightFix, direction of the light of a map area (callback): between the view direction of
+// the camera and the light of the settings of the area
+// NONMATCHING: 99.11% - frame 0x10 larger: the inlined fn_8047C1D8 keeps the copy of the slerp in a slot of its
+// own (same residue as fn_8047C1D8)
+void fn_8048F1DC(MapArea* area, void* arg) {
+    LightFixDir_unk* fix = (LightFixDir_unk*)arg;
+    if (fix->mType != 1) {
+        return;
+    }
+    for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
+        if (area->mHash == fix->mConfig->m110[i].mId) {
+            atn::Vector3 dir;
+            dir = fix->mCamera->mTarget - fix->mCamera->mPos;
+            dir.Normalize_unk();
+            area->GetScene_unk().GetLight(0)
+                ->SetDir_unk(fn_8047C1D8(dir, *fix->mConfig->m110[i].mSetting.mLight.GetDir_unk(), fix->mRatio));
+            return;
+        }
+    }
+}
+
+// inferred: AutoLightFix, intensities of the light and of the ambient color of a map area (callback)
+void fn_8048F844(MapArea* area, void* arg) {
+    LightFixIntensity_unk* fix = (LightFixIntensity_unk*)arg;
+    for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
+        if (area->mHash == fix->mConfig->m110[i].mId) {
+            if (!fix->mFlags.m00 && !fix->mFlags.m01 && !fix->mFlags.m02) {
+                area->GetScene_unk().GetLight(0)
+                    ->SetColor(*fix->mConfig->m110[i].mSetting.mLight.GetColor_unk() * fix->mKey);
+            }
+            if (!fix->mFlags.m03) {
+                area->mScene.GetAmbientLight() = fix->mConfig->m110[i].mSetting.mAmbient * fix->mAmbient;
+            }
+            return;
+        }
+    }
+}
+
+// inferred: AutoLightFix (debug menu "AutoLightFix"): unless the cut moves the lights itself, turns the
+// light towards the camera (type 1) or adds a directional light (type 2), then scales the light and the
+// ambient color of the scene and of the map areas
+void Manager::fn_8048F9B0(Cut* cut) {
+    CutLightFlags_unk flags = cut->GetLightFlags_unk();
+    if (!flags.m00 && !flags.m01 && !flags.m02) {
+        switch (m240C) {
+        case 1: {
+            EventCamera_unk* camera = fn_8000DB1C()->GetCamera_unk();
+            atn::Vector3 dir = fn_8047C1D8(fn_80383728(camera), *m1BD0.mLight.GetDir_unk(), m2410);
+            GetViewLight_unk(fn_8008B964())->SetDir_unk(dir);
+            LightFixDir_unk fix(camera, &m1AB0, m240C, m2410);
+            MapManager::GetInstance_unk()->fn_80491528(fn_8048F1DC, &fix);
+            break;
+        }
+        case 2: {
+            EventCamera_unk* camera = fn_8000DB1C()->GetCamera_unk();
+            fn_804862C4(fn_80383728(camera), (*fn_804848D0().GetColor_unk() * m2410).ToU32());
+            break;
+        }
+        }
+    }
+    if (1.0f != m2414 || 1.0f != m2418) {
+        if (!flags.m00 && !flags.m01 && !flags.m02) {
+            GetViewLight_unk(fn_8008B964())->SetColor(*m1BD0.mLight.GetColor_unk() * m2414);
+        }
+        if (!flags.m03) {
+            fn_8008B964()->fn_800C16B4()->GetAmbientLight() = m1BD0.mAmbient * m2418;
+        }
+        LightFixIntensity_unk fix(&m1AB0, m2414, m2418, flags);
+        MapManager::GetInstance_unk()->fn_80491528(fn_8048F844, &fix);
+    }
+}
+
+// inferred: removes the light -2 of the event from its list and from the light list (name invented)
+inline void RemoveEventLight_unk(IntVector_unk& lights) {
+    for (int i = 0; i < (int)lights.size(); i++) {
+        if (lights[i] == -2) {
+            lights.erase(lights.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+}
+
+// inferred: undoes the AutoLightFix (light direction of the event, or removes the light -2)
+void Manager::fn_8048FC7C() {
+    switch (m240C) {
+    case 1: {
+        EventCamera_unk* camera = lbl_8087F540->GetCamera_unk();
+        GetViewLight_unk(atn::RenderManager::instance_)->SetDir_unk(*m1BD0.mLight.GetDir_unk());
+        LightFixDir_unk fix(camera, &m1AB0, m240C, 0.0f);
+        MapManager::instance_->fn_80491528(fn_8048F1DC, &fix);
+        break;
+    }
+    case 2:
+        RemoveEventLight_unk(m1F10);
+        break;
+    }
+}
+
+// inferred: creates the staff roll of the ending
+void Manager::fn_8048FE88() {
+    if (m2400 == 0) {
+        m2400 = NewStaffRoll::Create_unk(this);
+        m2400->fn_800D246C(1);
+    }
+}
+
+// inferred: removes the staff roll
+void Manager::fn_8048FEF0() {
+    if (m2400 != 0) {
+        fn_800D2338(m2400);
+        m2400 = 0;
+    }
+}
+
+// inferred: nonzero while the staff roll is loading
+int Manager::fn_8048FF34() {
+    if (m2400 != 0 && !m2400->IsFlag_unk(2)) {
+        return 1;
+    }
+    return 0;
+}
+
+PostSequence::~PostSequence() {
+    sInstance = 0;
+}
+
+void PostSequence::vf14() {}
+
+int PostSequence::vf0C() { return 1; }
+
+SequenceRoot::~SequenceRoot() {
+    sInstance = 0;
+}
+
+void SequenceRoot::vf14() {}
+
+void SequenceRoot::vf10() {}
+
+int SequenceRoot::vf0C() { return 1; }
+
+} // namespace Event
+
+// inferred: positions of the message layouts (include/Event/MessageLayoutPos_unk.h); initialized in __sinit
+#include "Event/MessageLayoutPos_unk.h"
+extern "C" atn::Vector2_unk lbl_807C8AB0[3] = {
+    atn::Vector2_unk(0.5f, 0.81f),
+    atn::Vector2_unk(0.5f, 0.5f),
+    atn::Vector2_unk(0.95f, 0.8f),
+};

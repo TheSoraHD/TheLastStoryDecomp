@@ -367,18 +367,15 @@ static inline atn::Quaternion_unk Slerp_unk(const atn::Quaternion_unk& a, const 
     return q;
 }
 
-// NONMATCHING: 97.1% - stack layout: the original copies the slerp result (0xC8) into the dead slot of
-// qb (0xF0); here the copy gets a slot of its own (frame 0x270, not 0x260). Tried: no copy, RVO'd
-// helper, copy construction, by-value helper, nested temporaries.
+// inferred: the slerp result is assigned back to the second quaternion (its slot is reused, as the original)
 // inferred: direction between `a` and `b` (slerp of their rotations; names invented)
 atn::Vector3 fn_8047C1D8(const atn::Vector3& a, const atn::Vector3& b, float t) {
     atn::Quaternion_unk qa = EulerToQuat_unk(a.ToRotation_unk());
-    atn::Quaternion_unk qb = EulerToQuat_unk(b.ToRotation_unk());
-    atn::Quaternion_unk r;
-    r = Slerp_unk(qb, qa, t);
+    atn::Quaternion_unk q = EulerToQuat_unk(b.ToRotation_unk());
+    q = Slerp_unk(q, qa, t);
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
     Mtx m;
-    PSMTXQuat(m, &r);
+    PSMTXQuat(m, &q);
     PSMTXMultVec(m, &dir, &dir);
     return dir;
 }
@@ -3141,8 +3138,8 @@ struct LightFixIntensity_unk {
 
 // inferred: AutoLightFix, direction of the light of a map area (callback): between the view direction of
 // the camera and the light of the settings of the area
-// NONMATCHING: 99.11% - frame 0x10 larger: the inlined fn_8047C1D8 keeps the copy of the slerp in a slot of its
-// own (same residue as fn_8047C1D8)
+// NONMATCHING: 99.50% - registers of the loop over the light settings (the frame matches with the view
+// direction as a temporary, patch mixto-20261116 qH)
 void fn_8048F1DC(MapArea* area, void* arg) {
     LightFixDir_unk* fix = (LightFixDir_unk*)arg;
     if (fix->mType != 1) {
@@ -3150,11 +3147,9 @@ void fn_8048F1DC(MapArea* area, void* arg) {
     }
     for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
         if (area->mHash == fix->mConfig->m110[i].mId) {
-            atn::Vector3 dir;
-            dir = fix->mCamera->mTarget - fix->mCamera->mPos;
-            dir.Normalize_unk();
-            area->GetScene_unk().GetLight(0)
-                ->SetDir_unk(fn_8047C1D8(dir, *fix->mConfig->m110[i].mSetting.mLight.GetDir_unk(), fix->mRatio));
+            area->GetScene_unk().GetLight(0)->SetDir_unk(
+                fn_8047C1D8((fix->mCamera->mTarget - fix->mCamera->mPos).GetNormalize(),
+                            *fix->mConfig->m110[i].mSetting.mLight.GetDir_unk(), fix->mRatio));
             return;
         }
     }
