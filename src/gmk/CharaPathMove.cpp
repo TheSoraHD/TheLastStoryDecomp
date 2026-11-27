@@ -324,8 +324,17 @@ int CharaPathMove::vf60() {
     return m54 == 1;
 }
 
-// NONMATCHING: 99.41% - .sdata2 order: the original places 1.0f (used later by fn_8043E770)
-// before the constants of this function.
+} // namespace gmk
+
+// inferred: function without callers that the linker removes: in the original the .sdata2 of the file has the 1.0f
+// used by PathChara_unk::fn_8043E770 before the constants of CharaPathMove::vf6C; it recreates that order (name
+// and body invented, as LayerOcclusionPool_unk of atn/LayerOcclusionCPU.cpp)
+extern "C" float CharaPathMovePool_unk() {
+    return 1.0f;
+}
+
+namespace gmk {
+
 void CharaPathMove::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);
@@ -352,19 +361,26 @@ void PathChara_unk::fn_8043E6B0(const char* motion, float speed, std::vector<std
     mSpeed = speed;
 }
 
-// NONMATCHING: 89.59% - 16 bytes smaller frame and one saved register less; owner reloaded for
-// rand() % mUpperInterval; same .sdata2 order issue as vf6C.
+// inferred: upper bound of the wait between walks (name invented; read through an inline, found with the
+// Val_unk probe)
+static inline int UpperIntervalOf_unk(const gmk::CharaPathMove* owner) {
+    return owner->mUpperInterval;
+}
+
+// inferred: the owner in a local for the first point, the yaw with ToRotationZ_unk (z rounded once) and the
+// interval through UpperIntervalOf_unk (Val_unk probe)
 void PathChara_unk::fn_8043E770() {
     ((void)0); // inferred: assertions compiled out (keep the function out of line in Start/vf10)
     ((void)0);
     if (mOwner != 0 && mChara != 0) {
-        if (mOwner->mPoints.size() >= 2) {
-            mChara->mPos = mOwner->mPoints[0];
+        CharaPathMove* owner = mOwner;
+        if (owner->mPoints.size() >= 2) {
+            mChara->mPos = owner->mPoints[0];
             mPoint++;
-            atn::Vector3 dir = mOwner->mPoints[1] - mOwner->mPoints[0];
-            mChara->mRot = dir.ToRotation_unk();
+            atn::Vector3 dir = owner->mPoints[1] - owner->mPoints[0];
+            mChara->mRot = dir.ToRotationZ_unk();
         }
-        mTimer = rand() % mOwner->mUpperInterval;
+        mTimer = rand() % UpperIntervalOf_unk(mOwner);
         mChara->mMotion.m34C = 1;
         mChara->mMotion.mTracks[0].m20 = 1.0f;
         mChara->mMotion.mTracks[0].m0C = 1.0f;
@@ -372,7 +388,6 @@ void PathChara_unk::fn_8043E770() {
         mState = 1;
     }
 }
-
 // NONMATCHING: 93.10% - stack slots of the rotation temporaries (0x30 bytes lower here) and one
 // saved register more; same .sdata2 order issue as vf6C.
 void PathChara_unk::fn_8043EA64(int skip) {
