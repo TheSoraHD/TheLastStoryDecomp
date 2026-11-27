@@ -294,8 +294,8 @@ int SkillEffect::fn_80599C90(CharaTask* chara) {
 
 }
 
-// NONMATCHING: 99.3% - m04/m08 registers swapped in the inlined fn_80599C90 and GetHit_unk; the kind
-// range test subtracts 3 before the clrlwi
+// NONMATCHING: 99.96% - the kind range test subtracts 3 before the clrlwi (we add 0xFD; tried int and
+// signed char kinds, the unsigned char difference and a switch); the hit chosen in place (patch enlazar2 qY)
 int SkillEffect::fn_80599D60(CharaTask* chara, int check) {
     if (m00 != 1) {
         return 0;
@@ -304,7 +304,10 @@ int SkillEffect::fn_80599D60(CharaTask* chara, int check) {
         return 0;
     }
     CharaTask* owner = m08;
-    HitInfo_unk* hit = GetHit_unk();
+    HitInfo_unk* hit = m04;
+    if (fn_8059A264()) {
+        hit = GetOwnHit_unk();
+    }
     if ((hit->mAC & 0x100000) == 0x100000) {
         CharaStatus* status = &owner->mStatus;
         if (status->IsState_unk(0x20) || status->IsState_unk(0x10) || status->IsState_unk(0x40) ||
@@ -313,7 +316,7 @@ int SkillEffect::fn_80599D60(CharaTask* chara, int check) {
             return 0;
         }
     }
-    if ((hit->m02 >= 3 && hit->m02 <= 5) || hit->m02 == 0) {
+    if ((hit->m02 >= 3 && hit->m02 <= 5) || (char)hit->m02 == 0) {
         atn::Vector3 d = chara->mPos - m10;
         float r = m5C * m28;
         if (PSVECSquareMag(&d) <= r * r) {
