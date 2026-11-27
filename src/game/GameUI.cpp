@@ -1,4 +1,5 @@
 #include "game/ChaseManager.h"
+#include "db/ItemParam_unk.h"
 #include "atn/EffectManager.h"
 #include "Event/Manager.h"
 #include "game/GameTask.h"
@@ -112,20 +113,8 @@ static inline bool CanActB_unk(CharaTask* c) {
     }
     return r;
 }
-// inferred: item data returned by fn_80211480 (only the members used here; names invented)
-struct GameUIItem_unk {
-    unsigned char m00[0x64];
-    int m64;          // inferred: 2 selects the plural messages
-    unsigned char m68[0xB4 - 0x68];
-    int mB4;          // inferred: kind of the message (0: the item name)
-    float mB8;        // inferred: value (tenths) of kind 11
-    short mBC;
-    unsigned char mBE[0xC2 - 0xBE];
-    signed char mC2;  // inferred: rarity
-};
-extern "C" GameUIItem_unk* fn_80211480(int id);
 // inferred: item data of an id, null for 0 (name invented)
-inline GameUIItem_unk* GetItem_unk(int id) {
+inline ItemParamEntry_unk* GetItem_unk(int id) {
     return id > 0 ? fn_80211480(id) : 0;
 }
 extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
@@ -6191,13 +6180,13 @@ void GameUI::fn_803E5C60(CharaTask* chara) {
 }
 
 // inferred: value of the effect of an item (float field read as int; name invented)
-static inline int GameUIItemValue_unk(const GameUIItem_unk* item) {
+static inline int GameUIItemValue_unk(const ItemParamEntry_unk* item) {
     return item->mB8;
 }
 
 // inferred: the value of the item is read through a const inline (registers of the original)
 void GameUI::fn_803E5E64(int itemId, int count, int rare) {
-    GameUIItem_unk* item = itemId > 0 ? fn_80211480(itemId) : 0;
+    ItemParamEntry_unk* item = itemId > 0 ? fn_80211480(itemId) : 0;
     if (item != 0 && count != 0) {
         wchar_t text[0x100];
         int plural = item->m64 == 2;
