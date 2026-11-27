@@ -1392,7 +1392,8 @@ inline void QuarkSetJumpZ_unk(EnemyQuarkSecond* self, const atn::Vector3& target
     self->m1568.mTarget = t;
     self->m1568.mTarget.y = 0.0f;
     self->m1568.mRot = (t - self->mPos).ToRotationZ_unk();
-    atn::Vector3 dir = target - self->mPos;
+    atn::Vector3 dir;
+    dir = target - self->mPos;
     dir.y = 0.0f;
     self->m1568.mDir = dir;
     PSVECNormalize(&self->m1568.mDir, &self->m1568.mDir);

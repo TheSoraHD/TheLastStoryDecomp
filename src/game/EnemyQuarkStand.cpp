@@ -2140,7 +2140,8 @@ void EnemyQuarkStand::fn_80351480(int near) {
     } else {
         PSVECNormalize(&dir, &dir);
     }
-    atn::Vector3 pos = m14B0->mPos + dir * dist;
+    atn::Vector3 pos;
+    pos = m14B0->mPos + dir * dist;
     m15DC.SetTarget_unk(pos);
     m15DC.mRot = (pos - mPos).ToRotationZ_unk();
     m15DC.mDir = pos - mPos;

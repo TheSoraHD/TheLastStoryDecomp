@@ -678,7 +678,8 @@ void Em316LaserSphere::fn_80317EF8() {
         SetState_unk(7);
         fn_80318648(m14B8);
         m1504 = mPos;
-        atn::Vector3 to = LaserMovePlace_unk(this, m14B8);
+        atn::Vector3 to;
+        to = LaserMovePlace_unk(this, m14B8);
         m1510 = to;
         m151C = 0.0f;
         fn_800C344C(sSounds_unk[2], &mPos, 0, -1, 1.0f);
