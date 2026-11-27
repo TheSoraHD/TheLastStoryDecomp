@@ -761,7 +761,7 @@ void TacView::fn_805A96D4(CharaTask* chara, int dir) {
     if (user->mType == 0) {
         switch (skill->m04) {
         case 0x1788:
-        case 0x1791:
+        case 0x1791: {
             TacViewAim_unk aim;
             aim.mMode = 1;
             aim.mPos = chara->mPos;
@@ -769,6 +769,7 @@ void TacView::fn_805A96D4(CharaTask* chara, int dir) {
             aim.mA = 1;
             this->mAim = aim;
             break;
+        }
         case 0x179A:
         case 0x179B:
         case 0x179C:
