@@ -75,6 +75,7 @@ extern "C" void fn_804F5C9C(DropArena_unk* arena, unsigned char id);
 extern "C" void fn_804DB1C4(DropArena_unk* arena, PlayerTask* player, int count);
 extern "C" GameConfig_unk* lbl_8087F0A8;
 #include "atn/net/Manager.h"
+#include "db/ItemParam_unk.h"
 extern "C" atn::net::Manager* lbl_8087F628;
 // inferred: items
 struct DropWeapon_unk {
@@ -88,7 +89,6 @@ extern "C" int fn_80444EFC(CharaTask* chara);
 extern "C" int fn_8021E4E4(int* itemId, int* num, int id, unsigned int flags);
 extern "C" int fn_80450B84(int table, int arg1, int arg2);
 extern "C" int fn_80450B60(int item);
-extern "C" DropItemData_unk* fn_80211480(int id);
 extern "C" int fn_80206B9C(int id);
 extern "C" DropWeapon_unk* fn_80206C50(int id);
 extern "C" int fn_8020EF04(int id);
@@ -618,9 +618,9 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             }
         }
         m190 = 0;
-        if (lbl_8087F610 != 0 && mData != 0 && fn_80206B9C(mData->mCode)) {
+        if (lbl_8087F610 != 0 && mData != 0 && fn_80206B9C(mData->mId)) {
             m17C = 1;
-            DropWeapon_unk* weapon = fn_80206C50(mData->mCode);
+            DropWeapon_unk* weapon = fn_80206C50(mData->mId);
             if (weapon != 0 && weapon->m78 == 0) {
                 m190 = 1;
             }
@@ -695,7 +695,7 @@ void DropItem::fn_8040B200() {
         return;
     }
     PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
-    DropWeapon_unk* weapon = fn_80206C50(mData->mCode);
+    DropWeapon_unk* weapon = fn_80206C50(mData->mId);
     fn_80239DAC(lbl_8087F3C0, this, 0, 0);
     fn_800C31F4(sGetSound, 0, -1, 1.0f);
     fn_80232B7C(this, 1);
@@ -705,7 +705,7 @@ void DropItem::fn_8040B200() {
         player->fn_8014F698(weapon->m78, weapon->m80, 1);
     }
     if (lbl_8087F610 != 0) {
-        switch (mData->mCode) {
+        switch (mData->mId) {
         case 0x44D:
             fn_804DB1C4(lbl_8087F610, player, 1);
             break;
@@ -727,7 +727,7 @@ void DropItem::fn_8040B200() {
 // inferred: effect of an item kind: 0/1 weapons, 2/3 armour, 4 accessories, 5 special items, 6 others
 extern "C" int fn_8040B394(int item) {
     int ret = 6;
-    DropItemData_unk* data = item > 0 ? fn_80211480(item) : 0;
+    ItemParamEntry_unk* data = item > 0 ? fn_80211480(item) : 0;
     if (fn_80206B9C(item)) {
         DropWeapon_unk* weapon = fn_80206C50(item);
         if (weapon != 0) {
@@ -751,7 +751,7 @@ extern "C" int fn_8040B394(int item) {
     } else if (data != 0 && data->mBC == 5) {
         ret = 4;
     }
-    if (data != 0 && data->mCode == 411) {
+    if (data != 0 && data->mId == 411) {
         ret = 5;
     }
     return ret;

@@ -36,6 +36,19 @@ TacView), y con el build completo de la Wii.
 | `3834c25b`, `1fc7ca5b` | Vistas de parámetros de objeto, arma y armadura a la clase real (`ItemParamEntry_unk`, `WeaponParamEntry_unk`, `EquipParamEntry_unk`): MarketTask, ShopBase/ShopColor/ShopIdentify/ShopBuySell, TreasureBoxTable_unk, D2AMpMenuResult, CosEditBase, NewCampPartsItem, CosEditItemList_unk e ItemRare_unk; los miembros pasan al del mismo offset de la Wii (`mCountId` -> `mId`, `mKind` -> `mBC` o `mType`, `mPrice` -> `mC8`...) y las declaraciones locales de los getters, a las de las cabeceras de `db/`. `ItemParamEntry_unk::mC2` (rareza) es `signed char`: ItemRare_unk y GameUI la leen con `extsb` |
 | `1e492122` | `pdbatch.sh` en las unidades cuyas `@N` se movieron con los `#include` nuevos; Em201ZanGurgFinal vuelve a su vista (20 etiquetas de su pool no volvían a emparejar) |
 
+## Segunda parte: `port-propuestas9b-20261127`
+
+Rama desde `main` con la primera parte mergeada (`25f3916a`), mismas comprobaciones contra su `report.json`:
+
+| Commit | Qué |
+|---|---|
+| `190bd2c9` | `gmk::DropItem::mData` es `ItemParamEntry_unk*` (fuera `DropItemData_unk` de `gmk/DropItem.h`; `mCode` -> `mId`) |
+| `79ad9798` | Las prioridades de equipo de CosEditItemList_unk comparan `EquipParamEntry_unk`/`WeaponParamEntry_unk` (estadísticas `m00`-`m0C`, elementos `mE4`/`mC4`); fuera `CosEditGear_unk` y `CosEditArmor_unk` |
+
+Probadas y fuera por las etiquetas: `GameUIItem_unk` (GameUI), `ItemSlotData_unk` (ItemSlotAnime) y `BattleItem_unk`
+(BattleTask) dan el mismo código, pero el `#include "db/ItemParam_unk.h"` renumera cadenas de `.rodata` que
+`pdbatch.sh` no vuelve a emparejar (labelcheck 6, 14 y 10 etiquetas más); se quedan como vistas.
+
 ## Fuera, y por qué
 
 - **Campos de bits leídos también con máscaras** (`BattleCharaTask::m14A8`, `NewCampPartsModel::mFlags`, las banderas

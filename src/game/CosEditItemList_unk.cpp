@@ -987,28 +987,6 @@ struct CosEditPriority_unk {
     int m00;
     CosEditStat_unk mList[30];
 };
-struct CosEditGear_unk {
-    float mStat0;
-    float mStat1;
-    float mStat2;
-    float mStat3;
-    unsigned char m10[0xE4 - 0x10];
-    CosEditStat_unk mElem0; // 0xE4: inferred: element and its strength
-    unsigned char mEC[0xF8 - 0xEC];
-    CosEditStat_unk mElem1; // 0xF8
-};
-// inferred: protector parameters (same stats, elements at 0xC4 and 0xD8)
-struct CosEditArmor_unk {
-    float mStat0;
-    float mStat1;
-    float mStat2;
-    float mStat3;
-    unsigned char m10[0xC4 - 0x10];
-    CosEditStat_unk mElem0; // 0xC4
-    unsigned char mCC[0xD8 - 0xCC];
-    CosEditStat_unk mElem1; // 0xD8
-};
-
 // inferred: the preferred of two weapons: the first criterion of the member priorities that differs decides (kinds 1-4:
 // a stat, 6: the strength of an element); a when the priorities end
 void* CosEditProtector::fn_801DC9A4(void* priorities, void* a, void* b) {
@@ -1021,8 +999,8 @@ void* CosEditProtector::fn_801DC9A4(void* priorities, void* a, void* b) {
     if (a == 0 && b != 0) {
         return b;
     }
-    CosEditGear_unk* ga = (CosEditGear_unk*)a;
-    CosEditGear_unk* gb = (CosEditGear_unk*)b;
+    EquipParamEntry_unk* ga = (EquipParamEntry_unk*)a;
+    EquipParamEntry_unk* gb = (EquipParamEntry_unk*)b;
     CosEditPriority_unk* p = (CosEditPriority_unk*)priorities;
     for (int i = 0; i < 30; i++) {
         CosEditStat_unk* c = &p->mList[i];
@@ -1031,52 +1009,52 @@ void* CosEditProtector::fn_801DC9A4(void* priorities, void* a, void* b) {
         }
         switch (c->mKind) {
         case 1:
-            if (ga->mStat0 > gb->mStat0) {
+            if (ga->m00 > gb->m00) {
                 return a;
             }
-            if (ga->mStat0 < gb->mStat0) {
+            if (ga->m00 < gb->m00) {
                 return b;
             }
             break;
         case 2:
-            if (ga->mStat2 > gb->mStat2) {
+            if (ga->m08 > gb->m08) {
                 return a;
             }
-            if (ga->mStat2 < gb->mStat2) {
+            if (ga->m08 < gb->m08) {
                 return b;
             }
             break;
         case 3:
-            if (ga->mStat1 > gb->mStat1) {
+            if (ga->m04 > gb->m04) {
                 return a;
             }
-            if (ga->mStat1 < gb->mStat1) {
+            if (ga->m04 < gb->m04) {
                 return b;
             }
             break;
         case 4:
-            if (ga->mStat3 > gb->mStat3) {
+            if (ga->m0C > gb->m0C) {
                 return a;
             }
-            if (ga->mStat3 < gb->mStat3) {
+            if (ga->m0C < gb->m0C) {
                 return b;
             }
             break;
         case 6: {
             int kind = c->mValue;
             CosEditStat_unk* ea = 0;
-            if (ga->mElem0.mKind == kind && ga->mElem0.mValue > 0) {
-                ea = &ga->mElem0;
+            if (ga->mE4[0].m00 == kind && ga->mE4[0].m04 > 0) {
+                ea = (CosEditStat_unk*)&ga->mE4[0];
             }
-            if (ga->mElem1.mKind == kind && ga->mElem1.mValue > 0) {
-                ea = &ga->mElem1;
+            if (ga->mE4[1].m00 == kind && ga->mE4[1].m04 > 0) {
+                ea = (CosEditStat_unk*)&ga->mE4[1];
             }
             CosEditStat_unk* eb = 0;
-            if (gb->mElem0.mKind == kind && gb->mElem0.mValue > 0) {
-                eb = &gb->mElem0;
+            if (gb->mE4[0].m00 == kind && gb->mE4[0].m04 > 0) {
+                eb = (CosEditStat_unk*)&gb->mE4[0];
             }
-            if (gb->mElem1.mKind == kind && gb->mElem1.mValue > 0) {
-                eb = &gb->mElem1;
+            if (gb->mE4[1].m00 == kind && gb->mE4[1].m04 > 0) {
+                eb = (CosEditStat_unk*)&gb->mE4[1];
             }
             if (ea != 0 && eb != 0) {
                 if (ea->mValue > eb->mValue) {
@@ -1109,8 +1087,8 @@ void* CosEditProtector::fn_801DCBA8(void* priorities, void* a, void* b) {
     if (a == 0 && b != 0) {
         return b;
     }
-    CosEditArmor_unk* ga = (CosEditArmor_unk*)a;
-    CosEditArmor_unk* gb = (CosEditArmor_unk*)b;
+    WeaponParamEntry_unk* ga = (WeaponParamEntry_unk*)a;
+    WeaponParamEntry_unk* gb = (WeaponParamEntry_unk*)b;
     CosEditPriority_unk* p = (CosEditPriority_unk*)priorities;
     for (int i = 0; i < 30; i++) {
         CosEditStat_unk* c = &p->mList[i];
@@ -1119,52 +1097,52 @@ void* CosEditProtector::fn_801DCBA8(void* priorities, void* a, void* b) {
         }
         switch (c->mKind) {
         case 1:
-            if (ga->mStat0 > gb->mStat0) {
+            if (ga->m00 > gb->m00) {
                 return a;
             }
-            if (ga->mStat0 < gb->mStat0) {
+            if (ga->m00 < gb->m00) {
                 return b;
             }
             break;
         case 2:
-            if (ga->mStat2 > gb->mStat2) {
+            if (ga->m08 > gb->m08) {
                 return a;
             }
-            if (ga->mStat2 < gb->mStat2) {
+            if (ga->m08 < gb->m08) {
                 return b;
             }
             break;
         case 3:
-            if (ga->mStat1 > gb->mStat1) {
+            if (ga->m04 > gb->m04) {
                 return a;
             }
-            if (ga->mStat1 < gb->mStat1) {
+            if (ga->m04 < gb->m04) {
                 return b;
             }
             break;
         case 4:
-            if (ga->mStat3 > gb->mStat3) {
+            if (ga->m0C > gb->m0C) {
                 return a;
             }
-            if (ga->mStat3 < gb->mStat3) {
+            if (ga->m0C < gb->m0C) {
                 return b;
             }
             break;
         case 6: {
             int kind = c->mValue;
             CosEditStat_unk* ea = 0;
-            if (ga->mElem0.mKind == kind && ga->mElem0.mValue > 0) {
-                ea = &ga->mElem0;
+            if (ga->mC4[0].m00 == kind && ga->mC4[0].m04 > 0) {
+                ea = (CosEditStat_unk*)&ga->mC4[0];
             }
-            if (ga->mElem1.mKind == kind && ga->mElem1.mValue > 0) {
-                ea = &ga->mElem1;
+            if (ga->mC4[1].m00 == kind && ga->mC4[1].m04 > 0) {
+                ea = (CosEditStat_unk*)&ga->mC4[1];
             }
             CosEditStat_unk* eb = 0;
-            if (gb->mElem0.mKind == kind && gb->mElem0.mValue > 0) {
-                eb = &gb->mElem0;
+            if (gb->mC4[0].m00 == kind && gb->mC4[0].m04 > 0) {
+                eb = (CosEditStat_unk*)&gb->mC4[0];
             }
-            if (gb->mElem1.mKind == kind && gb->mElem1.mValue > 0) {
-                eb = &gb->mElem1;
+            if (gb->mC4[1].m00 == kind && gb->mC4[1].m04 > 0) {
+                eb = (CosEditStat_unk*)&gb->mC4[1];
             }
             if (ea != 0 && eb != 0) {
                 if (ea->mValue > eb->mValue) {
@@ -2077,7 +2055,7 @@ extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
     wchar_t names[2][64];
     memset(names[0], 0, sizeof(names[0]));
     memset(names[1], 0, sizeof(names[1]));
-    CosEditSkill_unk* skills = (CosEditSkill_unk*)&((CosEditArmor_unk*)item)->mElem0;
+    CosEditSkill_unk* skills = (CosEditSkill_unk*)&((WeaponParamEntry_unk*)item)->mC4[0];
     for (int i = 0; i < 2; i++) {
         if (item == 0) {
             wcscpy(names[i], L"-----");
@@ -2101,7 +2079,7 @@ extern "C" void fn_801E7EA8(atn::D3Anime* anime, void* entry, int known) {
     wchar_t names[2][64];
     memset(names[0], 0, sizeof(names[0]));
     memset(names[1], 0, sizeof(names[1]));
-    CosEditSkill_unk* skills = (CosEditSkill_unk*)&((CosEditGear_unk*)entry)->mElem0;
+    CosEditSkill_unk* skills = (CosEditSkill_unk*)&((EquipParamEntry_unk*)entry)->mE4[0];
     for (int i = 0; i < 2; i++) {
         if (entry == 0) {
             wcscpy(names[i], L"-----");
