@@ -249,7 +249,13 @@ void ChaserGuard::fn_8017D13C() {
     }
 }
 
-// NONMATCHING: 97.1% - stack slots of the push direction temporaries and register allocation.
+// NONMATCHING: 99.89% - r3/r4 of ++m14D4 (the original increments in place). 97.1 -> 99.89 with the push
+// vector as a named copy scaled in place (`*=`) and the distances in SqDist_unk (its d is an inline local).
+// inferred: squared distance of two points (name invented)
+static inline float SqDist_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECSquareMag(&d);
+}
 void ChaserGuard::fn_8017E650() {
     mC58.m11C.m01 = 1;
     m1508++;
@@ -259,9 +265,9 @@ void ChaserGuard::fn_8017E650() {
         CharaTask* player = lbl_8087F098->fn_80183860(&mPos);
         if (player == 0 || (player->m55C == 6 && player->m560 == 0x66)) {
             fn_8017F4A0(3);
-            const atn::Vector3& dir = (player != 0) ? (mPos - player->mPos).GetNormalize()
-                                                    : atn::Vector3(0.0f, 0.0f, 1.0f);
-            fn_8015E7A0(dir * 3.0f, 0x38, 0);
+            atn::Vector3 push = (player != 0) ? (mPos - player->mPos).GetNormalize() : atn::Vector3(0.0f, 0.0f, 1.0f);
+            push *= 3.0f;
+            fn_8015E7A0(push, 0x38, 0);
             mMotion.mTracks[0].m0C = 0.5f;
             m14B4 = 0;
         } else {
@@ -270,8 +276,7 @@ void ChaserGuard::fn_8017E650() {
                 range *= 1.8f;
             }
             range *= range;
-            atn::Vector3 d = player->mPos - mPos;
-            if (PSVECSquareMag(&d) < range) {
+            if (SqDist_unk(player->mPos, mPos) < range) {
                 lbl_8087F098->fn_80182788(this, player);
                 fn_8017F4A0(3);
                 m14B4 = player;
@@ -287,8 +292,7 @@ void ChaserGuard::fn_8017E650() {
         for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
             if (enemy != this && enemy->CanAct_unk() && enemy->m60->m24 == 0x35 &&
                 ((ChaserGuard*)enemy)->m1504 != 0) {
-                atn::Vector3 d = enemy->mPos - mPos;
-                if (PSVECSquareMag(&d) < 1600.0f) {
+                if (SqDist_unk(enemy->mPos, mPos) < 1600.0f) {
                     m14D4 = 0;
                     m14B8 = ((ChaserGuard*)enemy)->m14B8;
                     break;
