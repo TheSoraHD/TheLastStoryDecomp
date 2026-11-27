@@ -24,13 +24,16 @@ LoadMaterial::~LoadMaterial() {
     }
 }
 
-// NONMATCHING: 95.5% - the inlined std::vector::push_back loads the capacity before the size (see
-// std/vector.h), and the original reloads m50 for the loop condition where we reuse the value
-// loaded for `size` (tried int/unsigned casts and the order of the three locals).
+// inferred: size of the loaded data (name invented)
+static inline int SizeOf_unk(const atn::LoadCore* core) { return (int)core->m50; }
+
+// NONMATCHING: 97.7% - the inlined std::vector::push_back loads the capacity before the size (see
+// std/vector.h) and the saved registers are one apart (95.5 -> 97.7 reading the first size through SizeOf_unk;
+// tried int/unsigned casts and the order of the three locals).
 void LoadMaterial::vf0C() {
     if (mState == 2) {
         const char* start = (const char*)m54;
-        int size = (int)m50;
+        int size = SizeOf_unk(this);
         const char* p = start;
         while (p != 0 && p - start < (int)m50) {
             Material_unk* material = new ((MemoryTag)6, "", "", 0) Material_unk(0);
