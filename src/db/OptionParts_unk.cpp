@@ -50,7 +50,7 @@ static const char* const sColorSlots[8] = {"B", "F", "M", "L", "A", "J", "P", "S
 static const char* const sSlotNames[4] = {"UPPER", "LOWER", "GAUNTLET", "WAIST"};
 
 // inferred: std::equal
-static inline bool Equal_unk(const char* first2, const char* first, const char* last) {
+static inline bool Equal_unk(const char* first, const char* last, const char* first2) {
     for (; first != last; ++first, ++first2) {
         if (!(*first == *first2)) {
             return false;
@@ -59,10 +59,13 @@ static inline bool Equal_unk(const char* first2, const char* first, const char* 
     return true;
 }
 
+static inline bool Equal2_unk(const char* first, const char* last, const char* first2) {
+    return Equal_unk(first, last, first2);
+}
 // inferred: whether a name is equal to a key
 static inline bool IsKey_unk(const atn::FixedString_unk<0x20>& key, const char* name) {
     unsigned long n = strlen(key.c_str());
-    return name[n] == 0 && Equal_unk(name, key.c_str(), key.c_str() + n);
+    return name[n] == 0 && Equal2_unk(key.c_str(), key.c_str() + n, name);
 }
 
 // inferred: copies the colours of the palette slots to the "color" rows
@@ -95,10 +98,10 @@ extern "C" void fn_8020C4C8(int* palettes, OptionParts_unk* parts, OptionColorOu
 
 // inferred: index of the option part with a key, -1 if none
 static inline int FindPart_unk(OptionParts_unk* parts, const char* name) {
-    int result = -1;
     int count = parts->mPartCount;
+    int result = -1;
     for (int i = 0; i < count; i++) {
-        if (IsKey_unk(parts->mParts[i].mKey, name)) {
+        if (parts->mParts[i].mKey.Equals_unk(name)) {
             result = i;
             break;
         }
@@ -228,10 +231,11 @@ struct OptionGroup_unk {
 extern "C" void fn_8020CC64(atn::Model* model, OptionParts_unk* parts, OptionColorOut_unk* out) {
     OptionGroup_unk groups[0x20];
     unsigned int groupCount = 0;
-    OptionLayer_unk* layer;
-    OptionGroup_unk* group;
     int count;
-    for (int i = 0; i < parts->mColorCount; i++) {
+    int i;
+    OptionGroup_unk* group;
+    OptionLayer_unk* layer;
+    for (i = 0; i < parts->mColorCount; i++) {
         group = 0;
         for (unsigned int j = 0; j < 6; j++) {
             if (IsKey_unk(parts->mColors[i].mGroup, groups[j].mName.c_str())) {
