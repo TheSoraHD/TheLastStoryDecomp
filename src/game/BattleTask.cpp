@@ -2422,7 +2422,7 @@ int BattleTask::fn_800FAB80(CharaTask* attacker, HitInfo_unk* data, int id, cons
 }
 
 // inferred: event 15 of the character listeners (a hit effect was played); names invented
-struct HitEvent_unk {
+struct HitEffectEvent_unk {
     int mId;          // inferred: id of the hit data
     atn::Vector3 mPos;
     atn::Vector3 mRot;
@@ -2478,7 +2478,7 @@ void BattleTask::fn_800FB1BC(CharaTask* chara, HitInfo_unk* data, const atn::Vec
             fn_8059B66C(lbl_8087F9E8, skill, chara, 0, pos, rot, boost::function<void(SkillEffect*)>(), scale);
         }
     }
-    HitEvent_unk event;
+    HitEffectEvent_unk event;
     event.mId = data->m04;
     event.mPos = *pos;
     event.mRot = *rot;

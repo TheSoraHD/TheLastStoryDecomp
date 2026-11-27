@@ -6644,7 +6644,7 @@ struct Player_unk : public CharaTask {
 };
 
 // inferred: data passed to the listeners of event 14 by fn_8015076C (names invented)
-struct HitEvent_unk {
+struct HitReactEvent_unk {
     // inferred: implicit constructor (weak copy 0x80151218)
     int mId;
     atn::Vector3 mDir;
@@ -6660,7 +6660,7 @@ inline void GameUI::Remove_unk(CharaTask* chara) { fn_803E2110(1, chara); }
 // inferred: reaction to a hit (knock back, down, guard...) and record of the hit in m6D0
 void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3& v2, int arg, unsigned int flags,
                             HitMsg_unk* msg) {
-    HitEvent_unk ev;
+    HitReactEvent_unk ev;
     ev.mId = id;
     ev.mDir = dir;
     ev.m10 = v2;
